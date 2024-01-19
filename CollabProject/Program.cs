@@ -6,7 +6,7 @@
         // Ramon Miland
         // Jeff Chen
         // Tony Qiu
-        //Gunnar Dickey 
+        // Gunnar Dickey 
 
         static void Main(string[] args)
         {

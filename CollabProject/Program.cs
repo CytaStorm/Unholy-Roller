@@ -3,7 +3,7 @@
     internal class Program
     {
         
-        // Everyone add blank lines and your own comments HERE
+        // Jeff Chen
 
         static void Main(string[] args)
         {

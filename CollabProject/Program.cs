@@ -2,13 +2,18 @@
 {
     internal class Program
     {
-        
+ 
         // Ramon Miland
         // Jeff Chen
+        // Tony Qiu
+        // Gunnar Dickey 
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            Console.WriteLine(lastFirst("Wedge Antilles"));
+          
+            Console.WriteLine(isPalindrome("Racecar"));
+            Console.WriteLine(isPalindrome("Chewy"));
         }
 
         /// <summary>
@@ -22,7 +27,7 @@
             // Make the entered string lowercase
             string lowerS = s.ToLower();
 
-            // Reverse the order of characters in the string
+            // Reverse the order of characters
             string reversed = "";
             for (int i = lowerS.Length - 1; i >=0; i--)
             {
@@ -31,6 +36,15 @@
 
             // Check if the string is the same forward and backward
             return reversed == lowerS;
+        }
+
+        static string lastFirst(string str)
+        {
+            string lastFirst = "";
+            int indexOfSpace = str.IndexOf(' ');
+            lastFirst  = str.Substring(indexOfSpace) + ", " + str.Substring(0,1) + ".";
+
+            return lastFirst;
         }
     }
 }

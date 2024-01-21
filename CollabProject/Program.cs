@@ -49,7 +49,7 @@
             };
 
             Console.WriteLine($"{s} is not a palindrome");
-
+            Console.WriteLine();
             //first duplicate array, should output 10
             int[] numbers1 = { 2, 2, 4, 10, 10, 10, 10, 4, 2, 2, 2, 4 };
             Console.Write("The array ");
@@ -70,7 +70,7 @@
             Console.Write(numbers2[numbers2.Length - 1]);
             Console.WriteLine(" has a duplicate chain of " + GetLongestDuplicate(numbers2));
         }
-    }
+    
 
         /// <summary>
         /// Takes input of a first and last name, and outputs

@@ -22,6 +22,26 @@
             isPalindrome("Racecar");
             isPalindrome("Chewy");
             Console.WriteLine();
+
+            //first duplicate array, should output 10
+            int[] numbers1 = { 2, 2, 4, 10, 10, 10, 10, 4, 2, 2, 2, 4 };
+            Console.Write("The array ");
+            for (int i = 0; i < numbers1.Length - 1; i++)
+            {
+                Console.Write(numbers1[i] + ", ");
+            }
+            Console.Write(numbers1[numbers1.Length - 1]);
+            Console.WriteLine(" has a duplicate chain of " + GetLongestDuplicate(numbers1));
+
+            //second duplicate array, should output 7
+            int[] numbers2 = { 5, 2, 4, 4, 6, 6, 6, 7, 7, 7, 1, 2 };
+            Console.Write("The array ");
+            for (int i = 0; i < numbers2.Length - 1; i++)
+            {
+                Console.Write(numbers2[i] + ", ");
+            }
+            Console.Write(numbers2[numbers2.Length - 1]);
+            Console.WriteLine(" has a duplicate chain of " + GetLongestDuplicate(numbers2));
         }
 
         /// <summary>
@@ -50,25 +70,7 @@
 
             Console.WriteLine($"{s} is not a palindrome");
             Console.WriteLine();
-            //first duplicate array, should output 10
-            int[] numbers1 = { 2, 2, 4, 10, 10, 10, 10, 4, 2, 2, 2, 4 };
-            Console.Write("The array ");
-            for (int i = 0; i < numbers1.Length - 1; i++)
-            {
-                Console.Write(numbers1[i] + ", ");
-            }
-            Console.Write(numbers1[numbers1.Length - 1]);
-            Console.WriteLine(" has a duplicate chain of " + GetLongestDuplicate(numbers1));
 
-            //second duplicate array, should output 7
-            int[] numbers2 = { 5, 2, 4, 4, 6, 6, 6, 7, 7, 7, 1, 2 };
-            Console.Write("The array ");
-            for (int i = 0; i < numbers2.Length - 1; i++)
-            {
-                Console.Write(numbers2[i] + ", ");
-            }
-            Console.Write(numbers2[numbers2.Length - 1]);
-            Console.WriteLine(" has a duplicate chain of " + GetLongestDuplicate(numbers2));
         }
     
 

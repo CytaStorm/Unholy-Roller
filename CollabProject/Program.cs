@@ -28,6 +28,7 @@
                 if (targetSum < 2 || targetSum > 12)
                 {
                     Console.WriteLine("Invalid sum");
+                    continue;
                 }
                 Random random = new Random();
 
@@ -44,6 +45,7 @@
                 }
 
             } while (targetSum < 2 || targetSum > 12);
+            Console.WriteLine();
         } 
     }
 }

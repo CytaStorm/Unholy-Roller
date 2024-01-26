@@ -1,25 +1,37 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Prototype.MapGeneration;
 
 namespace Prototype
 {
     public class Game1 : Game
     {
-        private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
         private Texture2D _spriteSheetTexture;
+
+        // Map Generation
+        private TileMaker _tileMaker;
+        private Texture2D[] _tileTextures;
+        private TileSet _testTiles;
 
         private SpriteFont _arial32;
 
         private Player _player;
 
-        //private Dummy _dummy;
+        private DummyManager _dManager;
+        
+        public GraphicsDeviceManager Graphics { get; private set; }
+
+        private const int WINDOW_WIDTH = 990;
+        private const int WINDOW_HEIGHT = 540;
+
+        public const int TILESIZE = 60;
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -27,6 +39,10 @@ namespace Prototype
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+
+            Graphics.PreferredBackBufferWidth = WINDOW_WIDTH;
+            Graphics.PreferredBackBufferHeight = WINDOW_HEIGHT;
+            Graphics.ApplyChanges();
 
             base.Initialize();
         }
@@ -38,9 +54,27 @@ namespace Prototype
             // TODO: use this.Content to load your game content here
             _spriteSheetTexture = Content.Load<Texture2D>("Cthulu_Muggles");
 
+            _tileTextures = new Texture2D[5];
+            _tileTextures[0] = Content.Load<Texture2D>("PlaceholderTile");
+            _tileTextures[1] = Content.Load<Texture2D>("GrassTile");
+
             _arial32 = Content.Load<SpriteFont>("arial32");
 
-            _player = new Player(_spriteSheetTexture, new Vector2(20, 20), _graphics);
+            // Create Tile Manager
+            _tileMaker = new TileMaker(_tileTextures);
+
+            // Test Tileset
+            _testTiles = new TileSet(new int[,] { 
+                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 }, 
+                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
+                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
+                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
+                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
+                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 } });
+            
+            //_player = new Player(_spriteSheetTexture, new Vector2(20, 20), Graphics);
+
+            //_dManager = new DummyManager(this);
 
             //_dummy = new Dummy(_spriteSheetTexture, new Vector2(100, 100), _graphics);
         }
@@ -50,7 +84,9 @@ namespace Prototype
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            _player.Update(gameTime);
+            //_player.Update(gameTime);
+
+            //_dManager.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -61,9 +97,14 @@ namespace Prototype
 
             _spriteBatch.Begin();
 
-            _spriteBatch.DrawString(_arial32, _player.NumRedirects.ToString(), new Vector2(_player.Position.X + Player.DEFAULT_SPRITE_WIDTH/2, _player.Position.Y - 40f), Color.White);
-            _player.Draw(_spriteBatch, gameTime);
-            //_dummy.Draw(_spriteBatch, gameTime);
+            _testTiles.Draw(_spriteBatch, gameTime);
+            
+            //_spriteBatch.DrawString(_arial32, _player.NumRedirects.ToString(), new Vector2(_player.Position.X + Player.DEFAULT_SPRITE_WIDTH/2, _player.Position.Y - 40f), Color.White);
+
+
+            //_dManager.Draw(_spriteBatch, gameTime);
+
+            //_player.Draw(_spriteBatch, gameTime);
 
             _spriteBatch.End();
 

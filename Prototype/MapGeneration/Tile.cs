@@ -9,20 +9,29 @@ using System.Threading.Tasks;
 
 namespace Prototype.MapGeneration
 {
-    internal class Tile
+    internal class Tile : IGameEntity
     {
         // Properties
-        public Texture2D Image { get; set; }
+        public Sprite TileSprite { get; set; }
 
         public bool CollisionOn { get; set; }
 
         public bool IsDoor { get; set; }
 
-        public Vector2 Position { get; set; } = Vector2.Zero;
+        public Vector2 WorldPosition { get; set; } = Vector2.Zero;
 
-        public TileType type { get; set; }
+        public TileType Type { get; set; }
 
-        // Constructors
+        // Methods
+        public void Update(GameTime gameTime)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            TileSprite.Draw(spriteBatch, WorldPosition);
+        }
 
     }
 

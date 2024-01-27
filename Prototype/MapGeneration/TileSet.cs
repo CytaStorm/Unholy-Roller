@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
+using Microsoft.Xna.Framework.Media;
+using System.IO;
 
 namespace Prototype.MapGeneration
 {
@@ -19,10 +20,42 @@ namespace Prototype.MapGeneration
             {
                 for (int x = 0; x < guide.GetLength(1); x++)
                 {
-                    Layout[y, x] = TileMaker.SetTile(guide[y,x]);
-                    Layout[y, x].Position = new Vector2(x*Game1.TILESIZE, y*Game1.TILESIZE);
+                    Layout[y, x] = TileMaker.SetTile(
+                        guide[y,x], 
+                        new Vector2(x*Game1.TILESIZE, y*Game1.TILESIZE));
                 }
             }
+        }
+
+        public TileSet(string filename, int rows, int columns)
+        {
+            // Open the file
+            StreamReader input = new StreamReader(filename);
+
+            // Create tile grid
+            Layout = new Tile[rows, columns];
+
+            // Convert file values to tiles
+            int y = 0;
+            string line = "";
+            while ((line = input.ReadLine()!) != null)
+            {
+                // Split line into tile ids
+                string[] tileValues = line.Split(" ");
+                
+                // Add tiles to tile grid
+                for (int x = 0; x < columns; x++)
+                {
+                    Layout[y, x] = TileMaker.SetTile(
+                        int.Parse(tileValues[x]), 
+                        new Vector2(x*Game1.TILESIZE, y*Game1.TILESIZE));
+                }
+
+                // Move to next row
+                y++;
+            }
+
+            input.Close();
         }
 
         // Methods
@@ -39,8 +72,7 @@ namespace Prototype.MapGeneration
             {
                 for (int x = 0; x < Layout.GetLength(0); x++)
                 {
-                    spriteBatch.Draw(Layout[x,y].Image, Layout[x,y].Position, 
-                        new Rectangle(0,0,Game1.TILESIZE,Game1.TILESIZE), Color.White);
+                    Layout[x,y].Draw(spriteBatch, gameTime);
                 }
             }
         }

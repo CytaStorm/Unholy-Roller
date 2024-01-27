@@ -64,13 +64,16 @@ namespace Prototype
             _tileMaker = new TileMaker(_tileTextures);
 
             // Test Tileset
+            _testTiles = new TileSet("../../../TestMap.txt", 9, 9);
+            /*
             _testTiles = new TileSet(new int[,] { 
                 { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 }, 
                 { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
-                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
-                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
-                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
+                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 },
+                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 },
+                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 },
                 { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 } });
+            */
             
             //_player = new Player(_spriteSheetTexture, new Vector2(20, 20), Graphics);
 

@@ -14,11 +14,7 @@ namespace Prototype
         // Properties
         public Texture2D Texture { get; private set; }
 
-        public int SpritesheetX { get; set; }
-        public int SpritesheetY { get; set; }
-
-        public int WidthInSpritesheet { get; set; }
-        public int HeightInSpritesheet { get; set; }
+        public Rectangle SourceRect { get; private set; }
 
         //public Vector2 Scale { get; set; }
 
@@ -39,10 +35,8 @@ namespace Prototype
         public Sprite(Texture2D texture, int x, int y, int width, int height, Vector2 scale)
         {
             Texture = texture;
-            SpritesheetX = x;
-            SpritesheetY = y;
-            WidthInSpritesheet = width;
-            HeightInSpritesheet = height;
+
+            SourceRect = new Rectangle(x, y, width, height);
 
             //Scale = scale;
 
@@ -51,9 +45,7 @@ namespace Prototype
 
         public void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
-            
-            spriteBatch.Draw(Texture, position, new Rectangle(SpritesheetX, SpritesheetY, WidthInSpritesheet, HeightInSpritesheet),
-                TintColor);
+            spriteBatch.Draw(Texture, position, SourceRect, TintColor);
         }
         
     }

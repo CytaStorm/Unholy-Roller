@@ -7,10 +7,21 @@ namespace Prototype.MapGeneration
 {
     internal class TileSet : IGameEntity
     {
+        // Fields
+        public bool devRendering = true;
+
         // Properties
         public Tile[,] Layout { get; private set; }
 
-        public TileSet(int[,] guide)
+        public int Columns { get => Layout.GetLength(1); }
+        public int Rows { get => Layout.GetLength(0); }
+
+        public int Width { get => Columns * Game1.TILESIZE; }
+        public int Height { get => Rows * Game1.TILESIZE; }
+
+        public int NumDoors { get; private set; }
+
+        public TileSet(int[,] guide, Point origin)
         {
             // Match size of guide
             Layout = new Tile[guide.GetLength(0),guide.GetLength(1)];
@@ -27,7 +38,7 @@ namespace Prototype.MapGeneration
             }
         }
 
-        public TileSet(string filename, int rows, int columns)
+        public TileSet(string filename, int rows, int columns, Point origin)
         {
             // Open the file
             StreamReader input = new StreamReader(filename);
@@ -46,9 +57,82 @@ namespace Prototype.MapGeneration
                 // Add tiles to tile grid
                 for (int x = 0; x < columns; x++)
                 {
+                    int tileId = -1;
+
+                    // Unparsable tile values are probably doors (denoted by '*')
+                    bool isDoor = !int.TryParse(tileValues[x], out tileId) && tileValues[x].Length > 1;
+
                     Layout[y, x] = TileMaker.SetTile(
-                        int.Parse(tileValues[x]), 
-                        new Vector2(x*Game1.TILESIZE, y*Game1.TILESIZE));
+                        tileId,
+                        new Vector2(x * Game1.TILESIZE, y * Game1.TILESIZE));
+
+                    Layout[y, x].IsDoor = isDoor;
+                }
+
+                // Move to next row
+                y++;
+            }
+
+            input.Close();
+        }
+
+        /// <summary>
+        /// Creates a square tileset from the integer values in a text file
+        /// </summary>
+        /// <param name="filename"> the file to read </param>
+        public TileSet(string filename, Point origin)
+        {
+            // Open the file
+            StreamReader input = new StreamReader(filename);
+
+            // Convert file values to tiles
+            int y = 0;
+            string line = "";
+            while ((line = input.ReadLine()!) != null)
+            {
+                // Split line into tile ids
+                string[] tileValues = line.Split(" ");
+
+                // Set layout size based off of line width
+                if (Layout == null)
+                {
+                    Layout = new Tile[tileValues.Length, tileValues.Length];
+                }
+                
+                // Add tiles to tile grid
+                for (int x = 0; x < Layout.GetLength(0); x++)
+                {
+                    int tileId = -1;
+
+
+                    bool isDoor = false;
+                    // Unparsable tile values are probably special tiles
+                    if (!int.TryParse(tileValues[x], out tileId))
+                    {
+                        string[] sValues = tileValues[x].Split('.');
+
+                        // Read tile type 
+                        tileId = int.Parse(sValues[0]);
+
+                        // Read tile specification
+                        switch (sValues[1])
+                        {
+                            case "*":
+                                isDoor = true;
+                                break;
+                        }
+                    }
+
+
+                    // Create and add tile
+                    Layout[y, x] = TileMaker.SetTile(
+                        tileId,
+                        new Vector2(origin.X + x*Game1.TILESIZE, origin.Y + y*Game1.TILESIZE));
+
+                    // Set door status
+                    Layout[y, x].IsDoor = isDoor;
+                    if (isDoor) NumDoors++;
+                    
                 }
 
                 // Move to next row
@@ -72,7 +156,20 @@ namespace Prototype.MapGeneration
             {
                 for (int x = 0; x < Layout.GetLength(0); x++)
                 {
-                    Layout[x,y].Draw(spriteBatch, gameTime);
+                    Tile curTile = Layout[x, y];
+
+                    if (devRendering && curTile.IsDoor)
+                    {
+                        curTile.TileSprite.TintColor = Color.Pink;
+
+                        Layout[x, y].Draw(spriteBatch, gameTime);
+
+                        curTile.TileSprite.TintColor = Color.White;
+                    }
+                    else
+                    {
+                        Layout[x, y].Draw(spriteBatch, gameTime);
+                    }
                 }
             }
         }

@@ -32,6 +32,7 @@ namespace Prototype
         public Sprite(Texture2D texture, int x, int y, int width, int height) :
             this(texture, x, y, width, height, new Vector2(width, height)) { }
 
+
         public Sprite(Texture2D texture, int x, int y, int width, int height, Vector2 scale)
         {
             Texture = texture;
@@ -41,6 +42,12 @@ namespace Prototype
             //Scale = scale;
 
             TintColor = Color.White;
+        }
+
+        public Sprite(Texture2D texture, Rectangle sourceRect)
+        {
+            Texture = texture;
+            SourceRect = sourceRect;
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 position)

@@ -15,6 +15,8 @@ namespace Prototype
         private TileMaker _tileMaker;
         private Texture2D[] _tileTextures;
         private TileSet _testTiles;
+        //private Room _testRoom;
+        private RoomManager _roomManager;
 
         private SpriteFont _arial32;
 
@@ -24,8 +26,8 @@ namespace Prototype
         
         public GraphicsDeviceManager Graphics { get; private set; }
 
-        private const int WINDOW_WIDTH = 990;
-        private const int WINDOW_HEIGHT = 540;
+        public const int WINDOW_WIDTH = 990;
+        public const int WINDOW_HEIGHT = 540;
 
         public const int TILESIZE = 60;
 
@@ -57,6 +59,7 @@ namespace Prototype
             _tileTextures = new Texture2D[5];
             _tileTextures[0] = Content.Load<Texture2D>("PlaceholderTile");
             _tileTextures[1] = Content.Load<Texture2D>("GrassTile");
+            _tileTextures[2] = Content.Load<Texture2D>("WallSheet");
 
             _arial32 = Content.Load<SpriteFont>("arial32");
 
@@ -64,7 +67,7 @@ namespace Prototype
             _tileMaker = new TileMaker(_tileTextures);
 
             // Test Tileset
-            _testTiles = new TileSet("../../../TestMap.txt", 9, 9);
+            _roomManager = new RoomManager(1);
             /*
             _testTiles = new TileSet(new int[,] { 
                 { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 }, 
@@ -100,7 +103,7 @@ namespace Prototype
 
             _spriteBatch.Begin();
 
-            _testTiles.Draw(_spriteBatch, gameTime);
+            _roomManager.Draw(_spriteBatch, gameTime);
             
             //_spriteBatch.DrawString(_arial32, _player.NumRedirects.ToString(), new Vector2(_player.Position.X + Player.DEFAULT_SPRITE_WIDTH/2, _player.Position.Y - 40f), Color.White);
 

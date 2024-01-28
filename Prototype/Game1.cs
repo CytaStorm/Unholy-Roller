@@ -26,8 +26,8 @@ namespace Prototype
         
         public GraphicsDeviceManager Graphics { get; private set; }
 
-        public const int WINDOW_WIDTH = 990;
-        public const int WINDOW_HEIGHT = 540;
+        public const int WINDOW_WIDTH = 1920;
+        public const int WINDOW_HEIGHT = 1080;
 
         public const int TILESIZE = 60;
 
@@ -68,6 +68,7 @@ namespace Prototype
 
             // Test Tileset
             _roomManager = new RoomManager(1);
+
             /*
             _testTiles = new TileSet(new int[,] { 
                 { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 }, 

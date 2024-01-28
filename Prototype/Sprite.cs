@@ -48,6 +48,8 @@ namespace Prototype
         {
             Texture = texture;
             SourceRect = sourceRect;
+
+            TintColor = Color.White;
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 position)

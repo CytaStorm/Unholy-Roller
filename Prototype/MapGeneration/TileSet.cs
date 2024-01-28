@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Prototype.MapGeneration
@@ -19,7 +20,7 @@ namespace Prototype.MapGeneration
         public int Width { get => Columns * Game1.TILESIZE; }
         public int Height { get => Rows * Game1.TILESIZE; }
 
-        public int NumDoors { get; private set; }
+        public List<Tile> Doors { get; private set; } = new List<Tile>();
 
         public TileSet(int[,] guide, Point origin)
         {
@@ -104,8 +105,9 @@ namespace Prototype.MapGeneration
                 {
                     int tileId = -1;
 
-
                     bool isDoor = false;
+                    string orientation = "";
+
                     // Unparsable tile values are probably special tiles
                     if (!int.TryParse(tileValues[x], out tileId))
                     {
@@ -114,24 +116,32 @@ namespace Prototype.MapGeneration
                         // Read tile type 
                         tileId = int.Parse(sValues[0]);
 
-                        // Read tile specification
-                        switch (sValues[1])
+                        if (sValues.Length == 2)
                         {
-                            case "*":
+                            // Read tile specification
+                            if (sValues[1] == "*")
+                            {
                                 isDoor = true;
-                                break;
+                            }
+                            else
+                            {
+                                orientation = sValues[1];
+                            }
                         }
+
                     }
 
 
                     // Create and add tile
                     Layout[y, x] = TileMaker.SetTile(
                         tileId,
-                        new Vector2(origin.X + x*Game1.TILESIZE, origin.Y + y*Game1.TILESIZE));
+                        new Vector2(origin.X + x*Game1.TILESIZE, origin.Y + y*Game1.TILESIZE), 
+                        orientation);
 
                     // Set door status
                     Layout[y, x].IsDoor = isDoor;
-                    if (isDoor) NumDoors++;
+                    if (isDoor) 
+                        Doors.Add(Layout[y, x]);
                     
                 }
 

@@ -11,14 +11,7 @@ namespace Prototype.MapGeneration
     enum TileType
     {
         Grass,
-        Wall_U,
-        Wall_UL,
-        Wall_UR,
-        Wall_R,
-        Wall_BR,
-        Wall_B,
-        Wall_BL,
-        Wall_L,
+        Wall,
         Placeholder
     }
 
@@ -77,56 +70,56 @@ namespace Prototype.MapGeneration
 
                     result.CollisionOn = false;
 
-                    result.TileSprite = new Sprite(_tileTextures[1], 0, 0, Game1.TILESIZE, Game1.TILESIZE);
+                    result.TileSprite = new Sprite(_tileTextures[1], GetOrientationSource(""));
                     break;
 
-                case (int)TileType.Wall_U:
-                    result.CollisionOn = false;
+                case (int)TileType.Wall:
 
-                    result.TileSprite = new Sprite(_tileTextures[2], Game1.TILESIZE, 0, Game1.TILESIZE, Game1.TILESIZE);
+                    result.CollisionOn = true;
+
+                    result.TileSprite = new Sprite(_tileTextures[2], GetOrientationSource(orientation));
                     break;
 
                 default:
+
                     result.CollisionOn = false;
 
-                    result.TileSprite = new Sprite(_tileTextures[0], 0, 0, Game1.TILESIZE, Game1.TILESIZE);
+                    result.TileSprite = new Sprite(_tileTextures[0], GetOrientationSource(""));
                     break;
             }
             
             return result;
         }
 
-        /*
+        
         private static Rectangle GetOrientationSource(string orientation)
         {
-            if (!string.IsNullOrEmpty(orientation))
+            if (string.IsNullOrEmpty(orientation))
             {
                 return new Rectangle(0, 0, Game1.TILESIZE, Game1.TILESIZE);
             }
 
             switch (orientation)
             {
-                case "topleft":
-                    return new Rectangle(0, 0, Game1.TILESIZE, Game1.TILESIZE);
-                case "top":
-                    return new Rectangle(Game1.TILESIZE, 0, Game1.TILESIZE, Game1.TILESIZE);
-                case "topright":
+                case "UR":
                     return new Rectangle(Game1.TILESIZE*2, 0, Game1.TILESIZE, Game1.TILESIZE);
-                case "left":
+                case "U":
+                    return new Rectangle(Game1.TILESIZE, 0, Game1.TILESIZE, Game1.TILESIZE);
+                case "UL":
+                    return new Rectangle(0, 0, Game1.TILESIZE, Game1.TILESIZE);
+                case "L":
                     return new Rectangle(0, Game1.TILESIZE, Game1.TILESIZE, Game1.TILESIZE);
-                case "right":
+                case "R":
                     return new Rectangle(Game1.TILESIZE*2, Game1.TILESIZE, Game1.TILESIZE, Game1.TILESIZE);
-                case "botLeft":
+                case "BL":
                     return new Rectangle(0, Game1.TILESIZE*2, Game1.TILESIZE, Game1.TILESIZE);
-                case "botRight":
-                    return new Rectangle(Game1.TILESIZE*2, Game1.TILESIZE*2, Game1.TILESIZE, Game1.TILESIZE);
-                case "bot":
+                case "B":
                     return new Rectangle(Game1.TILESIZE, Game1.TILESIZE*2, Game1.TILESIZE, Game1.TILESIZE);
+                case "BR":
+                    return new Rectangle(Game1.TILESIZE*2, Game1.TILESIZE*2, Game1.TILESIZE, Game1.TILESIZE);
             }
 
             return new Rectangle(0, 0, Game1.TILESIZE, Game1.TILESIZE);
         }
-        */
-
     }
 }

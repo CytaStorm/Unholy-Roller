@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,12 +12,16 @@ namespace Prototype.MapGeneration
     internal class Room : IGameEntity
     {
         // Fields
-        private static string[] _floors = new string[] { "TestMap.txt","TestMap2.txt" ,"TestMap3.txt", "TestMap4.txt" };
+        public const int GREATEST_POSSIBLE_NUM_DOORS = 3;
+        //private static string[] _floors = new string[] { "TestMap","TestMap2" ,"TestMap3", "TestMap4",
+        //    "OneDoorMap1", "OneDoorMap2", "OneDoorMap3", "OneDoorMap4" };
 
         // Properties
         public Point Origin { get; private set; }
 
         public TileSet Floor { get; private set; }
+
+        public string FloorFilepath { get; private set; }
         
         public List<MapOBJ> Interactables { get; set; }
 
@@ -24,17 +29,30 @@ namespace Prototype.MapGeneration
 
         // Constructors
 
-        public Room() : this(new Point(0, 0), _floors[new Random().Next(_floors.Length)]) { }
+        /*
+        public Room() : this(new Point(0, 0), GetRandomMap(),
+            new Random().Next(GREATEST_NUM_DOORS + 1)) { }
 
-        public Room(string floorName) : this(new Point(0, 0), floorName) { }
+        public Room(string floorName) : this(new Point(0, 0), floorName, new Random().Next(GREATEST_NUM_DOORS + 1)) { }
         
-        public Room(Point origin) : this(origin, _floors[new Random().Next(_floors.Length)]) { }
+        public Room(Point origin) : this(origin, _floors[new Random().Next(_floors.Length)], 
+            new Random().Next(GREATEST_NUM_DOORS + 1)) { }
 
-        public Room(Point origin, string floorName)
+        public Room(Point origin, string floorName) : this(origin, floorName, new Random().Next(GREATEST_NUM_DOORS + 1))
+        { }
+        */
+
+        public Room(Point origin, int numDoors)
         {
-            Random rng = new Random();
-            Floor = new TileSet("../../../TileMaps/" + floorName, origin);
+            // Determine folder name
+            string folder = numDoors + "Door";
 
+            // Create a random tileset within the folder
+
+            FloorFilepath = GetRandomMap(folder);
+            Floor = new TileSet(FloorFilepath, origin);
+
+            // Save top left coordinate of room
             Origin = origin;
         }
 
@@ -42,15 +60,30 @@ namespace Prototype.MapGeneration
 
         public void Move(Vector2 distance)
         {
-            for (int y = 0; y < Floor.Layout.GetLength(1); y++)
+            // Move tileset by distance
+            for (int y = 0; y < Floor.Layout.GetLength(0); y++)
             {
-                for (int x = 0; x < Floor.Layout.GetLength(0); x++)
+                for (int x = 0; x < Floor.Layout.GetLength(1); x++)
                 {
-                    Tile curTile = Floor.Layout[x, y];
+                    Tile curTile = Floor.Layout[y, x];
 
                     curTile.WorldPosition += distance;
                 }
             }
+
+            // Change origin to match tileset starting point
+            Origin = new Point(Origin.X + (int)distance.X, Origin.Y + (int)distance.Y);
+        }
+
+        private string GetRandomMap(string folder)
+        {
+            Random rng = new Random();
+
+            // Choose a random file out of the specified folder
+            string[] fileNames = Directory.GetFiles($"../../../TileMaps/{folder}");
+
+            // Return name of that file
+            return fileNames[new Random().Next(fileNames.Length)];
         }
 
         public void Update(GameTime gameTime)

@@ -67,7 +67,7 @@ namespace Prototype
             _tileMaker = new TileMaker(_tileTextures);
 
             // Test Tileset
-            _roomManager = new RoomManager(1);
+            _roomManager = new RoomManager(6);
 
             /*
             _testTiles = new TileSet(new int[,] { 

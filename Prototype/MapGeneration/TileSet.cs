@@ -22,23 +22,7 @@ namespace Prototype.MapGeneration
 
         public List<Tile> Doors { get; private set; } = new List<Tile>();
 
-        public TileSet(int[,] guide, Point origin)
-        {
-            // Match size of guide
-            Layout = new Tile[guide.GetLength(0),guide.GetLength(1)];
-
-            // Set tiles using guide
-            for (int y = 0; y < guide.GetLength(0); y++)
-            {
-                for (int x = 0; x < guide.GetLength(1); x++)
-                {
-                    Layout[y, x] = TileMaker.SetTile(
-                        guide[y,x], 
-                        new Vector2(x*Game1.TILESIZE, y*Game1.TILESIZE));
-                }
-            }
-        }
-
+        /*
         public TileSet(string filename, int rows, int columns, Point origin)
         {
             // Open the file
@@ -76,6 +60,7 @@ namespace Prototype.MapGeneration
 
             input.Close();
         }
+        */
 
         /// <summary>
         /// Creates a square tileset from the integer values in a text file
@@ -140,8 +125,11 @@ namespace Prototype.MapGeneration
 
                     // Set door status
                     Layout[y, x].IsDoor = isDoor;
-                    if (isDoor) 
+                    if (isDoor)
+                    {
+                        // Store door
                         Doors.Add(Layout[y, x]);
+                    }
                     
                 }
 

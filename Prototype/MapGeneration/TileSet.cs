@@ -12,15 +12,38 @@ namespace Prototype.MapGeneration
         public bool devRendering = true;
 
         // Properties
+
+        /// <summary>
+        /// Set of individual tiles comprising this tileset
+        /// </summary>
         public Tile[,] Layout { get; private set; }
 
+        /// <summary>
+        /// The number of vertical columns in this tileset
+        /// </summary>
         public int Columns { get => Layout.GetLength(1); }
+
+        /// <summary>
+        /// The number of horizontal rows in this tileset
+        /// </summary>
         public int Rows { get => Layout.GetLength(0); }
 
+        /// <summary>
+        /// Width of the tileset
+        /// </summary>
         public int Width { get => Columns * Game1.TILESIZE; }
+
+        /// <summary>
+        /// Height of the tileset
+        /// </summary>
         public int Height { get => Rows * Game1.TILESIZE; }
 
+        /// <summary>
+        /// The doors or bridge-points of this tileset
+        /// </summary>
         public List<Tile> Doors { get; private set; } = new List<Tile>();
+
+        // Constructors
 
         /*
         public TileSet(string filename, int rows, int columns, Point origin)
@@ -115,7 +138,6 @@ namespace Prototype.MapGeneration
                         }
 
                     }
-
 
                     // Create and add tile
                     Layout[y, x] = TileMaker.SetTile(

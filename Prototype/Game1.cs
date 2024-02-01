@@ -14,18 +14,17 @@ namespace Prototype
         // Map Generation
         private TileMaker _tileMaker;
         private Texture2D[] _tileTextures;
-        private TileSet _testTiles;
-        //private Room _testRoom;
         private RoomManager _roomManager;
 
+        // UI
         private SpriteFont _arial32;
 
+        // Entities
         private Player _player;
-
         private DummyManager _dManager;
         
+        // Screen
         public GraphicsDeviceManager Graphics { get; private set; }
-
         public const int WINDOW_WIDTH = 1920;
         public const int WINDOW_HEIGHT = 1080;
 
@@ -68,16 +67,6 @@ namespace Prototype
 
             // Test Tileset
             _roomManager = new RoomManager(6);
-
-            /*
-            _testTiles = new TileSet(new int[,] { 
-                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 }, 
-                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 },
-                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 },
-                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 },
-                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 0 },
-                { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 } });
-            */
             
             //_player = new Player(_spriteSheetTexture, new Vector2(20, 20), Graphics);
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Prototype
 {
-    internal class Dummy
+    internal class Dummy : IGameEntity
     {
         // Fields
         public const int DEFAULT_SPRITE_X = 0;
@@ -38,11 +38,18 @@ namespace Prototype
         /// </summary>
         public Vector2 Velocity { get; private set; }
 
+        public Rectangle Hitbox { get; private set; }
+
+        public bool Alive { get; private set; }
+
         public Dummy(Texture2D spriteSheet, Vector2 position, GraphicsDeviceManager gdManager)
         {
             // Set Player Image
             Sprite = new Sprite(spriteSheet, DEFAULT_SPRITE_X, DEFAULT_SPRITE_Y,
                 DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT, new Vector2(50, 50));
+
+            // Hitbox
+            Hitbox = new Rectangle((int)Position.X, (int)Position.Y, DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT);
 
             // Position
             Position = position;
@@ -55,6 +62,9 @@ namespace Prototype
 
             // Default Velocity
             Velocity = new Vector2(_speed, _speed);
+
+            // Set Vitality
+            Alive = true;
         }
 
 
@@ -76,6 +86,8 @@ namespace Prototype
             {
                 Velocity = new Vector2(Velocity.X, Velocity.Y * -1);
             }
+
+            
 
             // Move player based on velocity
             Position += Velocity;

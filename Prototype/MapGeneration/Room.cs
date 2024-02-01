@@ -13,8 +13,6 @@ namespace Prototype.MapGeneration
     {
         // Fields
         public const int GREATEST_POSSIBLE_NUM_DOORS = 3;
-        //private static string[] _floors = new string[] { "TestMap","TestMap2" ,"TestMap3", "TestMap4",
-        //    "OneDoorMap1", "OneDoorMap2", "OneDoorMap3", "OneDoorMap4" };
 
         // Properties
         public Point Origin { get; private set; }
@@ -28,19 +26,6 @@ namespace Prototype.MapGeneration
         public List<Dummy> Enemies { get; set; }
 
         // Constructors
-
-        /*
-        public Room() : this(new Point(0, 0), GetRandomMap(),
-            new Random().Next(GREATEST_NUM_DOORS + 1)) { }
-
-        public Room(string floorName) : this(new Point(0, 0), floorName, new Random().Next(GREATEST_NUM_DOORS + 1)) { }
-        
-        public Room(Point origin) : this(origin, _floors[new Random().Next(_floors.Length)], 
-            new Random().Next(GREATEST_NUM_DOORS + 1)) { }
-
-        public Room(Point origin, string floorName) : this(origin, floorName, new Random().Next(GREATEST_NUM_DOORS + 1))
-        { }
-        */
 
         public Room(Point origin, int numDoors)
         {

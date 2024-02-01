@@ -43,13 +43,22 @@ namespace Prototype
         /// </summary>
         public Vector2 Velocity { get; private set; }
 
+        /// <summary>
+        /// The remaining number of times the player 
+        /// can shoot in a different direction
+        /// </summary>
         public int NumRedirects { get => _numRedirects; }
+
+        public Rectangle Hitbox { get; private set; }
 
         public Player(Texture2D spriteSheet, Vector2 position, GraphicsDeviceManager gdManager)
         {
             // Set Player Image
             Sprite = new Sprite(spriteSheet, DEFAULT_SPRITE_X, DEFAULT_SPRITE_Y, 
                 DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT, new Vector2(50, 50));
+
+            // Hitbox
+            Hitbox = new Rectangle((int)Position.X, (int)Position.Y, DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT);
 
             // Position
             Position = position;
@@ -83,7 +92,7 @@ namespace Prototype
                 HandleLaunch();
             }
 
-            // Check collisions with wall
+            // Check collisions with screenBounds
             if (sideScreenCollision)
             {
                 Velocity = new Vector2(Velocity.X * -1, Velocity.Y);

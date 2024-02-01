@@ -13,39 +13,47 @@ namespace Prototype.MapGeneration
         // Fields
         private List<Room> _rooms;
 
+        // Properties
+
         // Constructors
 
         /// <summary>
-        /// The number of rooms that have been generated so far
+        /// Creates a connected set of rooms
         /// </summary>
-        public int CreatedRooms { get; private set; }
-
-        /// <summary>
-        /// Creates connected set of rooms
-        /// </summary>
-        /// <param name="numRooms"> number of rooms to create </param>
+        /// <param name="roomsToMake"> number of rooms to make </param>
+        /// <exception cref="Exception"> Cannot make less than two rooms </exception>
         public RoomManager(int roomsToMake)
         {
             if (roomsToMake < 2)
             {
-                throw new Exception("Cannot make less than two rooms");
+                throw new Exception("Cannot have open doorway. At least 2 rooms must be created.");
             }
 
+            // Setup room list
             _rooms = new List<Room>();
 
+            // Calculate number of doors for origin room
             Random rng = new Random();
-
             int doorMax = Math.Min(roomsToMake, Room.GREATEST_POSSIBLE_NUM_DOORS);
+            int numDoors = rng.Next(1, doorMax + 1);
 
-            // Create original room
-            Room oRoom = new Room(new Point(Game1.WINDOW_WIDTH / 3, Game1.WINDOW_HEIGHT / 3), rng.Next(1, doorMax + 1));
+            // Create origin room
+            Room oRoom = new Room(new Point(Game1.WINDOW_WIDTH / 3, Game1.WINDOW_HEIGHT / 3), numDoors);
+
+            // Store origin
             _rooms.Add(oRoom);
-            CreatedRooms++;
 
             MakeBranch(oRoom, roomsToMake);
 
         }
 
+        // Methods
+
+        /// <summary>
+        /// Creates a connecting room for each of the specified room's doors
+        /// </summary>
+        /// <param name="room"> room to branch off of </param>
+        /// <param name="roomsToMake"> final number of rooms that must be created </param>
         private void MakeBranch(Room room, int roomsToMake)
         {
             // Find a connecting room for each door
@@ -53,16 +61,14 @@ namespace Prototype.MapGeneration
             {
                 Tile door = room.Floor.Doors[i];
 
-                // Don't try to connect to doors that already have
-                // a connection
+                // Skip doors that are already connected
                 if (door.Bridged)
                 {
                     continue;
                 }
 
-                // Find where the door is
+                // Find which side door is on
                 string dorientation = "";
-                
                 if (door.WorldPosition.X == room.Origin.X)
                 {
                     dorientation = "left";
@@ -83,17 +89,10 @@ namespace Prototype.MapGeneration
 
                 // Find a room that will connect to the door
 
-                int numLoops = 0; // Debugging
-
                 bool wouldConnect = false;
                 Room r = null;
                 while (!wouldConnect)
                 {
-                    if (numLoops > 10000)
-                    {
-                        Console.WriteLine("Error");
-                    }
-
                     int totalDoors = GetTotalDoors();
                     int maxDoors = Math.Min(Room.GREATEST_POSSIBLE_NUM_DOORS, roomsToMake - totalDoors + 1);
                     if (totalDoors >= roomsToMake)
@@ -104,44 +103,30 @@ namespace Prototype.MapGeneration
                     // Make a new random room
                     r = new Room(new Point(room.Origin.X, room.Origin.Y), maxDoors);
 
-                    // Shift over new room off of its origin
+                    // Position it properly relative to the current room
                     Vector2 shift = Vector2.Zero;
-
-                    // Create the room where it should be relative to the current room
-                    if (dorientation == "right")
+                    switch (dorientation)
                     {
-                        //r = new Room(new Point(room.Origin.X + room.Floor.Width, room.Origin.Y), maxDoors);
-                        shift = new Vector2(room.Floor.Width, 0);
-                    }
-                    else if (dorientation == "left")
-                    {
-                        //r = new Room(new Point(room.Origin.X - room.Floor.Width, room.Origin.Y), maxDoors);
-                        shift = new Vector2(-r.Floor.Width, 0);
-                    }
-                    else if (dorientation == "top")
-                    {
-                        //r = new Room(new Point(room.Origin.X, room.Origin.Y - room.Floor.Height), maxDoors);
-                        shift = new Vector2(0, -r.Floor.Height);
-                    }
-                    else if (dorientation == "bottom")
-                    {
-                        //r = new Room(new Point(room.Origin.X, room.Origin.Y + room.Floor.Height), maxDoors);
-                        shift = new Vector2(0, room.Floor.Height);
+                        case "right":
+                            shift = new Vector2(room.Floor.Width, 0);
+                            break;
+                        case "left":
+                            shift = new Vector2(-r.Floor.Width, 0);
+                            break;
+                        case "top":
+                            shift = new Vector2(0, -r.Floor.Height);
+                            break;
+                        case "bottom":
+                            shift = new Vector2(0, room.Floor.Height);
+                            break;
                     }
 
-                    if (shift == Vector2.Zero)
-                    {
-                        Console.WriteLine("No shift applied");
-                    }
-
-                    // Apply shift to new room
                     r.Move(shift);
 
-                    // Find a connecting room
+                    // Check if any of new room's doors would connect
                     for (int j = 0; j < r.Floor.Doors.Count; j++)
                     {
                         Tile d = r.Floor.Doors[j];
-
 
                         wouldConnect =
                             (dorientation == "left" && d.WorldPosition.X == r.Origin.X + r.Floor.Width - Game1.TILESIZE) ||
@@ -149,9 +134,10 @@ namespace Prototype.MapGeneration
                             (dorientation == "right" && d.WorldPosition.X == r.Origin.X) ||
                             (dorientation == "bottom" && d.WorldPosition.Y == r.Origin.Y);
 
+                        // Connection found
                         if (wouldConnect)
                         {
-                            // Shift to match up with door
+                            // Shift new room to match current room's door
                             if (dorientation == "top" || dorientation == "bottom")
                             {
                                 r.Move(new Vector2(door.WorldPosition.X - d.WorldPosition.X, 0));
@@ -161,24 +147,30 @@ namespace Prototype.MapGeneration
                                 r.Move(new Vector2(0, door.WorldPosition.Y - d.WorldPosition.Y));
                             }
 
+                            // Door has connected
                             d.Bridged = true;
-                           
+                            
                             break;
                         }
                     }
-
-                    numLoops++;
                 }
                 
+                // Store the new room
                 _rooms.Add(r);
-                door.Bridged = true;
-                CreatedRooms++;
 
+                // Door has connected
+                door.Bridged = true;
+                    
+                // Make branches off of new room
                 MakeBranch(r, roomsToMake);
             }
 
         }
 
+        /// <summary>
+        /// Gets the total number of doors in this set of rooms
+        /// </summary>
+        /// <returns> the sum of all doors in every room </returns>
         private int GetTotalDoors()
         {
             int total = 0;
@@ -195,6 +187,7 @@ namespace Prototype.MapGeneration
         {
             throw new NotImplementedException();
         }
+
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             // Draw all rooms

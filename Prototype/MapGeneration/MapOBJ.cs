@@ -2,7 +2,7 @@
 
 namespace Prototype.MapGeneration
 {
-    internal class MapOBJ
+    public class MapOBJ
     {
     }
 }

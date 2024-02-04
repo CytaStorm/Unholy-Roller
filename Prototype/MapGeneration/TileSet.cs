@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Prototype.MapGeneration
 {
-    internal class TileSet : IGameEntity
+    public class TileSet : IGameEntity
     {
         // Fields
         public bool devRendering = true;
@@ -171,6 +171,8 @@ namespace Prototype.MapGeneration
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
+
+
             // Draw all tiles
             for (int y = 0; y < Layout.GetLength(1); y++)
             {
@@ -178,17 +180,21 @@ namespace Prototype.MapGeneration
                 {
                     Tile curTile = Layout[x, y];
 
+                    // Find screen position
+                    Vector2 distanceFromPlayer = curTile.WorldPosition - Game1.Player1.WorldPosition;
+                    Vector2 screenPos = distanceFromPlayer + Game1.Player1.ScreenPosition;
+
                     if (devRendering && curTile.IsDoor)
                     {
                         curTile.TileSprite.TintColor = Color.Pink;
 
-                        Layout[x, y].Draw(spriteBatch, gameTime);
+                        Layout[x, y].Draw(spriteBatch, gameTime, screenPos);
 
                         curTile.TileSprite.TintColor = Color.White;
                     }
                     else
                     {
-                        Layout[x, y].Draw(spriteBatch, gameTime);
+                        Layout[x, y].Draw(spriteBatch, gameTime, screenPos);
                     }
                 }
             }

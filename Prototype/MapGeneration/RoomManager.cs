@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Prototype.MapGeneration
 {
-    internal class RoomManager : IGameEntity
+    public class RoomManager : IGameEntity
     {
         // Fields
-        private List<Room> _rooms;
         private Random _rng;
 
         // Properties
+        public List<Room> Rooms { get; private set; }
 
         // Constructors
 
@@ -31,7 +31,7 @@ namespace Prototype.MapGeneration
             }
 
             // Setup room list
-            _rooms = new List<Room>();
+            Rooms = new List<Room>();
 
             // Calculate number of doors for origin room
             _rng = new Random();
@@ -42,7 +42,7 @@ namespace Prototype.MapGeneration
             Room oRoom = new Room(new Point(Game1.WINDOW_WIDTH / 3, Game1.WINDOW_HEIGHT / 3), doorMax);
 
             // Store origin
-            _rooms.Add(oRoom);
+            Rooms.Add(oRoom);
 
             MakeBranch(oRoom, roomsToMake);
 
@@ -168,7 +168,7 @@ namespace Prototype.MapGeneration
                 }
                 
                 // Store the new room
-                _rooms.Add(r);
+                Rooms.Add(r);
 
                 // Door has connected
                 door.Bridged = true;
@@ -187,9 +187,9 @@ namespace Prototype.MapGeneration
         {
             int total = 0;
 
-            for (int i = 0; i < _rooms.Count; i++)
+            for (int i = 0; i < Rooms.Count; i++)
             {
-                total += _rooms[i].Floor.Doors.Count;
+                total += Rooms[i].Floor.Doors.Count;
             }
 
             return total;
@@ -199,7 +199,7 @@ namespace Prototype.MapGeneration
         {
             int total = 0;
 
-            foreach (Room r in _rooms)
+            foreach (Room r in Rooms)
             {
                 foreach (Tile d in r.Floor.Doors){
                     if (d.Bridged == false)
@@ -218,9 +218,9 @@ namespace Prototype.MapGeneration
         /// <param name="distance"> distance to move </param>
         public void Move(Vector2 distance)
         {
-            for (int i = 0; i < _rooms.Count; i++)
+            for (int i = 0; i < Rooms.Count; i++)
             {
-                _rooms[i].Move(distance);
+                Rooms[i].Move(distance);
             }
         }
         
@@ -231,10 +231,11 @@ namespace Prototype.MapGeneration
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
+
             // Draw all rooms
-            for (int i = 0; i < _rooms.Count; i++)
+            for (int i = 0; i < Rooms.Count; i++)
             {
-                _rooms[i].Draw(spriteBatch, gameTime);
+                Rooms[i].Draw(spriteBatch, gameTime);
             }
         }
     }

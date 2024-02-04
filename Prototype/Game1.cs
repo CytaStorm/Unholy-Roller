@@ -20,7 +20,7 @@ namespace Prototype
         private SpriteFont _arial32;
 
         // Entities
-        private Player _player;
+        public static Player Player1 { get; private set; }
         private DummyManager _dManager;
         
         // Screen
@@ -68,7 +68,7 @@ namespace Prototype
             // Test Tileset
             _roomManager = new RoomManager(10);
             
-            _player = new Player(_spriteSheetTexture, new Vector2(Game1.WINDOW_WIDTH/2, Game1.WINDOW_HEIGHT/2), 
+            Player1 = new Player(_spriteSheetTexture, new Vector2(WINDOW_WIDTH, WINDOW_HEIGHT), 
                 Graphics, _roomManager);
 
             //_dManager = new DummyManager(this);
@@ -81,7 +81,7 @@ namespace Prototype
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            _player.Update(gameTime);
+            Player1.Update(gameTime);
 
             //_dManager.Update(gameTime);
 
@@ -101,7 +101,7 @@ namespace Prototype
 
             //_dManager.Draw(_spriteBatch, gameTime);
 
-            _player.Draw(_spriteBatch, gameTime);
+            Player1.Draw(_spriteBatch, gameTime);
 
             _spriteBatch.End();
 

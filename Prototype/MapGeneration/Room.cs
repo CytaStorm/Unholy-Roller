@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Prototype.MapGeneration
 {
-    internal class Room : IGameEntity
+    public class Room : IGameEntity
     {
         // Fields
         public const int GREATEST_POSSIBLE_NUM_DOORS = 3;

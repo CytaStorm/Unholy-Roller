@@ -4,13 +4,14 @@ using Microsoft.Xna.Framework.Input;
 using Prototype.MapGeneration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Prototype
 {
-    internal class Player : IGameEntity
+    public class Player : IGameEntity
     {
         // Fields
         public const int DEFAULT_SPRITE_X = 0;
@@ -41,6 +42,8 @@ namespace Prototype
         /// </summary>
         public Vector2 WorldPosition { get; private set; }
 
+        public Vector2 ScreenPosition { get; private set; }
+
         /// <summary>
         /// The player's current velocity
         /// </summary>
@@ -68,6 +71,10 @@ namespace Prototype
             // Position
             WorldPosition = worldPosition;
 
+            ScreenPosition = new Vector2(
+                Game1.WINDOW_WIDTH / 2 - DEFAULT_SPRITE_WIDTH / 2,
+                Game1.WINDOW_HEIGHT / 2 - DEFAULT_SPRITE_HEIGHT / 2);
+
             // Graphics Manager -> Screen Collision
             _gdManager = gdManager;
 
@@ -94,11 +101,12 @@ namespace Prototype
                 WorldPosition.Y + DEFAULT_SPRITE_HEIGHT >= _gdManager.PreferredBackBufferHeight;
 
             // Player can Redirect if not Colliding with Screen Border
-            if (!sideScreenCollision && !topBottomScreenCollision && _numRedirects > 0)
+            if (/*!sideScreenCollision && !topBottomScreenCollision && */_numRedirects > 0)
             {
                 HandleLaunch();
             }
 
+            /*
             // Check collisions with screenBounds
             if (sideScreenCollision)
             {
@@ -114,12 +122,44 @@ namespace Prototype
                 // Reset Redirects
                 _numRedirects = _maxRedirects;
             }
+            */
+          
+            // Adjust player's position based on velocity
+            WorldPosition += Velocity;
+            
+        }
 
-            // Move player based on velocity
-            // WorldPosition += Velocity;
+        private bool CheckTileCollision()
+        {
+            // Get where hitbox will be
+            Vector2 colPos = WorldPosition + Velocity;
+            Rectangle colHit = new Rectangle(
+                (int)colPos.X,
+                (int)colPos.Y,
+                DEFAULT_SPRITE_WIDTH,
+                DEFAULT_SPRITE_HEIGHT);
 
-            rm.Move(-Velocity);
+            foreach (Room r in rm.Rooms)
+            {
+                foreach (Tile t in r.Floor.Layout)
+                {
+                    // Get tile hitbox
+                    Rectangle tileHit = new Rectangle(
+                        (int)t.WorldPosition.X,
+                        (int)t.WorldPosition.Y,
+                        Game1.TILESIZE,
+                        Game1.TILESIZE
+                        );
 
+                    // Check if player will intersect any tiles
+                    if (tileHit.Contains(colHit))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private void HandleLaunch()
@@ -142,8 +182,8 @@ namespace Prototype
                 Vector2 mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
 
                 // Aim from center of the Player
-                Vector2 centerPos = new Vector2(WorldPosition.X + DEFAULT_SPRITE_WIDTH / 2, 
-                    WorldPosition.Y + DEFAULT_SPRITE_HEIGHT / 2);
+                Vector2 centerPos = new Vector2(ScreenPosition.X + DEFAULT_SPRITE_WIDTH / 2, 
+                    ScreenPosition.Y + DEFAULT_SPRITE_HEIGHT / 2);
 
                 // Aim toward mouse at player speed
                 Vector2 distance = mousePos - centerPos;
@@ -161,7 +201,7 @@ namespace Prototype
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
 
-            Sprite.Draw(spriteBatch, WorldPosition);
+            Sprite.Draw(spriteBatch, ScreenPosition);
         }
     }
 }

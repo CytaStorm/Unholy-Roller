@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Prototype.MapGeneration
 {
-    internal class Tile : IGameEntity
+    public class Tile
     {
         // Properties
 
@@ -52,9 +52,9 @@ namespace Prototype.MapGeneration
             throw new NotImplementedException();
         }
         
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public void Draw(SpriteBatch spriteBatch, GameTime gameTime, Vector2 screenPos)
         {
-            TileSprite.Draw(spriteBatch, WorldPosition);
+            TileSprite.Draw(spriteBatch, screenPos);
         }
 
     }

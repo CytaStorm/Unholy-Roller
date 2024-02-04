@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace Prototype.MapGeneration
 {
-    enum TileType
+    public enum TileType
     {
         Grass,
         Wall,
         Placeholder
     }
 
-    internal class TileMaker
+    public class TileMaker
     {
         // Fields 
         private static Texture2D[] _tileTextures;

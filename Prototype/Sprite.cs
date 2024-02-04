@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Prototype
 {
-    internal class Sprite
+    public class Sprite
     {
 
         // Properties

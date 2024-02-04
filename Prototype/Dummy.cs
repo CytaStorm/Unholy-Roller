@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Prototype
 {
-    internal class Dummy : IGameEntity
+    public class Dummy : IGameEntity
     {
         // Fields
         public const int DEFAULT_SPRITE_X = 0;

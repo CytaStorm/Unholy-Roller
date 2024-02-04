@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Prototype
 {
-    internal interface IGameEntity
+    public interface IGameEntity
     {
 
         void Update(GameTime gameTime);

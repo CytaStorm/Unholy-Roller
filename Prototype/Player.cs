@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Prototype.MapGeneration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,8 @@ namespace Prototype
         private int _maxRedirects = 3;
         private int _numRedirects;
 
+        private RoomManager rm;
+
         // Properties
 
         /// <summary>
@@ -36,7 +39,7 @@ namespace Prototype
         /// <summary>
         /// The player's position
         /// </summary>
-        public Vector2 Position { get; private set; }
+        public Vector2 WorldPosition { get; private set; }
 
         /// <summary>
         /// The player's current velocity
@@ -51,17 +54,19 @@ namespace Prototype
 
         public Rectangle Hitbox { get; private set; }
 
-        public Player(Texture2D spriteSheet, Vector2 position, GraphicsDeviceManager gdManager)
+        // Constructors
+
+        public Player(Texture2D spriteSheet, Vector2 worldPosition, GraphicsDeviceManager gdManager, RoomManager rm)
         {
             // Set Player Image
             Sprite = new Sprite(spriteSheet, DEFAULT_SPRITE_X, DEFAULT_SPRITE_Y, 
                 DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT, new Vector2(50, 50));
 
             // Hitbox
-            Hitbox = new Rectangle((int)Position.X, (int)Position.Y, DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT);
+            Hitbox = new Rectangle((int)this.WorldPosition.X, (int)this.WorldPosition.Y, DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT);
 
             // Position
-            Position = position;
+            WorldPosition = worldPosition;
 
             // Graphics Manager -> Screen Collision
             _gdManager = gdManager;
@@ -74,17 +79,19 @@ namespace Prototype
 
             // Redirecting
             _numRedirects = _maxRedirects;
+
+            this.rm = rm;
         }
 
 
         // Methods
         public void Update(GameTime gameTime)
         {
-            bool sideScreenCollision = Position.X < 0f || 
-                Position.X + DEFAULT_SPRITE_WIDTH >= _gdManager.PreferredBackBufferWidth;
+            bool sideScreenCollision = WorldPosition.X < 0f || 
+                WorldPosition.X + DEFAULT_SPRITE_WIDTH >= _gdManager.PreferredBackBufferWidth;
 
-            bool topBottomScreenCollision = Position.Y < 0f ||
-                Position.Y + DEFAULT_SPRITE_HEIGHT >= _gdManager.PreferredBackBufferHeight;
+            bool topBottomScreenCollision = WorldPosition.Y < 0f ||
+                WorldPosition.Y + DEFAULT_SPRITE_HEIGHT >= _gdManager.PreferredBackBufferHeight;
 
             // Player can Redirect if not Colliding with Screen Border
             if (!sideScreenCollision && !topBottomScreenCollision && _numRedirects > 0)
@@ -109,7 +116,9 @@ namespace Prototype
             }
 
             // Move player based on velocity
-            Position += Velocity;
+            // WorldPosition += Velocity;
+
+            rm.Move(-Velocity);
 
         }
 
@@ -133,8 +142,8 @@ namespace Prototype
                 Vector2 mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
 
                 // Aim from center of the Player
-                Vector2 centerPos = new Vector2(Position.X + DEFAULT_SPRITE_WIDTH / 2, 
-                    Position.Y + DEFAULT_SPRITE_HEIGHT / 2);
+                Vector2 centerPos = new Vector2(WorldPosition.X + DEFAULT_SPRITE_WIDTH / 2, 
+                    WorldPosition.Y + DEFAULT_SPRITE_HEIGHT / 2);
 
                 // Aim toward mouse at player speed
                 Vector2 distance = mousePos - centerPos;
@@ -145,13 +154,14 @@ namespace Prototype
                 // Stop player from launching again
                 _canRedirect = false;
 
-                _numRedirects--;
+                //_numRedirects--;
             }
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            Sprite.Draw(spriteBatch, Position);
+
+            Sprite.Draw(spriteBatch, WorldPosition);
         }
     }
 }

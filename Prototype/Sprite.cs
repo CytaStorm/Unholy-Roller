@@ -54,7 +54,10 @@ namespace Prototype
 
         public void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
-            spriteBatch.Draw(Texture, position, SourceRect, TintColor);
+            float scale = Math.Max((float)Game1.TILESIZE / SourceRect.Width, 1f);
+
+            //spriteBatch.Draw(Texture, position, SourceRect, TintColor);
+            spriteBatch.Draw(Texture, position, SourceRect, TintColor, 0f, Vector2.One, scale, SpriteEffects.None, 1);
         }
         
     }

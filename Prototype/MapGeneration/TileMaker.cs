@@ -20,6 +20,8 @@ namespace Prototype.MapGeneration
         // Fields 
         private static Texture2D[] _tileTextures;
 
+        private const int sourceTilesize = 60;
+
         // Constructors
         public TileMaker(Texture2D[] tileTextures)
         {
@@ -96,30 +98,30 @@ namespace Prototype.MapGeneration
         {
             if (string.IsNullOrEmpty(orientation))
             {
-                return new Rectangle(0, 0, Game1.TILESIZE, Game1.TILESIZE);
+                return new Rectangle(0, 0, sourceTilesize, sourceTilesize);
             }
 
             switch (orientation)
             {
                 case "UR":
-                    return new Rectangle(Game1.TILESIZE*2, 0, Game1.TILESIZE, Game1.TILESIZE);
+                    return new Rectangle(sourceTilesize*2, 0, sourceTilesize, sourceTilesize);
                 case "U":
-                    return new Rectangle(Game1.TILESIZE, 0, Game1.TILESIZE, Game1.TILESIZE);
+                    return new Rectangle(sourceTilesize, 0, sourceTilesize, sourceTilesize);
                 case "UL":
-                    return new Rectangle(0, 0, Game1.TILESIZE, Game1.TILESIZE);
+                    return new Rectangle(0, 0, sourceTilesize, sourceTilesize);
                 case "L":
-                    return new Rectangle(0, Game1.TILESIZE, Game1.TILESIZE, Game1.TILESIZE);
+                    return new Rectangle(0, sourceTilesize, sourceTilesize, sourceTilesize);
                 case "R":
-                    return new Rectangle(Game1.TILESIZE*2, Game1.TILESIZE, Game1.TILESIZE, Game1.TILESIZE);
+                    return new Rectangle(sourceTilesize*2, sourceTilesize, sourceTilesize, sourceTilesize);
                 case "BL":
-                    return new Rectangle(0, Game1.TILESIZE*2, Game1.TILESIZE, Game1.TILESIZE);
+                    return new Rectangle(0, sourceTilesize*2, sourceTilesize, sourceTilesize);
                 case "B":
-                    return new Rectangle(Game1.TILESIZE, Game1.TILESIZE*2, Game1.TILESIZE, Game1.TILESIZE);
+                    return new Rectangle(sourceTilesize, sourceTilesize*2, sourceTilesize, sourceTilesize);
                 case "BR":
-                    return new Rectangle(Game1.TILESIZE*2, Game1.TILESIZE*2, Game1.TILESIZE, Game1.TILESIZE);
+                    return new Rectangle(sourceTilesize*2, sourceTilesize*2, sourceTilesize, sourceTilesize);
             }
 
-            return new Rectangle(0, 0, Game1.TILESIZE, Game1.TILESIZE);
+            return new Rectangle(0, 0, sourceTilesize, sourceTilesize);
         }
     }
 }

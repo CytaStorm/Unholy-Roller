@@ -12,6 +12,7 @@ namespace Prototype.MapGeneration
     {
         // Fields
         private List<Room> _rooms;
+        private Random _rng;
 
         // Properties
 
@@ -33,12 +34,12 @@ namespace Prototype.MapGeneration
             _rooms = new List<Room>();
 
             // Calculate number of doors for origin room
-            Random rng = new Random();
+            _rng = new Random();
             int doorMax = Math.Min(roomsToMake, Room.GREATEST_POSSIBLE_NUM_DOORS);
-            int numDoors = rng.Next(1, doorMax + 1);
+            //int numDoors = _rng.Next(1, doorMax + 1);
 
             // Create origin room
-            Room oRoom = new Room(new Point(Game1.WINDOW_WIDTH / 3, Game1.WINDOW_HEIGHT / 3), numDoors);
+            Room oRoom = new Room(new Point(Game1.WINDOW_WIDTH / 3, Game1.WINDOW_HEIGHT / 3), doorMax);
 
             // Store origin
             _rooms.Add(oRoom);
@@ -94,14 +95,25 @@ namespace Prototype.MapGeneration
                 while (!wouldConnect)
                 {
                     int totalDoors = GetTotalDoors();
-                    int maxDoors = Math.Min(Room.GREATEST_POSSIBLE_NUM_DOORS, roomsToMake - totalDoors + 1);
-                    if (totalDoors >= roomsToMake)
+                    int maxDoors = Math.Min(Room.GREATEST_POSSIBLE_NUM_DOORS, roomsToMake - (totalDoors - 1) + 1);
+                    if (maxDoors <= 0)
                     {
                         maxDoors = 1;
                     }
 
+
+                    // Make max doors unless all rooms can be made
+                    // with remaining open doors
+                    int numDoors = maxDoors;
+                    /*
+                    if (GetOpenDoors() - 1 > 0)
+                    {
+                        numDoors = _rng.Next(1, maxDoors + 1);
+                    }
+                    */
+
                     // Make a new random room
-                    r = new Room(new Point(room.Origin.X, room.Origin.Y), maxDoors);
+                    r = new Room(new Point(room.Origin.X, room.Origin.Y), numDoors);
 
                     // Position it properly relative to the current room
                     Vector2 shift = Vector2.Zero;
@@ -181,6 +193,35 @@ namespace Prototype.MapGeneration
             }
 
             return total;
+        }
+
+        private int GetOpenDoors()
+        {
+            int total = 0;
+
+            foreach (Room r in _rooms)
+            {
+                foreach (Tile d in r.Floor.Doors){
+                    if (d.Bridged == false)
+                    {
+                        total++;
+                    }
+                }
+            }
+
+            return total;
+        }
+
+        /// <summary>
+        /// Moves every room and its components by a distance
+        /// </summary>
+        /// <param name="distance"> distance to move </param>
+        public void Move(Vector2 distance)
+        {
+            for (int i = 0; i < _rooms.Count; i++)
+            {
+                _rooms[i].Move(distance);
+            }
         }
         
         public void Update(GameTime gameTime)

@@ -66,9 +66,10 @@ namespace Prototype
             _tileMaker = new TileMaker(_tileTextures);
 
             // Test Tileset
-            _roomManager = new RoomManager(6);
+            _roomManager = new RoomManager(10);
             
-            //_player = new Player(_spriteSheetTexture, new Vector2(20, 20), Graphics);
+            _player = new Player(_spriteSheetTexture, new Vector2(Game1.WINDOW_WIDTH/2, Game1.WINDOW_HEIGHT/2), 
+                Graphics, _roomManager);
 
             //_dManager = new DummyManager(this);
 
@@ -80,7 +81,7 @@ namespace Prototype
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            //_player.Update(gameTime);
+            _player.Update(gameTime);
 
             //_dManager.Update(gameTime);
 
@@ -100,10 +101,9 @@ namespace Prototype
 
             //_dManager.Draw(_spriteBatch, gameTime);
 
-            //_player.Draw(_spriteBatch, gameTime);
+            _player.Draw(_spriteBatch, gameTime);
 
             _spriteBatch.End();
-
 
             base.Draw(gameTime);
         }

@@ -15,14 +15,30 @@ namespace Prototype.MapGeneration
         public const int GREATEST_POSSIBLE_NUM_DOORS = 3;
 
         // Properties
+
+        /// <summary>
+        /// The top left corner of the room
+        /// </summary>
         public Point Origin { get; private set; }
 
+        /// <summary>
+        /// The room's tileset
+        /// </summary>
         public TileSet Floor { get; private set; }
 
+        /// <summary>
+        /// The filepath of the room's tileset
+        /// </summary>
         public string FloorFilepath { get; private set; }
         
+        /// <summary>
+        /// The interactable objects in the room
+        /// </summary>
         public List<MapOBJ> Interactables { get; set; }
 
+        /// <summary>
+        /// The rooms enemies
+        /// </summary>
         public List<Dummy> Enemies { get; set; }
 
         // Constructors
@@ -43,6 +59,10 @@ namespace Prototype.MapGeneration
 
         // Methods
 
+        /// <summary>
+        /// Moves the room and all of its components by a distance
+        /// </summary>
+        /// <param name="distance"> the distance to move </param>
         public void Move(Vector2 distance)
         {
             // Move tileset by distance
@@ -78,6 +98,7 @@ namespace Prototype.MapGeneration
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
+
             Floor.Draw(spriteBatch, gameTime);
         }
     }

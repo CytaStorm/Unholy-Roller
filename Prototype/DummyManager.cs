@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prototype.GameEntity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Prototype
 {
-    internal class DummyManager : IGameEntity
+    internal class DummyManager : IGameObject
     {
         // Fields
         private Texture2D _dummyImage;
@@ -17,7 +18,7 @@ namespace Prototype
         // Properties
 
         public List<Dummy> Dummies { get; private set; }
-
+        
 
         public DummyManager(Game1 gManager)
         {
@@ -26,7 +27,7 @@ namespace Prototype
 
             Dummies = new List<Dummy>();
             Dummy d1 = new Dummy(_dummyImage, new Vector2(100f, 100f), gManager.Graphics);
-            d1.Sprite.TintColor = Color.Red;
+            d1.Image.TintColor = Color.Red;
             Dummies.Add(d1);
         }
 

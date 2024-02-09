@@ -9,9 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Prototype
+namespace Prototype.GameEntity
 {
-    public class Player : IGameEntity
+    public class Player : Entity
     {
         // Fields
         public const int DEFAULT_SPRITE_X = 0;
@@ -32,22 +32,7 @@ namespace Prototype
 
         // Properties
 
-        /// <summary>
-        /// The player's image
-        /// </summary>
-        public Sprite Sprite { get; private set; }
-
-        /// <summary>
-        /// The player's position
-        /// </summary>
-        public Vector2 WorldPosition { get; private set; }
-
         public Vector2 ScreenPosition { get; private set; }
-
-        /// <summary>
-        /// The player's current velocity
-        /// </summary>
-        public Vector2 Velocity { get; private set; }
 
         /// <summary>
         /// The remaining number of times the player 
@@ -55,18 +40,16 @@ namespace Prototype
         /// </summary>
         public int NumRedirects { get => _numRedirects; }
 
-        public Rectangle Hitbox { get; private set; }
-
         // Constructors
 
         public Player(Texture2D spriteSheet, Vector2 worldPosition, GraphicsDeviceManager gdManager, RoomManager rm)
         {
             // Set Player Image
-            Sprite = new Sprite(spriteSheet, DEFAULT_SPRITE_X, DEFAULT_SPRITE_Y, 
+            Image = new Sprite(spriteSheet, DEFAULT_SPRITE_X, DEFAULT_SPRITE_Y,
                 DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT, new Vector2(50, 50));
 
             // Hitbox
-            Hitbox = new Rectangle((int)this.WorldPosition.X, (int)this.WorldPosition.Y, DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT);
+            Hitbox = new Rectangle((int)WorldPosition.X, (int)WorldPosition.Y, DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT);
 
             // Position
             WorldPosition = worldPosition;
@@ -92,9 +75,9 @@ namespace Prototype
 
 
         // Methods
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
-            bool sideScreenCollision = WorldPosition.X < 0f || 
+            bool sideScreenCollision = WorldPosition.X < 0f ||
                 WorldPosition.X + DEFAULT_SPRITE_WIDTH >= _gdManager.PreferredBackBufferWidth;
 
             bool topBottomScreenCollision = WorldPosition.Y < 0f ||
@@ -123,43 +106,25 @@ namespace Prototype
                 _numRedirects = _maxRedirects;
             }
             */
-          
-            // Adjust player's position based on velocity
-            WorldPosition += Velocity;
-            
-        }
 
-        private bool CheckTileCollision()
-        {
-            // Get where hitbox will be
-            Vector2 colPos = WorldPosition + Velocity;
-            Rectangle colHit = new Rectangle(
-                (int)colPos.X,
-                (int)colPos.Y,
-                DEFAULT_SPRITE_WIDTH,
-                DEFAULT_SPRITE_HEIGHT);
+            // Todo: Fix Clipping issue
+            // Could try tracking time where collision is on and
+            // if it's on too long, let the player move in a direction until it turns off
 
-            foreach (Room r in rm.Rooms)
+            CollisionType hitTile = CollisionChecker.CheckTileCollision(this);
+
+            if (hitTile == CollisionType.Vertical)
             {
-                foreach (Tile t in r.Floor.Layout)
-                {
-                    // Get tile hitbox
-                    Rectangle tileHit = new Rectangle(
-                        (int)t.WorldPosition.X,
-                        (int)t.WorldPosition.Y,
-                        Game1.TILESIZE,
-                        Game1.TILESIZE
-                        );
-
-                    // Check if player will intersect any tiles
-                    if (tileHit.Contains(colHit))
-                    {
-                        return true;
-                    }
-                }
+                Velocity = new Vector2(Velocity.X, Velocity.Y * -1);
+            }
+            else if (hitTile == CollisionType.Horizontal)
+            {
+                Velocity = new Vector2(Velocity.X * -1, Velocity.Y);
             }
 
-            return false;
+            // Adjust player's position based on velocity
+            WorldPosition += Velocity;
+
         }
 
         private void HandleLaunch()
@@ -182,7 +147,7 @@ namespace Prototype
                 Vector2 mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
 
                 // Aim from center of the Player
-                Vector2 centerPos = new Vector2(ScreenPosition.X + DEFAULT_SPRITE_WIDTH / 2, 
+                Vector2 centerPos = new Vector2(ScreenPosition.X + DEFAULT_SPRITE_WIDTH / 2,
                     ScreenPosition.Y + DEFAULT_SPRITE_HEIGHT / 2);
 
                 // Aim toward mouse at player speed
@@ -198,10 +163,10 @@ namespace Prototype
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
 
-            Sprite.Draw(spriteBatch, ScreenPosition);
+            Image.Draw(spriteBatch, ScreenPosition);
         }
     }
 }

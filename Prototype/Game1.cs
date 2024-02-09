@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Prototype.GameEntity;
 using Prototype.MapGeneration;
 
 namespace Prototype
@@ -14,7 +15,7 @@ namespace Prototype
         // Map Generation
         private TileMaker _tileMaker;
         private Texture2D[] _tileTextures;
-        private RoomManager _roomManager;
+        public static RoomManager _roomManager;
 
         // UI
         private SpriteFont _arial32;
@@ -65,10 +66,11 @@ namespace Prototype
             // Create Tile Manager
             _tileMaker = new TileMaker(_tileTextures);
 
-            // Test Tileset
-            _roomManager = new RoomManager(10);
+            // Create Dungeon
+            //_roomManager = new RoomManager(10);
             
-            Player1 = new Player(_spriteSheetTexture, new Vector2(WINDOW_WIDTH, WINDOW_HEIGHT), 
+            // Create Player
+            Player1 = new Player(_spriteSheetTexture, new Vector2(WINDOW_WIDTH/3 + Game1.TILESIZE, WINDOW_HEIGHT/3 + Game1.TILESIZE), 
                 Graphics, _roomManager);
 
             //_dManager = new DummyManager(this);
@@ -94,7 +96,7 @@ namespace Prototype
 
             _spriteBatch.Begin();
 
-            _roomManager.Draw(_spriteBatch, gameTime);
+            //_roomManager.Draw(_spriteBatch, gameTime);
             
             //_spriteBatch.DrawString(_arial32, _player.NumRedirects.ToString(), new Vector2(_player.Position.X + Player.DEFAULT_SPRITE_WIDTH/2, _player.Position.Y - 40f), Color.White);
 

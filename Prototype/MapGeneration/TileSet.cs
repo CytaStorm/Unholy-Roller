@@ -1,12 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using Prototype.GameEntity;
 using System.Collections.Generic;
 using System.IO;
 
 namespace Prototype.MapGeneration
 {
-    public class TileSet : IGameEntity
+    public class TileSet : IGameObject
     {
         // Fields
         public bool devRendering = true;

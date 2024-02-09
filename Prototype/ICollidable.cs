@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +7,14 @@ using System.Threading.Tasks;
 
 namespace Prototype
 {
-    public interface IGameEntity
+    public interface ICollidable
     {
+        // Properties
+        Rectangle Hitbox { get; protected set; }
 
-        void Update(GameTime gameTime);
+        // Methods
+        void OnHitTile();
 
-        void Draw(SpriteBatch spriteBatch, GameTime gameTime);
+        void OnHitEntity();
     }
 }

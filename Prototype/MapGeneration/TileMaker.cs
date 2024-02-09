@@ -70,21 +70,21 @@ namespace Prototype.MapGeneration
             {
                 case (int)TileType.Grass:
 
-                    result.CollisionOn = false;
+                    result.Collidable = false;
 
                     result.TileSprite = new Sprite(_tileTextures[1], GetOrientationSource(""));
                     break;
 
                 case (int)TileType.Wall:
 
-                    result.CollisionOn = true;
+                    result.Collidable = true;
 
                     result.TileSprite = new Sprite(_tileTextures[2], GetOrientationSource(orientation));
                     break;
 
                 default:
 
-                    result.CollisionOn = false;
+                    result.Collidable = false;
 
                     result.TileSprite = new Sprite(_tileTextures[0], GetOrientationSource(""));
                     break;

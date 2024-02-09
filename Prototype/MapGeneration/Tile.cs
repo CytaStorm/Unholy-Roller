@@ -21,7 +21,7 @@ namespace Prototype.MapGeneration
         /// <summary>
         /// Whether or not entites can collide with this tile
         /// </summary>
-        public bool CollisionOn { get; set; }
+        public bool Collidable { get; set; }
 
         /// <summary>
         /// The position of this tile in worldspace

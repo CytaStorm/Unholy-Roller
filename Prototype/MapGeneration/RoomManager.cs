@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prototype.GameEntity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Prototype.MapGeneration
 {
-    public class RoomManager : IGameEntity
+    public class RoomManager : IGameObject
     {
         // Fields
         private Random _rng;

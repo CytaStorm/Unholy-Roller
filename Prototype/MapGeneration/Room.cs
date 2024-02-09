@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prototype.GameEntity;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Prototype.MapGeneration
 {
-    public class Room : IGameEntity
+    public class Room : IGameObject
     {
         // Fields
         public const int GREATEST_POSSIBLE_NUM_DOORS = 3;

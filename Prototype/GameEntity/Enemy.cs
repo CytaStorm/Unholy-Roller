@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Prototype.GameEntity
 {
-    public class Dummy : IGameObject
+    public class Enemy : Entity
     {
         // Fields
         public const int DEFAULT_SPRITE_X = 0;
@@ -20,29 +20,10 @@ namespace Prototype.GameEntity
         private GraphicsDeviceManager _gdManager;
 
         private float _speed;
+        
+        // Constructors
 
-        // Properties
-
-        /// <summary>
-        /// The player's image
-        /// </summary>
-        public Sprite Image { get; set; }
-
-        /// <summary>
-        /// The player's position
-        /// </summary>
-        public Vector2 WorldPosition { get; set; }
-
-        /// <summary>
-        /// The player's current velocity
-        /// </summary>
-        public Vector2 Velocity { get; private set; }
-
-        public Rectangle Hitbox { get; private set; }
-
-        public bool Alive { get; private set; }
-
-        public Dummy(Texture2D spriteSheet, Vector2 position, GraphicsDeviceManager gdManager)
+        public Enemy(Texture2D spriteSheet, Vector2 position, GraphicsDeviceManager gdManager)
         {
             // Set Player Image
             Image = new Sprite(spriteSheet, DEFAULT_SPRITE_X, DEFAULT_SPRITE_Y,
@@ -64,13 +45,21 @@ namespace Prototype.GameEntity
             Velocity = new Vector2(_speed, _speed);
 
             // Set Vitality
-            Alive = true;
+            MaxHealth = 5;
+            CurHealth = MaxHealth;
+            _iFrames = 30;
+            _iTimer = _iFrames;
+
+            // Set type
+            type = EntityType.Enemy;
         }
 
 
         // Methods
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
+            TickInvincibility();
+
             bool sideScreenCollision = WorldPosition.X < 0f ||
                 WorldPosition.X + DEFAULT_SPRITE_WIDTH >= _gdManager.PreferredBackBufferWidth;
 
@@ -87,17 +76,42 @@ namespace Prototype.GameEntity
                 Velocity = new Vector2(Velocity.X, Velocity.Y * -1);
             }
 
-
-
-            // Move player based on velocity
-            WorldPosition += Velocity;
+            Move();
 
         }
 
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            Image.TintColor = Color.Red;
-            Image.Draw(spriteBatch, WorldPosition);
+            // Draw Enemy relative to the player
+            Vector2 distFromPlayer = WorldPosition - Game1.Player1.WorldPosition;
+            Vector2 screenPos = Game1.Player1.ScreenPosition + distFromPlayer;
+
+            // Only draw enemy if they are on screen
+            Rectangle screenBounds = new Rectangle(
+                0, 0,
+                _gdManager.PreferredBackBufferWidth,
+                _gdManager.PreferredBackBufferHeight);
+
+            Rectangle screenHit = new Rectangle(
+                (int)screenPos.X,
+                (int)screenPos.Y,
+                Hitbox.Width,
+                Hitbox.Height);
+
+            bool onScreen = screenBounds.Right >= screenHit.X &&
+               screenBounds.X <= screenHit.Right &&
+               screenBounds.Bottom >= screenHit.Y &&
+               screenBounds.Y <= screenHit.Bottom;
+
+            if (onScreen)
+            {
+                Image.TintColor = Color.Red;
+                Image.Draw(spriteBatch, screenPos);
+            }
+
+            // Display current health
+            //spriteBatch.DrawString(Game1.ARIAL32, $"Hp: {CurHealth}", screenPos, Color.White);
+
         }
     }
 }

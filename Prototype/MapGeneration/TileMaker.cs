@@ -12,6 +12,7 @@ namespace Prototype.MapGeneration
     {
         Grass,
         Wall,
+        Spike,
         Placeholder
     }
 
@@ -80,6 +81,13 @@ namespace Prototype.MapGeneration
                     result.Collidable = true;
 
                     result.TileSprite = new Sprite(_tileTextures[2], GetOrientationSource(orientation));
+                    break;
+
+                case (int)TileType.Spike:
+
+                    result.Collidable = true;
+
+                    result.TileSprite = new Sprite(_tileTextures[3], GetOrientationSource(""));
                     break;
 
                 default:

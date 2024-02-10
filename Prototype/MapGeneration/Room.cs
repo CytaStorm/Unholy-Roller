@@ -25,7 +25,7 @@ namespace Prototype.MapGeneration
         /// <summary>
         /// The room's tileset
         /// </summary>
-        public TileSet Floor { get; private set; }
+        public Tileset Floor { get; private set; }
 
         /// <summary>
         /// The filepath of the room's tileset
@@ -40,7 +40,7 @@ namespace Prototype.MapGeneration
         /// <summary>
         /// The rooms enemies
         /// </summary>
-        public List<Dummy> Enemies { get; set; }
+        public List<Enemy> Enemies { get; set; }
 
         // Constructors
 
@@ -52,9 +52,17 @@ namespace Prototype.MapGeneration
             // Create a random tileset within the folder
 
             FloorFilepath = GetRandomMap(folder);
-            Floor = new TileSet(FloorFilepath, origin);
+            Floor = new Tileset(FloorFilepath, origin);
 
             // Save top left coordinate of room
+            Origin = origin;
+        }
+
+        public Room(string filename, Point origin)
+        {
+            FloorFilepath = filename;
+            Floor = new Tileset(filename, origin);
+
             Origin = origin;
         }
 

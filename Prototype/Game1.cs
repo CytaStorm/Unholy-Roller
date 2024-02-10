@@ -6,6 +6,12 @@ using Prototype.MapGeneration;
 
 namespace Prototype
 {
+    public enum Gamestate
+    {
+        Play,
+        Death
+    }
+
     public class Game1 : Game
     {
         private SpriteBatch _spriteBatch;
@@ -16,20 +22,24 @@ namespace Prototype
         private TileMaker _tileMaker;
         private Texture2D[] _tileTextures;
         public static RoomManager _roomManager;
+        public static Room TEST_ROOM;
 
         // UI
-        private SpriteFont _arial32;
+        public static SpriteFont ARIAL32;
 
         // Entities
         public static Player Player1 { get; private set; }
-        private DummyManager _dManager;
+        public static EnemyManager EManager { get; private set; }
         
         // Screen
         public GraphicsDeviceManager Graphics { get; private set; }
         public const int WINDOW_WIDTH = 1920;
         public const int WINDOW_HEIGHT = 1080;
 
-        public const int TILESIZE = 60;
+        public const int TILESIZE = 80;
+
+        // Game State
+        public static Gamestate GAMESTATE = Gamestate.Play;
 
         public Game1()
         {
@@ -60,11 +70,14 @@ namespace Prototype
             _tileTextures[0] = Content.Load<Texture2D>("PlaceholderTile");
             _tileTextures[1] = Content.Load<Texture2D>("GrassTile");
             _tileTextures[2] = Content.Load<Texture2D>("WallSheet");
+            _tileTextures[3] = Content.Load<Texture2D>("SpikeTile");
 
-            _arial32 = Content.Load<SpriteFont>("arial32");
+            ARIAL32 = Content.Load<SpriteFont>("arial32");
 
             // Create Tile Manager
             _tileMaker = new TileMaker(_tileTextures);
+
+            TEST_ROOM = new Room("../../../TestArena18x18.txt", new Point(0, 0));
 
             // Create Dungeon
             //_roomManager = new RoomManager(10);
@@ -73,19 +86,21 @@ namespace Prototype
             Player1 = new Player(_spriteSheetTexture, new Vector2(WINDOW_WIDTH/3 + Game1.TILESIZE, WINDOW_HEIGHT/3 + Game1.TILESIZE), 
                 Graphics, _roomManager);
 
-            //_dManager = new DummyManager(this);
-
-            //_dummy = new Dummy(_spriteSheetTexture, new Vector2(100, 100), _graphics);
+            EManager = new EnemyManager(this);
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            
+            if (GAMESTATE == Gamestate.Play)
+            {
+                Player1.Update(gameTime);
 
-            Player1.Update(gameTime);
+                EManager.Update(gameTime);
+            }
 
-            //_dManager.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -97,13 +112,26 @@ namespace Prototype
             _spriteBatch.Begin();
 
             //_roomManager.Draw(_spriteBatch, gameTime);
-            
+
             //_spriteBatch.DrawString(_arial32, _player.NumRedirects.ToString(), new Vector2(_player.Position.X + Player.DEFAULT_SPRITE_WIDTH/2, _player.Position.Y - 40f), Color.White);
 
+            if (GAMESTATE == Gamestate.Play)
+            {
+                TEST_ROOM.Draw(_spriteBatch, gameTime);
 
-            //_dManager.Draw(_spriteBatch, gameTime);
+                EManager.Draw(_spriteBatch, gameTime);
 
-            Player1.Draw(_spriteBatch, gameTime);
+                Player1.Draw(_spriteBatch, gameTime);
+            }
+            else if (GAMESTATE == Gamestate.Death)
+            {
+                _spriteBatch.DrawString(
+                    ARIAL32,
+                    "Game Over",
+                    new Vector2(WINDOW_WIDTH / 2f, WINDOW_HEIGHT / 2f),
+                    Color.White);
+            }
+
 
             _spriteBatch.End();
 

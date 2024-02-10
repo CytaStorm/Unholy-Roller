@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Prototype.MapGeneration
 {
-    public class TileSet : IGameObject
+    public class Tileset : IGameObject
     {
         // Fields
         public bool devRendering = true;
@@ -90,7 +90,7 @@ namespace Prototype.MapGeneration
         /// Creates a square tileset from the integer values in a text file
         /// </summary>
         /// <param name="filename"> the file to read </param>
-        public TileSet(string filename, Point origin)
+        public Tileset(string filename, Point origin)
         {
             // Open the file
             StreamReader input = new StreamReader(filename);

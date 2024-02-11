@@ -44,6 +44,8 @@ namespace Prototype.MapGeneration
         /// </summary>
         public List<Tile> Doors { get; private set; } = new List<Tile>();
 
+        public List<Tile> Spawners { get; private set; } = new List<Tile>();
+
         // Constructors
 
         /*
@@ -115,6 +117,7 @@ namespace Prototype.MapGeneration
                     int tileId = -1;
 
                     bool isDoor = false;
+                    bool isSpawner = false;
                     string orientation = "";
 
                     // Unparsable tile values are probably special tiles
@@ -128,13 +131,20 @@ namespace Prototype.MapGeneration
                         if (sValues.Length == 2)
                         {
                             // Read tile specification
-                            if (sValues[1] == "*")
+                            switch (sValues[1])
                             {
-                                isDoor = true;
-                            }
-                            else
-                            {
-                                orientation = sValues[1];
+                                case "*":
+                                    isDoor = true;
+                                    break;
+
+                                case "S":
+                                    isSpawner = true;
+                                    break;
+
+                                default:
+                                    orientation = sValues[1];
+                                    break;
+                                    
                             }
                         }
 
@@ -153,7 +163,14 @@ namespace Prototype.MapGeneration
                         // Store door
                         Doors.Add(Layout[y, x]);
                     }
-                    
+
+                    // Set spawner status
+                    Layout[y, x].IsEnemySpawner = isSpawner;
+                    if (isSpawner)
+                    {
+                        // Store spawner
+                        Spawners.Add(Layout[y, x]);
+                    }
                 }
 
                 // Move to next row
@@ -185,18 +202,21 @@ namespace Prototype.MapGeneration
                     Vector2 distanceFromPlayer = curTile.WorldPosition - Game1.Player1.WorldPosition;
                     Vector2 screenPos = distanceFromPlayer + Game1.Player1.ScreenPosition;
 
-                    if (devRendering && curTile.IsDoor)
+                    if (devRendering)
                     {
-                        curTile.TileSprite.TintColor = Color.Pink;
-
-                        Layout[x, y].Draw(spriteBatch, gameTime, screenPos);
-
-                        curTile.TileSprite.TintColor = Color.White;
+                        if (curTile.IsDoor)
+                        {
+                            curTile.TileSprite.TintColor = Color.Pink;
+                        }
+                        if (curTile.IsEnemySpawner)
+                        {
+                            curTile.TileSprite.TintColor = Color.IndianRed;
+                        }
                     }
-                    else
-                    {
-                        Layout[x, y].Draw(spriteBatch, gameTime, screenPos);
-                    }
+
+                    Layout[x, y].Draw(spriteBatch, gameTime, screenPos);
+
+                    curTile.TileSprite.TintColor = Color.White;
                 }
             }
         }

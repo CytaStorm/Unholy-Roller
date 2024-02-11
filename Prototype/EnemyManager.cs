@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prototype.GameEntity;
+using Prototype.MapGeneration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,20 +29,27 @@ namespace Prototype
             Dummies = new List<Enemy>();
             rng = new Random();
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < Game1.TEST_ROOM.Floor.Spawners.Count; i++)
             {
+                Tile curSpawner = Game1.TEST_ROOM.Floor.Spawners[i];
+
+                /*
                 Enemy addition = new Enemy(
                     _dummyImage,
                     new Vector2(
                         // X position within tilemap
-                        rng.Next(Game1.TEST_ROOM.Origin.X + Enemy.DEFAULT_SPRITE_WIDTH,
-                        Game1.TEST_ROOM.Origin.X + Game1.TEST_ROOM.Floor.Width - Enemy.DEFAULT_SPRITE_WIDTH),
+                        rng.Next(Game1.TEST_ROOM.Origin.X + Game1.TILESIZE,
+                        Game1.TEST_ROOM.Origin.X + Game1.TEST_ROOM.Floor.Width - Enemy.DEFAULT_SPRITE_WIDTH - Game1.TILESIZE),
 
                         // Y position within tilemap
-                        rng.Next(Game1.TEST_ROOM.Origin.Y + Enemy.DEFAULT_SPRITE_HEIGHT,
-                        Game1.TEST_ROOM.Origin.Y + Game1.TEST_ROOM.Floor.Height - Enemy.DEFAULT_SPRITE_HEIGHT)),
+                        rng.Next(Game1.TEST_ROOM.Origin.Y + Game1.TILESIZE,
+                        Game1.TEST_ROOM.Origin.Y + Game1.TEST_ROOM.Floor.Height - Enemy.DEFAULT_SPRITE_HEIGHT - Game1.TILESIZE)),
                         
                         gm.Graphics);
+                */
+
+                // Spawn on spawn tile
+                Enemy addition = new Enemy(_dummyImage, curSpawner.WorldPosition, gm.Graphics);
 
                 Dummies.Add(addition);
             }

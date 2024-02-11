@@ -31,6 +31,12 @@ namespace Prototype.GameEntity
 
         private RoomManager rm;
 
+        private Game1 gm;
+
+        private Sprite _heart;
+        private Sprite _halfHeart;
+        private Sprite _emptyHeart;
+
         // Properties
 
         public Vector2 ScreenPosition { get; private set; }
@@ -43,7 +49,8 @@ namespace Prototype.GameEntity
 
         // Constructors
 
-        public Player(Texture2D spriteSheet, Vector2 worldPosition, GraphicsDeviceManager gdManager, RoomManager rm)
+        public Player(Texture2D spriteSheet, Vector2 worldPosition, 
+            GraphicsDeviceManager gdManager, RoomManager rm, Game1 gm)
         {
             // Set Player Image
             Image = new Sprite(spriteSheet, DEFAULT_SPRITE_X, DEFAULT_SPRITE_Y,
@@ -72,12 +79,25 @@ namespace Prototype.GameEntity
             _numRedirects = _maxRedirects;
 
             // Vitality
-            MaxHealth = 6;
+            MaxHealth = 7;
             CurHealth = MaxHealth;
             _iFrames = 30;
 
             // Attacking
             Damage = 2;
+
+            // Game Manager
+            this.gm = gm;
+
+            // Heart image
+            Texture2D heart = gm.Content.Load<Texture2D>("BowlingHeart");
+            _heart = new Sprite(heart, new Rectangle(0, 0, 100, 100));
+            
+            Texture2D halfHeart = gm.Content.Load<Texture2D>("BowlingHalfHeart");
+            _halfHeart = new Sprite(halfHeart, new Rectangle(0, 0, 100, 100));
+            
+            Texture2D emptyHeart = gm.Content.Load<Texture2D>("EmptyHeart");
+            _emptyHeart = new Sprite(emptyHeart, new Rectangle(0, 0, 100, 100));
 
             this.rm = rm;
         }
@@ -188,8 +208,6 @@ namespace Prototype.GameEntity
                     entityThatWasHit.TakeDamage(Damage);
                     break;
             }
-
-            base.OnHitEntity(entityThatWasHit, colType);
         }
 
         public override void OnHitTile(Tile tile, CollisionType colType)
@@ -239,10 +257,31 @@ namespace Prototype.GameEntity
             // Display current health
             //spriteBatch.DrawString(Game1.ARIAL32, $"Hp: {CurHealth}", ScreenPosition, Color.White);
 
+            int temp = CurHealth;
+            // Draw whole hearts
+            for (int i = 0; i < (int) Math.Round(MaxHealth/2.0); i++)
+            {
+                if (temp / 2 >= 1)
+                {
+                    _heart.Draw(spriteBatch, new Vector2(i * 105f, 10f));
+                    temp -= 2;
+                }
+                else if (temp > 0)
+                {
+                    _halfHeart.Draw(spriteBatch, new Vector2(i * 105f, 10f));
+                    temp -= 1;
+                }
+                else
+                {
+                    _emptyHeart.Draw(spriteBatch, new Vector2(i * 105f, 10f));
+                }
+            }
+            
+
             // Display remaining redirects
             Vector2 textPos =
                 new Vector2(
-                    ScreenPosition.X + DEFAULT_SPRITE_WIDTH / 3,
+                    ScreenPosition.X + DEFAULT_SPRITE_WIDTH / 3 ,
                     ScreenPosition.Y + DEFAULT_SPRITE_HEIGHT / 3);
             spriteBatch.DrawString(Game1.ARIAL32, $"{_numRedirects}", textPos, Color.White);
 

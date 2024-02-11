@@ -45,6 +45,8 @@ namespace Prototype.MapGeneration
         /// </summary>
         public bool Bridged { get; set; }
 
+        public bool IsEnemySpawner { get; set; }
+
 
         // Methods
         public void Update(GameTime gameTime)

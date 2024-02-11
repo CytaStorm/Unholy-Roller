@@ -9,6 +9,7 @@ namespace Prototype
     public enum Gamestate
     {
         Play,
+        Win,
         Death
     }
 
@@ -36,7 +37,7 @@ namespace Prototype
         public const int WINDOW_WIDTH = 1920;
         public const int WINDOW_HEIGHT = 1080;
 
-        public const int TILESIZE = 80;
+        public const int TILESIZE = 120;
 
         // Game State
         public static Gamestate GAMESTATE = Gamestate.Play;
@@ -77,14 +78,14 @@ namespace Prototype
             // Create Tile Manager
             _tileMaker = new TileMaker(_tileTextures);
 
-            TEST_ROOM = new Room("../../../TestArena18x18.txt", new Point(0, 0));
+            TEST_ROOM = new Room("../../../TestArena2.txt", new Point(0, 0));
 
             // Create Dungeon
             //_roomManager = new RoomManager(10);
             
             // Create Player
             Player1 = new Player(_spriteSheetTexture, new Vector2(WINDOW_WIDTH/3 + Game1.TILESIZE, WINDOW_HEIGHT/3 + Game1.TILESIZE), 
-                Graphics, _roomManager);
+                Graphics, _roomManager, this);
 
             EManager = new EnemyManager(this);
         }

@@ -37,7 +37,7 @@ namespace Prototype.GameEntity
         // Health
         public int MaxHealth { get; protected set; } = 5; // Default so entity isn't auto-removed
         public int CurHealth { get; protected set; } = 5; // Default so entity isn't auto-removed
-        public bool Alive { get => CurHealth > 0; }
+        public bool Alive { get; protected set; } = true;
 
         // Image Properties
         public Sprite Image { get; protected set; }

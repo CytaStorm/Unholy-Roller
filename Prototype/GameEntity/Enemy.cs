@@ -20,6 +20,12 @@ namespace Prototype.GameEntity
         private GraphicsDeviceManager _gdManager;
 
         private float _speed;
+
+        private int _koTime = 180; // Frames
+        private int _koTimer;
+
+        // Properties
+        public bool IsKO { get => _koTimer > 0; }
         
         // Constructors
 
@@ -60,6 +66,8 @@ namespace Prototype.GameEntity
         {
             TickInvincibility();
 
+            TickKnockout();
+
             bool sideScreenCollision = WorldPosition.X < 0f ||
                 WorldPosition.X + DEFAULT_SPRITE_WIDTH >= _gdManager.PreferredBackBufferWidth;
 
@@ -78,6 +86,30 @@ namespace Prototype.GameEntity
 
             Move();
 
+        }
+
+        private void TickKnockout()
+        {
+            if (_koTimer > 0)
+            {
+                _koTimer--;
+            }
+        }
+
+        public override void TakeDamage(int damage)
+        {
+            // Take damage if not invincible
+            if (_iTimer <= 0 && !IsKO)
+            {
+                CurHealth -= damage;
+
+                if (CurHealth <= 0)
+                {
+                    // Enemy is temporarily knocked out
+                    _koTimer = _koTime;
+                }
+            }
+            
         }
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -105,7 +137,15 @@ namespace Prototype.GameEntity
 
             if (onScreen)
             {
-                Image.TintColor = Color.Red;
+                if (IsKO)
+                {
+                    Image.TintColor = Color.Blue;
+                }
+                else
+                {
+                    Image.TintColor = Color.Red;
+                }
+
                 Image.Draw(spriteBatch, screenPos);
             }
 

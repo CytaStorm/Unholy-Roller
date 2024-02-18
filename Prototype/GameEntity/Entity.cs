@@ -22,6 +22,7 @@ namespace Prototype.GameEntity
         // Health
         protected int _iFrames;
         protected int _iTimer;
+        protected float _speed;
 
         /* ---- Properties ---- */
 
@@ -43,7 +44,7 @@ namespace Prototype.GameEntity
         public Sprite Image { get; protected set; }
 
         // Identifiers
-        public EntityType type { get; protected set; }
+        public EntityType Type { get; protected set; }
 
         // Attacking
         public int Damage { get; protected set; }
@@ -59,7 +60,8 @@ namespace Prototype.GameEntity
 
         /// <summary>
         /// Moves the entity in worldspace by their velocity
-        /// and moves their hitbox by velocity
+        /// and moves their hitbox by velocity.
+        /// ALWAYS CALL THIS TO GET PROPER COLLISIONS
         /// </summary>
         public virtual void Move()
         {
@@ -74,7 +76,8 @@ namespace Prototype.GameEntity
                 Hitbox.Height);
         }
 
-        public virtual void OnHitEntity(Entity entityThatWasHit, CollisionType colType) { }
+        public virtual void OnHitEntity(Entity entityThatWasHit, CollisionType colType, 
+            bool causedCollision) { }
 
         public virtual void OnHitTile(Tile tile, CollisionType colType) { }
 

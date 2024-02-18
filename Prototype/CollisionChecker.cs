@@ -55,10 +55,7 @@ namespace Prototype
                                 e.Hitbox.Height);
 
                             // Check if entity will hit the tile
-                            if (colHitbox.Right >= tileHit.X &&
-                                colHitbox.X <= tileHit.Right &&
-                                colHitbox.Bottom >= tileHit.Y &&
-                                colHitbox.Y <= tileHit.Bottom)
+                            if (colHitbox.Intersects(tileHit))
                             {
                                 Vector2 distFromTile = curTile.WorldPosition - e.WorldPosition;
 
@@ -108,10 +105,7 @@ namespace Prototype
                             e.Hitbox.Height);
 
                         // Check if entity will hit the tile
-                        if (colHitbox.Right >= tileHit.X &&
-                            colHitbox.X <= tileHit.Right &&
-                            colHitbox.Bottom >= tileHit.Y &&
-                            colHitbox.Y <= tileHit.Bottom)
+                        if (colHitbox.Intersects(tileHit))
                         {
                             Vector2 distFromTile = curTile.WorldPosition - e.WorldPosition;
 
@@ -152,10 +146,7 @@ namespace Prototype
                 e2.Hitbox.Height);
 
             // Check if entities will collide
-            bool collided = colRect1.Right >= colRect2.X &&
-                colRect1.X <= colRect2.Right &&
-                colRect1.Bottom >= colRect2.Y &&
-                colRect1.Y <= colRect2.Bottom;
+            bool collided = colRect1.Intersects(colRect2);
 
             if (collided)
             {
@@ -166,17 +157,49 @@ namespace Prototype
                 // Tell how they were hit
                 if (Math.Abs(distFromTile.X) > Math.Abs(distFromTile.Y))
                 {
-                    e1.OnHitEntity(e2, CollisionType.Horizontal);
-                    e2.OnHitEntity(e1, CollisionType.Horizontal);
+                    e1.OnHitEntity(e2, CollisionType.Horizontal, true);
+                    e2.OnHitEntity(e1, CollisionType.Horizontal, false);
                 }
                 else
                 {
-                    e1.OnHitEntity(e2, CollisionType.Vertical);
-                    e2.OnHitEntity(e1, CollisionType.Vertical);
+                    e1.OnHitEntity(e2, CollisionType.Vertical, true);
+                    e2.OnHitEntity(e1, CollisionType.Vertical, false);
                 }
             }
 
             return collided;
+        }
+        
+        public static CollisionType CheckEntityCollision(Rectangle checkRect, Entity e2)
+        {   
+            // Get where entity's hitbox will be
+            Rectangle colRect2 = new Rectangle(
+                e2.Hitbox.X + (int)e2.Velocity.X,
+                e2.Hitbox.Y + (int)e2.Velocity.Y,
+                e2.Hitbox.Width,
+                e2.Hitbox.Height);
+
+            // Check if entities will collide
+            bool collided = checkRect.Intersects(colRect2);
+
+            if (collided)
+            {
+                // Check which direction entity was hit from
+                Vector2 distFromTile = new Vector2(checkRect.X, checkRect.Y) - e2.WorldPosition;
+
+                // Tell entities they hit something
+                // Tell how they were hit
+                if (Math.Abs(distFromTile.X) > Math.Abs(distFromTile.Y))
+                {
+                    return CollisionType.Horizontal;
+                }
+                else
+                {
+                    return CollisionType.Vertical;
+                }
+            }
+
+            return CollisionType.None;
         }
     }
 }

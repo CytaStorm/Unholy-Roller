@@ -22,8 +22,6 @@ namespace Prototype.GameEntity
 
         private GraphicsDeviceManager _gdManager;
 
-        private float _speed;
-
         private bool _canRedirect = true;
 
         private int _maxRedirects = 3;
@@ -79,7 +77,7 @@ namespace Prototype.GameEntity
             _numRedirects = _maxRedirects;
 
             // Vitality
-            MaxHealth = 7;
+            MaxHealth = 6;
             CurHealth = MaxHealth;
             _iFrames = 30;
 
@@ -100,6 +98,8 @@ namespace Prototype.GameEntity
             _emptyHeart = new Sprite(emptyHeart, new Rectangle(0, 0, 100, 100));
 
             this.rm = rm;
+
+            Type = EntityType.Player;
         }
 
 
@@ -107,6 +107,8 @@ namespace Prototype.GameEntity
         public override void Update(GameTime gameTime)
         {
             TickInvincibility();
+
+            if (_iTimer > 0) Image.TintColor = Color.Purple;
 
             bool sideScreenCollision = WorldPosition.X < 0f ||
                 WorldPosition.X + DEFAULT_SPRITE_WIDTH >= _gdManager.PreferredBackBufferWidth;
@@ -119,24 +121,6 @@ namespace Prototype.GameEntity
             {
                 HandleLaunch();
             }
-
-            /*
-            // Check collisions with screenBounds
-            if (sideScreenCollision)
-            {
-                Velocity = new Vector2(Velocity.X * -1, Velocity.Y);
-
-                // Reset Redirects
-                _numRedirects = _maxRedirects;
-            }
-            if (topBottomScreenCollision)
-            {
-                Velocity = new Vector2(Velocity.X, Velocity.Y * -1);
-
-                // Reset Redirects
-                _numRedirects = _maxRedirects;
-            }
-            */
 
             // Todo: Fix Clipping issue
             // Could try tracking time where collision is on and
@@ -193,17 +177,18 @@ namespace Prototype.GameEntity
 
                 if (CollisionChecker.CheckEntityCollision(this, curEnemy))
                 {
-                    Image.TintColor = Color.LightGoldenrodYellow;
+                    //Image.TintColor = Color.LightGoldenrodYellow;
                 }
             }
         }
 
-        public override void OnHitEntity(Entity entityThatWasHit, CollisionType colType)
+        public override void OnHitEntity(Entity entityThatWasHit, CollisionType colType,
+            bool causedCollision)
         {
-            switch (entityThatWasHit.type)
+            switch (entityThatWasHit.Type)
             {
                 case EntityType.Enemy:
-                    Ricochet(colType);
+                    //Ricochet(colType);
 
                     entityThatWasHit.TakeDamage(Damage);
                     break;
@@ -230,7 +215,7 @@ namespace Prototype.GameEntity
             base.OnHitTile(tile, colType);
         }
 
-        private void Ricochet(CollisionType hitDirection)
+        public void Ricochet(CollisionType hitDirection)
         {
             if (hitDirection == CollisionType.Vertical)
             {
@@ -242,12 +227,22 @@ namespace Prototype.GameEntity
             }
         }
 
+        public void Ricochet(Vector2 newDirection)
+        {
+            Velocity = newDirection;
+        }
+
         public override void Die()
         {
             // Go into gameover state
             Game1.GAMESTATE = Gamestate.Death;
 
             base.Die();
+        }
+
+        public void Reset()
+        {
+            CurHealth = MaxHealth;
         }
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)

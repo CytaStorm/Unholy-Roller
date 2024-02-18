@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,12 +22,22 @@ namespace Prototype.MapGeneration
         // Fields 
         private static Texture2D[] _tileTextures;
 
+        // The uniform dimensions of all map tiles
         private const int sourceTilesize = 60;
 
+        Game1 gm;
+
         // Constructors
-        public TileMaker(Texture2D[] tileTextures)
+        public TileMaker(Game1 gm)
         {
-            _tileTextures = tileTextures;
+            this.gm = gm;
+
+            // Load all tile spritesheets
+            _tileTextures = new Texture2D[5];
+            _tileTextures[0] = gm.Content.Load<Texture2D>("PlaceholderTile");
+            _tileTextures[1] = gm.Content.Load<Texture2D>("GrassTile");
+            _tileTextures[2] = gm.Content.Load<Texture2D>("WallSheet");
+            _tileTextures[3] = gm.Content.Load<Texture2D>("SpikeTile");
         }
 
         // Methods

@@ -16,37 +16,46 @@ namespace Prototype
         // Fields
         private Texture2D _dummyImage;
         private Random rng;
+        private Game1 gm;
+        private int _koedEnemies;
 
         // Properties
         public List<Enemy> Dummies { get; private set; }
         
         public EnemyManager(Game1 gm)
         {
+            this.gm = gm;
+
             _dummyImage = gm.Content.Load<Texture2D>("Cthulu_Muggles");
-            
 
             // Create a few enemies in the scene
             Dummies = new List<Enemy>();
             rng = new Random();
 
-            for (int i = 0; i < Game1.TEST_ROOM.Floor.Spawners.Count; i++)
+            CreateRoomEnemies(Game1.TEST_ROOM);
+        }
+
+        /// <summary>
+        /// Destroys all enemies in the scene
+        /// </summary>
+        public void Clear()
+        {
+            Dummies.Clear();
+        }
+
+        public void ResetRoomEnemies(Room r)
+        {
+            // Remove all enemies
+            Clear();
+
+            CreateRoomEnemies(r);
+        }
+
+        public void CreateRoomEnemies(Room r)
+        {
+            for (int i = 0; i < r.Floor.Spawners.Count; i++)
             {
-                Tile curSpawner = Game1.TEST_ROOM.Floor.Spawners[i];
-
-                /*
-                Enemy addition = new Enemy(
-                    _dummyImage,
-                    new Vector2(
-                        // X position within tilemap
-                        rng.Next(Game1.TEST_ROOM.Origin.X + Game1.TILESIZE,
-                        Game1.TEST_ROOM.Origin.X + Game1.TEST_ROOM.Floor.Width - Enemy.DEFAULT_SPRITE_WIDTH - Game1.TILESIZE),
-
-                        // Y position within tilemap
-                        rng.Next(Game1.TEST_ROOM.Origin.Y + Game1.TILESIZE,
-                        Game1.TEST_ROOM.Origin.Y + Game1.TEST_ROOM.Floor.Height - Enemy.DEFAULT_SPRITE_HEIGHT - Game1.TILESIZE)),
-                        
-                        gm.Graphics);
-                */
+                Tile curSpawner = r.Floor.Spawners[i];
 
                 // Spawn on spawn tile
                 Enemy addition = new Enemy(_dummyImage, curSpawner.WorldPosition, gm.Graphics);
@@ -57,9 +66,17 @@ namespace Prototype
 
         public void Update(GameTime gameTime)
         {
+            _koedEnemies = 0;
+
             for (int i = 0; i < Dummies.Count; i++)
             {
                 Dummies[i].Update(gameTime);
+
+                // Keep track of all KO-ed enemies
+                if (Dummies[i].IsKO)
+                {
+                    _koedEnemies++;
+                }
 
                 // Remove dead enemies
                 if (!Dummies[i].Alive)
@@ -68,6 +85,12 @@ namespace Prototype
                     i--;
                 }
             }
+
+            // Remove all enemies if all are currently KO-ed
+            if (_koedEnemies == Dummies.Count)
+            {
+                Dummies.Clear();
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -75,6 +98,15 @@ namespace Prototype
             for (int i = 0; i < Dummies.Count; i++)
             {
                 Dummies[i].Draw(spriteBatch, gameTime);
+            }
+        }
+        
+        public void DrawGizmos(GameTime gameTime)
+        {
+            for (int i = 0; i < Dummies.Count; i++)
+            {
+                if (!Dummies[i].IsKO && Dummies[i].ActionState == EnemyState.Attack)
+                    Dummies[i].DrawGizmos();
             }
         }
     }

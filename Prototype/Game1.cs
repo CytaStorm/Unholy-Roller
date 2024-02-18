@@ -3,11 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Prototype.GameEntity;
 using Prototype.MapGeneration;
+using ShapeUtils;
 
 namespace Prototype
 {
     public enum Gamestate
     {
+        Menu,
         Play,
         Win,
         Death
@@ -40,7 +42,7 @@ namespace Prototype
         public const int TILESIZE = 120;
 
         // Game State
-        public static Gamestate GAMESTATE = Gamestate.Play;
+        public static Gamestate GAMESTATE;
 
         public Game1()
         {
@@ -67,16 +69,10 @@ namespace Prototype
             // TODO: use this.Content to load your game content here
             _spriteSheetTexture = Content.Load<Texture2D>("Cthulu_Muggles");
 
-            _tileTextures = new Texture2D[5];
-            _tileTextures[0] = Content.Load<Texture2D>("PlaceholderTile");
-            _tileTextures[1] = Content.Load<Texture2D>("GrassTile");
-            _tileTextures[2] = Content.Load<Texture2D>("WallSheet");
-            _tileTextures[3] = Content.Load<Texture2D>("SpikeTile");
-
             ARIAL32 = Content.Load<SpriteFont>("arial32");
 
             // Create Tile Manager
-            _tileMaker = new TileMaker(_tileTextures);
+            _tileMaker = new TileMaker(this);
 
             TEST_ROOM = new Room("../../../TestArena2.txt", new Point(0, 0));
 
@@ -88,20 +84,45 @@ namespace Prototype
                 Graphics, _roomManager, this);
 
             EManager = new EnemyManager(this);
+
+            GAMESTATE = Gamestate.Menu;
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
-            if (GAMESTATE == Gamestate.Play)
+
+            KeyboardState kb = Keyboard.GetState();
+            switch (GAMESTATE)
             {
-                Player1.Update(gameTime);
+                case Gamestate.Menu:
+                    if (kb.IsKeyDown(Keys.Enter))
+                    {
+                        GAMESTATE = Gamestate.Play;
+                    }
+                    break;
 
-                EManager.Update(gameTime);
+                case Gamestate.Play:
+                    Player1.Update(gameTime);
+
+                    EManager.Update(gameTime);
+                    break;
+
+                case Gamestate.Death:
+
+                    // Reset stage with 'R'
+                    if (kb.IsKeyDown(Keys.R))
+                    {
+                        EManager.ResetRoomEnemies(TEST_ROOM);
+
+                        Player1.Reset();
+
+                        GAMESTATE = Gamestate.Play;
+                    }
+                    break;
+
             }
-
 
             base.Update(gameTime);
         }
@@ -116,25 +137,53 @@ namespace Prototype
 
             //_spriteBatch.DrawString(_arial32, _player.NumRedirects.ToString(), new Vector2(_player.Position.X + Player.DEFAULT_SPRITE_WIDTH/2, _player.Position.Y - 40f), Color.White);
 
-            if (GAMESTATE == Gamestate.Play)
+            switch (GAMESTATE)
             {
-                TEST_ROOM.Draw(_spriteBatch, gameTime);
+                case Gamestate.Menu:
 
-                EManager.Draw(_spriteBatch, gameTime);
+                    string titleText = "Press 'Enter' to begin testing";
+                    Vector2 titleMeasure = ARIAL32.MeasureString(titleText);
 
-                Player1.Draw(_spriteBatch, gameTime);
+                    _spriteBatch.DrawString(
+                        ARIAL32,
+                        titleText,
+                        new Vector2(
+                            WINDOW_WIDTH / 2f - titleMeasure.X / 2f, 
+                            WINDOW_HEIGHT / 2f - titleMeasure.Y / 2f),
+                        Color.White);
+                    break;
+
+                case Gamestate.Play:
+                    TEST_ROOM.Draw(_spriteBatch, gameTime);
+
+                    EManager.Draw(_spriteBatch, gameTime);
+
+                    Player1.Draw(_spriteBatch, gameTime);
+                    break;
+
+                case Gamestate.Death:
+                    string deathText = "Press 'R' to restart";
+                    Vector2 deathTextMeasure = ARIAL32.MeasureString(deathText);
+
+                    _spriteBatch.DrawString(
+                        ARIAL32,
+                        deathText,
+                        new Vector2(
+                            WINDOW_WIDTH / 2f - deathTextMeasure.X / 2f,
+                            WINDOW_HEIGHT / 2f - deathTextMeasure.Y / 2f),
+                        Color.White);
+                    break;
             }
-            else if (GAMESTATE == Gamestate.Death)
-            {
-                _spriteBatch.DrawString(
-                    ARIAL32,
-                    "Game Over",
-                    new Vector2(WINDOW_WIDTH / 2f, WINDOW_HEIGHT / 2f),
-                    Color.White);
-            }
-
 
             _spriteBatch.End();
+
+            //ShapeBatch.Begin(GraphicsDevice);
+
+            // Draw Gizmos
+            //if (gamestate == gamestate.play)
+            //    emanager.drawgizmos(gametime);
+
+            //shapebatch.end();
 
             base.Draw(gameTime);
         }

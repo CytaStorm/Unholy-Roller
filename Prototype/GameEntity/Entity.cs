@@ -65,15 +65,20 @@ namespace Prototype.GameEntity
         /// </summary>
         public virtual void Move()
         {
+            // Preserve hitbox distance from entity origin
+            int hitXDist = (int)WorldPosition.X - Hitbox.X;
+            int hitYDist = (int)WorldPosition.Y - Hitbox.Y;
+            
             // Update position
             WorldPosition += Velocity;
 
             // Update hitbox position
             Hitbox = new Rectangle(
-                (int)WorldPosition.X,
-                (int)WorldPosition.Y,
+                (int)(WorldPosition.X - hitXDist),
+                (int)(WorldPosition.Y - hitYDist),
                 Hitbox.Width,
                 Hitbox.Height);
+
         }
 
         public virtual void OnHitEntity(Entity entityThatWasHit, CollisionType colType, 

@@ -24,7 +24,7 @@ namespace Prototype.GameEntity
         public const int DEFAULT_SPRITE_X = 0;
         public const int DEFAULT_SPRITE_Y = 0;
         public const int DEFAULT_SPRITE_WIDTH = 120;
-        public const int DEFAULT_SPRITE_HEIGHT = 120;
+        public const int DEFAULT_SPRITE_HEIGHT = 140;
 
         private GraphicsDeviceManager _gdManager;
 
@@ -39,32 +39,47 @@ namespace Prototype.GameEntity
         private double _attackDelay;
         private double _attackDelayTimer;
         private bool _attackLandedOnce;
+        private Rectangle _attackHitbox;
 
         private float _chaseRange;
         private float _aggroRange;
+
+        private Sprite _gloveImage;
 
         bool _hitPlayer;
 
         // Properties
         public bool IsKO { get => _koTimer > 0; }
         public EnemyState ActionState { get; private set; }
-        
+
         // Constructors
 
-        public Enemy(Texture2D spriteSheet, Vector2 position, GraphicsDeviceManager gdManager)
+        public Enemy(Texture2D spriteSheet, Texture2D gloveImage, Vector2 position, GraphicsDeviceManager gdManager)
         {
-            // Set Player Image
-            Image = new Sprite(spriteSheet, DEFAULT_SPRITE_X, DEFAULT_SPRITE_Y,
-                DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT, new Vector2(50, 50));
+            // Set Enemy Image
+            Image = new Sprite(spriteSheet, 
+                new Rectangle(
+                    DEFAULT_SPRITE_X, 
+                    DEFAULT_SPRITE_Y, 
+                    DEFAULT_SPRITE_WIDTH, 
+                    DEFAULT_SPRITE_HEIGHT),
+                new Rectangle(
+                    (int)position.X,
+                    (int)position.Y,
+                    (int)(Game1.TILESIZE * 1.5f),
+                    (int)(Game1.TILESIZE * 1.5f * 
+                    DEFAULT_SPRITE_HEIGHT / DEFAULT_SPRITE_WIDTH)));
 
-            // Hitbox
-            Hitbox = new Rectangle((int)WorldPosition.X, (int)WorldPosition.Y, DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT);
 
             // Position
             WorldPosition = position;
 
-            // Graphics Manager -> Screen Collision
-            _gdManager = gdManager;
+            // Hitbox
+            Hitbox = new Rectangle(
+                (int)WorldPosition.X + Image.DestinationRect.Width / 2 - 50, 
+                (int)WorldPosition.Y + Image.DestinationRect.Height - 100, 
+                100, 
+                100);
 
             // Default Speed
             _speed = 3f;
@@ -83,6 +98,11 @@ namespace Prototype.GameEntity
             _attackDelay = 0.25;
             _attackDelayTimer = _attackDelay;
 
+            _gloveImage = new Sprite(
+                gloveImage,
+                gloveImage.Bounds,
+                new Rectangle(0, 0, (int)_attackRadius, (int)_attackRadius));
+            
             // Set type
             Type = EntityType.Enemy;
 
@@ -91,6 +111,9 @@ namespace Prototype.GameEntity
             _aggroRange = Game1.TILESIZE * 2;
 
             ActionState = EnemyState.Chase;
+
+            // Check if on screen
+            _gdManager = gdManager;
         }
 
 
@@ -266,6 +289,9 @@ namespace Prototype.GameEntity
                 (int)_attackRadius,
                 (int)_attackRadius);
 
+            // Store damage box
+            _attackHitbox = damageBox;
+
             // Check if player is in damage box
             CollisionType hitPlayerDir = 
                 CollisionChecker.CheckEntityCollision(damageBox, Game1.Player1);
@@ -292,12 +318,18 @@ namespace Prototype.GameEntity
             if (IsKO || playerDist > _chaseRange)
             {
                 ActionState = EnemyState.Idle;
+
                 _attackDelayTimer = _attackDelay;
+                // Stop attacking if player moves out of range
+                _attackDurationTimer = 0;
             }
             else if (playerDist < _chaseRange && playerDist > _aggroRange)
             {
                 ActionState = EnemyState.Chase;
+
                 _attackDelayTimer = _attackDelay;
+                // Stop attacking if player moves out of range
+                _attackDurationTimer = 0;
             }
             else if (playerDist < _aggroRange)
             {
@@ -320,8 +352,8 @@ namespace Prototype.GameEntity
             Rectangle screenHit = new Rectangle(
                 (int)screenPos.X,
                 (int)screenPos.Y,
-                Hitbox.Width,
-                Hitbox.Height);
+                Image.DestinationRect.Width,
+                Image.DestinationRect.Height);
 
             bool onScreen = screenBounds.Right >= screenHit.X &&
                screenBounds.X <= screenHit.Right &&
@@ -332,7 +364,7 @@ namespace Prototype.GameEntity
             {
                 if (_hitPlayer && !IsKO)
                 {
-                    Image.TintColor = Color.Wheat;
+                    Image.TintColor = Color.Red;
                     _hitPlayer = false;
                 }
                 else if (IsKO)
@@ -341,10 +373,25 @@ namespace Prototype.GameEntity
                 }
                 else
                 {
-                    Image.TintColor = Color.Red;
+                    Image.TintColor = Color.White;
                 }
 
                 Image.Draw(spriteBatch, screenPos);
+
+                // Attacking
+                if (_attackDurationTimer > 0)
+                {
+                    int atkHitDistX = (int)WorldPosition.X - _attackHitbox.X;
+                    int atkHitDistY = (int)WorldPosition.Y - _attackHitbox.Y;
+
+                    Rectangle drawnAttackHit = new Rectangle(
+                        (int)(screenPos.X - atkHitDistX),
+                        (int)(screenPos.Y - atkHitDistY),
+                        _attackHitbox.Width,
+                        _attackHitbox.Height);
+
+                    _gloveImage.Draw(spriteBatch, new Vector2(drawnAttackHit.X, drawnAttackHit.Y));
+                }
             }
 
             // Display current health
@@ -366,19 +413,52 @@ namespace Prototype.GameEntity
             Vector2 screenPos = Game1.Player1.ScreenPosition + distFromPlayer;
 
             // Show attack windup 
-            float attackReadiness = (float)(_attackDelayTimer/_attackDelay);
+            float attackReadiness = (float)((_attackDelay - _attackDelayTimer) / _attackDelay);
 
-            float boxFill = DEFAULT_SPRITE_HEIGHT * attackReadiness;
+            float boxFill = Image.DestinationRect.Height * attackReadiness;
+            int boxFillInt = (int)MathF.Round(boxFill);
 
             Rectangle readyBox = new Rectangle(
                 (int)screenPos.X,
-                (int)screenPos.Y + DEFAULT_SPRITE_HEIGHT - (int)MathF.Round(boxFill),
-                DEFAULT_SPRITE_WIDTH,
-                (int)MathF.Round(boxFill));
+                (int)screenPos.Y + Image.DestinationRect.Height - boxFillInt,
+                Image.DestinationRect.Width,
+                boxFillInt);
 
             Color fadedYellow = new Color(0.5f, 0.5f, 0.5f, 0.4f);
 
             ShapeBatch.Box(readyBox, fadedYellow);
+
+            // Draw Hitbox
+            int hitDistX = (int)WorldPosition.X - Hitbox.X;
+            int hitDistY = (int)WorldPosition.Y - Hitbox.Y;
+
+            Rectangle drawnHit = new Rectangle(
+                (int)(screenPos.X - hitDistX),
+                (int)(screenPos.Y - hitDistY),
+                Hitbox.Width,
+                Hitbox.Height);
+
+            Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
+
+            ShapeBatch.Box(drawnHit, fadedRed);
+
+            // Attacking
+            if (_attackDurationTimer > 0)
+            {
+                // Draw Hitbox
+                int atkHitDistX = (int)WorldPosition.X - _attackHitbox.X;
+                int atkHitDistY = (int)WorldPosition.Y - _attackHitbox.Y;
+
+                Rectangle drawnAttackHit = new Rectangle(
+                    (int)(screenPos.X - atkHitDistX),
+                    (int)(screenPos.Y - atkHitDistY),
+                    _attackHitbox.Width,
+                    _attackHitbox.Height);
+
+                Color fadedGreen = new Color(0f, 0f, 1f, 0.4f);
+
+                ShapeBatch.Box(drawnAttackHit, fadedGreen);
+            }
         }
     }
 }

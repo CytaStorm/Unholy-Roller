@@ -84,28 +84,48 @@ namespace Prototype.MapGeneration
 
                     result.Collidable = false;
 
-                    result.TileSprite = new Sprite(_tileTextures[1], GetOrientationSource(""));
+                    result.TileSprite = new Sprite(_tileTextures[1], GetOrientationSource(""), 
+                        new Rectangle(
+                            (int)position.X, 
+                            (int)position.Y, 
+                            Game1.TILESIZE, 
+                            Game1.TILESIZE));
                     break;
 
                 case (int)TileType.Wall:
 
                     result.Collidable = true;
 
-                    result.TileSprite = new Sprite(_tileTextures[2], GetOrientationSource(orientation));
+                    result.TileSprite = new Sprite(_tileTextures[2], GetOrientationSource(orientation),
+                        new Rectangle(
+                            (int)position.X,
+                            (int)position.Y,
+                            Game1.TILESIZE,
+                            Game1.TILESIZE));
                     break;
 
                 case (int)TileType.Spike:
 
                     result.Collidable = true;
 
-                    result.TileSprite = new Sprite(_tileTextures[3], GetOrientationSource(""));
+                    result.TileSprite = new Sprite(_tileTextures[3], GetOrientationSource(""),
+                        new Rectangle(
+                            (int)position.X,
+                            (int)position.Y,
+                            Game1.TILESIZE,
+                            Game1.TILESIZE));
                     break;
 
                 default:
 
                     result.Collidable = false;
 
-                    result.TileSprite = new Sprite(_tileTextures[0], GetOrientationSource(""));
+                    result.TileSprite = new Sprite(_tileTextures[0], GetOrientationSource(""),
+                        new Rectangle(
+                            (int)position.X,
+                            (int)position.Y,
+                            Game1.TILESIZE,
+                            Game1.TILESIZE));
                     break;
             }
             

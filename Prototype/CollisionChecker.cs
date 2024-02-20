@@ -17,7 +17,7 @@ namespace Prototype
         None
     }
 
-    internal class CollisionChecker
+    public static class CollisionChecker
     {
         public static CollisionType CheckTileCollision(Entity e)
         {

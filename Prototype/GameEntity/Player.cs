@@ -2,13 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Prototype.MapGeneration;
+using ShapeUtils;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Prototype.GameEntity
 {
@@ -31,10 +27,6 @@ namespace Prototype.GameEntity
 
         private Game1 gm;
 
-        private Sprite _heart;
-        private Sprite _halfHeart;
-        private Sprite _emptyHeart;
-
         // Properties
 
         public Vector2 ScreenPosition { get; private set; }
@@ -47,18 +39,31 @@ namespace Prototype.GameEntity
 
         // Constructors
 
-        public Player(Texture2D spriteSheet, Vector2 worldPosition, 
+        public Player(Texture2D spriteSheet, Vector2 position, 
             GraphicsDeviceManager gdManager, RoomManager rm, Game1 gm)
         {
             // Set Player Image
-            Image = new Sprite(spriteSheet, DEFAULT_SPRITE_X, DEFAULT_SPRITE_Y,
-                DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT, new Vector2(50, 50));
-
-            // Hitbox
-            Hitbox = new Rectangle((int)WorldPosition.X, (int)WorldPosition.Y, DEFAULT_SPRITE_WIDTH, DEFAULT_SPRITE_HEIGHT);
+            Image = new Sprite(spriteSheet,
+               new Rectangle(
+                   DEFAULT_SPRITE_X,
+                   DEFAULT_SPRITE_Y,
+                   DEFAULT_SPRITE_WIDTH,
+                   DEFAULT_SPRITE_HEIGHT),
+               new Rectangle(
+                   (int)position.X,
+                   (int)position.Y,
+                   Game1.TILESIZE,
+                   Game1.TILESIZE));
 
             // Position
-            WorldPosition = worldPosition;
+            WorldPosition = position;
+            
+            // Hitbox
+            Hitbox = new Rectangle(
+                (int)WorldPosition.X, 
+                (int)WorldPosition.Y, 
+                Image.DestinationRect.Width, 
+                Image.DestinationRect.Height);
 
             ScreenPosition = new Vector2(
                 Game1.WINDOW_WIDTH / 2 - DEFAULT_SPRITE_WIDTH / 2,
@@ -86,16 +91,6 @@ namespace Prototype.GameEntity
 
             // Game Manager
             this.gm = gm;
-
-            // Heart image
-            Texture2D heart = gm.Content.Load<Texture2D>("BowlingHeart");
-            _heart = new Sprite(heart, new Rectangle(0, 0, 100, 100));
-            
-            Texture2D halfHeart = gm.Content.Load<Texture2D>("BowlingHalfHeart");
-            _halfHeart = new Sprite(halfHeart, new Rectangle(0, 0, 100, 100));
-            
-            Texture2D emptyHeart = gm.Content.Load<Texture2D>("EmptyHeart");
-            _emptyHeart = new Sprite(emptyHeart, new Rectangle(0, 0, 100, 100));
 
             this.rm = rm;
 
@@ -249,30 +244,6 @@ namespace Prototype.GameEntity
         {
             Image.Draw(spriteBatch, ScreenPosition);
 
-            // Display current health
-            //spriteBatch.DrawString(Game1.ARIAL32, $"Hp: {CurHealth}", ScreenPosition, Color.White);
-
-            int temp = CurHealth;
-            // Draw whole hearts
-            for (int i = 0; i < (int) Math.Round(MaxHealth/2.0); i++)
-            {
-                if (temp / 2 >= 1)
-                {
-                    _heart.Draw(spriteBatch, new Vector2(i * 105f, 10f));
-                    temp -= 2;
-                }
-                else if (temp > 0)
-                {
-                    _halfHeart.Draw(spriteBatch, new Vector2(i * 105f, 10f));
-                    temp -= 1;
-                }
-                else
-                {
-                    _emptyHeart.Draw(spriteBatch, new Vector2(i * 105f, 10f));
-                }
-            }
-            
-
             // Display remaining redirects
             Vector2 textPos =
                 new Vector2(
@@ -281,7 +252,24 @@ namespace Prototype.GameEntity
             spriteBatch.DrawString(Game1.ARIAL32, $"{_numRedirects}", textPos, Color.White);
 
             // Reset player color to default
-            Image.TintColor = Color.Orange;
+            Image.TintColor = Color.White;
+        }
+
+        public void DrawGizmos()
+        {
+            // Draw Hitbox
+            int hitDistX = (int)WorldPosition.X - Hitbox.X;
+            int hitDistY = (int)WorldPosition.Y - Hitbox.Y;
+
+            Rectangle drawnHit = new Rectangle(
+                (int)(ScreenPosition.X - hitDistX),
+                (int)(ScreenPosition.Y - hitDistY),
+                Hitbox.Width,
+                Hitbox.Height);
+
+            Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
+
+            ShapeBatch.Box(drawnHit, fadedRed);
         }
     }
 }

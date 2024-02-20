@@ -29,6 +29,7 @@ namespace Prototype
 
         // UI
         public static SpriteFont ARIAL32;
+        private UI _ui;
 
         // Entities
         public static Player Player1 { get; private set; }
@@ -67,7 +68,7 @@ namespace Prototype
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            _spriteSheetTexture = Content.Load<Texture2D>("Cthulu_Muggles");
+            _spriteSheetTexture = Content.Load<Texture2D>("BasicBlueClean");
 
             ARIAL32 = Content.Load<SpriteFont>("arial32");
 
@@ -84,6 +85,8 @@ namespace Prototype
                 Graphics, _roomManager, this);
 
             EManager = new EnemyManager(this);
+
+            _ui = new UI(this);
 
             GAMESTATE = Gamestate.Menu;
         }
@@ -159,6 +162,8 @@ namespace Prototype
                     EManager.Draw(_spriteBatch, gameTime);
 
                     Player1.Draw(_spriteBatch, gameTime);
+
+                    _ui.Draw(_spriteBatch, gameTime);
                     break;
 
                 case Gamestate.Death:
@@ -179,11 +184,15 @@ namespace Prototype
 
             //ShapeBatch.Begin(GraphicsDevice);
 
-            // Draw Gizmos
-            //if (gamestate == gamestate.play)
-            //    emanager.drawgizmos(gametime);
+            //// Draw Gizmos
+            //if (GAMESTATE == Gamestate.Play)
+            //{
+            //    EManager.DrawGizmos(gameTime);
 
-            //shapebatch.end();
+            //    Player1.DrawGizmos();
+            //}
+
+            //ShapeBatch.End();
 
             base.Draw(gameTime);
         }

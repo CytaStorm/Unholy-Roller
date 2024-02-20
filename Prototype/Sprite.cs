@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,51 +14,43 @@ namespace Prototype
 
         // Properties
         public Texture2D Texture { get; private set; }
-
         public Rectangle SourceRect { get; private set; }
-
-        //public Vector2 Scale { get; set; }
-
+        public Rectangle DestinationRect { get; private set; }
         public Color TintColor { get; set; }
 
-        /// <summary>
-        /// Creates a sprite that contains a 'cut-out' of the given texture
-        /// from x to x + width and y to y + height
-        /// </summary>
-        /// <param name="texture"> the texture to cut from </param>
-        /// <param name="x"> the x position of the image on the texture </param>
-        /// <param name="y"> the y position of the image on the texture </param>
-        /// <param name="width"> the width of the image on the texture </param>
-        /// <param name="height"> the height of the image on the texture </param>
-        public Sprite(Texture2D texture, int x, int y, int width, int height) :
-            this(texture, x, y, width, height, new Vector2(width, height)) { }
-
-
-        public Sprite(Texture2D texture, int x, int y, int width, int height, Vector2 scale)
-        {
-            Texture = texture;
-
-            SourceRect = new Rectangle(x, y, width, height);
-
-            //Scale = scale;
-
-            TintColor = Color.White;
-        }
-
-        public Sprite(Texture2D texture, Rectangle sourceRect)
+        public Sprite(Texture2D texture, Rectangle sourceRect, Rectangle destinationRect)
         {
             Texture = texture;
             SourceRect = sourceRect;
-
+            DestinationRect = destinationRect;
             TintColor = Color.White;
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
-            float scale = Math.Max((float)Game1.TILESIZE / SourceRect.Width, 1f);
+            float scale = (float)DestinationRect.Width / SourceRect.Width;
+            
+            spriteBatch.Draw(Texture, 
+                position, 
+                SourceRect, 
+                TintColor, 
+                0f, 
+                Vector2.Zero,
+                scale,
+                SpriteEffects.None, 
+                0);
+        }
 
-            //spriteBatch.Draw(Texture, position, SourceRect, TintColor);
-            spriteBatch.Draw(Texture, position, SourceRect, TintColor, 0f, Vector2.One, scale, SpriteEffects.None, 1);
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(Texture, 
+                DestinationRect, 
+                SourceRect, 
+                TintColor, 
+                0f, 
+                Vector2.Zero, 
+                SpriteEffects.None, 
+                0);
         }
         
     }

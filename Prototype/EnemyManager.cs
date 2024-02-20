@@ -15,6 +15,7 @@ namespace Prototype
     {
         // Fields
         private Texture2D _dummyImage;
+        private Texture2D _gloveImage;
         private Random rng;
         private Game1 gm;
         private int _koedEnemies;
@@ -26,7 +27,8 @@ namespace Prototype
         {
             this.gm = gm;
 
-            _dummyImage = gm.Content.Load<Texture2D>("Cthulu_Muggles");
+            _dummyImage = gm.Content.Load<Texture2D>("BasicEnemy");
+            _gloveImage = gm.Content.Load<Texture2D>("BasicGlove");
 
             // Create a few enemies in the scene
             Dummies = new List<Enemy>();
@@ -58,7 +60,11 @@ namespace Prototype
                 Tile curSpawner = r.Floor.Spawners[i];
 
                 // Spawn on spawn tile
-                Enemy addition = new Enemy(_dummyImage, curSpawner.WorldPosition, gm.Graphics);
+                Enemy addition = new Enemy(
+                    _dummyImage, 
+                    _gloveImage, 
+                    curSpawner.WorldPosition,
+                    gm.Graphics);
 
                 Dummies.Add(addition);
             }
@@ -105,8 +111,7 @@ namespace Prototype
         {
             for (int i = 0; i < Dummies.Count; i++)
             {
-                if (!Dummies[i].IsKO && Dummies[i].ActionState == EnemyState.Attack)
-                    Dummies[i].DrawGizmos();
+                Dummies[i].DrawGizmos();
             }
         }
     }

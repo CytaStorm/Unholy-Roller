@@ -62,8 +62,10 @@ namespace Prototype.MapGeneration
         {
             FloorFilepath = filename;
             Floor = new Tileset(filename, origin);
-
             Origin = origin;
+
+            Interactables = new List<MapOBJ>();
+            Enemies = new List<Enemy>();
         }
 
         // Methods

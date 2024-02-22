@@ -77,12 +77,22 @@ namespace Prototype
 
             TEST_ROOM = new Room("../../../TestArena2.txt", new Point(0, 0));
 
+            // Add a door to each doorway in test room
+            foreach (Tile d in TEST_ROOM.Floor.Doors)
+            {
+                TEST_ROOM.Interactables.Add(
+                    new MapOBJ(
+                        d.WorldPosition,
+                        Content.Load<Texture2D>("PlaceholderDoor"),
+                        MapObJType.Door));
+            }
+
             // Create Dungeon
             //_roomManager = new RoomManager(10);
-            
+
             // Create Player
-            Player1 = new Player(_spriteSheetTexture, new Vector2(WINDOW_WIDTH/3 + Game1.TILESIZE, WINDOW_HEIGHT/3 + Game1.TILESIZE), 
-                Graphics, _roomManager, this);
+            Player1 = new Player(_spriteSheetTexture, new Vector2(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
+                Graphics, _roomManager, this); ;
 
             EManager = new EnemyManager(this);
 
@@ -138,7 +148,7 @@ namespace Prototype
 
             //_roomManager.Draw(_spriteBatch, gameTime);
 
-            //_spriteBatch.DrawString(_arial32, _player.NumRedirects.ToString(), new Vector2(_player.Position.X + Player.DEFAULT_SPRITE_WIDTH/2, _player.Position.Y - 40f), Color.White);
+            //_spriteBatch.DrawString(ARIAL32, Player1.NumRedirects.ToString(), new Vector2(_player.Position.X + Player.DEFAULT_SPRITE_WIDTH / 2, _player.Position.Y - 40f), Color.White);
 
             switch (GAMESTATE)
             {
@@ -151,13 +161,17 @@ namespace Prototype
                         ARIAL32,
                         titleText,
                         new Vector2(
-                            WINDOW_WIDTH / 2f - titleMeasure.X / 2f, 
+                            WINDOW_WIDTH / 2f - titleMeasure.X / 2f,
                             WINDOW_HEIGHT / 2f - titleMeasure.Y / 2f),
                         Color.White);
                     break;
 
                 case Gamestate.Play:
                     TEST_ROOM.Draw(_spriteBatch, gameTime);
+                    foreach (MapOBJ obj in TEST_ROOM.Interactables)
+                    {
+                        obj.Draw(_spriteBatch, gameTime);
+                    }
 
                     EManager.Draw(_spriteBatch, gameTime);
 
@@ -182,17 +196,17 @@ namespace Prototype
 
             _spriteBatch.End();
 
-            //ShapeBatch.Begin(GraphicsDevice);
+            ShapeBatch.Begin(GraphicsDevice);
 
-            //// Draw Gizmos
-            //if (GAMESTATE == Gamestate.Play)
-            //{
-            //    EManager.DrawGizmos(gameTime);
+            // Draw Gizmos
+            if (GAMESTATE == Gamestate.Play)
+            {
+                EManager.DrawGizmos(gameTime);
 
-            //    Player1.DrawGizmos();
-            //}
+                Player1.DrawGizmos();
+            }
 
-            //ShapeBatch.End();
+            ShapeBatch.End();
 
             base.Draw(gameTime);
         }

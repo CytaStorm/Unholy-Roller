@@ -27,6 +27,12 @@ namespace Prototype.GameEntity
 
         private Game1 gm;
 
+        private MouseState _prevMouse;
+        private MouseState _curMouse;
+
+        private Sprite _default;
+        private Sprite _spedUpSprite;
+
         // Properties
 
         public Vector2 ScreenPosition { get; private set; }
@@ -39,11 +45,11 @@ namespace Prototype.GameEntity
 
         // Constructors
 
-        public Player(Texture2D spriteSheet, Vector2 position, 
+        public Player(Texture2D spriteSheet, Vector2 position,
             GraphicsDeviceManager gdManager, RoomManager rm, Game1 gm)
         {
             // Set Player Image
-            Image = new Sprite(spriteSheet,
+            _default = new Sprite(gm.Content.Load<Texture2D>("BasicBlueClean"),
                new Rectangle(
                    DEFAULT_SPRITE_X,
                    DEFAULT_SPRITE_Y,
@@ -55,14 +61,28 @@ namespace Prototype.GameEntity
                    Game1.TILESIZE,
                    Game1.TILESIZE));
 
+            _spedUpSprite = new Sprite(gm.Content.Load<Texture2D>("SpookyBlueTeeth"),
+               new Rectangle(
+                   DEFAULT_SPRITE_X,
+                   DEFAULT_SPRITE_Y,
+                   DEFAULT_SPRITE_WIDTH,
+                   DEFAULT_SPRITE_HEIGHT),
+               new Rectangle(
+                   (int)position.X,
+                   (int)position.Y,
+                   Game1.TILESIZE,
+                   Game1.TILESIZE));
+
+            Image = _default;
+
             // Position
             WorldPosition = position;
-            
+
             // Hitbox
             Hitbox = new Rectangle(
-                (int)WorldPosition.X, 
-                (int)WorldPosition.Y, 
-                Image.DestinationRect.Width, 
+                (int)WorldPosition.X,
+                (int)WorldPosition.Y,
+                Image.DestinationRect.Width,
                 Image.DestinationRect.Height);
 
             ScreenPosition = new Vector2(
@@ -73,7 +93,7 @@ namespace Prototype.GameEntity
             _gdManager = gdManager;
 
             // Default Speed
-            _speed = 10f;
+            _speed = 20f;
 
             // Default Velocity
             Velocity = new Vector2(0f, 0f);
@@ -101,6 +121,8 @@ namespace Prototype.GameEntity
         // Methods
         public override void Update(GameTime gameTime)
         {
+            _curMouse = Mouse.GetState();
+
             TickInvincibility();
 
             if (_iTimer > 0) Image.TintColor = Color.Purple;
@@ -120,32 +142,45 @@ namespace Prototype.GameEntity
             // Todo: Fix Clipping issue
             // Could try tracking time where collision is on and
             // if it's on too long, let the player move in a direction until it turns off
-            
-            bool hitTile = CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);            
+
+            bool hitTile = CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
 
             HandleEnemyCollisions();
 
-            Move();
-        }
+            HandleObjCollisions();
 
-        private void HandleLaunch()
-        {
             // Press mouse, Launch is primed
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+            if (_numRedirects > 0 && _curMouse.LeftButton == ButtonState.Pressed)
             {
                 // Todo: Slow time
-                if (!_canRedirect)
-                    Velocity /= 2;
+
+                Move(Velocity / 2);
 
                 // Player can launch
                 _canRedirect = true;
             }
+            else
+            {
+                Move(Velocity);
+            }
 
+            // Friction: Deccelerate a bit over time
+            // Todo: Tile-based Friction?
+            Vector2 friction = Velocity * -1;
+            friction.Normalize();
+            friction *= 0.01f;
+            Accelerate(friction);
+
+            _prevMouse = _curMouse;
+        }
+
+        private void HandleLaunch()
+        {
             // Let go of Mouse, Launch Player in direction of Mouse
-            else if (Mouse.GetState().LeftButton == ButtonState.Released && _canRedirect)
+            if (_curMouse.LeftButton == ButtonState.Released && _canRedirect)
             {
                 // Get mouse Position
-                Vector2 mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+                Vector2 mousePos = new Vector2(_curMouse.X, _curMouse.Y);
 
                 // Aim from center of the Player
                 Vector2 centerPos = new Vector2(ScreenPosition.X + DEFAULT_SPRITE_WIDTH / 2,
@@ -154,8 +189,20 @@ namespace Prototype.GameEntity
                 // Aim toward mouse at player speed
                 Vector2 distance = mousePos - centerPos;
                 distance.Normalize();
-                distance *= _speed * 1.5f;
-                Velocity = distance;
+
+                // Speed is less than default
+                if (Velocity.LengthSquared() <= _speed * _speed)
+                {
+                    // Launch player at default speed
+                    distance *= _speed;
+                    Velocity = distance;
+                }
+                else
+                {
+                    // Launch player at current speed
+                    distance *= Velocity.Length();
+                    Velocity = distance;
+                }
 
                 // Stop player from launching again
                 _canRedirect = false;
@@ -177,15 +224,27 @@ namespace Prototype.GameEntity
             }
         }
 
+        private void HandleObjCollisions()
+        {
+            foreach(MapOBJ obj in Game1.TEST_ROOM.Interactables)
+            {
+                CollisionChecker.CheckMapObjectCollision(this, obj);
+            }
+        }
+
         public override void OnHitEntity(Entity entityThatWasHit, CollisionType colType,
             bool causedCollision)
         {
             switch (entityThatWasHit.Type)
             {
                 case EntityType.Enemy:
-                    //Ricochet(colType);
-
                     entityThatWasHit.TakeDamage(Damage);
+
+                    // Speed up
+                    Vector2 acc = Velocity;
+                    acc.Normalize();
+                    acc *= 0.05f;
+                    Accelerate(acc);
                     break;
             }
         }
@@ -200,14 +259,56 @@ namespace Prototype.GameEntity
 
                     Image.TintColor = Color.LightGoldenrodYellow;
                     break;
+
+                case TileType.Wall:
+                    // Place self on part of wall that was hit
+                    //if (colType == CollisionType.Horizontal)
+                    //{
+                    //    if (Velocity.X > 0)
+                    //    {
+                    //        Vector2 whereItShouldBe = new Vector2(tile.WorldPosition.X - Hitbox.Width, WorldPosition.Y);
+                    //        Move(whereItShouldBe - WorldPosition);
+                    //    }
+                    //    else
+                    //    {
+                    //        Vector2 whereItShouldBe = new Vector2(tile.WorldPosition.X + Game1.TILESIZE + 1, WorldPosition.Y);
+                    //        Move(whereItShouldBe - WorldPosition);
+                    //    }
+                    //}
+                    //else if (colType == CollisionType.Vertical)
+                    //{
+                    //    if (Velocity.Y > 0)
+                    //    {
+                    //        Vector2 whereItShouldBe = new Vector2(WorldPosition.X, tile.WorldPosition.Y - Hitbox.Height);
+                    //        Move(whereItShouldBe - WorldPosition);
+                    //    }
+                    //    else
+                    //    {
+                    //        Vector2 whereItShouldBe = new Vector2(WorldPosition.X, tile.WorldPosition.Y + Game1.TILESIZE + 1);
+                    //        Move(whereItShouldBe - WorldPosition);
+                    //    }
+                    //}
+                    break;
             }
+
 
             Ricochet(colType);
 
             // Restore redirects
-            _numRedirects = _maxRedirects;
+            if (_numRedirects < _maxRedirects)
+                _numRedirects++;
 
             base.OnHitTile(tile, colType);
+        }
+
+        public override void OnHitObject(MapOBJ obj, CollisionType colType)
+        {
+            switch (obj.Type)
+            {
+                case MapObJType.Door:
+                    Ricochet(colType);
+                    break;
+            }
         }
 
         public void Ricochet(CollisionType hitDirection)
@@ -227,6 +328,13 @@ namespace Prototype.GameEntity
             Velocity = newDirection;
         }
 
+        public void Accelerate(Vector2 force)
+        {
+            float forceMag = force.LengthSquared();
+            if (forceMag < 0 || forceMag >= 0)
+                Velocity += force;
+        }
+
         public override void Die()
         {
             // Go into gameover state
@@ -242,7 +350,14 @@ namespace Prototype.GameEntity
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
+            float veloMag = Velocity.Length();
+            if (veloMag < 20f)
+                Image = _default;
+            else if (veloMag > 20f)
+                Image = _spedUpSprite;
+
             Image.Draw(spriteBatch, ScreenPosition);
+                
 
             // Display remaining redirects
             Vector2 textPos =
@@ -253,6 +368,13 @@ namespace Prototype.GameEntity
 
             // Reset player color to default
             Image.TintColor = Color.White;
+
+            // Display player velocity
+            spriteBatch.DrawString(
+                Game1.ARIAL32,
+                $"Speed: {Velocity.Length():0.00}",
+                new Vector2(0f, 150f),
+                Color.White);
         }
 
         public void DrawGizmos()

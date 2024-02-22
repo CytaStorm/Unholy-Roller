@@ -80,11 +80,36 @@ namespace Prototype.GameEntity
                 Hitbox.Height);
 
         }
+        
+        /// <summary>
+        /// Moves the entity in worldspace by their velocity
+        /// and moves their hitbox by velocity.
+        /// ALWAYS CALL THIS TO GET PROPER COLLISIONS
+        /// </summary>
+        public virtual void Move(Vector2 velocity)
+        {
+            // Preserve hitbox distance from entity origin
+            int hitXDist = (int)WorldPosition.X - Hitbox.X;
+            int hitYDist = (int)WorldPosition.Y - Hitbox.Y;
+            
+            // Update position
+            WorldPosition += velocity;
+
+            // Update hitbox position
+            Hitbox = new Rectangle(
+                (int)(WorldPosition.X - hitXDist),
+                (int)(WorldPosition.Y - hitYDist),
+                Hitbox.Width,
+                Hitbox.Height);
+
+        }
 
         public virtual void OnHitEntity(Entity entityThatWasHit, CollisionType colType, 
             bool causedCollision) { }
 
         public virtual void OnHitTile(Tile tile, CollisionType colType) { }
+
+        public virtual void OnHitObject(MapOBJ obj, CollisionType colType) { }
 
         public virtual void TakeDamage(int damage)
         {

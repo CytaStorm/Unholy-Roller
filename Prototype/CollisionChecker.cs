@@ -69,7 +69,6 @@ namespace Prototype
                                     return CollisionType.Vertical;
                                 }
                             }
-                            
                         }
                     }
                 }
@@ -96,7 +95,7 @@ namespace Prototype
                             Game1.TILESIZE,
                             Game1.TILESIZE);
 
-                        // Get where the entity will be
+                        // Get final position of entity hitbox
                         Vector2 colPosition = e.WorldPosition + e.Velocity;
                         Rectangle colHitbox = new Rectangle(
                             (int)colPosition.X,
@@ -104,12 +103,57 @@ namespace Prototype
                             e.Hitbox.Width,
                             e.Hitbox.Height);
 
-                        // Check if entity will hit the tile
-                        if (colHitbox.Intersects(tileHit))
-                        {
-                            Vector2 distFromTile = curTile.WorldPosition - e.WorldPosition;
+                        float numShifts = e.Velocity.Length();
+                        bool intersects = false;
+                        Rectangle temp = new Rectangle();
+                        Vector2 tempPoint = Vector2.Zero;
 
-                            // Check which of the entity was hit
+                        if (numShifts > 1f)
+                        {
+                            Vector2 normVelo = e.Velocity;
+                            normVelo.Normalize();
+
+                            // Explain what this does
+                            for (int i = 0; i < (int)numShifts; i++)
+                            {
+                                tempPoint = e.WorldPosition + normVelo * (i + 1);
+                                temp = new Rectangle(
+                                (int)MathF.Round(tempPoint.X),
+                                (int)MathF.Round(tempPoint.Y),
+                                e.Hitbox.Width,
+                                e.Hitbox.Height);
+
+                                intersects = temp.Intersects(tileHit);
+
+                                if (intersects)
+                                    break;
+                            }
+                            
+                            // Check if final hitbox position overlaps
+                            if (!intersects)
+                            {
+                                temp = colHitbox;
+                                tempPoint = e.WorldPosition;
+                                intersects = colHitbox.Intersects(tileHit);
+                            }
+                        }
+                        else
+                        {
+                            // If change in dist isn't significant
+                            // Just use final hitbox position to check overlap
+                            temp = colHitbox;
+                            tempPoint = e.WorldPosition;
+
+                            intersects = colHitbox.Intersects(tileHit);
+                        }
+                        
+
+                        // Check if entity will hit the tile
+                        if (intersects)
+                        {
+                            Vector2 distFromTile = curTile.WorldPosition - tempPoint;
+
+                            // Determine direction entity hit the tile
 
                             if (Math.Abs(distFromTile.X) > Math.Abs(distFromTile.Y))
                             {
@@ -121,7 +165,6 @@ namespace Prototype
                             }
                             return true;
                         }
-                            
                     }
                 }
             }
@@ -200,6 +243,40 @@ namespace Prototype
             }
 
             return CollisionType.None;
+        }
+
+        public static bool CheckMapObjectCollision(Entity e1, MapOBJ obj)
+        {
+            // Get where first entity's hitbox will be
+            Rectangle colRect1 = new Rectangle(
+                e1.Hitbox.X + (int)e1.Velocity.X,
+                e1.Hitbox.Y + (int)e1.Velocity.Y,
+                e1.Hitbox.Width,
+                e1.Hitbox.Height);
+
+            // Check if entities will collide
+            bool collided = colRect1.Intersects(obj.Hitbox);
+
+            if (collided)
+            {
+                // Check which direction entity was hit from
+                Vector2 distFromTile = e1.WorldPosition - obj.WorldPosition;
+
+                // Tell entities they hit something
+                // Tell how they were hit
+                if (Math.Abs(distFromTile.X) > Math.Abs(distFromTile.Y))
+                {
+                    e1.OnHitObject(obj, CollisionType.Horizontal);
+                    obj.OnHitEntity(e1, CollisionType.Horizontal);
+                }
+                else
+                {
+                    e1.OnHitObject(obj, CollisionType.Vertical);
+                    obj.OnHitEntity(e1, CollisionType.Vertical);
+                }
+            }
+
+            return collided;
         }
     }
 }

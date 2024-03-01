@@ -360,11 +360,11 @@ namespace Prototype.GameEntity
                 
 
             // Display remaining redirects
-            Vector2 textPos =
-                new Vector2(
-                    ScreenPosition.X + DEFAULT_SPRITE_WIDTH / 3 ,
-                    ScreenPosition.Y + DEFAULT_SPRITE_HEIGHT / 3);
-            spriteBatch.DrawString(Game1.ARIAL32, $"{_numRedirects}", textPos, Color.White);
+            //Vector2 textPos =
+            //    new Vector2(
+            //        ScreenPosition.X + DEFAULT_SPRITE_WIDTH / 3 ,
+            //        ScreenPosition.Y + DEFAULT_SPRITE_HEIGHT / 3);
+            //spriteBatch.DrawString(Game1.ARIAL32, $"{_numRedirects}", textPos, Color.White);
 
             // Reset player color to default
             Image.TintColor = Color.White;

@@ -301,6 +301,8 @@ namespace TileEditorHW
                         boxHeight,
                         boxHeight);
 
+                    tiles[y, x].BackColor = Color.Green;
+
                     tiles[y, x].Click += SetTileColor;
 
                     // Add to editor

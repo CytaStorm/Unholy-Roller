@@ -40,7 +40,7 @@ namespace Prototype
         public const int WINDOW_WIDTH = 1920;
         public const int WINDOW_HEIGHT = 1080;
 
-        public const int TILESIZE = 120;
+        public const int TILESIZE = 80;
 
         // Game State
         public static Gamestate GAMESTATE;
@@ -91,7 +91,7 @@ namespace Prototype
             //_roomManager = new RoomManager(10);
 
             // Create Player
-            Player1 = new Player(_spriteSheetTexture, new Vector2(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
+            Player1 = new Player(_spriteSheetTexture, new Vector2(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 2),
                 Graphics, _roomManager, this); ;
 
             EManager = new EnemyManager(this);
@@ -105,6 +105,8 @@ namespace Prototype
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            
 
             KeyboardState kb = Keyboard.GetState();
             switch (GAMESTATE)
@@ -120,6 +122,11 @@ namespace Prototype
                     Player1.Update(gameTime);
 
                     EManager.Update(gameTime);
+
+                    if (EManager.Dummies.Count == 0)
+                    {
+                        TEST_ROOM.Interactables.Clear();
+                    }
                     break;
 
                 case Gamestate.Death:
@@ -142,7 +149,7 @@ namespace Prototype
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin();
 

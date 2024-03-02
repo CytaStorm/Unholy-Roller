@@ -47,7 +47,7 @@ namespace Prototype.MapGeneration
         /// </summary>
         /// <param name="tileType"> type of tile to create </param>
         /// <returns> created tile </returns>
-        public static Tile SetTile(int tileType)
+        public static Tile SetTile(TileType tileType)
         {
             return SetTile(tileType, new Vector2(0f, 0f), "");
         }
@@ -58,7 +58,7 @@ namespace Prototype.MapGeneration
         /// <param name="tileType"> type of tile to create </param>
         /// <param name="position"> position of the tile </param>
         /// <returns> created tile </returns>
-        public static Tile SetTile(int tileType, Vector2 position)
+        public static Tile SetTile(TileType tileType, Vector2 position)
         {
             return SetTile(tileType, position, "");
         }
@@ -70,7 +70,7 @@ namespace Prototype.MapGeneration
         /// <param name="position"> position of the tile </param>
         /// /// <param name="orientation"> rotation of the tile </param>
         /// <returns> created tile </returns>
-        public static Tile SetTile(int tileType, Vector2 position, string orientation)
+        public static Tile SetTile(TileType tileType, Vector2 position, string orientation)
         {
             Tile result = new Tile();
             result.Type = (TileType)tileType;
@@ -80,7 +80,7 @@ namespace Prototype.MapGeneration
 
             switch (tileType)
             {
-                case (int)TileType.Grass:
+                case TileType.Grass:
 
                     result.Collidable = false;
 
@@ -92,7 +92,7 @@ namespace Prototype.MapGeneration
                             Game1.TILESIZE));
                     break;
 
-                case (int)TileType.Wall:
+                case TileType.Wall:
 
                     result.Collidable = true;
 
@@ -104,7 +104,7 @@ namespace Prototype.MapGeneration
                             Game1.TILESIZE));
                     break;
 
-                case (int)TileType.Spike:
+                case TileType.Spike:
 
                     result.Collidable = true;
 

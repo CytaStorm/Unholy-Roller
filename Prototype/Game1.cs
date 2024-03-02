@@ -75,7 +75,10 @@ namespace Prototype
             // Create Tile Manager
             _tileMaker = new TileMaker(this);
 
-            TEST_ROOM = new Room("../../../TestArena2.txt", new Point(0, 0));
+            TEST_ROOM = new Room("../../../TestArena2.txt",
+                "../../../PossibleEnemyPosition.txt",
+                "../../../PossibleObstaclePosition.txt",
+                new Point(0, 0));
 
             // Add a door to each doorway in test room
             foreach (Tile d in TEST_ROOM.Floor.Doors)

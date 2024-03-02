@@ -31,6 +31,16 @@ namespace Prototype.MapGeneration
         /// The filepath of the room's tileset
         /// </summary>
         public string FloorFilepath { get; private set; }
+        /// <summary>
+        /// The filepath of the room's possible enemy
+        /// positions.
+        /// </summary>
+        public string EnemyPositionFilepath { get; private set; }
+        /// <summary>
+        /// The filepath of the room's possible obstacles
+        /// (walls, hazards, etc.)
+        /// </summary>
+        public string ObstaclePositionFilepath { get; private set; }
         
         /// <summary>
         /// The interactable objects in the room
@@ -52,16 +62,18 @@ namespace Prototype.MapGeneration
             // Create a random tileset within the folder
 
             FloorFilepath = GetRandomMap(folder);
-            Floor = new Tileset(FloorFilepath, origin);
+            Floor = new Tileset(FloorFilepath, EnemyPositionFilepath, ObstaclePositionFilepath, origin);
 
             // Save top left coordinate of room
             Origin = origin;
         }
 
-        public Room(string filename, Point origin)
+        public Room(string floorFilename, string enemyPosFilename,
+            string obstaclePosFilename, Point origin)
         {
-            FloorFilepath = filename;
-            Floor = new Tileset(filename, origin);
+            FloorFilepath = floorFilename;
+            
+            Floor = new Tileset(floorFilename, enemyPosFilename, obstaclePosFilename, origin);
             Origin = origin;
 
             Interactables = new List<MapOBJ>();

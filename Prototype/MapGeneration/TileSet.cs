@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Prototype.GameEntity;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -93,10 +94,11 @@ namespace Prototype.MapGeneration
         /// Creates a square tileset from the integer values in a text file
         /// </summary>
         /// <param name="filename"> the file to read </param>
-        public Tileset(string filename, Point origin)
+        public Tileset(string floorFilename, string enemyPosFileName,
+            string obstaclePosFileName, Point origin)
         {
-            // Open the file
-            StreamReader input = new StreamReader(filename);
+            // Open the file that contains the floor tiles.
+            StreamReader input = new StreamReader(floorFilename);
 
             // Convert file values to tiles
             int y = 0;
@@ -115,19 +117,18 @@ namespace Prototype.MapGeneration
                 // Add tiles to tile grid
                 for (int x = 0; x < Layout.GetLength(0); x++)
                 {
-                    int tileId = -1;
+                    int tileIdInt;
 
                     bool isDoor = false;
-                    bool isSpawner = false;
                     string orientation = "";
 
                     // Unparsable tile values are probably special tiles
-                    if (!int.TryParse(tileValues[x], out tileId))
+                    if (!int.TryParse(tileValues[x], out tileIdInt))
                     {
                         string[] sValues = tileValues[x].Split('.');
 
                         // Read tile type 
-                        tileId = int.Parse(sValues[0]);
+                        tileIdInt = int.Parse(sValues[0]);
 
                         if (sValues.Length == 2)
                         {
@@ -136,10 +137,6 @@ namespace Prototype.MapGeneration
                             {
                                 case "*":
                                     isDoor = true;
-                                    break;
-
-                                case "S":
-                                    isSpawner = true;
                                     break;
 
                                 default:
@@ -153,7 +150,7 @@ namespace Prototype.MapGeneration
 
                     // Create and add tile
                     Layout[y, x] = TileMaker.SetTile(
-                        tileId,
+                        (TileType) tileIdInt,
                         new Vector2(origin.X + x*Game1.TILESIZE, origin.Y + y*Game1.TILESIZE), 
                         orientation);
 
@@ -161,16 +158,9 @@ namespace Prototype.MapGeneration
                     Layout[y, x].IsDoor = isDoor;
                     if (isDoor)
                     {
+                        Debug.WriteLine("alkjsdflkjdfsa;lkjasdflkj");
                         // Store door
                         Doors.Add(Layout[y, x]);
-                    }
-
-                    // Set spawner status
-                    Layout[y, x].IsEnemySpawner = isSpawner;
-                    if (isSpawner)
-                    {
-                        // Store spawner
-                        Spawners.Add(Layout[y, x]);
                     }
                 }
 
@@ -179,6 +169,50 @@ namespace Prototype.MapGeneration
             }
 
             input.Close();
+
+            //Read in enemy positions and obstacle positions
+            string[] allPossibleEnemyPos = File.ReadAllLines(enemyPosFileName);
+            string[] allPossibleObstaclePos = File.ReadAllLines(obstaclePosFileName);
+
+            //Select enemy and obstacle positions, and ensure that they do not overlap.
+            Random random = new Random();
+            List<Point> EnemyPos;
+            List<Point> ObstaclePos;
+            bool invalidEnemyObstacleCombo = false;
+            do
+            {
+                EnemyPos = ConvertPositions(
+                    allPossibleEnemyPos[
+                        random.Next(allPossibleEnemyPos.Length)]); 
+                ObstaclePos = ConvertPositions(
+                    allPossibleObstaclePos[
+                        random.Next(allPossibleObstaclePos.Length)]); 
+                foreach(Point obstacle in ObstaclePos)
+                {
+                    if (EnemyPos.IndexOf(obstacle) != -1)
+                    {
+                        invalidEnemyObstacleCombo = true; 
+                    }
+                }
+            }
+            while (invalidEnemyObstacleCombo);
+
+            // Set spawners
+            foreach(Point enemyPos in EnemyPos)
+            {
+                Layout[enemyPos.X, enemyPos.Y].IsEnemySpawner = true;
+                Spawners.Add(Layout[enemyPos.X, enemyPos.Y]);
+            }
+
+            foreach(Point obstaclePos in ObstaclePos)
+            {
+                Layout[obstaclePos.X, obstaclePos.Y] = TileMaker.SetTile(
+                    TileType.Spike, new Vector2(
+                        origin.X + obstaclePos.X*Game1.TILESIZE,
+                        origin.Y + obstaclePos.Y*Game1.TILESIZE), 
+                        "");
+            }
+
         }
 
         // Methods
@@ -220,6 +254,38 @@ namespace Prototype.MapGeneration
                     curTile.TileSprite.TintColor = Color.White;
                 }
             }
+        }
+
+        /// <summary>
+        /// Takes in a string array of positions and converts them to
+        /// a list of Points. Each position is a delimited by '|'.
+        /// </summary>
+        /// <param name="allPositions">String array of positions.</param>
+        /// <returns></returns>
+        public List<Point> ConvertPositions(string allPositions)
+        {
+            //If allPositions is empty (no enemies/obstacles, return early
+            //with empty list of Points.
+            if (allPositions.Length == 0)
+            {
+                return new List<Point>();
+            }
+            string[] positions = allPositions.Split('|');
+            List<Point> result = new List<Point>(positions.Length);
+            for(int i = 0; i < positions.Length; i++)
+            {
+                string[] pointXY = positions[i].Split(',');
+
+                foreach(string x in pointXY)
+                {
+                    Debug.WriteLine(x);
+                }
+                
+                int X = int.Parse(pointXY[0]);
+                int Y = int.Parse(pointXY[1]);
+                result.Add(new Point(X, Y));
+            }
+            return result;
         }
     }
 }

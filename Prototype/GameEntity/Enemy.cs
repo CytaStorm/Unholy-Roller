@@ -46,6 +46,12 @@ namespace Prototype.GameEntity
 
         private Sprite _gloveImage;
 
+        // Animation
+        private double _walkAnimTimeCounter;
+        private double _walkAnimSecondsPerFrame = 0.12;
+        private int _walkAnimCurrentFrame;
+
+
         bool _hitPlayer;
 
         // Properties
@@ -120,6 +126,7 @@ namespace Prototype.GameEntity
         // Methods
         public override void Update(GameTime gameTime)
         {
+
             TickInvincibility();
 
             TickKnockout();
@@ -176,6 +183,27 @@ namespace Prototype.GameEntity
             CheckEnemyCollisions();
             
             Move();
+
+            // Update animations
+     
+            UpdateWalkAnimation(gameTime);
+        }
+
+        private void UpdateWalkAnimation(GameTime gameTime)
+        {
+            // Add to the time counter (need TOTALSECONDS here)
+            _walkAnimTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
+
+            // Has enough time gone by to actually flip frames?
+            if (_walkAnimTimeCounter >= _walkAnimSecondsPerFrame)
+            {
+                // Update the frame and wrap
+                _walkAnimCurrentFrame++;
+                if (_walkAnimCurrentFrame > 4) _walkAnimCurrentFrame = 1;
+
+                // Remove one "frame" worth of time
+                _walkAnimTimeCounter -= _walkAnimSecondsPerFrame;
+            }
         }
 
         protected void TargetPlayer()
@@ -337,6 +365,58 @@ namespace Prototype.GameEntity
             }
         }
 
+        private void DrawWalking(SpriteBatch sb, Vector2 screenPos)
+        {
+
+            switch (_walkAnimCurrentFrame)
+            {
+                case 1:
+                    Vector2 origin = new Vector2(
+                                Image.SourceRect.X,
+                                Image.SourceRect.Center.Y - 15);
+
+
+                    sb.Draw(
+                        Image.Texture,
+                        screenPos,
+                        Image.SourceRect,
+                        Color.White,
+                        MathF.PI / 6,
+                        origin,
+                        (float)Image.DestinationRect.Width / Image.SourceRect.Width,
+                        SpriteEffects.None,
+                        1f
+                        );
+                    break;
+
+                case 2:
+                    Image.Draw(sb, screenPos);
+                    break;
+
+                case 3:
+
+  
+                    sb.Draw(
+                        Image.Texture,
+                        screenPos,
+                        Image.SourceRect,
+                        Color.White,
+                        MathF.PI / 6f * -1,
+                        new Vector2(
+                                Image.SourceRect.Center.X,
+                                Image.SourceRect.Y),
+                        (float)Image.DestinationRect.Width / Image.SourceRect.Width,
+                        SpriteEffects.None,
+                        1f
+                        );
+                    break;
+
+                case 4:
+                    Image.Draw(sb, screenPos);
+                    break;
+            }
+        }
+
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             // Draw Enemy relative to the player
@@ -376,7 +456,22 @@ namespace Prototype.GameEntity
                     Image.TintColor = Color.White;
                 }
 
-                Image.Draw(spriteBatch, screenPos);
+                //Image.Draw(spriteBatch, screenPos);
+
+                switch (ActionState)
+                {
+                    case EnemyState.Idle:
+                        Image.Draw(spriteBatch, screenPos);
+                        break;
+
+                    case EnemyState.Chase:
+                        DrawWalking(spriteBatch, screenPos);
+                        break;
+
+                    case EnemyState.Attack:
+                        Image.Draw(spriteBatch, screenPos);
+                        break;
+                }
 
                 // Attacking
                 if (_attackDurationTimer > 0)
@@ -393,7 +488,7 @@ namespace Prototype.GameEntity
                     _gloveImage.Draw(spriteBatch, new Vector2(drawnAttackHit.X, drawnAttackHit.Y));
                 }
             }
-
+            
             // Display current health
             //spriteBatch.DrawString(Game1.ARIAL32, $"Hp: {CurHealth}", screenPos, Color.White);
 

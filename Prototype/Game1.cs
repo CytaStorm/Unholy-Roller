@@ -11,6 +11,7 @@ namespace Prototype
     {
         Menu,
         Play,
+        Pause,
         Win,
         Death
     }
@@ -40,10 +41,13 @@ namespace Prototype
         public const int WINDOW_WIDTH = 1920;
         public const int WINDOW_HEIGHT = 1080;
 
-        public const int TILESIZE = 80;
+        public const int TILESIZE = 100;
 
         // Game State
         public static Gamestate GAMESTATE;
+
+        private KeyboardState _curKB;
+        private KeyboardState _prevKB;
 
         public Game1()
         {
@@ -111,11 +115,11 @@ namespace Prototype
 
             
 
-            KeyboardState kb = Keyboard.GetState();
+            _curKB = Keyboard.GetState();
             switch (GAMESTATE)
             {
                 case Gamestate.Menu:
-                    if (kb.IsKeyDown(Keys.Enter))
+                    if (SingleKeyPress(Keys.Enter))
                     {
                         GAMESTATE = Gamestate.Play;
                     }
@@ -130,12 +134,24 @@ namespace Prototype
                     {
                         TEST_ROOM.Interactables.Clear();
                     }
+
+                    if (SingleKeyPress(Keys.P))
+                    {
+                        GAMESTATE = Gamestate.Pause;
+                    }
+                    break;
+
+                case Gamestate.Pause:
+                    if (SingleKeyPress(Keys.P))
+                    {
+                        GAMESTATE = Gamestate.Play;
+                    }
                     break;
 
                 case Gamestate.Death:
 
                     // Reset stage with 'R'
-                    if (kb.IsKeyDown(Keys.R))
+                    if (SingleKeyPress(Keys.R))
                     {
                         EManager.ResetRoomEnemies(TEST_ROOM);
 
@@ -146,8 +162,14 @@ namespace Prototype
                     break;
 
             }
+            _prevKB = _curKB;
 
             base.Update(gameTime);
+        }
+
+        public bool SingleKeyPress(Keys key)
+        {
+            return _curKB.IsKeyDown(key) && _prevKB.IsKeyUp(key);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -206,17 +228,17 @@ namespace Prototype
 
             _spriteBatch.End();
 
-            ShapeBatch.Begin(GraphicsDevice);
+            //ShapeBatch.Begin(GraphicsDevice);
 
-            // Draw Gizmos
-            if (GAMESTATE == Gamestate.Play)
-            {
-                EManager.DrawGizmos(gameTime);
+            //// Draw Gizmos
+            //if (GAMESTATE == Gamestate.Play)
+            //{
+            //    EManager.DrawGizmos(gameTime);
 
-                Player1.DrawGizmos();
-            }
+            //    Player1.DrawGizmos();
+            //}
 
-            ShapeBatch.End();
+            //ShapeBatch.End();
 
             base.Draw(gameTime);
         }

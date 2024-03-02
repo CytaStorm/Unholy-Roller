@@ -116,7 +116,7 @@
 /processorParam:TextureFormat=Color
 /build:GrassTile.png
 
-#begin LaunchArrow.png
+#begin LaunchArrowSpritesheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -126,7 +126,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:LaunchArrow.png
+/build:LaunchArrowSpritesheet.png
 
 #begin NoBorderStar.png
 /importer:TextureImporter

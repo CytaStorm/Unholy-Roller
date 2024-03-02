@@ -26,7 +26,7 @@ namespace Prototype.GameEntity
 
         private bool _canRedirect = true;
 
-        private int _maxRedirects = 3;
+        private int _maxRedirects;
         private int _numRedirects;
         private float _brakeSpeed = 0.4f;
         private float _walkSpeed;
@@ -42,7 +42,7 @@ namespace Prototype.GameEntity
 
         private Sprite _default;
         private Sprite _spedUpSprite;
-        private Sprite _launchArrow;
+        private Sprite _launchArrows;
 
         private PlayerState _state;
 
@@ -86,7 +86,7 @@ namespace Prototype.GameEntity
                    Game1.TILESIZE,
                    Game1.TILESIZE));
 
-            _launchArrow = new Sprite(gm.Content.Load<Texture2D>("LaunchArrow"),
+            _launchArrows = new Sprite(gm.Content.Load<Texture2D>("LaunchArrowSpritesheet"),
                new Rectangle(
                    0,
                    0,
@@ -118,14 +118,15 @@ namespace Prototype.GameEntity
             _gdManager = gdManager;
 
             // Default Speed
-            _speed = 15f;
+            _speed = 20f;
             _walkSpeed = 10f;
 
             // Default Velocity
             Velocity = new Vector2(0f, 0f);
 
             // Redirecting
-            _numRedirects = _maxRedirects;
+            _maxRedirects = 3;
+            _numRedirects = _maxRedirects + 1;
 
             // Vitality
             MaxHealth = 6;
@@ -183,6 +184,9 @@ namespace Prototype.GameEntity
                         // Fully stop player
                         Velocity = Vector2.Zero;
                         _state = PlayerState.Walking;
+
+                        // Give them 3 redirects plus an initial launch
+                        _numRedirects = _maxRedirects + 1;
                     }
                     break;
                 
@@ -237,8 +241,21 @@ namespace Prototype.GameEntity
                 Vector2 distance = mousePos - centerPos;
                 distance.Normalize();
 
-                // Speed is less than default
-                if (Velocity.LengthSquared() <= _speed * _speed)
+                //// Speed is less than default
+                //if (Velocity.LengthSquared() <= _speed * _speed)
+                //{
+                //    // Launch player at default speed
+                //    distance *= _speed;
+                //    Velocity = distance;
+                //}
+                //else
+                //{
+                //    // Launch player at current speed
+                //    distance *= Velocity.Length();
+                //    Velocity = distance;
+                //}
+
+                if (_numRedirects > _maxRedirects)
                 {
                     // Launch player at default speed
                     distance *= _speed;
@@ -382,7 +399,9 @@ namespace Prototype.GameEntity
             if (_state == PlayerState.Rolling)
                 Ricochet(colType);
             else if (_state == PlayerState.Walking)
+            {
                 Move(Velocity * -1);
+            }
 
             // Restore redirects
             if (_numRedirects < _maxRedirects)
@@ -495,36 +514,58 @@ namespace Prototype.GameEntity
                 directionFromPlayerToMouse.Normalize();
                 directionFromPlayerToMouse *= Game1.TILESIZE; // Radius
 
-                // Draw arrow pointing toward mouse at a
-                // specified radius from the player
-                sb.Draw(
-                    _launchArrow.Texture,
-                    centerPlayerPos + directionFromPlayerToMouse,
-                    _launchArrow.SourceRect,
-                    Color.White,
-                    -angleBetweenArrowAndMouse,
-                    new Vector2(
-                        _launchArrow.SourceRect.Center.X,
-                        _launchArrow.SourceRect.Center.Y),
-                    (float)_launchArrow.DestinationRect.Width / _launchArrow.SourceRect.Width,
-                    SpriteEffects.None,
-                    0f
-                    );
 
-                // Display remaining redirects
-                Vector2 redirectStringDimensions = 
-                    Game1.ARIAL32.MeasureString(_numRedirects.ToString());
+                if (_numRedirects < 4)
+                {
+                    // Draw arrow pointing toward mouse at a
+                    // specified radius from the player
+                    sb.Draw(
+                        _launchArrows.Texture,
+                        centerPlayerPos + directionFromPlayerToMouse,
+                        new Rectangle(0, 0, 120, 120),
+                        Color.White,
+                        -angleBetweenArrowAndMouse,
+                        new Vector2(
+                            _launchArrows.SourceRect.Center.X,
+                            _launchArrows.SourceRect.Center.Y),
+                        (float)_launchArrows.DestinationRect.Width / _launchArrows.SourceRect.Width,
+                        SpriteEffects.None,
+                        0f
+                        );
 
-                Vector2 textPos = centerPlayerPos + directionFromPlayerToMouse;
-                textPos = new Vector2(
-                    textPos.X - redirectStringDimensions.X / 2,
-                    textPos.Y - redirectStringDimensions.Y / 2);
+                    // Display remaining redirects
+                    Vector2 redirectStringDimensions = 
+                        Game1.ARIAL32.MeasureString(_numRedirects.ToString());
 
-                sb.DrawString(
-                    Game1.ARIAL32, 
-                    _numRedirects.ToString(),
-                    textPos, 
-                    Color.White);
+                    Vector2 textPos = centerPlayerPos + directionFromPlayerToMouse;
+                    textPos = new Vector2(
+                        textPos.X - redirectStringDimensions.X / 2,
+                        textPos.Y - redirectStringDimensions.Y / 2);
+
+                    sb.DrawString(
+                        Game1.ARIAL32, 
+                        _numRedirects.ToString(),
+                        textPos, 
+                        Color.White);
+                }
+                else
+                {
+                    // Draw arrow pointing toward mouse at a
+                    // specified radius from the player
+                    sb.Draw(
+                        _launchArrows.Texture,
+                        centerPlayerPos + directionFromPlayerToMouse,
+                        new Rectangle(120, 0, 120, 120),
+                        Color.White,
+                        -angleBetweenArrowAndMouse,
+                        new Vector2(
+                            _launchArrows.SourceRect.Center.X,
+                            _launchArrows.SourceRect.Center.Y),
+                        (float)_launchArrows.DestinationRect.Width / _launchArrows.SourceRect.Width,
+                        SpriteEffects.None,
+                        0f
+                        );
+                }
             }
         }
 

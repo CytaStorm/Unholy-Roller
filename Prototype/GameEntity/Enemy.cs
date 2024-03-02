@@ -99,6 +99,7 @@ namespace Prototype.GameEntity
             // Attacking
             _attackForce = 15f;
             _attackDuration = 0.1d;
+            _attackDurationTimer = 0d;
             _attackRadius = Game1.TILESIZE;
             _attackRange = Game1.TILESIZE;
             _attackDelay = 0.25d;

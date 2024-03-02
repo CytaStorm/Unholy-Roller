@@ -42,6 +42,7 @@ namespace Prototype.GameEntity
 
         private Sprite _default;
         private Sprite _spedUpSprite;
+        private Sprite _launchArrow;
 
         private PlayerState _state;
 
@@ -79,6 +80,18 @@ namespace Prototype.GameEntity
                    DEFAULT_SPRITE_Y,
                    DEFAULT_SPRITE_WIDTH,
                    DEFAULT_SPRITE_HEIGHT),
+               new Rectangle(
+                   (int)position.X,
+                   (int)position.Y,
+                   Game1.TILESIZE,
+                   Game1.TILESIZE));
+
+            _launchArrow = new Sprite(gm.Content.Load<Texture2D>("LaunchArrow"),
+               new Rectangle(
+                   0,
+                   0,
+                   120,
+                   120),
                new Rectangle(
                    (int)position.X,
                    (int)position.Y,
@@ -447,14 +460,8 @@ namespace Prototype.GameEntity
                 Image = _spedUpSprite;
 
             Image.Draw(spriteBatch, ScreenPosition);
-                
 
-            // Display remaining redirects
-            //Vector2 textPos =
-            //    new Vector2(
-            //        ScreenPosition.X + DEFAULT_SPRITE_WIDTH / 3 ,
-            //        ScreenPosition.Y + DEFAULT_SPRITE_HEIGHT / 3);
-            //spriteBatch.DrawString(Game1.ARIAL32, $"{_numRedirects}", textPos, Color.White);
+            DrawLaunchArrow(spriteBatch);
 
             // Reset player color to default
             Image.TintColor = Color.White;
@@ -465,6 +472,60 @@ namespace Prototype.GameEntity
                 $"Speed: {Velocity.Length():0.00}",
                 new Vector2(0f, 150f),
                 Color.White);
+        }
+
+        private void DrawLaunchArrow(SpriteBatch sb)
+        {
+            if (_canRedirect)
+            {
+                // Get angle between arrow and mouse
+                Vector2 arrowVector = new Vector2(0f, -1f);
+                Vector2 mousePos = new Vector2(_curMouse.X, _curMouse.Y);
+                Vector2 centerPlayerPos = new Vector2(
+                    ScreenPosition.X + Image.DestinationRect.Width / 2,
+                    ScreenPosition.Y + Image.DestinationRect.Height / 2);
+                Vector2 playerToMouseDistance = mousePos - centerPlayerPos;
+
+                float angleBetweenArrowAndMouse = MathF.Atan2(
+                    playerToMouseDistance.X,
+                    playerToMouseDistance.Y);
+
+                // Distance from player to mouse clipped to a radius
+                Vector2 directionFromPlayerToMouse = playerToMouseDistance;
+                directionFromPlayerToMouse.Normalize();
+                directionFromPlayerToMouse *= Game1.TILESIZE; // Radius
+
+                // Draw arrow pointing toward mouse at a
+                // specified radius from the player
+                sb.Draw(
+                    _launchArrow.Texture,
+                    centerPlayerPos + directionFromPlayerToMouse,
+                    _launchArrow.SourceRect,
+                    Color.White,
+                    -angleBetweenArrowAndMouse,
+                    new Vector2(
+                        _launchArrow.SourceRect.Center.X,
+                        _launchArrow.SourceRect.Center.Y),
+                    (float)_launchArrow.DestinationRect.Width / _launchArrow.SourceRect.Width,
+                    SpriteEffects.None,
+                    0f
+                    );
+
+                // Display remaining redirects
+                Vector2 redirectStringDimensions = 
+                    Game1.ARIAL32.MeasureString(_numRedirects.ToString());
+
+                Vector2 textPos = centerPlayerPos + directionFromPlayerToMouse;
+                textPos = new Vector2(
+                    textPos.X - redirectStringDimensions.X / 2,
+                    textPos.Y - redirectStringDimensions.Y / 2);
+
+                sb.DrawString(
+                    Game1.ARIAL32, 
+                    _numRedirects.ToString(),
+                    textPos, 
+                    Color.White);
+            }
         }
 
         public void DrawGizmos()

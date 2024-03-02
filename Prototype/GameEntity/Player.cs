@@ -8,6 +8,12 @@ using System;
 
 namespace Prototype.GameEntity
 {
+    public enum PlayerState
+    {
+        Rolling,
+        Walking
+    }
+
     public class Player : Entity
     {
         // Fields
@@ -22,6 +28,8 @@ namespace Prototype.GameEntity
 
         private int _maxRedirects = 3;
         private int _numRedirects;
+        private float _brakeSpeed = 0.4f;
+        private float _walkSpeed;
 
         private RoomManager rm;
 
@@ -30,8 +38,12 @@ namespace Prototype.GameEntity
         private MouseState _prevMouse;
         private MouseState _curMouse;
 
+        private KeyboardState _prevKB;
+
         private Sprite _default;
         private Sprite _spedUpSprite;
+
+        private PlayerState _state;
 
         // Properties
 
@@ -94,6 +106,7 @@ namespace Prototype.GameEntity
 
             // Default Speed
             _speed = 20f;
+            _walkSpeed = 10f;
 
             // Default Velocity
             Velocity = new Vector2(0f, 0f);
@@ -115,6 +128,8 @@ namespace Prototype.GameEntity
             this.rm = rm;
 
             Type = EntityType.Player;
+
+            _state = PlayerState.Walking;
         }
 
 
@@ -122,21 +137,45 @@ namespace Prototype.GameEntity
         public override void Update(GameTime gameTime)
         {
             _curMouse = Mouse.GetState();
+            KeyboardState curKB = Keyboard.GetState();
 
             TickInvincibility();
 
             if (_iTimer > 0) Image.TintColor = Color.Purple;
 
-            bool sideScreenCollision = WorldPosition.X < 0f ||
-                WorldPosition.X + DEFAULT_SPRITE_WIDTH >= _gdManager.PreferredBackBufferWidth;
-
-            bool topBottomScreenCollision = WorldPosition.Y < 0f ||
-                WorldPosition.Y + DEFAULT_SPRITE_HEIGHT >= _gdManager.PreferredBackBufferHeight;
-
-            // Player can Redirect if not Colliding with Screen Border
+            // Player can Redirect
             if (_numRedirects > 0)
             {
                 HandleLaunch();
+            }
+
+            switch (_state)
+            {
+                case PlayerState.Rolling:
+                    HandleBrake();
+
+                    // Friction: Deccelerate a bit over time
+                    // Todo: Tile-based Friction?
+                    if (Velocity.LengthSquared() >= 0.01f * 0.01f)
+                    {
+                        Vector2 friction = Velocity * -1;
+                        friction.Normalize();
+                        friction *= 0.01f;
+                        Accelerate(friction);
+                    }
+
+                    // Transition to walking
+                    if (Velocity.LengthSquared() <= 0.01f * 0.01f)
+                    {
+                        // Fully stop player
+                        Velocity = Vector2.Zero;
+                        _state = PlayerState.Walking;
+                    }
+                    break;
+                
+                case PlayerState.Walking:
+                    HandleDirectionalMovement(curKB);
+                    break;
             }
 
             // Todo: Fix Clipping issue
@@ -164,14 +203,9 @@ namespace Prototype.GameEntity
                 Move(Velocity);
             }
 
-            // Friction: Deccelerate a bit over time
-            // Todo: Tile-based Friction?
-            Vector2 friction = Velocity * -1;
-            friction.Normalize();
-            friction *= 0.01f;
-            Accelerate(friction);
 
             _prevMouse = _curMouse;
+            _prevKB = curKB;
         }
 
         private void HandleLaunch()
@@ -208,6 +242,44 @@ namespace Prototype.GameEntity
                 _canRedirect = false;
 
                 _numRedirects--;
+
+                // Player is now rolling
+                _state = PlayerState.Rolling;
+            }
+        }
+
+        private void HandleDirectionalMovement(KeyboardState kb)
+        {
+            // Reset speed
+            Velocity = Vector2.Zero;
+
+            // Move up
+            if (kb.IsKeyDown(Keys.W))
+            {
+                Velocity = new Vector2(Velocity.X, -_walkSpeed);
+            }
+            // Move down
+            if (kb.IsKeyDown(Keys.S))
+            {
+                Velocity = new Vector2(Velocity.X, _walkSpeed);
+            }
+            // Move right
+            if (kb.IsKeyDown(Keys.D))
+            {
+                Velocity = new Vector2(_walkSpeed, Velocity.Y);
+            }
+            // Move left
+            if (kb.IsKeyDown(Keys.A))
+            {
+                Velocity = new Vector2(-_walkSpeed, Velocity.Y);
+            }
+
+            // Ceil velocity
+            float veloLenSq = Velocity.LengthSquared();
+            if (veloLenSq > _walkSpeed * _walkSpeed)
+            {
+                Velocity /= Velocity.Length();
+                Velocity *= _walkSpeed;
             }
         }
 
@@ -238,13 +310,16 @@ namespace Prototype.GameEntity
             switch (entityThatWasHit.Type)
             {
                 case EntityType.Enemy:
-                    entityThatWasHit.TakeDamage(Damage);
+                    if (_state != PlayerState.Walking)
+                    {
+                        entityThatWasHit.TakeDamage(Damage);
 
-                    // Speed up
-                    Vector2 acc = Velocity;
-                    acc.Normalize();
-                    acc *= 0.05f;
-                    Accelerate(acc);
+                        // Speed up
+                        Vector2 acc = Velocity;
+                        acc.Normalize();
+                        acc *= 0.05f;
+                        Accelerate(acc);
+                    }
                     break;
             }
         }
@@ -291,8 +366,10 @@ namespace Prototype.GameEntity
                     break;
             }
 
-
-            Ricochet(colType);
+            if (_state == PlayerState.Rolling)
+                Ricochet(colType);
+            else if (_state == PlayerState.Walking)
+                Move(Velocity * -1);
 
             // Restore redirects
             if (_numRedirects < _maxRedirects)
@@ -333,6 +410,19 @@ namespace Prototype.GameEntity
             float forceMag = force.LengthSquared();
             if (forceMag < 0 || forceMag >= 0)
                 Velocity += force;
+        }
+
+        private void HandleBrake()
+        {
+            if (_curMouse.RightButton == ButtonState.Pressed && Velocity.LengthSquared() > 
+                _brakeSpeed*_brakeSpeed)
+            {
+                // Rapidly Deccelerate
+                Vector2 f = Velocity * -1;
+                f.Normalize();
+                f *= _brakeSpeed;
+                Accelerate(f);
+            }
         }
 
         public override void Die()

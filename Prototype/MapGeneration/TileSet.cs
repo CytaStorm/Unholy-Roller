@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Prototype.GameEntity;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Prototype.MapGeneration

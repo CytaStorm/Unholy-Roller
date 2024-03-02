@@ -105,7 +105,7 @@ namespace Prototype.GameEntity
             _gdManager = gdManager;
 
             // Default Speed
-            _speed = 20f;
+            _speed = 15f;
             _walkSpeed = 10f;
 
             // Default Velocity

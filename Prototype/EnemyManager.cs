@@ -28,7 +28,7 @@ namespace Prototype
             this.gm = gm;
 
             _dummyImage = gm.Content.Load<Texture2D>("BasicEnemy");
-            _gloveImage = gm.Content.Load<Texture2D>("BasicGlove");
+            _gloveImage = gm.Content.Load<Texture2D>("PinPunchSpritesheet");
 
             // Create a few enemies in the scene
             Dummies = new List<Enemy>();

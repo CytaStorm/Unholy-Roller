@@ -44,13 +44,13 @@ namespace Prototype.GameEntity
         private float _chaseRange;
         private float _aggroRange;
 
-        private Sprite _gloveImage;
+        private Texture2D _gloveSpriteSheet;
+        private int _gloveFrameWidth;
 
         // Animation
         private double _walkAnimTimeCounter;
         private double _walkAnimSecondsPerFrame = 0.12;
         private int _walkAnimCurrentFrame;
-
 
         bool _hitPlayer;
 
@@ -60,7 +60,7 @@ namespace Prototype.GameEntity
 
         // Constructors
 
-        public Enemy(Texture2D spriteSheet, Texture2D gloveImage, Vector2 position, GraphicsDeviceManager gdManager)
+        public Enemy(Texture2D spriteSheet, Texture2D gloveSprites, Vector2 position, GraphicsDeviceManager gdManager)
         {
             // Set Enemy Image
             Image = new Sprite(spriteSheet, 
@@ -98,16 +98,13 @@ namespace Prototype.GameEntity
 
             // Attacking
             _attackForce = 15f;
-            _attackDuration = 0.1;
+            _attackDuration = 0.1d;
             _attackRadius = Game1.TILESIZE;
             _attackRange = Game1.TILESIZE;
-            _attackDelay = 0.25;
+            _attackDelay = 0.25d;
             _attackDelayTimer = _attackDelay;
 
-            _gloveImage = new Sprite(
-                gloveImage,
-                gloveImage.Bounds,
-                new Rectangle(0, 0, (int)_attackRadius, (int)_attackRadius));
+            _gloveSpriteSheet = gloveSprites;
             
             // Set type
             Type = EntityType.Enemy;
@@ -120,6 +117,9 @@ namespace Prototype.GameEntity
 
             // Check if on screen
             _gdManager = gdManager;
+
+            // Animation
+            _gloveFrameWidth = _gloveSpriteSheet.Width / 3;
         }
 
 
@@ -469,24 +469,13 @@ namespace Prototype.GameEntity
                         break;
 
                     case EnemyState.Attack:
+                        DrawAttacking(spriteBatch, screenPos, distFromPlayer);
+                        
                         Image.Draw(spriteBatch, screenPos);
                         break;
                 }
 
-                // Attacking
-                if (_attackDurationTimer > 0)
-                {
-                    int atkHitDistX = (int)WorldPosition.X - _attackHitbox.X;
-                    int atkHitDistY = (int)WorldPosition.Y - _attackHitbox.Y;
-
-                    Rectangle drawnAttackHit = new Rectangle(
-                        (int)(screenPos.X - atkHitDistX),
-                        (int)(screenPos.Y - atkHitDistY),
-                        _attackHitbox.Width,
-                        _attackHitbox.Height);
-
-                    _gloveImage.Draw(spriteBatch, new Vector2(drawnAttackHit.X, drawnAttackHit.Y));
-                }
+                
             }
             
             // Display current health
@@ -499,6 +488,53 @@ namespace Prototype.GameEntity
             //    screenPos,
             //    Color.White);
 
+        }
+
+        private void DrawAttacking(SpriteBatch sb, Vector2 screenPos, Vector2 distFromPlayer)
+        {
+            // Draw Attack Windup
+            if (_attackDelayTimer < _attackDelay && _attackDurationTimer <= 0d)
+            {
+                // Get vector pointing away from the player
+                // with a length of attack radius
+                Vector2 windupPosShift = distFromPlayer;
+                windupPosShift.Normalize();
+                windupPosShift *= -_attackRange;
+
+                Rectangle drawnWindupHit = new Rectangle(
+                    (int)(screenPos.X - windupPosShift.X),
+                    (int)(screenPos.Y - windupPosShift.Y),
+                    _attackHitbox.Width,
+                    _attackHitbox.Height);
+
+                sb.Draw(
+                    _gloveSpriteSheet,
+                    drawnWindupHit,
+                    new Rectangle(0, 0, _gloveFrameWidth, _gloveFrameWidth),
+                    Color.Red);
+
+                Image.TintColor = Color.Orange;
+            }
+
+            // Draw actively attacking
+            if (_attackDurationTimer > 0)
+            {
+                int atkHitDistX = (int)WorldPosition.X - _attackHitbox.X;
+                int atkHitDistY = (int)WorldPosition.Y - _attackHitbox.Y;
+
+                Rectangle drawnAttackHit = new Rectangle(
+                    (int)(screenPos.X - atkHitDistX),
+                    (int)(screenPos.Y - atkHitDistY),
+                    _attackHitbox.Width,
+                    _attackHitbox.Height);
+
+                sb.Draw(
+                    _gloveSpriteSheet,
+                    drawnAttackHit,
+                    new Rectangle(_gloveFrameWidth * 2, 0, _gloveFrameWidth, _gloveFrameWidth),
+                    Color.White);
+
+            }
         }
 
         public void DrawGizmos()

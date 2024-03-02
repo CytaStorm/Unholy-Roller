@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Prototype.MapGeneration;
 using ShapeUtils;
+using System.Diagnostics;
 
 namespace Prototype.GameEntity
 {
@@ -134,9 +135,7 @@ namespace Prototype.GameEntity
 
             //CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
 
-
-            Point eMinusP = Game1.Player1.Hitbox.Center - Hitbox.Center;
-            Vector2 distanceFromPlayer = new Vector2(eMinusP.X, eMinusP.Y);
+            Vector2 distanceFromPlayer = Game1.Player1.CenterPosition - CenterPosition;
             float playerDist = distanceFromPlayer.Length();
 
             DetermineState(playerDist);
@@ -304,17 +303,17 @@ namespace Prototype.GameEntity
         public void Attack()
         {
             // Get direction from self to player
-            Vector2 directionToPlayer = Game1.Player1.WorldPosition - WorldPosition;
+            Vector2 directionToPlayer = Game1.Player1.CenterPosition - CenterPosition;
 
             // Apply attack range
             directionToPlayer.Normalize();
             directionToPlayer *= _attackRange;
 
-            
+
             // Cast the damage box
             Rectangle damageBox = new Rectangle(
-                (int)(WorldPosition.X + directionToPlayer.X / 2),
-                (int)(WorldPosition.Y + directionToPlayer.Y / 2),
+                (int)(CenterPosition.X + directionToPlayer.X - _attackRadius/2),
+                (int)(CenterPosition.Y + directionToPlayer.Y - _attackRadius/2),
                 (int)_attackRadius,
                 (int)_attackRadius);
 
@@ -322,10 +321,10 @@ namespace Prototype.GameEntity
             _attackHitbox = damageBox;
 
             // Check if player is in damage box
-            CollisionType hitPlayerDir = 
-                CollisionChecker.CheckEntityCollision(damageBox, Game1.Player1);
+            bool hitPlayerDir = damageBox.Intersects(Game1.Player1.Hitbox);
+                //CollisionChecker.CheckEntityCollision(damageBox, Game1.Player1);
 
-            if (hitPlayerDir != CollisionType.None)
+            if (hitPlayerDir)
             {
                 directionToPlayer.Normalize();
                 directionToPlayer *= _attackForce;
@@ -470,9 +469,9 @@ namespace Prototype.GameEntity
                         break;
 
                     case EnemyState.Attack:
-                        DrawAttacking(spriteBatch, screenPos, distFromPlayer);
-                        
                         Image.Draw(spriteBatch, screenPos);
+                        
+                        DrawAttacking(spriteBatch, screenPos, distFromPlayer);
                         break;
                 }
 
@@ -520,12 +519,12 @@ namespace Prototype.GameEntity
             // Draw actively attacking
             if (_attackDurationTimer > 0)
             {
-                int atkHitDistX = (int)WorldPosition.X - _attackHitbox.X;
-                int atkHitDistY = (int)WorldPosition.Y - _attackHitbox.Y;
+                int atkHitDistX = (int)(_attackHitbox.X - WorldPosition.X);
+                int atkHitDistY = (int)(_attackHitbox.Y - WorldPosition.Y);
 
                 Rectangle drawnAttackHit = new Rectangle(
-                    (int)(screenPos.X - atkHitDistX),
-                    (int)(screenPos.Y - atkHitDistY),
+                    (int)(screenPos.X + atkHitDistX),
+                    (int)(screenPos.Y + atkHitDistY),
                     _attackHitbox.Width,
                     _attackHitbox.Height);
 

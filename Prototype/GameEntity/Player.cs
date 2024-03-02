@@ -350,6 +350,18 @@ namespace Prototype.GameEntity
                         acc *= 0.05f;
                         Accelerate(acc);
                     }
+                    else
+                    {
+                        // Player gets knocked back if standing on top of enemy
+                        Vector2 distToEnemy = entityThatWasHit.CenterPosition - CenterPosition;
+                        distToEnemy.Normalize();
+                        distToEnemy *= -5;
+
+                        this.TakeDamage(1);
+
+                        Velocity = distToEnemy;
+                        _state = PlayerState.Rolling;
+                    }
                     break;
             }
         }
@@ -399,9 +411,7 @@ namespace Prototype.GameEntity
             if (_state == PlayerState.Rolling)
                 Ricochet(colType);
             else if (_state == PlayerState.Walking)
-            {
                 Move(Velocity * -1);
-            }
 
             // Restore redirects
             if (_numRedirects < _maxRedirects)
@@ -430,11 +440,15 @@ namespace Prototype.GameEntity
             {
                 Velocity = new Vector2(Velocity.X * -1, Velocity.Y);
             }
+
+            _state = PlayerState.Rolling;
         }
 
         public void Ricochet(Vector2 newDirection)
         {
             Velocity = newDirection;
+
+            _state = PlayerState.Rolling;
         }
 
         public void Accelerate(Vector2 force)

@@ -28,6 +28,10 @@ namespace Prototype.GameEntity
 
         // Transform
         public Vector2 WorldPosition { get; protected set; }
+        public Vector2 CenterPosition { get => new Vector2(
+            WorldPosition.X + Image.DestinationRect.Width / 2,
+            WorldPosition.Y + Image.DestinationRect.Height / 2);
+        }
         
         // Collision
         public Rectangle Hitbox { get; protected set; }
@@ -126,6 +130,8 @@ namespace Prototype.GameEntity
                 }
             }
         }
+
+        public virtual void TakeKnockback() { }
 
         public virtual void Die() { }
 

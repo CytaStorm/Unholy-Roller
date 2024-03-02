@@ -126,9 +126,9 @@ namespace Prototype
                     break;
 
                 case Gamestate.Play:
-                    Player1.Update(gameTime);
-
                     EManager.Update(gameTime);
+                    
+                    Player1.Update(gameTime);
 
                     if (EManager.Dummies.Count == 0)
                     {

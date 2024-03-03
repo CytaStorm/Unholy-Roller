@@ -47,7 +47,7 @@ namespace Prototype.GameEntity
         private PlayerState _state;
 
         // Time dilation
-        double _transitionDuration = 0.2;
+        double _timeTransitionDuration = 0.2;
         double _transitionTimeCounter = 0.2;
         float _normalTimeMultiplier = 1f;
         float _minTimeMultiplier = 0.5f;
@@ -348,9 +348,9 @@ namespace Prototype.GameEntity
             }
             
             // Enforce counter bounds
-            if (_transitionTimeCounter > _transitionDuration)
+            if (_transitionTimeCounter > _timeTransitionDuration)
             {
-                _transitionTimeCounter = _transitionDuration;
+                _transitionTimeCounter = _timeTransitionDuration;
             }
             else if (_transitionTimeCounter < 0)
             {
@@ -359,7 +359,7 @@ namespace Prototype.GameEntity
 
             // Set time multiplier
             BulletTimeMultiplier =
-                (float)(_minTimeMultiplier + _transitionTimeCounter / _transitionDuration *
+                (float)(_minTimeMultiplier + _transitionTimeCounter / _timeTransitionDuration *
                 (_normalTimeMultiplier - _minTimeMultiplier));
         }
 

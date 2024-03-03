@@ -116,6 +116,18 @@
 /processorParam:TextureFormat=Color
 /build:GrassTile.png
 
+#begin GutterTileAtlas.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:GutterTileAtlas.png
+
 #begin LaunchArrowSpritesheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -188,6 +200,18 @@
 /processorParam:TextureFormat=Color
 /build:PlayerBullet.png
 
+#begin PurpleTile.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:PurpleTile.png
+
 #begin SpikeTile.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -223,6 +247,13 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:SpookyOrangeTeeth.png
+
+#begin TitleCaseArial.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:TitleCaseArial.spritefont
 
 #begin WallSheet.png
 /importer:TextureImporter

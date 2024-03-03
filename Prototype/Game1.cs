@@ -103,7 +103,7 @@ namespace Prototype
 
             EManager = new EnemyManager(this);
 
-            _ui = new UI(this);
+            _ui = new UI(this, _spriteBatch);
 
             GAMESTATE = Gamestate.Menu;
         }
@@ -207,8 +207,6 @@ namespace Prototype
                     EManager.Draw(_spriteBatch, gameTime);
 
                     Player1.Draw(_spriteBatch, gameTime);
-
-                    _ui.Draw(_spriteBatch, gameTime);
                     break;
 
                 case Gamestate.Death:
@@ -224,6 +222,8 @@ namespace Prototype
                         Color.White);
                     break;
             }
+
+            _ui.Draw(gameTime);
 
             _spriteBatch.End();
 

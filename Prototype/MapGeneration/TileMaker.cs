@@ -35,8 +35,8 @@ namespace Prototype.MapGeneration
             // Load all tile spritesheets
             _tileTextures = new Texture2D[5];
             _tileTextures[0] = gm.Content.Load<Texture2D>("PlaceholderTile");
-            _tileTextures[1] = gm.Content.Load<Texture2D>("GrassTile");
-            _tileTextures[2] = gm.Content.Load<Texture2D>("WallSheet");
+            _tileTextures[1] = gm.Content.Load<Texture2D>("PurpleTile");
+            _tileTextures[2] = gm.Content.Load<Texture2D>("GutterTileAtlas");
             _tileTextures[3] = gm.Content.Load<Texture2D>("SpikeTile");
         }
 

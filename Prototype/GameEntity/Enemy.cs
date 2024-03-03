@@ -89,13 +89,13 @@ namespace Prototype.GameEntity
                 100);
 
             // Default Speed
-            _speed = 3f;
+            _speed = 5f;
 
             // Set Vitality
             MaxHealth = 5;
             CurHealth = MaxHealth;
-            _iFrames = 30;
-            _iTimer = _iFrames;
+            _iDuration = 0.5;
+            _iTimer = _iDuration;
 
             // Attacking
             _attackForce = 15f;
@@ -128,8 +128,7 @@ namespace Prototype.GameEntity
         // Methods
         public override void Update(GameTime gameTime)
         {
-
-            TickInvincibility();
+            TickInvincibility(gameTime);
 
             TickKnockout();
 
@@ -154,7 +153,7 @@ namespace Prototype.GameEntity
                     Velocity = Vector2.Zero;
 
                     // Charge attack
-                    _attackDelayTimer -= gameTime.ElapsedGameTime.TotalSeconds;
+                    _attackDelayTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 
                     // If not currently attacking or winding up
                     // Use attack 
@@ -165,7 +164,7 @@ namespace Prototype.GameEntity
                     if (_attackDurationTimer > 0)
                     {
                         Attack();
-                        _attackDurationTimer -= gameTime.ElapsedGameTime.TotalSeconds;
+                        _attackDurationTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 
                         if (_attackDurationTimer <= 0)
                         {
@@ -181,8 +180,8 @@ namespace Prototype.GameEntity
             }
 
             CheckEnemyCollisions();
-            
-            Move();
+
+            Move(Velocity * Player.BulletTimeMultiplier);
 
             // Update animations
      
@@ -192,7 +191,7 @@ namespace Prototype.GameEntity
         private void UpdateWalkAnimation(GameTime gameTime)
         {
             // Add to the time counter (need TOTALSECONDS here)
-            _walkAnimTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
+            _walkAnimTimeCounter += gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 
             // Has enough time gone by to actually flip frames?
             if (_walkAnimTimeCounter >= _walkAnimSecondsPerFrame)
@@ -283,7 +282,7 @@ namespace Prototype.GameEntity
                 CurHealth -= damage;
 
                 // Temporarily become invincible
-                _iTimer = _iFrames;
+                _iTimer = _iDuration;
 
                 // Handle low health
                 if (CurHealth <= 0)
@@ -295,7 +294,7 @@ namespace Prototype.GameEntity
             // Keep resetting invincibility until not hit
             else if (_iTimer > 0)
             {
-                _iTimer = _iFrames;
+                _iTimer = _iDuration;
             }
             
         }

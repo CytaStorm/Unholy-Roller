@@ -24,7 +24,7 @@ namespace Prototype.GameEntity
 
         private GraphicsDeviceManager _gdManager;
 
-        private bool _canRedirect = true;
+        private bool _canRedirect;
 
         private int _maxRedirects;
         private int _numRedirects;
@@ -46,6 +46,12 @@ namespace Prototype.GameEntity
 
         private PlayerState _state;
 
+        // Time dilation
+        double _transitionDuration = 0.2;
+        double _transitionTimeCounter = 0.2;
+        float _normalTimeMultiplier = 1f;
+        float _minTimeMultiplier = 0.5f;
+
         // Properties
 
         public Vector2 ScreenPosition { get; private set; }
@@ -55,6 +61,9 @@ namespace Prototype.GameEntity
         /// can shoot in a different direction
         /// </summary>
         public int NumRedirects { get => _numRedirects; }
+
+        // Bullet Time
+        public static float BulletTimeMultiplier { get; private set; } = 1f;
 
         // Constructors
 
@@ -131,7 +140,7 @@ namespace Prototype.GameEntity
             // Vitality
             MaxHealth = 6;
             CurHealth = MaxHealth;
-            _iFrames = 30;
+            _iDuration = 0.8;
 
             // Attacking
             Damage = 2;
@@ -153,9 +162,12 @@ namespace Prototype.GameEntity
             _curMouse = Mouse.GetState();
             KeyboardState curKB = Keyboard.GetState();
 
-            TickInvincibility();
+            TickInvincibility(gameTime);
 
             if (_iTimer > 0) Image.TintColor = Color.Purple;
+
+            // Press mouse, Launch is primed
+            UpdateBulletTime(gameTime);
 
             // Player can Redirect
             if (_numRedirects > 0)
@@ -174,7 +186,7 @@ namespace Prototype.GameEntity
                     {
                         Vector2 friction = Velocity * -1;
                         friction.Normalize();
-                        friction *= 0.01f;
+                        friction *= 0.01f * BulletTimeMultiplier;
                         Accelerate(friction);
                     }
 
@@ -205,21 +217,7 @@ namespace Prototype.GameEntity
 
             HandleObjCollisions();
 
-            // Press mouse, Launch is primed
-            if (_numRedirects > 0 && _curMouse.LeftButton == ButtonState.Pressed)
-            {
-                // Todo: Slow time
-
-                Move(Velocity / 2);
-
-                // Player can launch
-                _canRedirect = true;
-            }
-            else
-            {
-                Move(Velocity);
-            }
-
+            Move(Velocity * BulletTimeMultiplier);
 
             _prevMouse = _curMouse;
             _prevKB = curKB;
@@ -332,6 +330,37 @@ namespace Prototype.GameEntity
             {
                 CollisionChecker.CheckMapObjectCollision(this, obj);
             }
+        }
+
+        private void UpdateBulletTime(GameTime gameTime)
+        {
+            if (_curMouse.LeftButton == ButtonState.Pressed && _numRedirects > 0)
+            {
+                // Transition from normal -> bullet time
+                _transitionTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;
+
+                _canRedirect = true;
+            }
+            else if (_curMouse.LeftButton == ButtonState.Released)
+            {
+                // Transition from bullet -> normal time
+                _transitionTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            
+            // Enforce counter bounds
+            if (_transitionTimeCounter > _transitionDuration)
+            {
+                _transitionTimeCounter = _transitionDuration;
+            }
+            else if (_transitionTimeCounter < 0)
+            {
+                _transitionTimeCounter = 0;
+            }
+
+            // Set time multiplier
+            BulletTimeMultiplier =
+                (float)(_minTimeMultiplier + _transitionTimeCounter / _transitionDuration *
+                (_normalTimeMultiplier - _minTimeMultiplier));
         }
 
         public override void OnHitEntity(Entity entityThatWasHit, CollisionType colType,
@@ -464,7 +493,7 @@ namespace Prototype.GameEntity
                 _brakeSpeed*_brakeSpeed)
             {
                 // Rapidly Deccelerate
-                Vector2 f = Velocity * -1;
+                Vector2 f = Velocity * -1 * BulletTimeMultiplier;
                 f.Normalize();
                 f *= _brakeSpeed;
                 Accelerate(f);

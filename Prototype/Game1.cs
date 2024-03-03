@@ -113,8 +113,6 @@ namespace Prototype
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            
-
             _curKB = Keyboard.GetState();
             switch (GAMESTATE)
             {
@@ -126,6 +124,7 @@ namespace Prototype
                     break;
 
                 case Gamestate.Play:
+
                     EManager.Update(gameTime);
                     
                     Player1.Update(gameTime);

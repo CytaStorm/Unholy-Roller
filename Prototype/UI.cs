@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prototype.GameEntity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,6 +67,13 @@ namespace Prototype
                     _emptyHeart.Draw(spriteBatch, new Vector2(i * 105f, 10f));
                 }
             }
+
+            // Display Bullet Time multiplier
+            spriteBatch.DrawString(
+                Game1.ARIAL32,
+                $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
+                new Vector2(0f, 200f),
+                Color.White);
         }
     }
 }

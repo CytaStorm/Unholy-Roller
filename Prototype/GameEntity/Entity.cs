@@ -20,8 +20,8 @@ namespace Prototype.GameEntity
         /* ---- Fields ---- */
 
         // Health
-        protected int _iFrames;
-        protected int _iTimer;
+        protected double _iDuration;
+        protected double _iTimer;
         protected float _speed;
 
         /* ---- Properties ---- */
@@ -59,7 +59,7 @@ namespace Prototype.GameEntity
         public virtual void Update(GameTime gameTime)
         {
             // Update invincibility time
-            TickInvincibility();
+            TickInvincibility(gameTime);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Prototype.GameEntity
                 CurHealth -= damage;
 
                 // Entity becomes temporarily invincible
-                _iTimer = _iFrames;
+                _iTimer = _iDuration;
 
                 if (CurHealth <= 0)
                 {
@@ -131,16 +131,14 @@ namespace Prototype.GameEntity
             }
         }
 
-        public virtual void TakeKnockback() { }
-
         public virtual void Die() { }
 
-        protected virtual void TickInvincibility()
+        protected virtual void TickInvincibility(GameTime gameTime)
         {
             // Update invincibility time
             if (_iTimer > 0)
             {
-                _iTimer--;
+                _iTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
             }
         }
 

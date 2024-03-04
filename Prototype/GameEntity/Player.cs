@@ -50,7 +50,7 @@ namespace Prototype.GameEntity
         double _timeTransitionDuration = 0.2;
         double _transitionTimeCounter = 0.2;
         float _normalTimeMultiplier = 1f;
-        float _minTimeMultiplier = 0.5f;
+        float _minTimeMultiplier = 0.3f;
 
         // Properties
 
@@ -239,21 +239,8 @@ namespace Prototype.GameEntity
                 Vector2 distance = mousePos - centerPos;
                 distance.Normalize();
 
-                //// Speed is less than default
-                //if (Velocity.LengthSquared() <= _speed * _speed)
-                //{
-                //    // Launch player at default speed
-                //    distance *= _speed;
-                //    Velocity = distance;
-                //}
-                //else
-                //{
-                //    // Launch player at current speed
-                //    distance *= Velocity.Length();
-                //    Velocity = distance;
-                //}
-
-                if (_numRedirects > _maxRedirects)
+                // Speed is less than default
+                if (Velocity.LengthSquared() <= _speed * _speed)
                 {
                     // Launch player at default speed
                     distance *= _speed;
@@ -265,6 +252,19 @@ namespace Prototype.GameEntity
                     distance *= Velocity.Length();
                     Velocity = distance;
                 }
+
+                //if (_numRedirects > _maxRedirects)
+                //{
+                //    // Launch player at default speed
+                //    distance *= _speed;
+                //    Velocity = distance;
+                //}
+                //else
+                //{
+                //    // Launch player at current speed
+                //    distance *= Velocity.Length();
+                //    Velocity = distance;
+                //}
 
                 // Stop player from launching again
                 _canRedirect = false;
@@ -541,7 +541,6 @@ namespace Prototype.GameEntity
             if (_canRedirect)
             {
                 // Get angle between arrow and mouse
-                Vector2 arrowVector = new Vector2(0f, -1f);
                 Vector2 mousePos = new Vector2(_curMouse.X, _curMouse.Y);
                 Vector2 centerPlayerPos = new Vector2(
                     ScreenPosition.X + Image.DestinationRect.Width / 2,

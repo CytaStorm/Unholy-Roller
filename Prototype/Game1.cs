@@ -239,7 +239,7 @@ namespace Prototype
 
             //ShapeBatch.End();
 
-            base.Draw(gameTime);
+            //base.Draw(gameTime);
         }
     }
 }

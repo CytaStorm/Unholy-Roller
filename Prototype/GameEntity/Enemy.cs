@@ -37,10 +37,15 @@ namespace Prototype.GameEntity
         private double _attackDurationTimer;
         private float _attackRadius;
         private float _attackRange;
-        private double _attackDelay;
-        private double _attackDelayTimer;
+        private double _attackWindupDuration;
+        private double _attackWindupTimer;
+        private double _attackCooldown;
+        private double _attackCooldownTimer;
+
         private bool _attackLandedOnce;
         private Rectangle _attackHitbox;
+        private Vector2 _attackDirection;
+        private bool _attackDirChosen;
 
         private float _chaseRange;
         private float _aggroRange;
@@ -99,12 +104,15 @@ namespace Prototype.GameEntity
 
             // Attacking
             _attackForce = 15f;
-            _attackDuration = 0.1d;
-            _attackDurationTimer = 0d;
+            _attackDuration = 0.2;
+            _attackDurationTimer = 0.0;
             _attackRadius = Game1.TILESIZE;
             _attackRange = Game1.TILESIZE;
-            _attackDelay = 0.25d;
-            _attackDelayTimer = _attackDelay;
+            _attackWindupDuration = 0.25;
+            _attackWindupTimer = _attackWindupDuration;
+
+            _attackCooldown = 0.8;
+            _attackCooldownTimer = 0.0;
 
             _gloveSpriteSheet = gloveSprites;
             
@@ -112,8 +120,8 @@ namespace Prototype.GameEntity
             Type = EntityType.Enemy;
 
             // Set state
-            _chaseRange = Game1.TILESIZE * 4;
-            _aggroRange = Game1.TILESIZE * 2;
+            _chaseRange = Game1.TILESIZE * 10;
+            _aggroRange = Game1.TILESIZE * 3;
 
             ActionState = EnemyState.Chase;
 
@@ -152,27 +160,47 @@ namespace Prototype.GameEntity
                 case EnemyState.Attack:
                     Velocity = Vector2.Zero;
 
-                    // Charge attack
-                    _attackDelayTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
-
-                    // If not currently attacking or winding up
-                    // Use attack 
-                    if (_attackDurationTimer <= 0 && _attackDelayTimer <= 0) 
-                        _attackDurationTimer = _attackDuration;
-
-                    // Currently Attacking
-                    if (_attackDurationTimer > 0)
+                    // Apply attack cooldown
+                    if (_attackCooldownTimer > 0)
                     {
-                        Attack();
-                        _attackDurationTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
-
-                        if (_attackDurationTimer <= 0)
+                        _attackCooldownTimer -= 
+                            gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+                    }
+                    else
+                    {
+                        // Choose a direction to attack in
+                        if (!_attackDirChosen)
                         {
-                            // Reset attack delay
-                            _attackDelayTimer = _attackDelay;
+                            // Get direction from self to player
+                            _attackDirection = Game1.Player1.CenterPosition - CenterPosition;
 
-                            // No new attack has happened
-                            _attackLandedOnce = false;
+                            // Apply attack range
+                            _attackDirection.Normalize();
+                            _attackDirection *= _attackRange;
+
+                            _attackDirChosen = true;
+                        }
+
+                        // Charge attack
+                        _attackWindupTimer -= 
+                            gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+
+                        // If not currently attacking or winding up
+                        // Use attack 
+                        if (_attackDurationTimer <= 0 && _attackWindupTimer <= 0) 
+                            _attackDurationTimer = _attackDuration;
+
+                        // Currently Attacking
+                        if (_attackDurationTimer > 0)
+                        {
+                            Attack();
+                            _attackDurationTimer -= 
+                                gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+
+                            if (_attackDurationTimer <= 0)
+                            {
+                                EndAttack(false);
+                            }
                         }
                     }
 
@@ -207,13 +235,36 @@ namespace Prototype.GameEntity
 
         protected void TargetPlayer()
         {
-            // Get direction from self to player
-            Point eMinusP = Game1.Player1.Hitbox.Center - Hitbox.Center;
-            Vector2 directionToPlayer = new Vector2(eMinusP.X, eMinusP.Y);
+            // Stop if get too close to another enemy
+            bool shouldStop = false;
+            float minDistanceFromEnemies = Game1.TILESIZE * 3;
+            foreach(Enemy e in Game1.EManager.Dummies)
+            {
+                Vector2 distFromEnemy = (e.WorldPosition - WorldPosition);
+                if (e != this &&
+                    distFromEnemy.LengthSquared() <= minDistanceFromEnemies * minDistanceFromEnemies)
+                {
+                    shouldStop = true;
+                    break;
+                }
+            }
 
-            // Aim enemy toward player at their speed
-            directionToPlayer.Normalize();
-            Velocity = new Vector2(directionToPlayer.X * _speed, directionToPlayer.Y * _speed);
+            if (shouldStop)
+            {
+                Velocity = Vector2.Zero;
+            }
+            else
+            {
+                // Get direction from self to player
+                Point eMinusP = Game1.Player1.Hitbox.Center - Hitbox.Center;
+                Vector2 directionToPlayer = new Vector2(eMinusP.X, eMinusP.Y);
+
+                // Aim enemy toward player at their speed
+                directionToPlayer.Normalize();
+                Velocity = new Vector2(directionToPlayer.X * _speed, directionToPlayer.Y * _speed);
+            }
+
+
         }
 
         public void CheckEnemyCollisions()
@@ -239,7 +290,7 @@ namespace Prototype.GameEntity
                     _hitPlayer = true;
 
                     // Cancel out attack charge
-                    _attackDelayTimer = _attackDelay;
+                    _attackWindupTimer = _attackWindupDuration;
 
                     break;
 
@@ -301,13 +352,14 @@ namespace Prototype.GameEntity
 
         public void Attack()
         {
-            // Get direction from self to player
-            Vector2 directionToPlayer = Game1.Player1.CenterPosition - CenterPosition;
+            //// Get direction from self to player
+            //Vector2 directionToPlayer = Game1.Player1.CenterPosition - CenterPosition;
 
-            // Apply attack range
-            directionToPlayer.Normalize();
-            directionToPlayer *= _attackRange;
+            //// Apply attack range
+            //directionToPlayer.Normalize();
+            //directionToPlayer *= _attackRange;
 
+            Vector2 directionToPlayer = _attackDirection;
 
             // Cast the damage box
             Rectangle damageBox = new Rectangle(
@@ -340,23 +392,41 @@ namespace Prototype.GameEntity
             }
         }
 
+        private void EndAttack(bool stoppedEarly)
+        {
+            // Reset windup
+            _attackWindupTimer = _attackWindupDuration;
+
+            if (stoppedEarly)
+                _attackCooldown = 0;
+            else
+                _attackCooldownTimer = _attackCooldown;
+
+            // Enemy is not attacking
+            _attackDurationTimer = 0;
+
+            // No new attack has happened
+            _attackLandedOnce = false;
+            _attackDirChosen = false;
+        }
+
         public void DetermineState(float playerDist)
         {
             if (IsKO || playerDist > _chaseRange)
             {
                 ActionState = EnemyState.Idle;
 
-                _attackDelayTimer = _attackDelay;
-                // Stop attacking if player moves out of range
-                _attackDurationTimer = 0;
+                EndAttack(true);
+
+                _attackCooldownTimer = 0;
             }
             else if (playerDist < _chaseRange && playerDist > _aggroRange)
             {
                 ActionState = EnemyState.Chase;
 
-                _attackDelayTimer = _attackDelay;
-                // Stop attacking if player moves out of range
-                _attackDurationTimer = 0;
+                EndAttack(true);
+
+                _attackCooldownTimer = 0;
             }
             else if (playerDist < _aggroRange)
             {
@@ -468,6 +538,8 @@ namespace Prototype.GameEntity
                         break;
 
                     case EnemyState.Attack:
+                        if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0.0)
+                            Image.TintColor = Color.Orange;    
                         Image.Draw(spriteBatch, screenPos);
                         
                         DrawAttacking(spriteBatch, screenPos, distFromPlayer);
@@ -491,18 +563,22 @@ namespace Prototype.GameEntity
 
         private void DrawAttacking(SpriteBatch sb, Vector2 screenPos, Vector2 distFromPlayer)
         {
+            // Get vector pointing away from the player
+            // with a length of attack radius
+            //Vector2 windupPosShift = distFromPlayer;
+            //windupPosShift.Normalize();
+            //windupPosShift *= -_attackRange;
+
+            Vector2 windupPosShift = _attackDirection;
+
             // Draw Attack Windup
-            if (_attackDelayTimer < _attackDelay && _attackDurationTimer <= 0d)
+            if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0d)
             {
-                // Get vector pointing away from the player
-                // with a length of attack radius
-                Vector2 windupPosShift = distFromPlayer;
-                windupPosShift.Normalize();
-                windupPosShift *= -_attackRange;
+                Vector2 screenWindupPos = screenPos - windupPosShift; 
 
                 Rectangle drawnWindupHit = new Rectangle(
-                    (int)(screenPos.X - windupPosShift.X),
-                    (int)(screenPos.Y - windupPosShift.Y),
+                    (int)screenWindupPos.X,
+                    (int)screenWindupPos.Y,
                     _attackHitbox.Width,
                     _attackHitbox.Height);
 
@@ -510,9 +586,7 @@ namespace Prototype.GameEntity
                     _gloveSpriteSheet,
                     drawnWindupHit,
                     new Rectangle(0, 0, _gloveFrameWidth, _gloveFrameWidth),
-                    Color.Red);
-
-                Image.TintColor = Color.Orange;
+                    Color.White);
             }
 
             // Draw actively attacking
@@ -531,8 +605,7 @@ namespace Prototype.GameEntity
                     _gloveSpriteSheet,
                     drawnAttackHit,
                     new Rectangle(_gloveFrameWidth * 2, 0, _gloveFrameWidth, _gloveFrameWidth),
-                    Color.White);
-
+                    Color.Red);
             }
         }
 
@@ -543,7 +616,7 @@ namespace Prototype.GameEntity
             Vector2 screenPos = Game1.Player1.ScreenPosition + distFromPlayer;
 
             // Show attack windup 
-            float attackReadiness = (float)((_attackDelay - _attackDelayTimer) / _attackDelay);
+            float attackReadiness = (float)((_attackWindupDuration - _attackWindupTimer) / _attackWindupDuration);
 
             float boxFill = Image.DestinationRect.Height * attackReadiness;
             int boxFillInt = (int)MathF.Round(boxFill);

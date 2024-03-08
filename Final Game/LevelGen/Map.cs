@@ -20,28 +20,27 @@ namespace Final_Game
 		/// <summary>
 		/// Which room the player is in.
 		/// </summary>
-		public Room playerCurrentRoom;
+		public Point playerCurrentRoom;
 		private Random _random = new Random();
 		#endregion
 
 		#region Constructor(s)
 		public Map(int size)
 		{
-			//Create first room
+			//Create first room (randomly placed)
 			allRooms[_random.Next(allRooms.GetLength(0)),
 				_random.Next(allRooms.GetLength(1))] = 
 				new Room();
-
-			for (int i = 1; i < size; i++)
-			{
-
-			}
-
+			
 
 		}
 		#endregion
 
 		#region Method(s)
+		private void ExpandLevel()
+		{
+
+		}
 		#endregion
 
 	}

@@ -5,43 +5,36 @@ using Microsoft.Xna.Framework.Graphics;
 using Prototype.GameEntity;
 using System;
 using System.Net.Http;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Prototype.MapGeneration
 {
     public enum MapObJType
     {
-        Door
+        Door,
+        TransferTile,
+        Health
     }
 
-    public class MapOBJ
+    public abstract class MapOBJ
     {
         // Fields
 
         // Properties
-        public bool Active { get; set; }
+        public bool Alive { get; set; } = true;
         public Rectangle Hitbox { get; protected set; }
         public Sprite Image { get; protected set; }
         public Vector2 WorldPosition { get; set; }
         public MapObJType Type { get; protected set; }
 
-        // Constructors
-        public MapOBJ(Vector2 worldPos, Texture2D image, MapObJType type)
-        {
-            WorldPosition = worldPos;
-            Image = new Sprite(image, image.Bounds, image.Bounds);
-            Hitbox = new Rectangle(
-                (int)worldPos.X,
-                (int)worldPos.Y,
-                image.Width,
-                image.Height);
-            Active = true;
-            Type = type;
-        }
+        public Room Parent { get; protected set; }
+        public Room RoomPointer { get; protected set; }
 
         // Methods
 
-        public void OnHitEntity(Entity e, CollisionType colType)
+        public virtual void OnHitEntity(Entity e, CollisionType colType)
         {
+
         }
 
         public void Update(GameTime gameTime)

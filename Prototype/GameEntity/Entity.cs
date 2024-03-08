@@ -43,6 +43,7 @@ namespace Prototype.GameEntity
         public int MaxHealth { get; protected set; } = 5; // Default so entity isn't auto-removed
         public int CurHealth { get; protected set; } = 5; // Default so entity isn't auto-removed
         public bool Alive { get; protected set; } = true;
+        public bool IsInvincible { get => _iTimer > 0; }
 
         // Image Properties
         public Sprite Image { get; protected set; }
@@ -132,6 +133,14 @@ namespace Prototype.GameEntity
         }
 
         public virtual void Die() { }
+
+        public virtual void Heal(int amount)
+        {
+            CurHealth += amount;
+
+            if (CurHealth > MaxHealth)
+                CurHealth = MaxHealth;
+        }
 
         protected virtual void TickInvincibility(GameTime gameTime)
         {

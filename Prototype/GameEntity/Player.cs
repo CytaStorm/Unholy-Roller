@@ -44,7 +44,7 @@ namespace Prototype.GameEntity
         private Sprite _spedUpSprite;
         private Sprite _launchArrows;
 
-        private PlayerState _state;
+        public PlayerState State { get; private set; }
 
         // Time dilation
         double _timeTransitionDuration = 0.2;
@@ -64,6 +64,9 @@ namespace Prototype.GameEntity
 
         // Bullet Time
         public static float BulletTimeMultiplier { get; private set; } = 1f;
+
+        // Room Tracking
+        public Room CurrentRoom { get; set; }
 
         // Constructors
 
@@ -114,10 +117,10 @@ namespace Prototype.GameEntity
 
             // Hitbox
             Hitbox = new Rectangle(
-                (int)WorldPosition.X,
-                (int)WorldPosition.Y,
-                Image.DestinationRect.Width,
-                Image.DestinationRect.Height);
+                (int)WorldPosition.X + 10,
+                (int)WorldPosition.Y + 10,
+                Image.DestinationRect.Width - 20,
+                Image.DestinationRect.Height - 20);
 
             ScreenPosition = new Vector2(
                 Game1.WINDOW_WIDTH / 2 - DEFAULT_SPRITE_WIDTH / 2,
@@ -152,7 +155,14 @@ namespace Prototype.GameEntity
 
             Type = EntityType.Player;
 
-            _state = PlayerState.Walking;
+            State = PlayerState.Walking;
+
+            // Set default room player is in
+            CurrentRoom = Game1.TUTORIAL_ROOM;
+
+            // Move to the center of the other room
+            Vector2 roomCenter = new Vector2(CurrentRoom.Center.X, CurrentRoom.Center.Y);
+            Move(roomCenter - WorldPosition);
         }
 
 
@@ -175,7 +185,7 @@ namespace Prototype.GameEntity
                 HandleLaunch();
             }
 
-            switch (_state)
+            switch (State)
             {
                 case PlayerState.Rolling:
                     HandleBrake();
@@ -190,12 +200,17 @@ namespace Prototype.GameEntity
                         Accelerate(friction);
                     }
 
+                    if (Velocity.LengthSquared() < 5f * 5f)
+                    {
+                        _numRedirects = _maxRedirects;
+                    }
+
                     // Transition to walking
                     if (Velocity.LengthSquared() <= 0.01f * 0.01f)
                     {
                         // Fully stop player
                         Velocity = Vector2.Zero;
-                        _state = PlayerState.Walking;
+                        State = PlayerState.Walking;
 
                         // Give them 3 redirects plus an initial launch
                         _numRedirects = _maxRedirects + 1;
@@ -211,7 +226,7 @@ namespace Prototype.GameEntity
             // Could try tracking time where collision is on and
             // if it's on too long, let the player move in a direction until it turns off
 
-            bool hitTile = CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
+            bool hitTile = CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Floor);
 
             HandleEnemyCollisions();
 
@@ -272,7 +287,7 @@ namespace Prototype.GameEntity
                 _numRedirects--;
 
                 // Player is now rolling
-                _state = PlayerState.Rolling;
+                State = PlayerState.Rolling;
             }
         }
 
@@ -326,9 +341,12 @@ namespace Prototype.GameEntity
 
         private void HandleObjCollisions()
         {
-            foreach(MapOBJ obj in Game1.TEST_ROOM.Interactables)
+            foreach(MapOBJ obj in CurrentRoom.Interactables)
             {
-                CollisionChecker.CheckMapObjectCollision(this, obj);
+                if(CollisionChecker.CheckMapObjectCollision(this, obj))
+                {
+                    break;
+                }
             }
         }
 
@@ -369,15 +387,22 @@ namespace Prototype.GameEntity
             switch (entityThatWasHit.Type)
             {
                 case EntityType.Enemy:
-                    if (_state != PlayerState.Walking)
+                    if (State != PlayerState.Walking)
                     {
-                        entityThatWasHit.TakeDamage(Damage);
+                        if (!entityThatWasHit.IsInvincible)
+                        {
+                            // Speed up
+                            Vector2 acc = Velocity;
+                            acc.Normalize();
+                            acc *= 0.05f;
+                            Accelerate(acc);
 
-                        // Speed up
-                        Vector2 acc = Velocity;
-                        acc.Normalize();
-                        acc *= 0.05f;
-                        Accelerate(acc);
+                            // Get an extra redirect
+                            if (_numRedirects < _maxRedirects)
+                                _numRedirects++;
+                        }
+
+                        entityThatWasHit.TakeDamage(Damage);
                     }
                     else
                     {
@@ -389,7 +414,7 @@ namespace Prototype.GameEntity
                         this.TakeDamage(1);
 
                         Velocity = distToEnemy;
-                        _state = PlayerState.Rolling;
+                        State = PlayerState.Rolling;
                     }
                     break;
             }
@@ -405,46 +430,48 @@ namespace Prototype.GameEntity
 
                     Image.TintColor = Color.LightGoldenrodYellow;
                     break;
-
-                case TileType.Wall:
-                    // Place self on part of wall that was hit
-                    //if (colType == CollisionType.Horizontal)
-                    //{
-                    //    if (Velocity.X > 0)
-                    //    {
-                    //        Vector2 whereItShouldBe = new Vector2(tile.WorldPosition.X - Hitbox.Width, WorldPosition.Y);
-                    //        Move(whereItShouldBe - WorldPosition);
-                    //    }
-                    //    else
-                    //    {
-                    //        Vector2 whereItShouldBe = new Vector2(tile.WorldPosition.X + Game1.TILESIZE + 1, WorldPosition.Y);
-                    //        Move(whereItShouldBe - WorldPosition);
-                    //    }
-                    //}
-                    //else if (colType == CollisionType.Vertical)
-                    //{
-                    //    if (Velocity.Y > 0)
-                    //    {
-                    //        Vector2 whereItShouldBe = new Vector2(WorldPosition.X, tile.WorldPosition.Y - Hitbox.Height);
-                    //        Move(whereItShouldBe - WorldPosition);
-                    //    }
-                    //    else
-                    //    {
-                    //        Vector2 whereItShouldBe = new Vector2(WorldPosition.X, tile.WorldPosition.Y + Game1.TILESIZE + 1);
-                    //        Move(whereItShouldBe - WorldPosition);
-                    //    }
-                    //}
-                    break;
             }
 
-            if (_state == PlayerState.Rolling)
+            // Place self on part of tile that was hit
+            if (colType == CollisionType.Horizontal)
+            {
+                if (Velocity.X > 0)
+                {
+                    Vector2 whereItShouldBe = new Vector2(tile.WorldPosition.X - Hitbox.Width, WorldPosition.Y);
+                    Move(whereItShouldBe - WorldPosition);
+                }
+                else
+                {
+                    Vector2 whereItShouldBe = new Vector2(tile.WorldPosition.X + Game1.TILESIZE + 1, WorldPosition.Y);
+                    Move(whereItShouldBe - WorldPosition);
+                }
+            }
+            else if (colType == CollisionType.Vertical)
+            {
+                if (Velocity.Y > 0)
+                {
+                    Vector2 whereItShouldBe = new Vector2(WorldPosition.X, tile.WorldPosition.Y - Hitbox.Height);
+                    Move(whereItShouldBe - WorldPosition);
+                }
+                else
+                {
+                    Vector2 whereItShouldBe = new Vector2(WorldPosition.X, tile.WorldPosition.Y + Game1.TILESIZE + 1);
+                    Move(whereItShouldBe - WorldPosition);
+                }
+            }
+
+            if (State == PlayerState.Rolling)
+            {
+                //Move(-Velocity);
+
                 Ricochet(colType);
-            else if (_state == PlayerState.Walking)
+            }
+            else if (State == PlayerState.Walking)
                 Move(Velocity * -1);
 
             // Restore redirects
-            if (_numRedirects < _maxRedirects)
-                _numRedirects++;
+            //if (_numRedirects < _maxRedirects)
+            //    _numRedirects++;
 
             base.OnHitTile(tile, colType);
         }
@@ -454,7 +481,51 @@ namespace Prototype.GameEntity
             switch (obj.Type)
             {
                 case MapObJType.Door:
+                    // Place self on part of wall that was hit
+                    if (colType == CollisionType.Horizontal)
+                    {
+                        if (Velocity.X > 0)
+                        {
+                            Vector2 whereItShouldBe = new Vector2(obj.WorldPosition.X - Hitbox.Width, WorldPosition.Y);
+                            Move(whereItShouldBe - WorldPosition);
+                        }
+                        else
+                        {
+                            Vector2 whereItShouldBe = new Vector2(obj.WorldPosition.X + Game1.TILESIZE + 1, WorldPosition.Y);
+                            Move(whereItShouldBe - WorldPosition);
+                        }
+                    }
+                    else if (colType == CollisionType.Vertical)
+                    {
+                        if (Velocity.Y > 0)
+                        {
+                            Vector2 whereItShouldBe = new Vector2(WorldPosition.X, obj.WorldPosition.Y - Hitbox.Height);
+                            Move(whereItShouldBe - WorldPosition);
+                        }
+                        else
+                        {
+                            Vector2 whereItShouldBe = new Vector2(WorldPosition.X, obj.WorldPosition.Y + Game1.TILESIZE + 1);
+                            Move(whereItShouldBe - WorldPosition);
+                        }
+                    }
+
                     Ricochet(colType);
+                    break;
+
+                case MapObJType.TransferTile:
+
+                    // Restore player's redirects
+                    _numRedirects = _maxRedirects;
+
+                    // Move to the center of the other room
+                    //Vector2 roomCenter = new Vector2(obj.RoomPointer.Center.X, obj.RoomPointer.Center.Y);
+                    //Move(roomCenter - WorldPosition);
+
+                    Move(((TransferTileOBJ)obj).Destination - WorldPosition);
+
+                    // Now in that new room
+                    CurrentRoom.PlayerLeft();
+                    CurrentRoom = obj.RoomPointer;
                     break;
             }
         }
@@ -470,14 +541,14 @@ namespace Prototype.GameEntity
                 Velocity = new Vector2(Velocity.X * -1, Velocity.Y);
             }
 
-            _state = PlayerState.Rolling;
+            State = PlayerState.Rolling;
         }
 
         public void Ricochet(Vector2 newDirection)
         {
             Velocity = newDirection;
 
-            _state = PlayerState.Rolling;
+            State = PlayerState.Rolling;
         }
 
         public void Accelerate(Vector2 force)
@@ -511,6 +582,18 @@ namespace Prototype.GameEntity
         public void Reset()
         {
             CurHealth = MaxHealth;
+
+            _numRedirects = _maxRedirects;
+
+            Velocity = Vector2.Zero;
+
+            State = PlayerState.Walking;
+
+            CurrentRoom = Game1.TEST_ROOM;
+
+            // Center player in room
+            Vector2 roomCenter = new Vector2(CurrentRoom.Center.X, CurrentRoom.Center.Y);
+            Move(roomCenter - WorldPosition);
         }
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -609,6 +692,12 @@ namespace Prototype.GameEntity
                         );
                 }
             }
+        }
+
+        public void MoveToCenterOfRoom(Room r) {
+            // Move to the center of the other room
+            Vector2 roomCenter = new Vector2(CurrentRoom.Center.X, CurrentRoom.Center.Y);
+            Move(roomCenter - WorldPosition);
         }
 
         public void DrawGizmos()

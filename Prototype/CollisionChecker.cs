@@ -96,21 +96,21 @@ namespace Prototype
                             Game1.TILESIZE);
 
                         // Get final position of entity hitbox
-                        Vector2 colPosition = e.WorldPosition + e.Velocity;
+                        Vector2 colPosition = e.WorldPosition + e.Velocity * Player.BulletTimeMultiplier;
                         Rectangle colHitbox = new Rectangle(
                             (int)colPosition.X,
                             (int)colPosition.Y,
                             e.Hitbox.Width,
                             e.Hitbox.Height);
 
-                        float numShifts = e.Velocity.Length();
+                        float numShifts = e.Velocity.Length() * Player.BulletTimeMultiplier;
                         bool intersects = false;
                         Rectangle temp = new Rectangle();
                         Vector2 tempPoint = Vector2.Zero;
 
                         if (numShifts > 1f)
                         {
-                            Vector2 normVelo = e.Velocity;
+                            Vector2 normVelo = e.Velocity * Player.BulletTimeMultiplier;
                             normVelo.Normalize();
 
                             // Explain what this does
@@ -151,12 +151,15 @@ namespace Prototype
                         // Check if entity will hit the tile
                         if (intersects)
                         {
-                            Vector2 distFromTile = curTile.WorldPosition - tempPoint;
+                            //Vector2 distFromTile = curTile.WorldPosition - tempPoint;
+
+                            Rectangle overlap = Rectangle.Intersect(temp, tileHit);
 
                             // Determine direction entity hit the tile
 
-                            if (Math.Abs(distFromTile.X) > Math.Abs(distFromTile.Y))
+                            if (overlap.Height >= overlap.Width)
                             {
+
                                 e.OnHitTile(curTile, CollisionType.Horizontal);
                             }
                             else

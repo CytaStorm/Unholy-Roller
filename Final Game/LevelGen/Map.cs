@@ -1,12 +1,8 @@
 ﻿using Final_Game.LevelGen;
-using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using System.Runtime.InteropServices;
 
 namespace Final_Game
 {
@@ -16,21 +12,24 @@ namespace Final_Game
 		/// <summary>
 		/// All rooms that make up the map.
 		/// </summary>
-		Room[,] allRooms = new Room[5, 5];
+		public static Room[,] Level = new Room[5, 5];
+		public static bool[,] availableRooms = new bool[Level.GetLength(0), Level.GetLength(1)];
+		public static Random _random = new Random();
 		/// <summary>
-		/// Which room the player is in.
+		/// List of all rooms.
 		/// </summary>
-		public Point playerCurrentRoom;
-		private Random _random = new Random();
+		List<Point> rooms = new List<Point>();
 		#endregion
 
 		#region Constructor(s)
 		public Map(int size)
 		{
 			//Create first room (randomly placed)
-			allRooms[_random.Next(allRooms.GetLength(0)),
-				_random.Next(allRooms.GetLength(1))] = 
-				new Room();
+			Point firstRoom = 
+				new Point(
+					_random.Next(availableRooms.GetLength(0)),
+					_random.Next(availableRooms.GetLength(1)));
+			availableRooms[firstRoom.X, firstRoom.Y] = true;
 			
 
 		}
@@ -39,6 +38,13 @@ namespace Final_Game
 		#region Method(s)
 		private void ExpandLevel()
 		{
+			Point selectedRoom = rooms[_random.Next(rooms.Count)];
+			bool TopRow = selectedRoom.X == 0;
+			bool BotRow = selectedRoom.X == availableRooms.GetLength(0);
+			bool LeftCol = selectedRoom.Y == 0;
+			bool RightCol = selectedRoom.Y == availableRooms.GetLength(0);
+
+			if (!TopRow) { }
 
 		}
 		#endregion

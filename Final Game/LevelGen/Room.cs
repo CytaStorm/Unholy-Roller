@@ -16,6 +16,7 @@ namespace Final_Game.LevelGen
 		#region Constructor(s)
 		public Room()
 		{
+
 		}
 		#endregion
 	}

@@ -197,11 +197,11 @@ namespace Prototype
                     }
 
                     // Display Bullet Time multiplier
-                    _spriteBatch.DrawString(
-                        Game1.ARIAL32,
-                        $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
-                        new Vector2(0f, 200f),
-                        Color.White);
+                    //_spriteBatch.DrawString(
+                    //    Game1.ARIAL32,
+                    //    $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
+                    //    new Vector2(0f, 200f),
+                    //    Color.White);
                     break;
 
                 case Gamestate.Pause:

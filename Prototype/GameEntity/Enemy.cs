@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Prototype.MapGeneration;
 using ShapeUtils;
 using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Prototype.GameEntity
 {
@@ -345,11 +346,11 @@ namespace Prototype.GameEntity
                     _koTimer = _koDuration;
                 }
             }
-            // Keep resetting invincibility until not hit
-            else if (_iTimer > 0)
-            {
-                _iTimer = _iDuration;
-            }
+            //// Keep resetting invincibility until not hit
+            //else if (_iTimer > 0)
+            //{
+            //    _iTimer = _iDuration;
+            //}
             
         }
 
@@ -601,20 +602,31 @@ namespace Prototype.GameEntity
             // Draw actively attacking
             if (_attackDurationTimer > 0)
             {
-                int atkHitDistX = (int)(_attackHitbox.X - WorldPosition.X);
-                int atkHitDistY = (int)(_attackHitbox.Y - WorldPosition.Y);
+          
+                // Rotate fist so knuckles face player
+                float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
 
-                Rectangle drawnAttackHit = new Rectangle(
-                    (int)(screenPos.X + atkHitDistX),
-                    (int)(screenPos.Y + atkHitDistY),
-                    _attackHitbox.Width,
-                    _attackHitbox.Height);
+                Rectangle attackSourceRect = new Rectangle(
+                    _gloveFrameWidth * 2,
+                    0,
+                    _gloveFrameWidth,
+                    _gloveFrameWidth);
+
+                Vector2 centerScreenPos =
+                    screenPos + (CenterPosition - WorldPosition);
 
                 sb.Draw(
                     _gloveSpriteSheet,
-                    drawnAttackHit,
-                    new Rectangle(_gloveFrameWidth * 2, 0, _gloveFrameWidth, _gloveFrameWidth),
-                    Color.Red);
+                    centerScreenPos + _attackDirection * 3.5f,
+                    attackSourceRect,
+                    Color.White,
+                    dirAngle,
+                    new Vector2(
+                        attackSourceRect.Center.X,
+                        attackSourceRect.Center.Y),
+                    1f,
+                    SpriteEffects.None,
+                    0f);
             }
         }
 

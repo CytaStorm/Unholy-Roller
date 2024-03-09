@@ -508,8 +508,10 @@ namespace Prototype.GameEntity
                             Move(whereItShouldBe - WorldPosition);
                         }
                     }
-
-                    Ricochet(colType);
+                    if (State == PlayerState.Rolling)
+                        Ricochet(colType);
+                    else
+                        Move(-Velocity);
                     break;
 
                 case MapObJType.TransferTile:

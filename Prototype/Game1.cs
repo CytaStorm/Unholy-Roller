@@ -101,28 +101,36 @@ namespace Prototype
 
             TUTORIAL_ROOM = new Room(
                 this,
-                "../../../TutorialArena.txt",
-                "../../../Enemyless.txt",
-                "../../../Enemyless.txt",
+                "Content/Rooms/TutorialArena.txt",
+                "Content/EnemyPos/Enemyless.txt",
+                "Content/EnemyPos/Enemyless.txt",
                 new Point(100000, 0));
 
-            TEST_ROOM = new Room(this, "../../../TestArena1.txt",
-                "../../../PossibleEnemyPosition.txt",
-                "../../../Enemyless.txt",
+            TEST_ROOM = new Room(
+                this,
+                "Content/Rooms/TestArena1.txt",
+                "Content/EnemyPos/PossibleEnemyPosition.txt",
+                "Content/EnemyPos/Enemyless.txt",
                 new Point(0, 0));
-            TEST_ROOM_TWO = new Room(this, "../../../TestArena5.txt",
-                "../../../EnemyPositionsTA2.txt",
-                "../../../Enemyless.txt",
+            TEST_ROOM_TWO = new Room(
+                this,
+                "Content/Rooms/TestArena5.txt",
+                "Content/EnemyPos/EnemyPositionsTA2.txt",
+                "Content/EnemyPos/Enemyless.txt",
                 new Point(0, 0));
 
-            SPIKE_ROOM = new Room(this, "../../../TestArena7.txt",
-                "../../../Enemyless.txt",
-                "../../../IntroduceObstacles.txt",
+            SPIKE_ROOM = new Room(
+                this,
+                "Content/Rooms/TestArena7.txt",
+                "Content/EnemyPos/Enemyless.txt",
+                "Content/ObstaclePos/IntroduceObstacles.txt",
                 new Point(0, 0));
 
-            TEST_ROOM_THREE = new Room(this, "../../../TestArena6.txt",
-                "../../../EnemyPositionsTA6.txt",
-                "../../../ObstaclePositionsTA6.txt",
+            TEST_ROOM_THREE = new Room(
+                this,
+                "Content/Rooms/TestArena6.txt",
+                "Content/EnemyPos/EnemyPositionsTA6.txt",
+                "Content/ObstaclePos/ObstaclePositionsTA6.txt",
                 new Point(TEST_ROOM.Floor.Width + TEST_ROOM_TWO.Floor.Width, 0));
 
 
@@ -272,12 +280,6 @@ namespace Prototype
             }
 
             _ui.Draw(gameTime);
-
-            _spriteBatch.DrawString(
-                ARIAL32,
-                _csManager.PhaseNum.ToString(),
-                new Vector2(0f, 300f),
-                Color.White);
 
             _csManager.Draw(_spriteBatch);
 

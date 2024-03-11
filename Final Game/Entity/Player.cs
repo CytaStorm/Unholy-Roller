@@ -116,13 +116,13 @@ namespace Final_Game.Entity
 
         private void HandleLaunch()
         {
-            if (Game1.CurMouse.LeftButton == ButtonState.Pressed)
+            if (Game1.IsMouseButtonPressed(1))
             {
                 // Todo: Slow time
             }
 
             // Launch Player in direction of Mouse
-            if (_numRedirects > 0 && Game1.MouseLeftClicked())
+            if (_numRedirects > 0 && Game1.IsMouseLeftClicked())
             {
                 // Get mouse Position
                 Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
@@ -175,8 +175,8 @@ namespace Final_Game.Entity
         {
             float lowestBrakableSpeed = 0.1f * 0.1f;
 
-            if (Game1.CurMouse.RightButton == ButtonState.Pressed
-                && Velocity.LengthSquared() >= lowestBrakableSpeed)
+            if (Game1.IsMouseButtonPressed(2) && 
+                Velocity.LengthSquared() >= lowestBrakableSpeed)
             {
                 Vector2 deceleration = -Velocity;
                 deceleration.Normalize();
@@ -195,7 +195,7 @@ namespace Final_Game.Entity
                 Color.White);
 
             if (_numRedirects > 0 && 
-                Game1.CurMouse.LeftButton == ButtonState.Pressed)
+                Game1.IsMouseButtonPressed(1))
             {
                 DrawLaunchArrow(sb);
             }

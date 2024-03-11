@@ -1,6 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Final_Game.Entity;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.ComponentModel.DataAnnotations;
 
 namespace Final_Game
 {
@@ -9,11 +11,23 @@ namespace Final_Game
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
 
+		private Player _player;
+		private Texture2D _cursorTexture;
+
+		public static MouseState CurMouse { get; private set; }
+		public static MouseState PrevMouse { get; private set; }
+
+		public static int TileSize { get; private set; } = 100;
+
 		public Game1()
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
-			IsMouseVisible = true;
+			IsMouseVisible = false;
+
+			_graphics.PreferredBackBufferWidth = 1920;
+			_graphics.PreferredBackBufferHeight = 1080;
+			_graphics.ApplyChanges();
 		}
 
 		protected override void Initialize()
@@ -27,7 +41,9 @@ namespace Final_Game
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			// TODO: use this.Content to load your game content here
+			_player = new Player(this, new Vector2(300, 300));
+
+			_cursorTexture = Content.Load<Texture2D>("CursorSprite");
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -35,7 +51,11 @@ namespace Final_Game
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
 				Exit();
 
-			// TODO: Add your update logic here
+			CurMouse = Mouse.GetState();
+
+			_player.Update(gameTime);
+
+			PrevMouse = CurMouse;
 
 			base.Update(gameTime);
 		}
@@ -44,9 +64,28 @@ namespace Final_Game
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			// TODO: Add your drawing code here
+			_spriteBatch.Begin();
+
+			_player.Draw(_spriteBatch);
+
+			// Draw custom cursor
+			_spriteBatch.Draw(
+				_cursorTexture,
+				new Vector2(
+					CurMouse.X - _cursorTexture.Width / 2,
+					CurMouse.Y - _cursorTexture.Height / 2),
+				Color.White);
+
+			_spriteBatch.End();
 
 			base.Draw(gameTime);
+		}
+
+		public static bool MouseLeftClicked()
+		{
+			return
+				CurMouse.LeftButton == ButtonState.Released &&
+				PrevMouse.LeftButton == ButtonState.Pressed;
 		}
 	}
 }

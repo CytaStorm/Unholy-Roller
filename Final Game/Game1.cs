@@ -22,7 +22,6 @@ namespace Final_Game
 		{
 			// TODO: Add your initialization logic here
 			map = new Map(10, 10, 25);
-
 			base.Initialize();
 		}
 

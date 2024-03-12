@@ -24,6 +24,10 @@ namespace Final_Game.LevelGen
 		/// on its North/South/East/West side?
 		/// </summary>
 		public Dictionary<string, bool> PossibleConnections;
+		/// <summary>
+		/// To which rooms the room is connected to.
+		/// </summary>
+		public Dictionary<string, Room> Connections;
 		#endregion
 
 		#region Constructor(s)
@@ -38,7 +42,6 @@ namespace Final_Game.LevelGen
 				{ "East", Y != Map.Level.GetLength(1) - 1 && Map.Level[X, Y + 1] == null},
 				{ "West",  Y != 0 && Map.Level[X, Y - 1] == null}
 			};
-
 		}
 		#endregion
 

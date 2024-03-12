@@ -20,7 +20,11 @@ namespace Final_Game
 		/// List of all rooms.
 		/// </summary>
 		private static List<Room> _rooms = new List<Room>();
+		/// <summary>
+		/// Random to use in class.
+		/// </summary>
 		private static Random _random = new Random();
+		public Point StartRoom;
 		#endregion
 
 		#region Constructor(s)
@@ -29,14 +33,14 @@ namespace Final_Game
 			Level = new Room[height, width];
 
 			//Create first room (randomly placed)
-			Point firstRoom = 
+			StartRoom= 
 				new Point(
 					_random.Next(Level.GetLength(0)),
 					_random.Next(Level.GetLength(1)));
-			Level[firstRoom.X, firstRoom.Y] = new Room(
-				new Point(firstRoom.X, firstRoom.Y));
+			Level[StartRoom.X, StartRoom.Y] = new Room(
+				new Point(StartRoom.X, StartRoom.Y));
 
-			_rooms.Add(Level[firstRoom.X, firstRoom.Y]);
+			_rooms.Add(Level[StartRoom.X, StartRoom.Y]);
 
 			//Expand rooms.
 			for (int i = 1; i < size; i++)

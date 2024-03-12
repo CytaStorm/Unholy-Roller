@@ -40,6 +40,8 @@ namespace Prototype.MapGeneration
         /// </summary>
         public bool IsDoor { get; set; }
 
+        public string Doorientaiton { get; set; }
+
         /// <summary>
         /// Whether or not this tile is connected to another door tile
         /// </summary>

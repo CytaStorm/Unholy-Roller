@@ -85,6 +85,18 @@
 /processorParam:TextureFormat=Color
 /build:Cthulu_Muggles.png
 
+#begin EmptyButton.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:EmptyButton.png
+
 #begin EmptyHeart.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -96,6 +108,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:EmptyHeart.png
+
+#begin EnemyPos/Enemyless.txt
+/copy:EnemyPos/Enemyless.txt
+
+#begin EnemyPos/EnemyPositionsTA2.txt
+/copy:EnemyPos/EnemyPositionsTA2.txt
+
+#begin EnemyPos/EnemyPositionsTA6.txt
+/copy:EnemyPos/EnemyPositionsTA6.txt
+
+#begin EnemyPos/PossibleEnemyPosition.txt
+/copy:EnemyPos/PossibleEnemyPosition.txt
 
 #begin File.spritefont
 /importer:FontDescriptionImporter
@@ -151,6 +175,15 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:NoBorderStar.png
+
+#begin ObstaclePos/IntroduceObstacles.txt
+/copy:ObstaclePos/IntroduceObstacles.txt
+
+#begin ObstaclePos/ObstaclePositionsTA6.txt
+/copy:ObstaclePos/ObstaclePositionsTA6.txt
+
+#begin ObstaclePos/PossibleObstaclePosition.txt
+/copy:ObstaclePos/PossibleObstaclePosition.txt
 
 #begin PinPunchSpritesheet.png
 /importer:TextureImporter
@@ -211,6 +244,27 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:PurpleTile.png
+
+#begin Rooms/TestArena1.txt
+/copy:Rooms/TestArena1.txt
+
+#begin Rooms/TestArena2.txt
+/copy:Rooms/TestArena2.txt
+
+#begin Rooms/TestArena4.txt
+/copy:Rooms/TestArena4.txt
+
+#begin Rooms/TestArena5.txt
+/copy:Rooms/TestArena5.txt
+
+#begin Rooms/TestArena6.txt
+/copy:Rooms/TestArena6.txt
+
+#begin Rooms/TestArena7.txt
+/copy:Rooms/TestArena7.txt
+
+#begin Rooms/TutorialArena.txt
+/copy:Rooms/TutorialArena.txt
 
 #begin SpikeTile.png
 /importer:TextureImporter

@@ -22,7 +22,12 @@ namespace Prototype
 
         // Properties
         public List<Enemy> Dummies { get; private set; }
+
+        // Events
+        public event EnemiesKilled OnLastEnemyKilled;
         
+        // Constructors
+
         public EnemyManager(Game1 gm)
         {
             this.gm = gm;
@@ -33,9 +38,9 @@ namespace Prototype
             // Create a few enemies in the scene
             Dummies = new List<Enemy>();
             rng = new Random();
-
-            CreateRoomEnemies(Game1.TEST_ROOM);
         }
+
+        // Methods
 
         /// <summary>
         /// Destroys all enemies in the scene
@@ -89,13 +94,18 @@ namespace Prototype
                 {
                     Dummies.RemoveAt(i);
                     i--;
+
+                    if (Dummies.Count == 0)
+                        OnLastEnemyKilled();
                 }
             }
 
             // Remove all enemies if all are currently KO-ed
-            if (_koedEnemies == Dummies.Count)
+            if (Dummies.Count > 0 && _koedEnemies == Dummies.Count)
             {
                 Dummies.Clear();
+
+                OnLastEnemyKilled();
             }
         }
 

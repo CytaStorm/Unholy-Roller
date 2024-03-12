@@ -13,6 +13,7 @@ namespace Prototype.MapGeneration
     {
         // Fields
         private Random _rng;
+        private Game1 gameManager;
 
         // Properties
         public List<Room> Rooms { get; private set; }
@@ -24,8 +25,10 @@ namespace Prototype.MapGeneration
         /// </summary>
         /// <param name="roomsToMake"> number of rooms to make </param>
         /// <exception cref="Exception"> Cannot make less than two rooms </exception>
-        public RoomManager(int roomsToMake)
+        public RoomManager(Game1 gm, int roomsToMake)
         {
+            gameManager = gm;
+
             if (roomsToMake < 2)
             {
                 throw new Exception("Cannot have open doorway. At least 2 rooms must be created.");
@@ -40,7 +43,7 @@ namespace Prototype.MapGeneration
             //int numDoors = _rng.Next(1, doorMax + 1);
 
             // Create origin room
-            Room oRoom = new Room(new Point(Game1.WINDOW_WIDTH / 3, Game1.WINDOW_HEIGHT / 3), doorMax);
+            Room oRoom = new Room(gm, new Point(Game1.WINDOW_WIDTH / 3, Game1.WINDOW_HEIGHT / 3), doorMax);
 
             // Store origin
             Rooms.Add(oRoom);
@@ -114,7 +117,7 @@ namespace Prototype.MapGeneration
                     */
 
                     // Make a new random room
-                    r = new Room(new Point(room.Origin.X, room.Origin.Y), numDoors);
+                    r = new Room(gameManager, new Point(room.Origin.X, room.Origin.Y), numDoors);
 
                     // Position it properly relative to the current room
                     Vector2 shift = Vector2.Zero;

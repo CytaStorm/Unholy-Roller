@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Prototype.MapGeneration;
 using ShapeUtils;
 using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Prototype.GameEntity
 {
@@ -29,8 +30,8 @@ namespace Prototype.GameEntity
 
         private GraphicsDeviceManager _gdManager;
 
-        private int _koTime = 180; // Frames
-        private int _koTimer;
+        private double _koDuration = 3;
+        private double _koTimer;
 
         private float _attackForce;
         private double _attackDuration;
@@ -97,7 +98,7 @@ namespace Prototype.GameEntity
             _speed = 5f;
 
             // Set Vitality
-            MaxHealth = 5;
+            MaxHealth = 3;
             CurHealth = MaxHealth;
             _iDuration = 0.5;
             _iTimer = _iDuration;
@@ -120,7 +121,7 @@ namespace Prototype.GameEntity
             Type = EntityType.Enemy;
 
             // Set state
-            _chaseRange = Game1.TILESIZE * 10;
+            _chaseRange = Game1.TILESIZE * 5;
             _aggroRange = Game1.TILESIZE * 3;
 
             ActionState = EnemyState.Chase;
@@ -138,7 +139,7 @@ namespace Prototype.GameEntity
         {
             TickInvincibility(gameTime);
 
-            TickKnockout();
+            TickKnockout(gameTime);
 
             //CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
 
@@ -209,6 +210,8 @@ namespace Prototype.GameEntity
 
             CheckEnemyCollisions();
 
+            CollisionChecker.CheckTilemapCollision(this, Game1.Player1.CurrentRoom.Floor);
+
             Move(Velocity * Player.BulletTimeMultiplier);
 
             // Update animations
@@ -235,14 +238,24 @@ namespace Prototype.GameEntity
 
         protected void TargetPlayer()
         {
+            // Get direction from self to player
+            Point eMinusP = Game1.Player1.Hitbox.Center - Hitbox.Center;
+            Vector2 directionToPlayer = new Vector2(eMinusP.X, eMinusP.Y);
+
+            // Aim enemy toward player at their speed
+            directionToPlayer.Normalize();
+            directionToPlayer *= _speed;
+
+            Vector2 positionAfterMoving = WorldPosition + directionToPlayer;
+
             // Stop if get too close to another enemy
             bool shouldStop = false;
             float minDistanceFromEnemies = Game1.TILESIZE * 3;
             foreach(Enemy e in Game1.EManager.Dummies)
             {
-                Vector2 distFromEnemy = (e.WorldPosition - WorldPosition);
+                Vector2 distFromEnemyAfterMoving = (e.WorldPosition - positionAfterMoving);
                 if (e != this &&
-                    distFromEnemy.LengthSquared() <= minDistanceFromEnemies * minDistanceFromEnemies)
+                    distFromEnemyAfterMoving.LengthSquared() <= minDistanceFromEnemies * minDistanceFromEnemies)
                 {
                     shouldStop = true;
                     break;
@@ -255,13 +268,7 @@ namespace Prototype.GameEntity
             }
             else
             {
-                // Get direction from self to player
-                Point eMinusP = Game1.Player1.Hitbox.Center - Hitbox.Center;
-                Vector2 directionToPlayer = new Vector2(eMinusP.X, eMinusP.Y);
-
-                // Aim enemy toward player at their speed
-                directionToPlayer.Normalize();
-                Velocity = new Vector2(directionToPlayer.X * _speed, directionToPlayer.Y * _speed);
+                Velocity = directionToPlayer;
             }
 
 
@@ -308,20 +315,17 @@ namespace Prototype.GameEntity
             {
                 case TileType.Wall:
 
-                    if (colType == CollisionType.Horizontal)
-                        Velocity = new Vector2(Velocity.X * -1, Velocity.Y);
-                    else
-                        Velocity = new Vector2(Velocity.X, Velocity.Y * -1);
+                    Move(-Velocity);
 
                     break;
             }
         }
 
-        private void TickKnockout()
+        private void TickKnockout(GameTime gameTime)
         {
             if (_koTimer > 0)
             {
-                _koTimer--;
+                _koTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
             }
         }
 
@@ -339,14 +343,14 @@ namespace Prototype.GameEntity
                 if (CurHealth <= 0)
                 {
                     // Enemy is temporarily knocked out
-                    _koTimer = _koTime;
+                    _koTimer = _koDuration;
                 }
             }
-            // Keep resetting invincibility until not hit
-            else if (_iTimer > 0)
-            {
-                _iTimer = _iDuration;
-            }
+            //// Keep resetting invincibility until not hit
+            //else if (_iTimer > 0)
+            //{
+            //    _iTimer = _iDuration;
+            //}
             
         }
 
@@ -418,7 +422,7 @@ namespace Prototype.GameEntity
 
                 EndAttack(true);
 
-                _attackCooldownTimer = 0;
+                //_attackCooldownTimer = 0;
             }
             else if (playerDist < _chaseRange && playerDist > _aggroRange)
             {
@@ -426,7 +430,7 @@ namespace Prototype.GameEntity
 
                 EndAttack(true);
 
-                _attackCooldownTimer = 0;
+                //_attackCooldownTimer = 0;
             }
             else if (playerDist < _aggroRange)
             {
@@ -530,7 +534,13 @@ namespace Prototype.GameEntity
                 switch (ActionState)
                 {
                     case EnemyState.Idle:
-                        Image.Draw(spriteBatch, screenPos);
+                        if (!IsKO)
+                            Image.Draw(spriteBatch, screenPos);
+                        else
+                        {
+                            DrawKoed(spriteBatch, screenPos);
+                        }
+
                         break;
 
                     case EnemyState.Chase:
@@ -592,20 +602,31 @@ namespace Prototype.GameEntity
             // Draw actively attacking
             if (_attackDurationTimer > 0)
             {
-                int atkHitDistX = (int)(_attackHitbox.X - WorldPosition.X);
-                int atkHitDistY = (int)(_attackHitbox.Y - WorldPosition.Y);
+          
+                // Rotate fist so knuckles face player
+                float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
 
-                Rectangle drawnAttackHit = new Rectangle(
-                    (int)(screenPos.X + atkHitDistX),
-                    (int)(screenPos.Y + atkHitDistY),
-                    _attackHitbox.Width,
-                    _attackHitbox.Height);
+                Rectangle attackSourceRect = new Rectangle(
+                    _gloveFrameWidth * 2,
+                    0,
+                    _gloveFrameWidth,
+                    _gloveFrameWidth);
+
+                Vector2 centerScreenPos =
+                    screenPos + (CenterPosition - WorldPosition);
 
                 sb.Draw(
                     _gloveSpriteSheet,
-                    drawnAttackHit,
-                    new Rectangle(_gloveFrameWidth * 2, 0, _gloveFrameWidth, _gloveFrameWidth),
-                    Color.Red);
+                    centerScreenPos + _attackDirection * 3.5f,
+                    attackSourceRect,
+                    Color.White,
+                    dirAngle,
+                    new Vector2(
+                        attackSourceRect.Center.X,
+                        attackSourceRect.Center.Y),
+                    1f,
+                    SpriteEffects.None,
+                    0f);
             }
         }
 
@@ -662,6 +683,27 @@ namespace Prototype.GameEntity
 
                 ShapeBatch.Box(drawnAttackHit, fadedGreen);
             }
+        }
+
+        public void DrawKoed(SpriteBatch sb, Vector2 screenPos)
+        {
+            //if (_iTimer >= .2 * _iDuration)
+            //{
+            //    // Flash a certain color
+            //}
+
+            sb.Draw(
+                Image.Texture,
+                screenPos,
+                Image.SourceRect,
+                Image.TintColor,
+                MathHelper.PiOver2,
+                new Vector2(
+                    Image.SourceRect.Center.X,
+                    Image.SourceRect.Center.Y),
+                (float)Image.DestinationRect.Width / Image.SourceRect.Width,
+                SpriteEffects.None,
+                0f);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Prototype.MapGeneration
     public class Tileset : IGameObject
     {
         // Fields
-        public bool devRendering = true;
+        public bool devRendering = false;
 
         // Properties
 
@@ -158,7 +158,8 @@ namespace Prototype.MapGeneration
                     Layout[y, x].IsDoor = isDoor;
                     if (isDoor)
                     {
-                        Debug.WriteLine("alkjsdflkjdfsa;lkjasdflkj");
+                        Layout[y, x].Doorientaiton = GetDoorientation(x, y);
+                        
                         // Store door
                         Doors.Add(Layout[y, x]);
                     }
@@ -176,41 +177,58 @@ namespace Prototype.MapGeneration
 
             //Select enemy and obstacle positions, and ensure that they do not overlap.
             Random random = new Random();
-            List<Point> EnemyPos;
-            List<Point> ObstaclePos;
+            List<Point> EnemyPos = null;
+            List<Point> ObstaclePos = null;
             bool invalidEnemyObstacleCombo = false;
             do
             {
-                EnemyPos = ConvertPositions(
-                    allPossibleEnemyPos[
-                        random.Next(allPossibleEnemyPos.Length)]); 
-                ObstaclePos = ConvertPositions(
-                    allPossibleObstaclePos[
-                        random.Next(allPossibleObstaclePos.Length)]); 
-                foreach(Point obstacle in ObstaclePos)
+                if (allPossibleEnemyPos.Length > 0)
                 {
-                    if (EnemyPos.IndexOf(obstacle) != -1)
+                    EnemyPos = ConvertPositions(
+                        allPossibleEnemyPos[random.Next(allPossibleEnemyPos.Length)]); 
+                }
+
+                if (allPossibleObstaclePos.Length > 0)
+                {
+                    ObstaclePos = ConvertPositions(
+                        allPossibleObstaclePos[random.Next(allPossibleObstaclePos.Length)]); 
+                }
+
+                if (ObstaclePos != null && EnemyPos != null)
+                {
+                    foreach(Point obstacle in ObstaclePos)
                     {
-                        invalidEnemyObstacleCombo = true; 
+                        if (EnemyPos.IndexOf(obstacle) != -1)
+                        {
+                            invalidEnemyObstacleCombo = true; 
+                        }
                     }
                 }
+
             }
             while (invalidEnemyObstacleCombo);
 
-            // Set spawners
-            foreach(Point enemyPos in EnemyPos)
+            if (EnemyPos != null)
             {
-                Layout[enemyPos.X, enemyPos.Y].IsEnemySpawner = true;
-                Spawners.Add(Layout[enemyPos.X, enemyPos.Y]);
+                // Set spawners
+                foreach(Point enemyPos in EnemyPos)
+                {
+                    Layout[enemyPos.X, enemyPos.Y].IsEnemySpawner = true;
+                    Spawners.Add(Layout[enemyPos.X, enemyPos.Y]);
+                }
             }
 
-            foreach(Point obstaclePos in ObstaclePos)
+            if (ObstaclePos != null)
             {
-                Layout[obstaclePos.X, obstaclePos.Y] = TileMaker.SetTile(
-                    TileType.Spike, new Vector2(
-                        origin.X + obstaclePos.X*Game1.TILESIZE,
-                        origin.Y + obstaclePos.Y*Game1.TILESIZE), 
-                        "");
+                // Set obstacles
+                foreach(Point obstaclePos in ObstaclePos)
+                {
+                    Layout[obstaclePos.Y, obstaclePos.X] = TileMaker.SetTile(
+                        TileType.Spike, new Vector2(
+                            origin.X + obstaclePos.X*Game1.TILESIZE,
+                            origin.Y + obstaclePos.Y*Game1.TILESIZE), 
+                            "");
+                }
             }
 
         }
@@ -286,6 +304,15 @@ namespace Prototype.MapGeneration
                 result.Add(new Point(X, Y));
             }
             return result;
+        }
+
+        public string GetDoorientation(int x, int y)
+        {
+            if (x == 0) return "left";
+            else if (x == Columns - 1) return "right";
+            else if (y == 0) return "top";
+            else if (y == Rows - 1) return "bottom";
+            else throw new Exception("Tile is not in border");
         }
     }
 }

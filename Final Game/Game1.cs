@@ -8,17 +8,20 @@ namespace Final_Game
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
+		private Map map;
 
 		public Game1()
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 			IsMouseVisible = true;
+
 		}
 
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
+			map = new Map(10, 10, 25);
 
 			base.Initialize();
 		}

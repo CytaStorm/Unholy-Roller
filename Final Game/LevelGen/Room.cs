@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Final_Game.LevelGen
 {
-	internal class Room
+	internal class Room : IGameObject
 	{
 
 		#region Fields
@@ -38,25 +38,58 @@ namespace Final_Game.LevelGen
 			MapPosition = mapPosition;
 			PossibleConnections = new Dictionary<string, bool>()
 			{
-				{ "North", X != 0 && Map.Level[X - 1, Y] == null},
-				{ "South", X != Map.Level.GetLength(0) - 1 && Map.Level[X + 1, Y] == null},
-				{ "East", Y != Map.Level.GetLength(1) - 1 && Map.Level[X, Y + 1] == null},
-				{ "West",  Y != 0 && Map.Level[X, Y - 1] == null}
+				{ "North", X != 0 && Level.Map[X - 1, Y] == null},
+				{ "South", X != Level.Map.GetLength(0) - 1 && Level.Map[X + 1, Y] == null},
+				{ "East", Y != Level.Map.GetLength(1) - 1 && Level.Map[X, Y + 1] == null},
+				{ "West",  Y != 0 && Level.Map[X, Y - 1] == null}
+			};
+
+			Connections = new Dictionary<string, Room>()
+			{
+				{ "North", null },
+				{ "South", null },
+				{ "East", null },
+				{ "West", null }
 			};
 		}
 		#endregion
 
 		#region Method(s)
 		/// <summary>
-		/// Updates status of North/South/East/West connections.
+		/// Updates possibilities of North/South/East/West connections.
 		/// </summary>
-		public void UpdateAdjacencies()
+		public void UpdateAdjacencyPossibilities()
 		{
-			PossibleConnections["North"] = X != 0 && Map.Level[X - 1, Y] == null;
-			PossibleConnections["South"] = X != Map.Level.GetLength(0) - 1 && Map.Level[X + 1, Y] == null;
-			PossibleConnections["East"] = Y != Map.Level.GetLength(1) - 1 && Map.Level[X, Y + 1] == null;
-			PossibleConnections["West"] = Y != 0 && Map.Level[X, Y - 1] == null;
+			PossibleConnections["North"] = X != 0 && Level.Map[X - 1, Y] == null;
+			PossibleConnections["South"] = X != Level.Map.GetLength(0) - 1 && Level.Map[X + 1, Y] == null;
+			PossibleConnections["East"] = Y != Level.Map.GetLength(1) - 1 && Level.Map[X, Y + 1] == null;
+			PossibleConnections["West"] = Y != 0 && Level.Map[X, Y - 1] == null;
+		}
 
+		/// <summary>
+		/// Checks to see if there are adjacent rooms.
+		/// If there are, add them as connections.
+		/// </summary>
+		public void CreateConnections()
+		{
+			//These if statements are here to protect against checking
+			//out of bounds rooms on the map.
+			if (X != 0)
+			{
+				Connections["North"] = Level.Map[X - 1, Y];
+			}
+			if (X != Level.Map.GetLength(0) - 1)
+			{
+				Connections["South"] = Level.Map[X + 1, Y];
+			}
+			if (Y != Level.Map.GetLength (1) - 1)
+			{
+				Connections["East"] = Level.Map[X, Y + 1];
+			}
+			if (Y != 0) 
+			{
+				Connections["West"] = Level.Map[X, Y - 1];
+			}
 		}
 
 		/// <summary>
@@ -69,7 +102,11 @@ namespace Final_Game.LevelGen
 			return new Room(roomToBeCopied.MapPosition);
 		}
 
-		public void Draw(SpriteBatch spriteBatch)
+		public void Update(GameTime gameTime){
+
+		}
+
+		public void Draw(SpriteBatch sb, GameTime gt)
 		{
 
 		}

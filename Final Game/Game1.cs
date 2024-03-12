@@ -11,7 +11,7 @@ namespace Final_Game
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
-		private Map map;
+		private Level level;
 
 		private Player _player;
 		private Texture2D _cursorTexture;
@@ -47,16 +47,16 @@ namespace Final_Game
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
-			map = new Map(10, 10, 25);
+			level = new Level(10, 10, 25);
+			_player = new Player(this, new Vector2(300, 300));
+
+
 			base.Initialize();
 		}
 
 		protected override void LoadContent()
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
-
-			_player = new Player(this, new Vector2(300, 300));
-
 			_cursorTexture = Content.Load<Texture2D>("CursorSprite");
 
 			// Create custom cursor

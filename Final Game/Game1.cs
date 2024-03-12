@@ -1,4 +1,5 @@
 ﻿using Final_Game.Entity;
+using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,11 +14,13 @@ namespace Final_Game
 		private SpriteBatch _spriteBatch;
 		private Level level;
 
-		private Player _player;
+		public Player Player;
 		private Texture2D _cursorTexture;
 
         public static int WindowWidth = 1920;
         public static int WindowHeight = 1080;
+
+		public const int TILESIZE = 100;
 
         #region Mouse Properties
         public static MouseState CurMouse { get; private set; }

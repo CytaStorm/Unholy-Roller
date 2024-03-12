@@ -28,7 +28,7 @@ namespace Final_Game.LevelGen
 		/// <summary>
 		/// To which rooms the room is connected to.
 		/// </summary>
-		public Dictionary<string, Room> Connections;
+		public Dictionary<string, bool> Connections;
 		#endregion
 
 		#region Constructor(s)
@@ -44,12 +44,12 @@ namespace Final_Game.LevelGen
 				{ "West",  Y != 0 && Level.Map[X, Y - 1] == null}
 			};
 
-			Connections = new Dictionary<string, Room>()
+			Connections = new Dictionary<string, bool>()
 			{
-				{ "North", null },
-				{ "South", null },
-				{ "East", null },
-				{ "West", null }
+				{ "North", false },
+				{ "South", false },
+				{ "East", false },
+				{ "West", false }
 			};
 		}
 		#endregion
@@ -76,19 +76,19 @@ namespace Final_Game.LevelGen
 			//out of bounds rooms on the map.
 			if (X != 0)
 			{
-				Connections["North"] = Level.Map[X - 1, Y];
+				Connections["North"] = Level.Map[X - 1, Y] != null;
 			}
 			if (X != Level.Map.GetLength(0) - 1)
 			{
-				Connections["South"] = Level.Map[X + 1, Y];
+				Connections["South"] = Level.Map[X + 1, Y] != null;
 			}
 			if (Y != Level.Map.GetLength (1) - 1)
 			{
-				Connections["East"] = Level.Map[X, Y + 1];
+				Connections["East"] = Level.Map[X, Y + 1] != null;
 			}
 			if (Y != 0) 
 			{
-				Connections["West"] = Level.Map[X, Y - 1];
+				Connections["West"] = Level.Map[X, Y - 1] != null;
 			}
 		}
 

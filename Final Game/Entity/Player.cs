@@ -33,6 +33,7 @@ namespace Final_Game.Entity
         // Properties
         public Texture2D Image { get; private set; }
         public PlayerState State { get; private set; }
+        public Vector2 ScreenPosition { get; private set; }
 
         // Constructors
 

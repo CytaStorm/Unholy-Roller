@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
 namespace Final_Game.LevelGen
@@ -66,6 +67,11 @@ namespace Final_Game.LevelGen
 		public static Room Copy(Room roomToBeCopied)
 		{
 			return new Room(roomToBeCopied.MapPosition);
+		}
+
+		public void Draw(SpriteBatch spriteBatch)
+		{
+
 		}
 		#endregion
 	}

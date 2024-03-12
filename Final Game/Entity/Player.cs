@@ -25,7 +25,10 @@ namespace Final_Game.Entity
         private int _numRedirects;
         private int _maxRedirects;
 
-        private float _brakeForce;
+        private float _brakeSpeed;
+        private float _frictionMagnitude;
+
+        private float _transitionToWalkingSpeed;
 
         // Properties
         public Texture2D Image { get; private set; }
@@ -43,8 +46,10 @@ namespace Final_Game.Entity
 
             WorldPosition = worldPosition;
 
-            Speed = 10f;
-            _brakeForce = 0.2f;
+            Speed = 20f;
+            _brakeSpeed = 0.2f;
+            _frictionMagnitude = 0.01f;
+            _transitionToWalkingSpeed = 1f;
 
             State = PlayerState.Walking;
 
@@ -65,6 +70,8 @@ namespace Final_Game.Entity
                     break;
 
                 case PlayerState.Rolling:
+                    ApplyFriction();
+
                     HandleBraking();
 
                     // Transition to walking
@@ -78,6 +85,8 @@ namespace Final_Game.Entity
             }
 
             HandleLaunch();
+
+            ApplyScreenBoundRicochet();
 
             Move(Velocity);
         }
@@ -180,9 +189,39 @@ namespace Final_Game.Entity
             {
                 Vector2 deceleration = -Velocity;
                 deceleration.Normalize();
-                deceleration *= _brakeForce;
+                deceleration *= _brakeSpeed;
 
                 Velocity += deceleration;
+            }
+        }
+
+        public void Accelerate(Vector2 force)
+        {
+            Velocity += force;
+        }
+
+        private void ApplyFriction()
+        {
+            if (Velocity.LengthSquared() > MathF.Pow(_transitionToWalkingSpeed, 2))
+            {
+                // Naturally decelerate over time
+                Vector2 natDeceleration = -Velocity;
+                natDeceleration.Normalize();
+                Velocity += natDeceleration * _frictionMagnitude;
+            }
+        }
+
+        private void ApplyScreenBoundRicochet()
+        {
+            if (WorldPosition.X + Image.Width > Game1.WindowWidth ||
+                WorldPosition.X <= 0)
+            {
+                Velocity = new Vector2(-Velocity.X, Velocity.Y);
+            }
+            if (WorldPosition.Y + Image.Height > Game1.WindowHeight ||
+                WorldPosition.Y <= 0)
+            {
+                Velocity = new Vector2(Velocity.X, -Velocity.Y);
             }
         }
 

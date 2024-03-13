@@ -41,7 +41,7 @@ namespace Final_Game.LevelGen
 					_random.Next(Map.GetLength(0)),
 					_random.Next(Map.GetLength(1)));
 			Map[startPoint.X, startPoint.Y] = new Room(
-				new Point(startPoint.X, startPoint.Y));
+				new Point(startPoint.X, startPoint.Y), 1, 1, 1);
 
 			_rooms.Add(Map[startPoint.X, startPoint.Y]);
 			StartRoom = Map[startPoint.X, startPoint.X];
@@ -135,7 +135,7 @@ namespace Final_Game.LevelGen
 				//Debug.WriteLine("New room " + newRoomPos);
 
 				//Expand
-				Map[newRoomPos.X, newRoomPos.Y] = new Room(newRoomPos);
+				Map[newRoomPos.X, newRoomPos.Y] = new Room(newRoomPos, 1, 1, 1);
 				_rooms.Add(Map[newRoomPos.X, newRoomPos.Y]);
 				roomToExpand.UpdateAdjacencyPossibilities();
 				return;

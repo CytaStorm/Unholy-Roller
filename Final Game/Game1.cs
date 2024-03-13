@@ -14,21 +14,21 @@ namespace Final_Game
 		private SpriteBatch _spriteBatch;
 		private Level level;
 
-		public Player Player;
+		public static Player Player;
 		private Texture2D _cursorTexture;
 
-        public static int WindowWidth = 1920;
-        public static int WindowHeight = 1080;
+		public static int WindowWidth = 1920;
+		public static int WindowHeight = 1080;
 
 		public const int TILESIZE = 100;
 
-        #region Mouse Properties
-        public static MouseState CurMouse { get; private set; }
+		#region Mouse Properties
+		public static MouseState CurMouse { get; private set; }
 		public static MouseState PrevMouse { get; private set; }
 		public static bool MouseIsOnScreen => ScreenBounds.Contains(CurMouse.Position);
-        #endregion
+		#endregion
 
-        public static Rectangle ScreenBounds 
+		public static Rectangle ScreenBounds 
 		{
 			get => new Rectangle(0, 0, WindowWidth, WindowHeight);
 		}
@@ -50,8 +50,8 @@ namespace Final_Game
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
-			level = new Level(10, 10, 25);
-			_player = new Player(this, new Vector2(300, 300));
+			level = new Level(1, 1, 1);
+			Player = new Player(this, new Vector2(300, 300));
 
 
 			base.Initialize();
@@ -60,7 +60,7 @@ namespace Final_Game
 		protected override void LoadContent()
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
-			_cursorTexture = Content.Load<Texture2D>("CursorSprite");
+			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 
 			// Create custom cursor
 			Mouse.SetCursor(MouseCursor.FromTexture2D(
@@ -75,7 +75,7 @@ namespace Final_Game
 			CurMouse = Mouse.GetState();
 
 			if (this.IsActive)
-				_player.Update(gameTime);
+				Player.Update(gameTime);
 
 			PrevMouse = CurMouse;
 
@@ -88,7 +88,7 @@ namespace Final_Game
 
 			_spriteBatch.Begin();
 
-			_player.Draw(_spriteBatch);
+			Player.Draw(_spriteBatch);
 
 			_spriteBatch.End();
 
@@ -96,8 +96,8 @@ namespace Final_Game
 			base.Draw(gameTime);
 		}
 
-        #region Mouse Wrapper Methods
-        public static bool IsMouseLeftClicked()
+		#region Mouse Wrapper Methods
+		public static bool IsMouseLeftClicked()
 		{
 			return
 				MouseIsOnScreen && 
@@ -122,7 +122,7 @@ namespace Final_Game
 
 				default:
 					return false;
-            }
+			}
 		}
 		public static bool IsMouseButtonReleased(int buttonNum)
 		{
@@ -141,8 +141,8 @@ namespace Final_Game
 
 				default:
 					return false;
-            }
+			}
 		}
-        #endregion
-    }
+		#endregion
+	}
 }

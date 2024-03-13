@@ -11,6 +11,7 @@ namespace Final_Game
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
+		private Map map;
 
 		private Player _player;
 		private Texture2D _cursorTexture;
@@ -41,11 +42,12 @@ namespace Final_Game
 			_graphics.PreferredBackBufferWidth = WindowWidth;
 			_graphics.PreferredBackBufferHeight = WindowHeight;
 			_graphics.ApplyChanges();
-		} 
+		}
 
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
+			map = new Map(10, 10, 25);
 
 			base.Initialize();
 		}

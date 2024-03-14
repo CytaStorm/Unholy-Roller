@@ -22,24 +22,24 @@ namespace Final_Game.LevelGen
 		public Tile[,] Layout { get; private set; }
 
 		/// <summary>
-        /// The number of vertical columns in this tileset
-        /// </summary>
-        public int Columns { get => Layout.GetLength(1); }
+		/// The number of vertical columns in this tileset
+		/// </summary>
+		public int Columns { get => Layout.GetLength(1); }
 
-        /// <summary>
-        /// The number of horizontal rows in this tileset
-        /// </summary>
-        public int Rows { get => Layout.GetLength(0); }
+		/// <summary>
+		/// The number of horizontal rows in this tileset
+		/// </summary>
+		public int Rows { get => Layout.GetLength(0); }
 
-        /// <summary>
-        /// Width of the tileset
-        /// </summary>
-        public int Width { get => Columns * Game1.TILESIZE; }
+		/// <summary>
+		/// Width of the tileset
+		/// </summary>
+		public int Width { get => Columns * Game1.TILESIZE; }
 
-        /// <summary>
-        /// Height of the tileset
-        /// </summary>
-        public int Height { get => Rows * Game1.TILESIZE; }
+		/// <summary>
+		/// Height of the tileset
+		/// </summary>
+		public int Height { get => Rows * Game1.TILESIZE; }
 
 		/// <summary>
 		/// The doors or bridge-points of this tileset
@@ -109,7 +109,7 @@ namespace Final_Game.LevelGen
 				{
 					continue;
 				}
-                invalidEnemyObstacleCombo = EnsureNoOverlap(EnemyPos, ObstaclePos);
+				invalidEnemyObstacleCombo = EnsureNoOverlap(EnemyPos, ObstaclePos);
 				obstaclesFit = PositionsFit(ObstaclePos);
 				enemiesFit = PositionsFit(EnemyPos);
 			} while (!invalidEnemyObstacleCombo && obstaclesFit && enemiesFit);
@@ -117,25 +117,25 @@ namespace Final_Game.LevelGen
 			//Add positions to Layout
 			if (EnemyPos != null)
 			{
-			    // Set spawners
-			    foreach (Point enemyPos in EnemyPos)
-			    {
-			        Layout[enemyPos.X, enemyPos.Y].IsEnemySpawner = true;
-			        Spawners.Add(Layout[enemyPos.X, enemyPos.Y]);
-			    }
+				// Set spawners
+				foreach (Point enemyPos in EnemyPos)
+				{
+					Layout[enemyPos.X, enemyPos.Y].IsEnemySpawner = true;
+					Spawners.Add(Layout[enemyPos.X, enemyPos.Y]);
+				}
 			}
 
 			if (ObstaclePos != null)
 			{
-			    // Set obstacles
-			    foreach (Point obstaclePos in ObstaclePos)
-			    {
-			        Layout[obstaclePos.X, obstaclePos.Y] = TileMaker.SetTile(
-			            TileType.Spike, new Vector2(
-			                obstaclePos.X * Game1.TILESIZE,
-			                obstaclePos.Y * Game1.TILESIZE),
-			                "");
-			    }
+				// Set obstacles
+				foreach (Point obstaclePos in ObstaclePos)
+				{
+					Layout[obstaclePos.X, obstaclePos.Y] = TileMaker.SetTile(
+						TileType.Spike, new Vector2(
+							obstaclePos.X * Game1.TILESIZE,
+							obstaclePos.Y * Game1.TILESIZE),
+							"");
+				}
 			}
 		}
 		#endregion
@@ -153,7 +153,7 @@ namespace Final_Game.LevelGen
 				tileIdInt = int.Parse(sValues[0]);
 				orientation = sValues[1];
 			}
-		    result = TileMaker.SetTile(
+			result = TileMaker.SetTile(
 				(TileType)tileIdInt,
 				new Vector2(row * Game1.TILESIZE, col * Game1.TILESIZE),
 				orientation);

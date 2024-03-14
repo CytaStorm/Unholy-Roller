@@ -12,6 +12,6 @@ namespace Final_Game
 	{
 		void Update(GameTime gameTime);
 
-		void Draw(SpriteBatch spriteBatch, GameTime gameTime);
+		void Draw(SpriteBatch spriteBatch);
 	}
 }

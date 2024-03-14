@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Final_Game.LevelGen
@@ -12,7 +13,7 @@ namespace Final_Game.LevelGen
 		/// <summary>
 		/// Top left corner of the room.
 		/// </summary>
-		public Point Origin { get; private set; }
+		public Point Origin = new Point(0, 0);
 		/// <summary>
 		/// Center of the room.
 		/// </summary>
@@ -52,7 +53,7 @@ namespace Final_Game.LevelGen
 
 		#region Constructor(s)
 
-		public Room(Point mapPosition, Point origin)
+		public Room(Point mapPosition)
 		{
 			//Set up room data.
 			MapPosition = mapPosition;
@@ -71,42 +72,41 @@ namespace Final_Game.LevelGen
 				{ "East", false },
 				{ "West", false }
 			};
-			Origin = origin;
-			RoomFloor = new Tileset(origin);
+			RoomFloor = new Tileset();
 		}
 
-		/// <summary>
-		/// Room Constructor with specified room layout
-		/// </summary>
-		/// <param name="mapPosition">Position of room on map.</param>
-		/// <param name="roomFloorFilepath">File path to room layout file.</param>
-		/// <param name="enemyPosFilepath">File path to enemy position layout file.</param>
-		/// <param name="obstaclePosFilepath">File path to obstacle position layout file.</param>
-		/// <param name="origin">Origin of the room.</param>
-		public Room(Point mapPosition, int roomFloorLayout, int enemyPosLayout,
-			int obstaclePosLayout)
-		{
-			//Set up room data.
-			MapPosition = mapPosition;
-			PossibleConnections = new Dictionary<string, bool>()
-			{
-				{ "North", X != 0 && Level.Map[X - 1, Y] == null},
-				{ "South", X != Level.Map.GetLength(0) - 1 && Level.Map[X + 1, Y] == null},
-				{ "East", Y != Level.Map.GetLength(1) - 1 && Level.Map[X, Y + 1] == null},
-				{ "West",  Y != 0 && Level.Map[X, Y - 1] == null}
-			};
+		///// <summary>
+		///// Room Constructor with specified room layout
+		///// </summary>
+		///// <param name="mapPosition">Position of room on map.</param>
+		///// <param name="roomFloorFilepath">File path to room layout file.</param>
+		///// <param name="enemyPosFilepath">File path to enemy position layout file.</param>
+		///// <param name="obstaclePosFilepath">File path to obstacle position layout file.</param>
+		///// <param name="origin">Origin of the room.</param>
+		//public Room(Point mapPosition, int roomFloorLayout, int enemyPosLayout,
+		//	int obstaclePosLayout)
+		//{
+		//	//Set up room data.
+		//	MapPosition = mapPosition;
+		//	PossibleConnections = new Dictionary<string, bool>()
+		//	{
+		//		{ "North", X != 0 && Level.Map[X - 1, Y] == null},
+		//		{ "South", X != Level.Map.GetLength(0) - 1 && Level.Map[X + 1, Y] == null},
+		//		{ "East", Y != Level.Map.GetLength(1) - 1 && Level.Map[X, Y + 1] == null},
+		//		{ "West",  Y != 0 && Level.Map[X, Y - 1] == null}
+		//	};
 
-			Connections = new Dictionary<string, bool>()
-			{
-				{ "North", false },
-				{ "South", false },
-				{ "East", false },
-				{ "West", false }
-			};
+		//	Connections = new Dictionary<string, bool>()
+		//	{
+		//		{ "North", false },
+		//		{ "South", false },
+		//		{ "East", false },
+		//		{ "West", false }
+		//	};
 
-			RoomFloor = new Tileset("../../../Content/Room Layouts/roomLayouts.txt", "", "");
+		//	RoomFloor = new Tileset();
 
-		}
+		//}
 		#endregion
 
 		#region Method(s)
@@ -147,24 +147,13 @@ namespace Final_Game.LevelGen
 			}
 		}
 
-		/// <summary>
-		/// Copies provided room.
-		/// </summary>
-		public static Room Copy(Room roomToBeCopied)
-		{
-			return new Room(roomToBeCopied.MapPosition,
-				roomToBeCopied.RoomFloorLayout,
-				roomToBeCopied.EnemyPositionLayout,
-				roomToBeCopied.ObstaclePositionLayout);
-		}
-
 		public void Update(GameTime gameTime){
 
 		}
 
-		public void Draw(SpriteBatch sb, GameTime gt)
+		public void Draw(SpriteBatch sb)
 		{
-
+			RoomFloor.Draw(sb);
 		}
 		#endregion
 	}

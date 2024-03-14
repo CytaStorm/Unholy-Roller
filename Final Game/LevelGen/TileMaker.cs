@@ -30,11 +30,11 @@ namespace Final_Game.LevelGen
         {
             // Load all tile spritesheets
             _tileTextures = new Texture2D[5];
-            _tileTextures[0] = cm.Load<Texture2D>("PlaceholderTile");
-            _tileTextures[1] = cm.Load<Texture2D>("PurpleTile");
-            _tileTextures[2] = cm.Load<Texture2D>("GutterTileAtlas");
-            _tileTextures[3] = cm.Load<Texture2D>("SpikeTile");
-            _tileTextures[4] = cm.Load<Texture2D>("WallSheet");
+            _tileTextures[0] = cm.Load<Texture2D>("Sprites/PlaceholderTile");
+            _tileTextures[1] = cm.Load<Texture2D>("Sprites/PurpleTile");
+            _tileTextures[2] = cm.Load<Texture2D>("Sprites/GutterTileAtlas");
+            _tileTextures[3] = cm.Load<Texture2D>("Sprites/SpikeTile");
+            _tileTextures[4] = cm.Load<Texture2D>("Sprites/WallSheet");
         }
         #endregion
 

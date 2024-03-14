@@ -12,11 +12,9 @@ namespace Final_Game.LevelGen
 {
 	internal class Tileset : IGameObject
 	{
-		// Fields
+		#region Fields
 		public bool devRendering = false;
 		private static Random _random = new Random();
-
-		// Properties
 
 		/// <summary>
 		/// Set of individual tiles comprising this tileset
@@ -49,25 +47,31 @@ namespace Final_Game.LevelGen
 		public List<Tile> Doors { get; private set; } = new List<Tile>();
 
 		public List<Tile> Spawners { get; private set; } = new List<Tile>();
+		public int RoomFloorLayout;
+		public int EnemyPositionLayout;
+		public int ObstaclePositionLayout;
+		#endregion
 
-		// Constructors
-
-		public Tileset(Point origin)
-		{
-
-		}
-
+		#region Constructors(s)
 		/// <summary>
-		/// Creates a square tileset from the integer values in a text file
+		/// Creates a square tileset with randomly selected layout.
 		/// </summary>
 		/// <param name="filename"> the file to read </param>
-		public Tileset(string floorFilename, string enemyPosFileName,
-			string obstaclePosFileName)
+		public Tileset()
 		{
-			//Read in floor data from file.
-			string[] floorRows = File.ReadAllLines(floorFilename);
+			//Read in floor data from file, and select layout.
+			string allFloors = File.ReadAllText("../../../Content/Room Layouts/roomLayouts.txt");
+			string[] possibleFloors = allFloors.Split('|');
+			RoomFloorLayout = _random.Next(possibleFloors.Length);
+			string selectedFloor = possibleFloors[RoomFloorLayout];
+			string[] floorRows = selectedFloor.Split('\n');
+			//foreach(string str in floorRows)
+			//{
+			//	Debug.WriteLine(str + "poo poo");
+			//}
+
 			//X
-			int height = floorRows.Length;
+			int height = floorRows.Length - 1;
 			//Y
 			int width = floorRows[0].Split(' ').Length;
 			Layout = new Tile[height, width];
@@ -75,7 +79,7 @@ namespace Final_Game.LevelGen
 			//Parse room floor.
 			for (int row = 0; row < height; row++)
 			{
-				string[] rowData = floorRows[height].Split(' ');
+				string[] rowData = floorRows[row].Split(' ');
 				for (int col = 0; col < width; col++)
 				{
 					Layout[row, col] = ParseRoomFloor(rowData[col], row, col);
@@ -83,8 +87,10 @@ namespace Final_Game.LevelGen
 			}
 
 			//Read in enemy and obstacle position data from file.
-			string[] allEnemyPos = File.ReadAllLines(enemyPosFileName);
-			string[] allObstaclePos = File.ReadAllLines(obstaclePosFileName);
+			string[] allEnemyPos = File.ReadAllLines(
+				"../../../Content/Room Layouts/enemyLayouts.txt");
+			string[] allObstaclePos = File.ReadAllLines(
+				"../../../Content/Room Layouts/obstacleLayouts.txt");
 
 			List<Point> EnemyPos;
 			List<Point> ObstaclePos;
@@ -92,12 +98,12 @@ namespace Final_Game.LevelGen
 			//Select Enemy and Obstacle positions, ensure no overlap, and that
 			//they fit in the room.
 			bool invalidEnemyObstacleCombo = false;
-			bool obstaclesFit = true;
-			bool enemiesFit = true;
+			bool obstaclesFit = false;
+			bool enemiesFit = false;
 			do
 			{
-				EnemyPos = ConvertPositions(selectLine(allEnemyPos));
-				ObstaclePos = ConvertPositions(selectLine(allObstaclePos));
+				EnemyPos = ConvertPositions(selectLine(allEnemyPos, ref EnemyPositionLayout));
+				ObstaclePos = ConvertPositions(selectLine(allObstaclePos, ref EnemyPositionLayout));
 
 				if (ObstaclePos.Count == 0 || EnemyPos.Count == 0)
 				{
@@ -106,7 +112,7 @@ namespace Final_Game.LevelGen
                 invalidEnemyObstacleCombo = EnsureNoOverlap(EnemyPos, ObstaclePos);
 				obstaclesFit = PositionsFit(ObstaclePos);
 				enemiesFit = PositionsFit(EnemyPos);
-			} while (invalidEnemyObstacleCombo && obstaclesFit && enemiesFit);
+			} while (!invalidEnemyObstacleCombo && obstaclesFit && enemiesFit);
 
 			//Add positions to Layout
 			if (EnemyPos != null)
@@ -131,12 +137,10 @@ namespace Final_Game.LevelGen
 			                "");
 			    }
 			}
-
 		}
+		#endregion
 
 		#region Methods
-		
-
 		private Tile ParseRoomFloor(string tileString, int row, int col)
 		{
 			Tile result;
@@ -156,13 +160,14 @@ namespace Final_Game.LevelGen
 			return result;
 		}
 
-		private string selectLine(string[] pool)
+		private string selectLine(string[] pool, ref int i)
 		{
 			string result;
+			i = _random.Next(pool.Length);
 			do
 			{
-				result = pool[_random.Next(pool.Length)];
-			} while (!result.StartsWith("//"));
+				result = pool[i];
+			} while (result.StartsWith("//"));
 
 			return result;
 		}
@@ -198,16 +203,14 @@ namespace Final_Game.LevelGen
 			// TODO: Check for events
 		}
 
-		public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+		public void Draw(SpriteBatch spriteBatch)
 		{
-
-
 			// Draw all tiles
-			for (int y = 0; y < Layout.GetLength(1); y++)
+			for (int  row = 0; row < Layout.GetLength(0); row++)
 			{
-				for (int x = 0; x < Layout.GetLength(0); x++)
+				for (int col = 0; col < Layout.GetLength(1); col++)
 				{
-					Tile curTile = Layout[x, y];
+					Tile curTile = Layout[row, col];
 
 					// Find screen position
 					Vector2 distanceFromPlayer = curTile.WorldPosition - Game1.Player.WorldPosition;
@@ -225,7 +228,7 @@ namespace Final_Game.LevelGen
 						}
 					}
 
-					Layout[x, y].Draw(spriteBatch, screenPos);
+					Layout[row, col].Draw(spriteBatch, screenPos);
 
 					curTile.TileSprite.TintColor = Color.White;
 				}

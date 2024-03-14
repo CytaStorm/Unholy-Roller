@@ -1,9 +1,11 @@
 ﻿using Final_Game.Entity;
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Final_Game
@@ -20,6 +22,7 @@ namespace Final_Game
 		public static int WindowWidth = 1920;
 		public static int WindowHeight = 1080;
 
+		private TileMaker tilemaker;
 		public const int TILESIZE = 100;
 
 		#region Mouse Properties
@@ -50,6 +53,7 @@ namespace Final_Game
 		protected override void Initialize()
 		{
 			// TODO: Add your initialization logic here
+			tilemaker = new TileMaker(Content);
 			level = new Level(1, 1, 1);
 			Player = new Player(this, new Vector2(300, 300));
 
@@ -87,6 +91,7 @@ namespace Final_Game
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			_spriteBatch.Begin();
+			level.CurrentRoom.Draw(_spriteBatch);
 
 			Player.Draw(_spriteBatch);
 

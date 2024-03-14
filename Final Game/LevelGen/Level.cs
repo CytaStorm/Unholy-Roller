@@ -28,6 +28,8 @@ namespace Final_Game.LevelGen
 		/// Room to start in.
 		/// </summary>
 		public Room StartRoom;
+
+		public Room CurrentRoom;
 		#endregion
 
 		#region Constructor(s)
@@ -41,16 +43,16 @@ namespace Final_Game.LevelGen
 					_random.Next(Map.GetLength(0)),
 					_random.Next(Map.GetLength(1)));
 			Map[startPoint.X, startPoint.Y] = new Room(
-				new Point(startPoint.X, startPoint.Y), 1, 1, 1);
+				new Point(startPoint.X, startPoint.Y));
 
 			_rooms.Add(Map[startPoint.X, startPoint.Y]);
 			StartRoom = Map[startPoint.X, startPoint.X];
+			CurrentRoom = StartRoom;
 
 			//Expand rooms.
 			for (int i = 1; i < size; i++)
 			{
 				PrintLevel();
-				//Debug.WriteLine("");
 				ExpandLevel(_rooms);
 			}
 
@@ -59,6 +61,7 @@ namespace Final_Game.LevelGen
 			{
 				room.CreateConnections();
 			}
+
 
 			PrintLevel();
 		}
@@ -76,17 +79,15 @@ namespace Final_Game.LevelGen
 			//Make a copy of the passed in list of rooms.
 			List<Room> roomsCopy = new List<Room>(roomsOriginal);
 
+			List<Point> possibleExpansions = new List<Point>();
+
 			//Makes it more likely to select previously added room to
 			//expand upon.
 			int branchMultiplier = 75;
-			for (int i = 0; i < branchMultiplier; i++)
-			{
-				roomsCopy.Add(Room.Copy(roomsCopy.Last()));
-			}
-			List<Point> possibleExpansions = new List<Point>();
-
-			//Pick random room
-			int roomToExpandIndex = _random.Next(roomsCopy.Count);
+			//Pick random room. Add branch multiplier and clamp to increase
+			//chance of expanding on most recently expanded room.
+			int roomToExpandIndex = _random.Next(roomsCopy.Count + branchMultiplier);
+			Math.Clamp(roomToExpandIndex, 0, roomsCopy.Count - 1);
 
 			//If picked the duplicate room added in line 59, decrement
 			//to ensure that room can be selected from 
@@ -135,22 +136,13 @@ namespace Final_Game.LevelGen
 				//Debug.WriteLine("New room " + newRoomPos);
 
 				//Expand
-				Map[newRoomPos.X, newRoomPos.Y] = new Room(newRoomPos, 1, 1, 1);
+				Map[newRoomPos.X, newRoomPos.Y] = new Room(newRoomPos);
 				_rooms.Add(Map[newRoomPos.X, newRoomPos.Y]);
 				roomToExpand.UpdateAdjacencyPossibilities();
 				return;
 			}
 
 			//Hit dead end.
-			//If the dead end room was the one that was just expanded,
-			//remove it and its duplicates.
-			if (roomToExpandIndex == _rooms.Count)
-			{
-				for (int i = 0; i < branchMultiplier; i++)
-				{
-					roomsCopy.RemoveAt(roomToExpandIndex);
-				}
-			}
 			//Remove dead end from resursion.
 			roomsCopy.RemoveAt(roomToExpandIndex);
 

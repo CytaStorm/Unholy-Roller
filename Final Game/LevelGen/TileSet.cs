@@ -10,7 +10,7 @@ using System.Net.Sockets;
 
 namespace Final_Game.LevelGen
 {
-	internal class Tileset : IGameObject
+	public class Tileset : IGameObject
 	{
 		#region Fields
 		public bool devRendering = false;

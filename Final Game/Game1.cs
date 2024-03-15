@@ -22,7 +22,7 @@ namespace Final_Game
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
-		private Level level;
+		public static Level TestLevel { get; private set; }
 
         #region Fields
 		// Player
@@ -86,7 +86,7 @@ namespace Final_Game
 		{
 			// TODO: Add your initialization logic here
 			tilemaker = new TileMaker(Content);
-			level = new Level(1, 1, 1);
+			TestLevel = new Level(1, 1, 1);
 			Player = new Player(this, new Vector2(300, 300));
 
 
@@ -154,7 +154,7 @@ namespace Final_Game
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			_spriteBatch.Begin();
-			level.CurrentRoom.Draw(_spriteBatch);
+			TestLevel.CurrentRoom.Draw(_spriteBatch);
 
 			// Draw game
 			switch (State)
@@ -169,6 +169,12 @@ namespace Final_Game
 			
 			_spriteBatch.End();
 
+			ShapeBatch.Begin(GraphicsDevice);
+
+			// Debug Drawing
+			// ShapeBatch.Box(Player.Hitbox, Color.White);
+
+			ShapeBatch.End();
 
 			base.Draw(gameTime);
 		}

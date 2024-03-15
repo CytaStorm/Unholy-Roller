@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Final_Game.LevelGen
 {
-	internal class Level
+	public class Level
 	{
 		#region Fields
 		// <summary>

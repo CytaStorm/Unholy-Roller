@@ -79,7 +79,7 @@ namespace Final_Game.LevelGen
             switch (tileType)
             {
                 case TileType.Grass:
-                    result.Collidable = false;
+                    result.CollisionOn = false;
                     result.TileSprite = new Sprite(_tileTextures[1], GetOrientationSource(""),
                         new Rectangle(
                             (int)position.X,
@@ -89,7 +89,7 @@ namespace Final_Game.LevelGen
                     break;
 
                 case TileType.Wall:
-                    result.Collidable = true;
+                    result.CollisionOn = true;
                     result.TileSprite = new Sprite(_tileTextures[2], GetOrientationSource(orientation),
                         new Rectangle(
                             (int)position.X,
@@ -99,7 +99,7 @@ namespace Final_Game.LevelGen
                     break;
 
                 case TileType.Spike:
-                    result.Collidable = true;
+                    result.CollisionOn = true;
 
                     result.TileSprite = new Sprite(_tileTextures[3], GetOrientationSource(""),
                         new Rectangle(
@@ -109,7 +109,7 @@ namespace Final_Game.LevelGen
                             Game1.TileSize));
                     break;
                 default:
-                    result.Collidable = false;
+                    result.CollisionOn = false;
                     result.TileSprite = new Sprite(_tileTextures[0], GetOrientationSource(""),
                         new Rectangle(
                             (int)position.X,

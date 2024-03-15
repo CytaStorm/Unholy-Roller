@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Final_Game.LevelGen
 {
-	internal class Room : IGameObject
+	public class Room : IGameObject
 	{
 
 		#region Fields

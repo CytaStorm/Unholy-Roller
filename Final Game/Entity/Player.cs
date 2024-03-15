@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Final_Game.LevelGen;
+using Microsoft.VisualBasic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -15,11 +17,11 @@ namespace Final_Game.Entity
 		Rolling,
 		Walking
 	}
-    public class Player : Entity
-    {
-        #region Fields
-        private Texture2D _launchArrowsTexture;
-        private int _launchArrowSpriteWidth;
+	public class Player : Entity
+	{
+		#region Fields
+		private Texture2D _launchArrowsTexture;
+		private int _launchArrowSpriteWidth;
 
 		private int _numRedirects;
 		private int _maxRedirects;
@@ -27,26 +29,26 @@ namespace Final_Game.Entity
 		private float _brakeSpeed;
 		private float _frictionMagnitude;
 
-        private float _transitionToWalkingSpeed;
-        #endregion
+		private float _transitionToWalkingSpeed;
+		#endregion
 
-        #region Properties
-        public Sprite Image { get; private set; }
-        public PlayerState State { get; private set; }
+		#region Properties
+		public Sprite Image { get; private set; }
+		public PlayerState State { get; private set; }
 		public Vector2 ScreenPosition { get; private set; }
-        #endregion
+		#endregion
 
-        // Constructors
-        public Player(Game1 gm, Vector2 worldPosition)
-        {
-            // Set images
-            Texture2D playerSprite = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
+		// Constructors
+		public Player(Game1 gm, Vector2 worldPosition)
+		{
+			// Set images
+			Texture2D playerSprite = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
 			Image = new Sprite(playerSprite,
 				new Rectangle(0, 0, 120, 120),
 				new Rectangle(0, 0, Game1.TileSize, Game1.TileSize));
 			_launchArrowsTexture = gm.Content.Load<Texture2D>("Sprites/LaunchArrowSpritesheet");
 
-			//Set screenPosition
+			// Set position on screen
 			ScreenPosition = new Vector2(
 				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
 				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
@@ -54,31 +56,34 @@ namespace Final_Game.Entity
 			int numLaunchArrows = 2;
 			_launchArrowSpriteWidth = _launchArrowsTexture.Width / numLaunchArrows;
 
-            // Set position (world space)
-            WorldPosition = worldPosition;
+			// Set position in world
+			WorldPosition = worldPosition;
 
-            // Set movement vars
-            Speed = 20f;
-            _brakeSpeed = 0.2f;
-            _frictionMagnitude = 0.01f;
-            _transitionToWalkingSpeed = 1f;
+			// Set hitbox
+			Hitbox = Image.DestinationRect;
 
-            // Set default state
-            State = PlayerState.Walking;
+			// Set movement vars
+			Speed = 20f;
+			_brakeSpeed = 0.2f;
+			_frictionMagnitude = 0.01f;
+			_transitionToWalkingSpeed = 1f;
 
-            // Give launches
-            _maxRedirects = 3;
-            _numRedirects = _maxRedirects + 1;
-        }
+			// Set default state
+			State = PlayerState.Walking;
 
-        // Methods
-        public override void Update(GameTime gameTime)
-        {
-            switch (State)
-            {
-                case PlayerState.Walking:
-                    MoveWithKeyboard(Game1.CurKB);   
-                    break;
+			// Give launches
+			_maxRedirects = 3;
+			_numRedirects = _maxRedirects + 1;
+		}
+
+		// Methods
+		public override void Update(GameTime gameTime)
+		{
+			switch (State)
+			{
+				case PlayerState.Walking:
+					MoveWithKeyboard(Game1.CurKB);   
+					break;
 
 				case PlayerState.Rolling:
 					ApplyFriction();
@@ -99,23 +104,56 @@ namespace Final_Game.Entity
 
 			//ApplyScreenBoundRicochet();
 
-           Move(Velocity);
-        }
-        public override void Draw(SpriteBatch sb)
-        {
+			CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.RoomFloor);
+
+		   Move(Velocity);
+		}
+		public override void Draw(SpriteBatch sb)
+		{
 			// Draw player image
 			Image.Draw(sb, ScreenPosition);
 
-            if (_numRedirects > 0 && 
-                Game1.IsMouseButtonPressed(1))
-            {
-                DrawLaunchArrow(sb);
-            }
-        }
+			if (_numRedirects > 0 && 
+				Game1.IsMouseButtonPressed(1))
+			{
+				DrawLaunchArrow(sb);
+			}
+		}
+
+        #region Collision Handling Methods
+        public override void OnHitTile(Tile tile, CollisionDirection colDir)
+		{
+			switch (tile.Type)
+			{
+				case TileType.Spike:
+
+					TakeDamage(2);
+
+					Image.TintColor = Color.LightGoldenrodYellow;
+					break;
+			}
+
+			// Place self on part of tile that was hit
+			PlaceOnHitSurface(tile, colDir);
+
+			if (State == PlayerState.Rolling)
+			{
+				//Move(-Velocity);
+
+				Ricochet(colDir);
+			}
+			else if (State == PlayerState.Walking)
+			{
+				Move(-Velocity);
+			}
+
+			base.OnHitTile(tile, colDir);
+		}
+        #endregion
 
         #region Movement Helper Methods
 
-		public void MoveWithKeyboard(KeyboardState kb)
+        public void MoveWithKeyboard(KeyboardState kb)
 		{
 			Velocity = Vector2.Zero;
 
@@ -234,27 +272,41 @@ namespace Final_Game.Entity
 				Velocity += natDeceleration * _frictionMagnitude;
 			}
 		}
-        private void ApplyScreenBoundRicochet()
-        {
-            if (WorldPosition.X + Image.DestinationRect.Width > Game1.WindowWidth ||
-                WorldPosition.X <= 0)
-            {
-                Velocity = new Vector2(-Velocity.X, Velocity.Y);
-            }
-            if (WorldPosition.Y + Image.DestinationRect.Height > Game1.WindowHeight ||
-                WorldPosition.Y <= 0)
-            {
-                Velocity = new Vector2(Velocity.X, -Velocity.Y);
-            }
-        }
-        #endregion
+		public void Ricochet(CollisionDirection hitDirection)
+		{
+			if (hitDirection == CollisionDirection.Vertical)
+			{
+				Velocity = new Vector2(Velocity.X, -Velocity.Y);
+			}
+			else if (hitDirection == CollisionDirection.Horizontal)
+			{
+				Velocity = new Vector2(-Velocity.X, Velocity.Y);
+			}
 
-        #region Drawing Helper Methods
-        private void DrawLaunchArrow(SpriteBatch sb)
-        {
-            
-            // Get angle between arrow and mouse
-            Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
+			State = PlayerState.Rolling;
+		}
+
+		private void ApplyScreenBoundRicochet()
+		{
+			if (WorldPosition.X + Image.DestinationRect.Width > Game1.WindowWidth ||
+				WorldPosition.X <= 0)
+			{
+				Velocity = new Vector2(-Velocity.X, Velocity.Y);
+			}
+			if (WorldPosition.Y + Image.DestinationRect.Height > Game1.WindowHeight ||
+				WorldPosition.Y <= 0)
+			{
+				Velocity = new Vector2(Velocity.X, -Velocity.Y);
+			}
+		}
+		#endregion
+
+		#region Drawing Helper Methods
+		private void DrawLaunchArrow(SpriteBatch sb)
+		{
+			
+			// Get angle between arrow and mouse
+			Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 
 			Vector2 centerScreenPos = new Vector2(
 				ScreenPosition.X + Image.DestinationRect.Width / 2,
@@ -312,27 +364,27 @@ namespace Final_Game.Entity
 			//    textPos.X - redirectStringDimensions.X / 2,
 			//    textPos.Y - redirectStringDimensions.Y / 2);
 
-            //sb.DrawString(
-            //    Game1.ARIAL32,
-            //    _numRedirects.ToString(),
-            //    textPos,
-            //    Color.White);
-        }
-        #endregion
+			//sb.DrawString(
+			//    Game1.ARIAL32,
+			//    _numRedirects.ToString(),
+			//    textPos,
+			//    Color.White);
+		}
+		#endregion
 
-        public void Reset()
-        {
-            CurHealth = MaxHealth;
+		public void Reset()
+		{
+			CurHealth = MaxHealth;
 
-            _numRedirects = _maxRedirects + 1;
+			_numRedirects = _maxRedirects + 1;
 
-            Velocity = Vector2.Zero;
+			Velocity = Vector2.Zero;
 
-            State = PlayerState.Walking;
+			State = PlayerState.Walking;
 
-            WorldPosition = new Vector2(
-                Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
-                Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
-        }
-    }
+			WorldPosition = new Vector2(
+				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
+				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
+		}
+	}
 }

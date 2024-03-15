@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Final_Game
 {
-    public enum CollisionType
+    public enum CollisionDirection
     {
         Horizontal, 
         Vertical
@@ -21,6 +21,6 @@ namespace Final_Game
         bool CollisionOn { get; }
 
         // Methods
-        void OnHitSomething(ICollidable other, CollisionType collision);
+        void OnHitSomething(ICollidable other, CollisionDirection collision);
     }
 }

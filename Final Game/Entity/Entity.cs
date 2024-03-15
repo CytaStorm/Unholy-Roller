@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Final_Game.LevelGen;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Final_Game.Entity
         public Vector2 Velocity { get; protected set; } = Vector2.Zero;
         public Vector2 Acceleration { get; protected set; } = Vector2.Zero;
         public float Speed { get; protected set; }
+        
         #endregion
 
         #region Damage Properties
@@ -36,16 +38,93 @@ namespace Final_Game.Entity
 
         }
 
-        public virtual void Move(Vector2 distance)
+        /// <summary>
+        /// Moves the entity in worldspace by their velocity
+        /// and moves their hitbox by velocity.
+        /// ALWAYS CALL THIS TO GET PROPER COLLISIONS
+        /// </summary>
+        public virtual void Move()
         {
-            WorldPosition += distance;
+            // Preserve hitbox distance from entity origin
+            int hitXDist = (int)WorldPosition.X - Hitbox.X;
+            int hitYDist = (int)WorldPosition.Y - Hitbox.Y;
 
-            // Todo: Adjust hitbox to world position
+            // Update position
+            WorldPosition += Velocity;
+
+            // Update hitbox position
+            Hitbox = new Rectangle(
+                (int)(WorldPosition.X - hitXDist),
+                (int)(WorldPosition.Y - hitYDist),
+                Hitbox.Width,
+                Hitbox.Height);
+
         }
 
-        public virtual void OnHitSomething(ICollidable other, CollisionType collision)
+        /// <summary>
+        /// Moves the entity in worldspace by their velocity
+        /// and moves their hitbox by velocity.
+        /// ALWAYS CALL THIS TO GET PROPER COLLISIONS
+        /// </summary>
+        public virtual void Move(Vector2 velocity)
         {
+            // Preserve hitbox distance from entity origin
+            int hitXDist = (int)WorldPosition.X - Hitbox.X;
+            int hitYDist = (int)WorldPosition.Y - Hitbox.Y;
 
+            // Update position
+            WorldPosition += velocity;
+
+            // Update hitbox position
+            Hitbox = new Rectangle(
+                (int)(WorldPosition.X - hitXDist),
+                (int)(WorldPosition.Y - hitYDist),
+                Hitbox.Width,
+                Hitbox.Height);
+
+        }
+
+        public virtual void OnHitSomething(ICollidable other, CollisionDirection collision) { }
+
+        public virtual void OnHitTile(Tile tile, CollisionDirection collision) { }
+
+        /// <summary>
+        /// Moves entity to the edge of the tile that they hit
+        /// </summary>
+        /// <param name="tile"></param>
+        /// <param name="colDir"></param>
+        public void PlaceOnHitSurface(Tile tile, CollisionDirection colDir)
+        {
+            if (colDir == CollisionDirection.Horizontal)
+            {
+                if (Velocity.X > 0)
+                {
+                    Vector2 whereItShouldBe =
+                        new Vector2(tile.WorldPosition.X - Hitbox.Width, WorldPosition.Y);
+                    Move(whereItShouldBe - WorldPosition);
+                }
+                else
+                {
+                    Vector2 whereItShouldBe =
+                        new Vector2(tile.WorldPosition.X + Game1.TileSize + 1, WorldPosition.Y);
+                    Move(whereItShouldBe - WorldPosition);
+                }
+            }
+            else if (colDir == CollisionDirection.Vertical)
+            {
+                if (Velocity.Y > 0)
+                {
+                    Vector2 whereItShouldBe =
+                        new Vector2(WorldPosition.X, tile.WorldPosition.Y - Hitbox.Height);
+                    Move(whereItShouldBe - WorldPosition);
+                }
+                else
+                {
+                    Vector2 whereItShouldBe =
+                        new Vector2(WorldPosition.X, tile.WorldPosition.Y + Game1.TileSize + 1);
+                    Move(whereItShouldBe - WorldPosition);
+                }
+            }
         }
 
         public virtual void TakeDamage(int amount)

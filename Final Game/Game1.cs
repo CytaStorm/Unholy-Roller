@@ -1,8 +1,11 @@
 ﻿using Final_Game.Entity;
+using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Final_Game
@@ -19,11 +22,11 @@ namespace Final_Game
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
-		private Map map;
+		private Level level;
 
         #region Fields
 		// Player
-		private Player _player;
+		public static Player Player { get; private set; }
 
 		// Cursor
 		private Texture2D _cursorTexture;
@@ -63,6 +66,8 @@ namespace Final_Game
 		// Game FSM
         public static GameState State { get; private set; }
 
+		private static TileMaker tilemaker;
+
         #endregion
 
 		public Game1()
@@ -75,14 +80,18 @@ namespace Final_Game
 			_graphics.PreferredBackBufferWidth = WindowWidth;
 			_graphics.PreferredBackBufferHeight = WindowHeight;
 			_graphics.ApplyChanges();
-
-			// Set default game state
-			State = GameState.Menu;
-		}
+		} 
 
 		protected override void Initialize()
 		{
-			map = new Map(10, 10, 25);
+			// TODO: Add your initialization logic here
+			tilemaker = new TileMaker(Content);
+			level = new Level(1, 1, 1);
+			Player = new Player(this, new Vector2(300, 300));
+
+
+			// Set default game state
+			State = GameState.Menu;
 
 			base.Initialize();
 		}
@@ -90,12 +99,12 @@ namespace Final_Game
 		protected override void LoadContent()
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
+			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 
 			// Create player
-			_player = new Player(this, new Vector2(300, 300));
+			Player = new Player(this, new Vector2(300, 300));
 			
 			// Create custom cursor
-			_cursorTexture = Content.Load<Texture2D>("CursorSprite");
 			_gameplayCursor = MouseCursor.FromTexture2D(
 				_cursorTexture, _cursorTexture.Width / 2, _cursorTexture.Height / 2);
 
@@ -120,8 +129,7 @@ namespace Final_Game
 			{
 				case GameState.Play:
 					if (this.IsActive)
-						_player.Update(gameTime);
-
+						Player.Update(gameTime);
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
                     break;
@@ -146,12 +154,13 @@ namespace Final_Game
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			_spriteBatch.Begin();
+			level.CurrentRoom.Draw(_spriteBatch);
 
 			// Draw game
 			switch (State)
 			{
 				case GameState.Play:
-					_player.Draw(_spriteBatch);
+					Player.Draw(_spriteBatch);
 
 					break;
 			}
@@ -179,7 +188,7 @@ namespace Final_Game
 		}
         private void ResetGame()
         {
-            _player.Reset();
+            Player.Reset();
         }
 
         #region Mouse Wrapper Methods
@@ -208,7 +217,7 @@ namespace Final_Game
 
 				default:
 					return false;
-            }
+			}
 		}
 		public static bool IsMouseButtonReleased(int buttonNum)
 		{
@@ -227,7 +236,7 @@ namespace Final_Game
 
 				default:
 					return false;
-            }
+			}
 		}
         #endregion
 

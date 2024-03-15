@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -120,8 +121,8 @@ namespace Final_Game.Entity
 			}
 		}
 
-        #region Collision Handling Methods
-        public override void OnHitTile(Tile tile, CollisionDirection colDir)
+		#region Collision Handling Methods
+		public override void OnHitTile(Tile tile, CollisionDirection colDir)
 		{
 			switch (tile.Type)
 			{
@@ -130,6 +131,10 @@ namespace Final_Game.Entity
 					TakeDamage(2);
 
 					Image.TintColor = Color.LightGoldenrodYellow;
+					break;
+
+				case TileType.OpenDoor:
+					Debug.WriteLine("HIT OPEN DOOR");
 					break;
 			}
 
@@ -149,11 +154,11 @@ namespace Final_Game.Entity
 
 			base.OnHitTile(tile, colDir);
 		}
-        #endregion
+		#endregion
 
-        #region Movement Helper Methods
+		#region Movement Helper Methods
 
-        public void MoveWithKeyboard(KeyboardState kb)
+		public void MoveWithKeyboard(KeyboardState kb)
 		{
 			Velocity = Vector2.Zero;
 

@@ -94,6 +94,7 @@ namespace Final_Game
 						Rectangle temp = new Rectangle();
 						Vector2 tempPoint = Vector2.Zero;
 
+						//Check for tunneling
 						if (numShifts > 1f)
 						{
 							Vector2 normVelo = e.Velocity;

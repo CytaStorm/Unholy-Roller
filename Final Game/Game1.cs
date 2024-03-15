@@ -7,30 +7,63 @@ using System.Runtime.CompilerServices;
 
 namespace Final_Game
 {
+	public enum GameState
+	{
+		Menu,
+		Play,
+		Pause,
+		GameOver
+	}
+
 	public class Game1 : Game
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
 		private Map map;
 
+        #region Fields
+		// Player
 		private Player _player;
+
+		// Cursor
 		private Texture2D _cursorTexture;
 
+		// UI
+		private UI _ui;
+
+		// Mouse
+        private MouseCursor _gameplayCursor;
+        private MouseCursor _menuCursor;
+
+		// Screen
         public static int WindowWidth = 1920;
         public static int WindowHeight = 1080;
-
-        #region Mouse Properties
-        public static MouseState CurMouse { get; private set; }
-		public static MouseState PrevMouse { get; private set; }
-		public static bool MouseIsOnScreen => ScreenBounds.Contains(CurMouse.Position);
         #endregion
 
-        public static Rectangle ScreenBounds 
-		{
-			get => new Rectangle(0, 0, WindowWidth, WindowHeight);
-		}
+        #region Properties
+		// Screen
+        public static Rectangle ScreenBounds => 
+			new Rectangle(0, 0, WindowWidth, WindowHeight);
+		public static Vector2 ScreenCenter => 
+			new Vector2(WindowWidth / 2, WindowHeight / 2);
 
-		public static int TileSize { get; private set; } = 100;
+        // Mouse
+        public static MouseState CurMouse { get; private set; }
+        public static MouseState PrevMouse { get; private set; }
+        public static bool MouseIsOnScreen => 
+			ScreenBounds.Contains(CurMouse.Position);
+
+        // Keyboard
+        public static KeyboardState CurKB { get; private set; }
+        public static KeyboardState PrevKB { get; private set; }
+
+		// Environment
+        public static int TileSize { get; private set; } = 100;
+
+		// Game FSM
+        public static GameState State { get; private set; }
+
+        #endregion
 
 		public Game1()
 		{
@@ -42,11 +75,13 @@ namespace Final_Game
 			_graphics.PreferredBackBufferWidth = WindowWidth;
 			_graphics.PreferredBackBufferHeight = WindowHeight;
 			_graphics.ApplyChanges();
+
+			// Set default game state
+			State = GameState.Menu;
 		}
 
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
 			map = new Map(10, 10, 25);
 
 			base.Initialize();
@@ -56,26 +91,52 @@ namespace Final_Game
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 
+			// Create player
 			_player = new Player(this, new Vector2(300, 300));
-
-			_cursorTexture = Content.Load<Texture2D>("CursorSprite");
-
+			
 			// Create custom cursor
-			Mouse.SetCursor(MouseCursor.FromTexture2D(
-				_cursorTexture, _cursorTexture.Width / 2, _cursorTexture.Height / 2));
-		}
+			_cursorTexture = Content.Load<Texture2D>("CursorSprite");
+			_gameplayCursor = MouseCursor.FromTexture2D(
+				_cursorTexture, _cursorTexture.Width / 2, _cursorTexture.Height / 2);
+
+			// Create default cursor
+			_menuCursor = MouseCursor.Arrow;
+
+			// Create UI Manager
+            _ui = new UI(this, _spriteBatch);
+
+			// Hook Up Buttons
+			SubscribeToButtons();
+        }
 
 		protected override void Update(GameTime gameTime)
 		{
-			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-				Exit();
-
+			// Get controller states
 			CurMouse = Mouse.GetState();
+			CurKB = Keyboard.GetState();
 
-			if (this.IsActive)
-				_player.Update(gameTime);
+			// Update game
+			switch (State)
+			{
+				case GameState.Play:
+					if (this.IsActive)
+						_player.Update(gameTime);
 
+					if (SingleKeyPress(Keys.Escape))
+						PauseGame(true);
+                    break;
+
+				case GameState.Pause:
+					if (SingleKeyPress(Keys.Escape))
+						PauseGame(false);
+					break;
+            }
+
+			_ui.Update(gameTime);
+
+			// Store controller states
 			PrevMouse = CurMouse;
+			PrevKB = CurKB;
 
 			base.Update(gameTime);
 		}
@@ -86,13 +147,40 @@ namespace Final_Game
 
 			_spriteBatch.Begin();
 
-			_player.Draw(_spriteBatch);
+			// Draw game
+			switch (State)
+			{
+				case GameState.Play:
+					_player.Draw(_spriteBatch);
 
+					break;
+			}
+
+			_ui.Draw(gameTime);
+			
 			_spriteBatch.End();
 
 
 			base.Draw(gameTime);
 		}
+
+		private void PauseGame(bool paused)
+		{
+			if (paused)
+			{
+				State = GameState.Pause;
+				Mouse.SetCursor(_menuCursor);
+			}
+			else
+			{
+				State = GameState.Play;
+				Mouse.SetCursor(_gameplayCursor);
+			}
+		}
+        private void ResetGame()
+        {
+            _player.Reset();
+        }
 
         #region Mouse Wrapper Methods
         public static bool IsMouseLeftClicked()
@@ -141,6 +229,53 @@ namespace Final_Game
 					return false;
             }
 		}
+        #endregion
+
+        #region Keyboard Wrapper Methods
+
+		public static bool SingleKeyPress(Keys k)
+		{
+			return CurKB.IsKeyDown(k) && PrevKB.IsKeyUp(k);
+		}
+
+        #endregion
+
+        #region Button Methods
+		
+		public void SubscribeToButtons()
+		{
+			_ui.MenuButtons[0].OnClicked += StartGame;
+			_ui.MenuButtons[2].OnClicked += EndGame;
+
+			_ui.PauseButtons[0].OnClicked += ResumeGame;
+			_ui.PauseButtons[1].OnClicked += ReturnToMainMenu;
+		}
+
+		private void StartGame()
+		{
+			State = GameState.Play;
+			Mouse.SetCursor(_gameplayCursor);
+		}
+
+		private void ResumeGame()
+		{
+			State = GameState.Play;
+            Mouse.SetCursor(_gameplayCursor);
+        }
+
+		private void ReturnToMainMenu()
+		{
+			State = GameState.Menu;
+			Mouse.SetCursor(_menuCursor);
+
+			ResetGame();
+		}
+
+		private void EndGame()
+		{
+			Exit();
+		}
+
         #endregion
     }
 }

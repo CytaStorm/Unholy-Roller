@@ -15,12 +15,11 @@ namespace Final_Game.Entity
 		Rolling,
 		Walking
 	}
-
-	public class Player : Entity
-	{
-		// Fields
-		private Texture2D _launchArrowsTexture;
-		private int _launchArrowSpriteWidth;
+    public class Player : Entity
+    {
+        #region Fields
+        private Texture2D _launchArrowsTexture;
+        private int _launchArrowSpriteWidth;
 
 		private int _numRedirects;
 		private int _maxRedirects;
@@ -28,47 +27,49 @@ namespace Final_Game.Entity
 		private float _brakeSpeed;
 		private float _frictionMagnitude;
 
-		private float _transitionToWalkingSpeed;
+        private float _transitionToWalkingSpeed;
+        #endregion
 
-		// Properties
-		public Texture2D Image { get; private set; }
-		public PlayerState State { get; private set; }
-		public Vector2 ScreenPosition { get; private set; }
+        #region Properties
+        public Texture2D Image { get; private set; }
+        public PlayerState State { get; private set; }
+        #endregion
 
-		// Constructors
-
-		public Player(Game1 gm, Vector2 worldPosition)
-		{
-			Image = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
-			_launchArrowsTexture = gm.Content.Load<Texture2D>("Sprites/LaunchArrowSpritesheet");
+        // Constructors
+        public Player(Game1 gm, Vector2 worldPosition)
+        {
+            // Set images
+            Image = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
+            _launchArrowsTexture = gm.Content.Load<Texture2D>("Sprites/LaunchArrowSpritesheet");
 
 			int numLaunchArrows = 2;
 			_launchArrowSpriteWidth = _launchArrowsTexture.Width / numLaunchArrows;
 
-			WorldPosition = worldPosition;
+            // Set position (world space)
+            WorldPosition = worldPosition;
 
-			Speed = 20f;
-			_brakeSpeed = 0.2f;
-			_frictionMagnitude = 0.01f;
-			_transitionToWalkingSpeed = 1f;
+            // Set movement vars
+            Speed = 20f;
+            _brakeSpeed = 0.2f;
+            _frictionMagnitude = 0.01f;
+            _transitionToWalkingSpeed = 1f;
 
-			State = PlayerState.Walking;
+            // Set default state
+            State = PlayerState.Walking;
 
-			_maxRedirects = 3;
-			_numRedirects = _maxRedirects + 1;
-		}
+            // Give launches
+            _maxRedirects = 3;
+            _numRedirects = _maxRedirects + 1;
+        }
 
-		// Methods
-
-		public override void Update(GameTime gameTime)
-		{
-			KeyboardState kb = Keyboard.GetState();
-
-			switch (State)
-			{
-				case PlayerState.Walking:
-					MoveWithKeyboard(kb);   
-					break;
+        // Methods
+        public override void Update(GameTime gameTime)
+        {
+            switch (State)
+            {
+                case PlayerState.Walking:
+                    MoveWithKeyboard(Game1.CurKB);   
+                    break;
 
 				case PlayerState.Rolling:
 					ApplyFriction();
@@ -89,8 +90,24 @@ namespace Final_Game.Entity
 
 			ApplyScreenBoundRicochet();
 
-			Move(Velocity);
-		}
+           Move(Velocity);
+        }
+        public override void Draw(SpriteBatch sb)
+        {
+            // Draw player image
+            sb.Draw(
+                Image,
+                WorldPosition,
+                Color.White);
+
+            if (_numRedirects > 0 && 
+                Game1.IsMouseButtonPressed(1))
+            {
+                DrawLaunchArrow(sb);
+            }
+        }
+
+        #region Movement Helper Methods
 
 		public void MoveWithKeyboard(KeyboardState kb)
 		{
@@ -211,41 +228,27 @@ namespace Final_Game.Entity
 				Velocity += natDeceleration * _frictionMagnitude;
 			}
 		}
+        private void ApplyScreenBoundRicochet()
+        {
+            if (WorldPosition.X + Image.Width > Game1.WindowWidth ||
+                WorldPosition.X <= 0)
+            {
+                Velocity = new Vector2(-Velocity.X, Velocity.Y);
+            }
+            if (WorldPosition.Y + Image.Height > Game1.WindowHeight ||
+                WorldPosition.Y <= 0)
+            {
+                Velocity = new Vector2(Velocity.X, -Velocity.Y);
+            }
+        }
+        #endregion
 
-		private void ApplyScreenBoundRicochet()
-		{
-			if (WorldPosition.X + Image.Width > Game1.WindowWidth ||
-				WorldPosition.X <= 0)
-			{
-				Velocity = new Vector2(-Velocity.X, Velocity.Y);
-			}
-			if (WorldPosition.Y + Image.Height > Game1.WindowHeight ||
-				WorldPosition.Y <= 0)
-			{
-				Velocity = new Vector2(Velocity.X, -Velocity.Y);
-			}
-		}
-
-		public override void Draw(SpriteBatch sb)
-		{
-			// Draw player image
-			sb.Draw(
-				Image,
-				WorldPosition,
-				Color.White);
-
-			if (_numRedirects > 0 && 
-				Game1.IsMouseButtonPressed(1))
-			{
-				DrawLaunchArrow(sb);
-			}
-		}
-
-		private void DrawLaunchArrow(SpriteBatch sb)
-		{
-			
-			// Get angle between arrow and mouse
-			Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
+        #region Drawing Helper Methods
+        private void DrawLaunchArrow(SpriteBatch sb)
+        {
+            
+            // Get angle between arrow and mouse
+            Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 
 			Vector2 centerPlayerPos = new Vector2(
 				WorldPosition.X + Image.Width / 2,
@@ -303,11 +306,27 @@ namespace Final_Game.Entity
 			//    textPos.X - redirectStringDimensions.X / 2,
 			//    textPos.Y - redirectStringDimensions.Y / 2);
 
-			//sb.DrawString(
-			//    Game1.ARIAL32,
-			//    _numRedirects.ToString(),
-			//    textPos,
-			//    Color.White);
-		}
-	}
+            //sb.DrawString(
+            //    Game1.ARIAL32,
+            //    _numRedirects.ToString(),
+            //    textPos,
+            //    Color.White);
+        }
+        #endregion
+
+        public void Reset()
+        {
+            CurHealth = MaxHealth;
+
+            _numRedirects = _maxRedirects + 1;
+
+            Velocity = Vector2.Zero;
+
+            State = PlayerState.Walking;
+
+            WorldPosition = new Vector2(
+                Game1.ScreenCenter.X - Image.Width / 2,
+                Game1.ScreenCenter.Y - Image.Height / 2);
+        }
+    }
 }

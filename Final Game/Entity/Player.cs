@@ -161,8 +161,8 @@ namespace Final_Game.Entity
 				Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 
 				// Aim from center of the Player
-				Vector2 centerPos = new Vector2(WorldPosition.X + Image.DestinationRect.Width / 2,
-					WorldPosition.Y + Image.DestinationRect.Height / 2);
+				Vector2 centerPos = new Vector2(ScreenPosition.X + Image.DestinationRect.Width / 2,
+					ScreenPosition.Y + Image.DestinationRect.Height / 2);
 
 				// Aim toward mouse at player speed
 				Vector2 distance = mousePos - centerPos;
@@ -197,7 +197,7 @@ namespace Final_Game.Entity
 				//    Velocity = distance;
 				//}
 
-				_numRedirects--;
+				//_numRedirects--;
 
 				// Player is now rolling
 				State = PlayerState.Rolling;
@@ -256,11 +256,11 @@ namespace Final_Game.Entity
             // Get angle between arrow and mouse
             Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 
-			Vector2 centerPlayerPos = new Vector2(
-				WorldPosition.X + Image.DestinationRect.Width / 2,
-				WorldPosition.Y + Image.DestinationRect.Height / 2);
+			Vector2 centerScreenPos = new Vector2(
+				ScreenPosition.X + Image.DestinationRect.Width / 2,
+				ScreenPosition.Y + Image.DestinationRect.Height / 2);
 
-			Vector2 playerToMouseDistance = mousePos - centerPlayerPos;
+			Vector2 playerToMouseDistance = mousePos - centerScreenPos;
 
 			float angleBetweenArrowAndMouse = MathF.Atan2(
 				playerToMouseDistance.X,
@@ -291,7 +291,7 @@ namespace Final_Game.Entity
 			// Draw aiming arrow
 			sb.Draw(
 				_launchArrowsTexture,
-				centerPlayerPos + directionFromPlayerToMouse,
+				centerScreenPos + directionFromPlayerToMouse,
 				arrowSourceRect,
 				Color.White,
 				-angleBetweenArrowAndMouse,

@@ -153,7 +153,7 @@ namespace Final_Game.LevelGen
 		//Prints out level to Debug.
 		public void PrintLevel()
 		{
-			for (int row = 0; row < Map.GetLength(0);  row++)
+			for (int row = 0; row < Map.GetLength(0); row++)
 			{
 				for (int col = 0;  col < Map.GetLength(1); col++)
 				{
@@ -167,8 +167,8 @@ namespace Final_Game.LevelGen
 				Debug.WriteLine("");
 			}
 
-			Debug.WriteLine("--------------------------------------------------" +
-				"------------------------------------------------------");
+			//Debug.WriteLine("--------------------------------------------------" +
+			//	"------------------------------------------------------");
 		}
 
 		#endregion

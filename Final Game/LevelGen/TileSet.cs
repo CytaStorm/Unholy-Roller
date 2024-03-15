@@ -155,7 +155,7 @@ namespace Final_Game.LevelGen
 			}
 			result = TileMaker.SetTile(
 				(TileType)tileIdInt,
-				new Vector2(row * Game1.TILESIZE, col * Game1.TILESIZE),
+				new Vector2(col * Game1.TILESIZE, row * Game1.TILESIZE),
 				orientation);
 			return result;
 		}
@@ -206,7 +206,7 @@ namespace Final_Game.LevelGen
 		public void Draw(SpriteBatch spriteBatch)
 		{
 			// Draw all tiles
-			for (int  row = 0; row < Layout.GetLength(0); row++)
+			for (int row = 0; row < Layout.GetLength(0); row++)
 			{
 				for (int col = 0; col < Layout.GetLength(1); col++)
 				{
@@ -228,7 +228,7 @@ namespace Final_Game.LevelGen
 						}
 					}
 
-					Layout[row, col].Draw(spriteBatch, screenPos);
+					curTile.Draw(spriteBatch, screenPos);
 
 					curTile.TileSprite.TintColor = Color.White;
 				}
@@ -255,10 +255,10 @@ namespace Final_Game.LevelGen
 			{
 				string[] pointXY = positions[i].Split(',');
 
-				foreach (string x in pointXY)
-				{
-					Debug.WriteLine(x);
-				}
+				//foreach (string x in pointXY)
+				//{
+				//	Debug.WriteLine(x);
+				//}
 
 				int X = int.Parse(pointXY[0]);
 				int Y = int.Parse(pointXY[1]);

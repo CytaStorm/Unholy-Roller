@@ -31,16 +31,25 @@ namespace Final_Game.Entity
         #endregion
 
         #region Properties
-        public Texture2D Image { get; private set; }
+        public Sprite Image { get; private set; }
         public PlayerState State { get; private set; }
+		public Vector2 ScreenPosition { get; private set; }
         #endregion
 
         // Constructors
         public Player(Game1 gm, Vector2 worldPosition)
         {
             // Set images
-            Image = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
-            _launchArrowsTexture = gm.Content.Load<Texture2D>("Sprites/LaunchArrowSpritesheet");
+            Texture2D playerSprite = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
+			Image = new Sprite(playerSprite,
+				new Rectangle(0, 0, 120, 120),
+				new Rectangle(0, 0, Game1.TileSize, Game1.TileSize));
+			_launchArrowsTexture = gm.Content.Load<Texture2D>("Sprites/LaunchArrowSpritesheet");
+
+			//Set screenPosition
+			ScreenPosition = new Vector2(
+				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
+				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
 
 			int numLaunchArrows = 2;
 			_launchArrowSpriteWidth = _launchArrowsTexture.Width / numLaunchArrows;
@@ -88,17 +97,14 @@ namespace Final_Game.Entity
 
 			HandleLaunch();
 
-			ApplyScreenBoundRicochet();
+			//ApplyScreenBoundRicochet();
 
            Move(Velocity);
         }
         public override void Draw(SpriteBatch sb)
         {
-            // Draw player image
-            sb.Draw(
-                Image,
-                WorldPosition,
-                Color.White);
+			// Draw player image
+			Image.Draw(sb, ScreenPosition);
 
             if (_numRedirects > 0 && 
                 Game1.IsMouseButtonPressed(1))
@@ -155,8 +161,8 @@ namespace Final_Game.Entity
 				Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 
 				// Aim from center of the Player
-				Vector2 centerPos = new Vector2(WorldPosition.X + Image.Width / 2,
-					WorldPosition.Y + Image.Height / 2);
+				Vector2 centerPos = new Vector2(WorldPosition.X + Image.DestinationRect.Width / 2,
+					WorldPosition.Y + Image.DestinationRect.Height / 2);
 
 				// Aim toward mouse at player speed
 				Vector2 distance = mousePos - centerPos;
@@ -230,12 +236,12 @@ namespace Final_Game.Entity
 		}
         private void ApplyScreenBoundRicochet()
         {
-            if (WorldPosition.X + Image.Width > Game1.WindowWidth ||
+            if (WorldPosition.X + Image.DestinationRect.Width > Game1.WindowWidth ||
                 WorldPosition.X <= 0)
             {
                 Velocity = new Vector2(-Velocity.X, Velocity.Y);
             }
-            if (WorldPosition.Y + Image.Height > Game1.WindowHeight ||
+            if (WorldPosition.Y + Image.DestinationRect.Height > Game1.WindowHeight ||
                 WorldPosition.Y <= 0)
             {
                 Velocity = new Vector2(Velocity.X, -Velocity.Y);
@@ -251,8 +257,8 @@ namespace Final_Game.Entity
             Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 
 			Vector2 centerPlayerPos = new Vector2(
-				WorldPosition.X + Image.Width / 2,
-				WorldPosition.Y + Image.Height / 2);
+				WorldPosition.X + Image.DestinationRect.Width / 2,
+				WorldPosition.Y + Image.DestinationRect.Height / 2);
 
 			Vector2 playerToMouseDistance = mousePos - centerPlayerPos;
 
@@ -325,8 +331,8 @@ namespace Final_Game.Entity
             State = PlayerState.Walking;
 
             WorldPosition = new Vector2(
-                Game1.ScreenCenter.X - Image.Width / 2,
-                Game1.ScreenCenter.Y - Image.Height / 2);
+                Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
+                Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
         }
     }
 }

@@ -84,8 +84,8 @@ namespace Final_Game.LevelGen
                         new Rectangle(
                             (int)position.X,
                             (int)position.Y,
-                            Game1.TILESIZE,
-                            Game1.TILESIZE));
+                            Game1.TileSize,
+                            Game1.TileSize));
                     break;
 
                 case TileType.Wall:
@@ -94,8 +94,8 @@ namespace Final_Game.LevelGen
                         new Rectangle(
                             (int)position.X,
                             (int)position.Y,
-                            Game1.TILESIZE,
-                            Game1.TILESIZE));
+                            Game1.TileSize,
+                            Game1.TileSize));
                     break;
 
                 case TileType.Spike:
@@ -105,8 +105,8 @@ namespace Final_Game.LevelGen
                         new Rectangle(
                             (int)position.X,
                             (int)position.Y,
-                            Game1.TILESIZE,
-                            Game1.TILESIZE));
+                            Game1.TileSize,
+                            Game1.TileSize));
                     break;
                 default:
                     result.Collidable = false;
@@ -114,8 +114,8 @@ namespace Final_Game.LevelGen
                         new Rectangle(
                             (int)position.X,
                             (int)position.Y,
-                            Game1.TILESIZE,
-                            Game1.TILESIZE));
+                            Game1.TileSize,
+                            Game1.TileSize));
                     break;
             }
             return result;

@@ -34,12 +34,12 @@ namespace Final_Game.LevelGen
 		/// <summary>
 		/// Width of the tileset
 		/// </summary>
-		public int Width { get => Columns * Game1.TILESIZE; }
+		public int Width { get => Columns * Game1.TileSize; }
 
 		/// <summary>
 		/// Height of the tileset
 		/// </summary>
-		public int Height { get => Rows * Game1.TILESIZE; }
+		public int Height { get => Rows * Game1.TileSize; }
 
 		/// <summary>
 		/// The doors or bridge-points of this tileset
@@ -132,8 +132,8 @@ namespace Final_Game.LevelGen
 				{
 					Layout[obstaclePos.X, obstaclePos.Y] = TileMaker.SetTile(
 						TileType.Spike, new Vector2(
-							obstaclePos.X * Game1.TILESIZE,
-							obstaclePos.Y * Game1.TILESIZE),
+							obstaclePos.X * Game1.TileSize,
+							obstaclePos.Y * Game1.TileSize),
 							"");
 				}
 			}
@@ -155,7 +155,7 @@ namespace Final_Game.LevelGen
 			}
 			result = TileMaker.SetTile(
 				(TileType)tileIdInt,
-				new Vector2(col * Game1.TILESIZE, row * Game1.TILESIZE),
+				new Vector2(col * Game1.TileSize, row * Game1.TileSize),
 				orientation);
 			return result;
 		}

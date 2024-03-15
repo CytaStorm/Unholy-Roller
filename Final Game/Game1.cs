@@ -26,7 +26,7 @@ namespace Final_Game
 
         #region Fields
 		// Player
-		private Player _player;
+		public static Player Player { get; private set; }
 
 		// Cursor
 		private Texture2D _cursorTexture;
@@ -87,7 +87,7 @@ namespace Final_Game
 			// TODO: Add your initialization logic here
 			tilemaker = new TileMaker(Content);
 			level = new Level(1, 1, 1);
-			_player = new Player(this, new Vector2(300, 300));
+			Player = new Player(this, new Vector2(300, 300));
 
 
 			// Set default game state
@@ -99,10 +99,10 @@ namespace Final_Game
 		protected override void LoadContent()
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
-			_cursorTexture = Content.Load<Texture2D>("CursorSprite");
+			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 
 			// Create player
-			_player = new Player(this, new Vector2(300, 300));
+			Player = new Player(this, new Vector2(300, 300));
 			
 			// Create custom cursor
 			_gameplayCursor = MouseCursor.FromTexture2D(
@@ -129,7 +129,7 @@ namespace Final_Game
 			{
 				case GameState.Play:
 					if (this.IsActive)
-						_player.Update(gameTime);
+						Player.Update(gameTime);
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
                     break;
@@ -160,7 +160,7 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					_player.Draw(_spriteBatch);
+					Player.Draw(_spriteBatch);
 
 					break;
 			}
@@ -188,7 +188,7 @@ namespace Final_Game
 		}
         private void ResetGame()
         {
-            _player.Reset();
+            Player.Reset();
         }
 
         #region Mouse Wrapper Methods

@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace Final_Game
 {
-	public enum CollisionType
-	{
-		Horizontal, 
-		Vertical
-	}
+    public enum CollisionDirection
+    {
+        Horizontal, 
+        Vertical
+    }
 
-	public interface ICollidable
-	{
-		// Properties
-		Rectangle Hitbox { get; }
-		Vector2 WorldPosition { get; }
-		bool CollisionOn { get; }
+    public interface ICollidable
+    {
+        // Properties
+        Rectangle Hitbox { get; }
+        Vector2 WorldPosition { get; }
+        bool CollisionOn { get; }
 
-		// Methods
-		void OnHitSomething(ICollidable other, CollisionType collision);
-	}
+        // Methods
+        void OnHitSomething(ICollidable other, CollisionDirection collision);
+    }
 }

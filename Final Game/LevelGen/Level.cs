@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Final_Game.LevelGen
 {
-	internal class Level
+	public class Level
 	{
 		#region Fields
 		// <summary>
@@ -46,18 +46,14 @@ namespace Final_Game.LevelGen
 				new Point(startPoint.X, startPoint.Y));
 
 			_rooms.Add(Map[startPoint.X, startPoint.Y]);
-
-			Debug.WriteLine($"Row {startPoint.X}, Column {startPoint.Y}");
-
-			StartRoom = Map[startPoint.X, startPoint.Y];
+			StartRoom = Map[startPoint.X, startPoint.X];
 			CurrentRoom = StartRoom;
 
 			//Expand rooms.
 			for (int i = 1; i < size; i++)
 			{
-				//PrintLevel();
+				PrintLevel();
 				ExpandLevel(_rooms);
-				//Debug.WriteLine("-----------------");
 			}
 
 			//Create connections.
@@ -91,8 +87,17 @@ namespace Final_Game.LevelGen
 			//Pick random room. Add branch multiplier and clamp to increase
 			//chance of expanding on most recently expanded room.
 			int roomToExpandIndex = _random.Next(roomsCopy.Count + branchMultiplier);
-			roomToExpandIndex = Math.Clamp(roomToExpandIndex, 0, roomsCopy.Count - 1);
+			Math.Clamp(roomToExpandIndex, 0, roomsCopy.Count - 1);
 
+			//If picked the duplicate room added in line 59, decrement
+			//to ensure that room can be selected from 
+			//_rooms. This is because we need the to access
+			//the original room's data, not the copy of it
+			//in roomsCopy.
+			if (roomToExpandIndex == roomsCopy.Count - 1)
+			{
+				for (int i = 0; i < branchMultiplier; i++) roomToExpandIndex--;
+			}
 			//Debug.WriteLine("Possible rooms to expand: " + roomsCopy.Count);
 			//Debug.WriteLine("Index of room to expand: " + roomToExpandIndex);
 
@@ -138,7 +143,7 @@ namespace Final_Game.LevelGen
 			}
 
 			//Hit dead end.
-			//Remove dead end from recursion.
+			//Remove dead end from resursion.
 			roomsCopy.RemoveAt(roomToExpandIndex);
 
 			ExpandLevel(roomsCopy);

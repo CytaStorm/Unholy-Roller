@@ -24,7 +24,7 @@ namespace Final_Game
 		private SpriteBatch _spriteBatch;
 		private Level level;
 
-        #region Fields
+		#region Fields
 		// Player
 		public static Player Player { get; private set; }
 
@@ -35,40 +35,40 @@ namespace Final_Game
 		private UI _ui;
 
 		// Mouse
-        private MouseCursor _gameplayCursor;
-        private MouseCursor _menuCursor;
+		private MouseCursor _gameplayCursor;
+		private MouseCursor _menuCursor;
 
 		// Screen
-        public static int WindowWidth = 1920;
-        public static int WindowHeight = 1080;
-        #endregion
+		public static int WindowWidth = 1920;
+		public static int WindowHeight = 1080;
+		#endregion
 
-        #region Properties
+		#region Properties
 		// Screen
-        public static Rectangle ScreenBounds => 
+		public static Rectangle ScreenBounds => 
 			new Rectangle(0, 0, WindowWidth, WindowHeight);
 		public static Vector2 ScreenCenter => 
 			new Vector2(WindowWidth / 2, WindowHeight / 2);
 
-        // Mouse
-        public static MouseState CurMouse { get; private set; }
-        public static MouseState PrevMouse { get; private set; }
-        public static bool MouseIsOnScreen => 
+		// Mouse
+		public static MouseState CurMouse { get; private set; }
+		public static MouseState PrevMouse { get; private set; }
+		public static bool MouseIsOnScreen => 
 			ScreenBounds.Contains(CurMouse.Position);
 
-        // Keyboard
-        public static KeyboardState CurKB { get; private set; }
-        public static KeyboardState PrevKB { get; private set; }
+		// Keyboard
+		public static KeyboardState CurKB { get; private set; }
+		public static KeyboardState PrevKB { get; private set; }
 
 		// Environment
-        public static int TileSize { get; private set; } = 100;
+		public static int TileSize { get; private set; } = 100;
 
 		// Game FSM
-        public static GameState State { get; private set; }
+		public static GameState State { get; private set; }
 
 		private static TileMaker tilemaker;
 
-        #endregion
+		#endregion
 
 		public Game1()
 		{
@@ -112,11 +112,11 @@ namespace Final_Game
 			_menuCursor = MouseCursor.Arrow;
 
 			// Create UI Manager
-            _ui = new UI(this, _spriteBatch);
+			_ui = new UI(this, _spriteBatch);
 
 			// Hook Up Buttons
 			SubscribeToButtons();
-        }
+		}
 
 		protected override void Update(GameTime gameTime)
 		{
@@ -132,13 +132,13 @@ namespace Final_Game
 						Player.Update(gameTime);
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
-                    break;
+					break;
 
 				case GameState.Pause:
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(false);
 					break;
-            }
+			}
 
 			_ui.Update(gameTime);
 
@@ -186,13 +186,13 @@ namespace Final_Game
 				Mouse.SetCursor(_gameplayCursor);
 			}
 		}
-        private void ResetGame()
-        {
-            Player.Reset();
-        }
+		private void ResetGame()
+		{
+			Player.Reset();
+		}
 
-        #region Mouse Wrapper Methods
-        public static bool IsMouseLeftClicked()
+		#region Mouse Wrapper Methods
+		public static bool IsMouseLeftClicked()
 		{
 			return
 				MouseIsOnScreen && 
@@ -238,18 +238,18 @@ namespace Final_Game
 					return false;
 			}
 		}
-        #endregion
+		#endregion
 
-        #region Keyboard Wrapper Methods
+		#region Keyboard Wrapper Methods
 
 		public static bool SingleKeyPress(Keys k)
 		{
 			return CurKB.IsKeyDown(k) && PrevKB.IsKeyUp(k);
 		}
 
-        #endregion
+		#endregion
 
-        #region Button Methods
+		#region Button Methods
 		
 		public void SubscribeToButtons()
 		{
@@ -269,8 +269,8 @@ namespace Final_Game
 		private void ResumeGame()
 		{
 			State = GameState.Play;
-            Mouse.SetCursor(_gameplayCursor);
-        }
+			Mouse.SetCursor(_gameplayCursor);
+		}
 
 		private void ReturnToMainMenu()
 		{
@@ -285,6 +285,6 @@ namespace Final_Game
 			Exit();
 		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

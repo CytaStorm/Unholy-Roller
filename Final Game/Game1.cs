@@ -86,7 +86,7 @@ namespace Final_Game
 		{
 			// TODO: Add your initialization logic here
 			tilemaker = new TileMaker(Content);
-			level = new Level(1, 1, 1);
+			level = new Level(10, 10, 25);
 			Player = new Player(this, new Vector2(300, 300));
 
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
@@ -47,6 +48,12 @@ namespace Final_Game.LevelGen
 		public List<Tile> Doors { get; private set; } = new List<Tile>();
 
 		public List<Tile> Spawners { get; private set; } = new List<Tile>();
+
+		/// <summary>
+		/// Does the room have any enemies?
+		/// </summary>
+		public bool HasEnemies { get; private set; }
+
 		public int RoomFloorLayout;
 		public int EnemyPositionLayout;
 		public int ObstaclePositionLayout;
@@ -198,6 +205,48 @@ namespace Final_Game.LevelGen
 			}
 			return true;
 		}
+
+		/// <summary>
+		/// Creates closed doors based on the Room's connections list.
+		/// </summary>
+		/// <param name="connections">Connections dictionary that specifies 
+		/// which cardinal directions have a door.</param>
+		public void CreateClosedDoors(Dictionary<string, bool> connections)
+		{
+			if (connections["North"])
+			{
+				Layout[0, (Columns - 1) / 2] =
+					TileMaker.SetTile(
+						TileType.ClosedDoor,
+						new Vector2((Columns - 1) / 2 * Game1.TileSize, 0),
+						"U");
+			}
+			if (connections["South"])
+			{
+				Layout[Rows - 1, (Columns - 1) / 2] =
+					TileMaker.SetTile(
+						TileType.ClosedDoor,
+						new Vector2((Columns - 1) / 2 * Game1.TileSize, (Rows - 1) * Game1.TileSize),
+						"B");
+			}
+			if (connections["East"])
+			{
+				Layout[(Rows - 1) / 2, Columns - 1] =
+					TileMaker.SetTile(
+						TileType.ClosedDoor,
+						new Vector2((Columns - 1) * Game1.TileSize, (Rows - 1) / 2 * Game1.TileSize),
+						"R");
+			}
+			if (connections["West"])
+			{
+				Layout[(Rows - 1) / 2, 0] =
+					TileMaker.SetTile(
+						TileType.ClosedDoor,
+						new Vector2(0, (Rows - 1) / 2 * Game1.TileSize),
+						"L");
+			}
+		}
+
 		public void Update(GameTime gameTime)
 		{
 			// TODO: Check for events

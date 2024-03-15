@@ -13,7 +13,9 @@ namespace Final_Game.LevelGen
 		Grass,
 		Wall,
 		Spike,
-		Placeholder
+		Placeholder,
+		ClosedDoor,
+		OpenDoor
 	}
 
 	internal class TileMaker
@@ -30,12 +32,14 @@ namespace Final_Game.LevelGen
 		public TileMaker(ContentManager cm)
 		{
 			// Load all tile spritesheets
-			_tileTextures = new Texture2D[5];
+			_tileTextures = new Texture2D[7];
 			_tileTextures[0] = cm.Load<Texture2D>("Sprites/PlaceholderTile");
 			_tileTextures[1] = cm.Load<Texture2D>("Sprites/PurpleTile");
 			_tileTextures[2] = cm.Load<Texture2D>("Sprites/GutterTileAtlas");
 			_tileTextures[3] = cm.Load<Texture2D>("Sprites/SpikeTile");
 			_tileTextures[4] = cm.Load<Texture2D>("Sprites/WallSheet");
+			_tileTextures[5] = cm.Load<Texture2D>("Sprites/ClosedDoorAtlas");
+			_tileTextures[6] = cm.Load<Texture2D>("Sprites/OpenDoorAtlas");
 		}
 		#endregion
 
@@ -98,6 +102,26 @@ namespace Final_Game.LevelGen
 							Game1.TileSize));
 					break;
 
+				case TileType.ClosedDoor:
+					result.Collidable = true;
+					result.TileSprite = new Sprite(_tileTextures[5], GetOrientationSource(orientation),
+						new Rectangle(
+							(int)position.X,
+							(int)position.Y,
+							Game1.TileSize,
+							Game1.TileSize));
+					break;
+
+				case TileType.OpenDoor:
+					result.Collidable = true;
+					result.TileSprite = new Sprite(_tileTextures[6], GetOrientationSource(orientation),
+						new Rectangle(
+							(int)position.X,
+							(int)position.Y,
+							Game1.TileSize,
+							Game1.TileSize));
+					break;
+					
 				case TileType.Spike:
 					result.Collidable = true;
 

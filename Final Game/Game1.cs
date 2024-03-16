@@ -86,8 +86,10 @@ namespace Final_Game
 		{
 			// TODO: Add your initialization logic here
 			tilemaker = new TileMaker(Content);
-			TestLevel = new Level(1, 1, 1);
-			Player = new Player(this, new Vector2(300, 300));
+			TestLevel = new Level(10, 10, 25);
+			Player = new Player(this, new Vector2(
+				TestLevel.CurrentRoom.RoomFloor.Width / 2, 
+				TestLevel.CurrentRoom.RoomFloor.Height / 2));
 
 
 			// Set default game state
@@ -129,14 +131,22 @@ namespace Final_Game
 			{
 				case GameState.Play:
 					if (this.IsActive)
+					{
 						Player.Update(gameTime);
+						TestLevel.CurrentRoom.Update(gameTime);
+					}
+						
 					if (SingleKeyPress(Keys.Escape))
+					{
 						PauseGame(true);
+					}
                     break;
 
 				case GameState.Pause:
 					if (SingleKeyPress(Keys.Escape))
+					{
 						PauseGame(false);
+					}
 					break;
             }
 

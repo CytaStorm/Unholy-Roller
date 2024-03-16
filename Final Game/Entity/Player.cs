@@ -1,11 +1,13 @@
-﻿using Final_Game.LevelGen;
+using Final_Game.LevelGen;
 using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,7 +62,7 @@ namespace Final_Game.Entity
 			WorldPosition = worldPosition;
 
 			// Set hitbox
-			Hitbox = Image.DestinationRect;
+			Hitbox = new Rectangle(worldPosition.ToPoint(), new Point(Image.DestinationRect.Width, Image.DestinationRect.Height));
 
 			// Set movement vars
 			Speed = 20f;
@@ -120,8 +122,8 @@ namespace Final_Game.Entity
 			}
 		}
 
-        #region Collision Handling Methods
-        public override void OnHitTile(Tile tile, CollisionDirection colDir)
+		#region Collision Handling Methods
+		public override void OnHitTile(Tile tile, CollisionDirection colDir)
 		{
 			switch (tile.Type)
 			{
@@ -130,6 +132,14 @@ namespace Final_Game.Entity
 					TakeDamage(2);
 
 					Image.TintColor = Color.LightGoldenrodYellow;
+					break;
+
+				case TileType.OpenDoor:
+					Debug.WriteLine("HIT OPEN DOOR");
+					TransferRoom(tile);
+					break;
+
+				case TileType.Wall:
 					break;
 			}
 
@@ -149,11 +159,30 @@ namespace Final_Game.Entity
 
 			base.OnHitTile(tile, colDir);
 		}
-        #endregion
 
-        #region Movement Helper Methods
+		private void TransferRoom(Tile tile)
+		{
+			switch (tile.DoorOrientation)
+			{
+				case "U":
+					Game1.TestLevel.CurrentPoint += new Point(-1, 0);
+					break;
+				case "B":
+					Game1.TestLevel.CurrentPoint += new Point(1, 0);
+					break;
+				case "L":
+					Game1.TestLevel.CurrentPoint += new Point(0, -1);
+					break;
+				case "R":
+					Game1.TestLevel.CurrentPoint += new Point(0, 1);
+					break;
+			}
+		}
+		#endregion
 
-        public void MoveWithKeyboard(KeyboardState kb)
+		#region Movement Helper Methods
+
+		public void MoveWithKeyboard(KeyboardState kb)
 		{
 			Velocity = Vector2.Zero;
 

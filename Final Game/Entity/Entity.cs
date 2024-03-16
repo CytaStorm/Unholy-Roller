@@ -1,4 +1,4 @@
-﻿using Final_Game.LevelGen;
+using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;

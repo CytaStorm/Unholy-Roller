@@ -1,3 +1,4 @@
+
 ﻿using Final_Game.Entity;
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
@@ -90,8 +91,10 @@ namespace Final_Game
 		{
 			// TODO: Add your initialization logic here
 			tilemaker = new TileMaker(Content);
-			TestLevel = new Level(1, 1, 1);
-			Player = new Player(this, new Vector2(300, 300));
+			TestLevel = new Level(10, 10, 25);
+			Player = new Player(this, new Vector2(
+				TestLevel.CurrentRoom.RoomFloor.Width / 2, 
+				TestLevel.CurrentRoom.RoomFloor.Height / 2));
 
 
 			// Set default game state
@@ -135,10 +138,13 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					if (this.IsActive)
+          if (this.IsActive)
+					{
 						Player.Update(gameTime);
-
-					EManager.Update(gameTime);
+						TestLevel.CurrentRoom.Update(gameTime);
+            
+            EManager.Update(gameTime);
+					}
 
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
@@ -303,14 +309,13 @@ namespace Final_Game
 
 		private void DrawDebug()
 		{
-            // Debug Drawing
-            ShapeBatch.Begin(GraphicsDevice);
+        // Debug Drawing
+        ShapeBatch.Begin(GraphicsDevice);
 
-            Player.DrawGizmos();
+        Player.DrawGizmos();
 
-            EManager.DrawGizmos();
+        EManager.DrawGizmos();
 
-            ShapeBatch.End();
-        }
+        ShapeBatch.End();
     }
 }

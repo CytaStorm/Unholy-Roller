@@ -1,10 +1,11 @@
-﻿using Final_Game.LevelGen;
+using Final_Game.LevelGen;
 using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -60,11 +61,8 @@ namespace Final_Game.Entity
 			WorldPosition = worldPosition;
 
 			// Set hitbox
-			Hitbox = new Rectangle(
-				(int)WorldPosition.X,
-                (int)WorldPosition.Y,
-				Image.DestinationRect.Width,
-				Image.DestinationRect.Height);
+
+			Hitbox = new Rectangle(worldPosition.ToPoint(), new Point(Image.DestinationRect.Width, Image.DestinationRect.Height));
 
 			// Set movement vars
 			Speed = 20f;
@@ -129,8 +127,8 @@ namespace Final_Game.Entity
 			}
 		}
 
-        #region Collision Handling Methods
-        public override void OnHitTile(Tile tile, CollisionDirection colDir)
+		#region Collision Handling Methods
+		public override void OnHitTile(Tile tile, CollisionDirection colDir)
 		{
 			switch (tile.Type)
 			{
@@ -139,6 +137,14 @@ namespace Final_Game.Entity
 					TakeDamage(2);
 
 					Image.TintColor = Color.LightGoldenrodYellow;
+					break;
+
+				case TileType.OpenDoor:
+					Debug.WriteLine("HIT OPEN DOOR");
+					TransferRoom(tile);
+					break;
+
+				case TileType.Wall:
 					break;
 			}
 
@@ -159,59 +165,78 @@ namespace Final_Game.Entity
 			base.OnHitTile(tile, colDir);
 		}
 
-        public override void OnHitEntity(Entity entity, CollisionDirection colDir)
+    public override void OnHitEntity(Entity entity, CollisionDirection colDir)
+    {
+        switch (entity.Type)
         {
-            switch (entity.Type)
-            {
-                case EntityType.Enemy:
-                    if (State != PlayerState.Walking)
+            case EntityType.Enemy:
+                if (State != PlayerState.Walking)
+                {
+                    if (!entity.IsInvincible)
                     {
-                        if (!entity.IsInvincible)
-                        {
-                            // Speed up
-                            Vector2 acc = Velocity;
-                            acc.Normalize();
-                            acc *= 0.05f;
-                            Accelerate(acc);
+                        // Speed up
+                        Vector2 acc = Velocity;
+                        acc.Normalize();
+                        acc *= 0.05f;
+                        Accelerate(acc);
 
-                            // Get an extra redirect
-                            if (_numRedirects < _maxRedirects)
-                                _numRedirects++;
-                        }
-
-                        entity.TakeDamage(Damage);
+                        // Get an extra redirect
+                        if (_numRedirects < _maxRedirects)
+                            _numRedirects++;
                     }
-                    else
-                    {
-                        // Player gets knocked back if standing on top of enemy
-                        Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
-                        distToEnemy.Normalize();
-                        distToEnemy *= -5;
 
-                        this.TakeDamage(1);
+                    entity.TakeDamage(Damage);
+                }
+                else
+                {
+                    // Player gets knocked back if standing on top of enemy
+                    Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
+                    distToEnemy.Normalize();
+                    distToEnemy *= -5;
 
-                        Velocity = distToEnemy;
-                        State = PlayerState.Rolling;
-                    }
-                    break;
-            }
+                    this.TakeDamage(1);
+
+                    Velocity = distToEnemy;
+                    State = PlayerState.Rolling;
+                }
+                break;
         }
+    }
 
-        private void HandleEnemyCollisions()
+    private void HandleEnemyCollisions()
+    {
+        for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
         {
-            for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
-            {
-                Enemy curEnemy = Game1.EManager.Enemies[i];
+            Enemy curEnemy = Game1.EManager.Enemies[i];
 
-				CollisionChecker.CheckEntityCollision(this, curEnemy);
-            }
+    CollisionChecker.CheckEntityCollision(this, curEnemy);
         }
+    }
 
-        #endregion
+    #endregion
 
-        #region Movement Helper Methods
+    #region Movement Helper Methods
 
-        public void MoveWithKeyboard(KeyboardState kb)
+		private void TransferRoom(Tile tile)
+		{
+			switch (tile.DoorOrientation)
+			{
+				case "U":
+					Game1.TestLevel.CurrentPoint += new Point(-1, 0);
+					break;
+				case "B":
+					Game1.TestLevel.CurrentPoint += new Point(1, 0);
+					break;
+				case "L":
+					Game1.TestLevel.CurrentPoint += new Point(0, -1);
+					break;
+				case "R":
+					Game1.TestLevel.CurrentPoint += new Point(0, 1);
+					break;
+			}
+		}
+
+		public void MoveWithKeyboard(KeyboardState kb)
 		{
 			Velocity = Vector2.Zero;
 
@@ -344,14 +369,15 @@ namespace Final_Game.Entity
 			State = PlayerState.Rolling;
 		}
 
-        public void Ricochet(Vector2 newDirection)
-        {
-            Velocity = newDirection;
 
-            State = PlayerState.Rolling;
-        }
+    public void Ricochet(Vector2 newDirection)
+    {
+        Velocity = newDirection;
 
-        private void ApplyScreenBoundRicochet()
+        State = PlayerState.Rolling;
+    }
+
+    private void ApplyScreenBoundRicochet()
 		{
 			if (WorldPosition.X + Image.DestinationRect.Width > Game1.WindowWidth ||
 				WorldPosition.X <= 0)
@@ -436,9 +462,9 @@ namespace Final_Game.Entity
 			//    Color.White);
 		}
 
-		public void DrawGizmos()
+		public override void DrawGizmos()
 		{
-            Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
+      Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
 
 			Vector2 hitboxDistFromPlayer =
 				new Vector2(
@@ -452,8 +478,8 @@ namespace Final_Game.Entity
 					Hitbox.Width,
 					Hitbox.Height);
 
-            ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
-        }
+      ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
+    }
 
 		#endregion
 

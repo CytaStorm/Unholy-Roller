@@ -10,6 +10,8 @@ namespace Final_Game.LevelGen
 	{
 
 		#region Fields
+		public bool Cleared { get; private set; }
+		private bool _firstClear = true;
 		/// <summary>
 		/// Top left corner of the room.
 		/// </summary>
@@ -74,39 +76,6 @@ namespace Final_Game.LevelGen
 			};
 			RoomFloor = new Tileset();
 		}
-
-		///// <summary>
-		///// Room Constructor with specified room layout
-		///// </summary>
-		///// <param name="mapPosition">Position of room on map.</param>
-		///// <param name="roomFloorFilepath">File path to room layout file.</param>
-		///// <param name="enemyPosFilepath">File path to enemy position layout file.</param>
-		///// <param name="obstaclePosFilepath">File path to obstacle position layout file.</param>
-		///// <param name="origin">Origin of the room.</param>
-		//public Room(Point mapPosition, int roomFloorLayout, int enemyPosLayout,
-		//	int obstaclePosLayout)
-		//{
-		//	//Set up room data.
-		//	MapPosition = mapPosition;
-		//	PossibleConnections = new Dictionary<string, bool>()
-		//	{
-		//		{ "North", X != 0 && Level.Map[X - 1, Y] == null},
-		//		{ "South", X != Level.Map.GetLength(0) - 1 && Level.Map[X + 1, Y] == null},
-		//		{ "East", Y != Level.Map.GetLength(1) - 1 && Level.Map[X, Y + 1] == null},
-		//		{ "West",  Y != 0 && Level.Map[X, Y - 1] == null}
-		//	};
-
-		//	Connections = new Dictionary<string, bool>()
-		//	{
-		//		{ "North", false },
-		//		{ "South", false },
-		//		{ "East", false },
-		//		{ "West", false }
-		//	};
-
-		//	RoomFloor = new Tileset();
-
-		//}
 		#endregion
 
 		#region Method(s)
@@ -145,10 +114,24 @@ namespace Final_Game.LevelGen
 			{
 				Connections["West"] = Level.Map[X, Y - 1] != null;
 			}
+			RoomFloor.CreateClosedDoors(Connections);
 		}
 
-		public void Update(GameTime gameTime){
+		public void CheckCleared()
+		{
+			Cleared = RoomFloor.EnemyCount < 1;
+			//Firstclear added so room only adds open doors once.
+			if (Cleared && _firstClear)
+			{
+				_firstClear = false;
+				//Method to create open doors
+				RoomFloor.CreateOpenDoors(Connections);
+			}
+		}
 
+		public void Update(GameTime gameTime)
+		{
+			CheckCleared();
 		}
 
 		public void Draw(SpriteBatch sb)

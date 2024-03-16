@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Final_Game.Entity
 {
@@ -33,7 +34,6 @@ namespace Final_Game.Entity
 		#endregion
 
 		#region Properties
-		public Sprite Image { get; private set; }
 		public PlayerState State { get; private set; }
 		public Vector2 ScreenPosition { get; private set; }
 		#endregion
@@ -60,7 +60,11 @@ namespace Final_Game.Entity
 			WorldPosition = worldPosition;
 
 			// Set hitbox
-			Hitbox = Image.DestinationRect;
+			Hitbox = new Rectangle(
+				(int)WorldPosition.X,
+                (int)WorldPosition.Y,
+				Image.DestinationRect.Width,
+				Image.DestinationRect.Height);
 
 			// Set movement vars
 			Speed = 20f;
@@ -74,6 +78,9 @@ namespace Final_Game.Entity
 			// Give launches
 			_maxRedirects = 3;
 			_numRedirects = _maxRedirects + 1;
+
+			// Set attack vars
+			Damage = 1;
 		}
 
 		// Methods
@@ -106,7 +113,9 @@ namespace Final_Game.Entity
 
 			CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.RoomFloor);
 
-		   Move(Velocity);
+			HandleEnemyCollisions();
+
+		    Move(Velocity);
 		}
 		public override void Draw(SpriteBatch sb)
 		{
@@ -149,6 +158,55 @@ namespace Final_Game.Entity
 
 			base.OnHitTile(tile, colDir);
 		}
+
+        public override void OnHitEntity(Entity entity, CollisionDirection colDir)
+        {
+            switch (entity.Type)
+            {
+                case EntityType.Enemy:
+                    if (State != PlayerState.Walking)
+                    {
+                        if (!entity.IsInvincible)
+                        {
+                            // Speed up
+                            Vector2 acc = Velocity;
+                            acc.Normalize();
+                            acc *= 0.05f;
+                            Accelerate(acc);
+
+                            // Get an extra redirect
+                            if (_numRedirects < _maxRedirects)
+                                _numRedirects++;
+                        }
+
+                        entity.TakeDamage(Damage);
+                    }
+                    else
+                    {
+                        // Player gets knocked back if standing on top of enemy
+                        Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
+                        distToEnemy.Normalize();
+                        distToEnemy *= -5;
+
+                        this.TakeDamage(1);
+
+                        Velocity = distToEnemy;
+                        State = PlayerState.Rolling;
+                    }
+                    break;
+            }
+        }
+
+        private void HandleEnemyCollisions()
+        {
+            for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
+            {
+                Enemy curEnemy = Game1.EManager.Enemies[i];
+
+				CollisionChecker.CheckEntityCollision(this, curEnemy);
+            }
+        }
+
         #endregion
 
         #region Movement Helper Methods
@@ -286,7 +344,14 @@ namespace Final_Game.Entity
 			State = PlayerState.Rolling;
 		}
 
-		private void ApplyScreenBoundRicochet()
+        public void Ricochet(Vector2 newDirection)
+        {
+            Velocity = newDirection;
+
+            State = PlayerState.Rolling;
+        }
+
+        private void ApplyScreenBoundRicochet()
 		{
 			if (WorldPosition.X + Image.DestinationRect.Width > Game1.WindowWidth ||
 				WorldPosition.X <= 0)
@@ -370,6 +435,26 @@ namespace Final_Game.Entity
 			//    textPos,
 			//    Color.White);
 		}
+
+		public void DrawGizmos()
+		{
+            Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
+
+			Vector2 hitboxDistFromPlayer =
+				new Vector2(
+					WorldPosition.X - Hitbox.X,
+					WorldPosition.Y - Hitbox.Y);
+
+			Rectangle hitboxInScreenSpace =
+				new Rectangle(
+					(int)(ScreenPosition.X + hitboxDistFromPlayer.X),
+					(int)(ScreenPosition.Y + hitboxDistFromPlayer.Y),
+					Hitbox.Width,
+					Hitbox.Height);
+
+            ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
+        }
+
 		#endregion
 
 		public void Reset()

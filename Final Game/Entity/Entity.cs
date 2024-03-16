@@ -6,9 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Final_Game.Entity
 {
+    public enum EntityType
+    {
+        Player,
+        Enemy
+    }
+
     public abstract class Entity : IMovable, IDamageable, ICollidable
     {
         #region Move Properties
@@ -19,11 +26,17 @@ namespace Final_Game.Entity
         
         #endregion
 
-        #region Damage Properties
+        #region Health Properties
+
+        /// <summary>
+        /// Gets whether entity's health is greater than zero
+        /// </summary>
+        public bool Alive => CurHealth > 0;
         public int MaxHealth { get; protected set; }
         public int CurHealth { get; protected set; }
         public double InvDuration { get; protected set; }
         public double InvTimer { get; protected set; }
+        public bool IsInvincible => InvTimer > 0;
         #endregion
 
         #region Collision Properties
@@ -31,12 +44,33 @@ namespace Final_Game.Entity
         public bool CollisionOn { get; protected set; }
         #endregion
 
+        #region Misc Properties
+        /// <summary>
+        /// Gets the center position of the entity's image
+        /// in world space
+        /// </summary>
+        public Vector2 CenterPosition => new Vector2(
+            WorldPosition.X + Image.DestinationRect.Width / 2f,
+            WorldPosition.Y + Image.DestinationRect.Height / 2f);
 
+        public Sprite Image { get; protected set; }
 
+        public EntityType Type { get; protected set; }
+
+        public int Damage { get; protected set; }
+
+        #endregion
+        
         public virtual void Update(GameTime gameTime)
         {
 
         }
+        public virtual void Draw(SpriteBatch sb)
+        {
+
+        }
+
+        #region Movement Methods
 
         /// <summary>
         /// Moves the entity in worldspace by their velocity
@@ -83,10 +117,14 @@ namespace Final_Game.Entity
                 Hitbox.Height);
 
         }
+        #endregion
 
+        #region Collision Response Methods
         public virtual void OnHitSomething(ICollidable other, CollisionDirection collision) { }
-
+        
         public virtual void OnHitTile(Tile tile, CollisionDirection collision) { }
+        
+        public virtual void OnHitEntity(Entity entity, CollisionDirection collision) { }
 
         /// <summary>
         /// Moves entity to the edge of the tile that they hit
@@ -127,9 +165,34 @@ namespace Final_Game.Entity
             }
         }
 
+        #endregion
+
+        #region Health & Damage Methods
+        protected virtual void TickInvincibility(GameTime gameTime)
+        {
+            // Update invincibility time
+            if (InvTimer > 0)
+            {
+                InvTimer -= gameTime.ElapsedGameTime.TotalSeconds;
+            }
+        }
+
         public virtual void TakeDamage(int amount)
         {
+            // Take damage if not invincible
+            if (InvTimer <= 0)
+            {
+                CurHealth -= amount;
 
+                // Temporarily become invincible
+                InvTimer = InvDuration;
+
+                // Handle low health
+                if (CurHealth <= 0)
+                {
+                    Die();
+                }
+            }
         }
 
         public virtual void Die()
@@ -137,10 +200,13 @@ namespace Final_Game.Entity
 
         }
 
-        public virtual void Draw(SpriteBatch sb)
-        {
+        #endregion
 
-        }
+        #region Drawing Helper Methods
+
+        public virtual void DrawGizmos() { }
+
+        #endregion
 
     }
 }

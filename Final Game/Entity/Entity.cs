@@ -60,15 +60,9 @@ namespace Final_Game.Entity
         public int Damage { get; protected set; }
 
         #endregion
-        
-        public virtual void Update(GameTime gameTime)
-        {
 
-        }
-        public virtual void Draw(SpriteBatch sb)
-        {
-
-        }
+        public abstract void Update(GameTime gameTime);
+        public abstract void Draw(SpriteBatch sb);
 
         #region Movement Methods
 
@@ -96,8 +90,8 @@ namespace Final_Game.Entity
         }
 
         /// <summary>
-        /// Moves the entity in worldspace by their velocity
-        /// and moves their hitbox by velocity.
+        /// Moves the entity in worldspace by the specified velocity
+        /// and moves their hitbox by that velocity.
         /// ALWAYS CALL THIS TO GET PROPER COLLISIONS
         /// </summary>
         public virtual void Move(Vector2 velocity)
@@ -122,25 +116,38 @@ namespace Final_Game.Entity
         #region Collision Response Methods
         public virtual void OnHitSomething(ICollidable other, CollisionDirection collision) { }
         
+        /// <summary>
+        /// Handles reactions to a tile collision
+        /// </summary>
+        /// <param name="tile"> the tile that was hit </param>
+        /// <param name="collision"> the direction of the collision </param>
         public virtual void OnHitTile(Tile tile, CollisionDirection collision) { }
         
+        /// <summary>
+        /// Handles reactions to an entity collision
+        /// </summary>
+        /// <param name="entity"> the entity that was hit </param>
+        /// <param name="collision"> the direction of the collision </param>
         public virtual void OnHitEntity(Entity entity, CollisionDirection collision) { }
 
         /// <summary>
-        /// Moves entity to the edge of the tile that they hit
+        /// Moves entity to the specific edge of the tile that they hit
         /// </summary>
         /// <param name="tile"></param>
         /// <param name="colDir"></param>
-        public void PlaceOnHitSurface(Tile tile, CollisionDirection colDir)
+        public void PlaceOnHitEdge(Tile tile, CollisionDirection colDir)
         {
             if (colDir == CollisionDirection.Horizontal)
             {
+                // Moving Right = Left edge collision
                 if (Velocity.X > 0)
                 {
                     Vector2 whereItShouldBe =
                         new Vector2(tile.WorldPosition.X - Hitbox.Width, WorldPosition.Y);
                     Move(whereItShouldBe - WorldPosition);
                 }
+
+                // Moving Left = Right edge collision
                 else
                 {
                     Vector2 whereItShouldBe =
@@ -150,12 +157,15 @@ namespace Final_Game.Entity
             }
             else if (colDir == CollisionDirection.Vertical)
             {
+                // Moving Down = Top edge collision
                 if (Velocity.Y > 0)
                 {
                     Vector2 whereItShouldBe =
                         new Vector2(WorldPosition.X, tile.WorldPosition.Y - Hitbox.Height);
                     Move(whereItShouldBe - WorldPosition);
                 }
+
+                // Moving Up = Bottom edge collision
                 else
                 {
                     Vector2 whereItShouldBe =
@@ -168,15 +178,24 @@ namespace Final_Game.Entity
         #endregion
 
         #region Health & Damage Methods
+
+        /// <summary>
+        /// Decreases invincibility time by seconds passed since last frame
+        /// </summary>
+        /// <param name="gameTime"></param>
         protected virtual void TickInvincibility(GameTime gameTime)
         {
             // Update invincibility time
             if (InvTimer > 0)
             {
-                InvTimer -= gameTime.ElapsedGameTime.TotalSeconds;
+                InvTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
             }
         }
 
+        /// <summary>
+        /// Subtracts an amount of damage from the entity's health
+        /// </summary>
+        /// <param name="amount"> damage to deal </param>
         public virtual void TakeDamage(int amount)
         {
             // Take damage if not invincible
@@ -195,15 +214,16 @@ namespace Final_Game.Entity
             }
         }
 
-        public virtual void Die()
-        {
 
-        }
+        public virtual void Die() { }
 
         #endregion
 
         #region Drawing Helper Methods
 
+        /// <summary>
+        /// Draws entity's debug information (e.g. Hitbox)
+        /// </summary>
         public virtual void DrawGizmos() { }
 
         #endregion

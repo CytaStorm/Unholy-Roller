@@ -89,7 +89,6 @@ namespace Final_Game
 
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
 			tilemaker = new TileMaker(Content);
 			TestLevel = new Level(10, 10, 25);
 			Player = new Player(this, new Vector2(
@@ -143,7 +142,7 @@ namespace Final_Game
 						Player.Update(gameTime);
 						TestLevel.CurrentRoom.Update(gameTime);
             
-            EManager.Update(gameTime);
+						EManager.Update(gameTime);
 					}
 
 					if (SingleKeyPress(Keys.Escape))

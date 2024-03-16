@@ -10,11 +10,13 @@ namespace Final_Game.Entity
 {
     public class BasicPuncher : Enemy
     {
+        // Constructors
         public BasicPuncher(Game1 gm, Vector2 position) 
             : base(gm, position)
         {
             // Set Enemy Image
-            Texture2D puncherSpritesheet = gm.Content.Load<Texture2D>("Sprites/BasicEnemy");
+            Texture2D puncherSpritesheet = 
+                gm.Content.Load<Texture2D>("Sprites/BasicEnemy");
 
             Image = new Sprite(
                 puncherSpritesheet,
@@ -75,6 +77,8 @@ namespace Final_Game.Entity
             _walkAnimSecondsPerFrame = 0.12;
         }
 
+        // Methods
+
         public override void Update(GameTime gameTime)
         {
             TickInvincibility(gameTime);
@@ -105,7 +109,7 @@ namespace Final_Game.Entity
                     if (_attackCooldownTimer > 0)
                     {
                         _attackCooldownTimer -=
-                            gameTime.ElapsedGameTime.TotalSeconds;
+                            gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
                     }
                     else
                     {
@@ -124,7 +128,7 @@ namespace Final_Game.Entity
 
                         // Charge attack
                         _attackWindupTimer -=
-                            gameTime.ElapsedGameTime.TotalSeconds;
+                            gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 
                         // If not currently attacking or winding up
                         // Use attack 
@@ -136,7 +140,7 @@ namespace Final_Game.Entity
                         {
                             Attack();
                             _attackDurationTimer -=
-                                gameTime.ElapsedGameTime.TotalSeconds;
+                                gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 
                             if (_attackDurationTimer <= 0)
                             {
@@ -152,7 +156,7 @@ namespace Final_Game.Entity
 
             CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.RoomFloor);
 
-            Move(Velocity);
+            Move(Velocity * Player.BulletTimeMultiplier);
 
             // Update animations
 
@@ -331,7 +335,8 @@ namespace Final_Game.Entity
         private void UpdateWalkAnimation(GameTime gameTime)
         {
             // Add to the time counter (need TOTALSECONDS here)
-            _walkAnimTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
+            _walkAnimTimeCounter += gameTime.ElapsedGameTime.TotalSeconds 
+                * Player.BulletTimeMultiplier;
 
             // Has enough time gone by to actually flip frames?
             if (_walkAnimTimeCounter >= _walkAnimSecondsPerFrame)

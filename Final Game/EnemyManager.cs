@@ -35,12 +35,6 @@ namespace Final_Game
             _gloveImage = gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
 
             Enemies = new List<Enemy>();
-
-            // Spawn test enemies
-            Enemy addition = new BasicPuncher(
-                gm, new Vector2(300, 300));
-
-            Enemies.Add(addition);
         }
 
         // Methods

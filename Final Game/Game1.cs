@@ -305,17 +305,18 @@ namespace Final_Game
 			Exit();
 		}
 
-        #endregion
+		#endregion
 
 		private void DrawDebug()
 		{
-        // Debug Drawing
-        ShapeBatch.Begin(GraphicsDevice);
+			// Debug Drawing
+			ShapeBatch.Begin(GraphicsDevice);
 
-        Player.DrawGizmos();
+			Player.DrawGizmos();
 
-        EManager.DrawGizmos();
+			EManager.DrawGizmos();
 
-        ShapeBatch.End();
+			ShapeBatch.End();
+		}
     }
 }

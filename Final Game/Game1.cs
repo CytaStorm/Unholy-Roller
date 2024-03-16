@@ -129,14 +129,22 @@ namespace Final_Game
 			{
 				case GameState.Play:
 					if (this.IsActive)
+					{
 						Player.Update(gameTime);
+						TestLevel.CurrentRoom.Update(gameTime);
+					}
+						
 					if (SingleKeyPress(Keys.Escape))
+					{
 						PauseGame(true);
+					}
                     break;
 
 				case GameState.Pause:
 					if (SingleKeyPress(Keys.Escape))
+					{
 						PauseGame(false);
+					}
 					break;
             }
 

@@ -10,7 +10,7 @@ namespace Final_Game.LevelGen
 	{
 
 		#region Fields
-		public bool Cleared { get; private set; }
+		public bool Cleared { get; private set; } = true;
 		/// <summary>
 		/// Top left corner of the room.
 		/// </summary>
@@ -74,9 +74,6 @@ namespace Final_Game.LevelGen
 				{ "West", false }
 			};
 			RoomFloor = new Tileset();
-			//Add condition to check for enemies, if there are enemies, make cleared false.
-
-			Cleared = true;
 		}
 		#endregion
 
@@ -119,12 +116,19 @@ namespace Final_Game.LevelGen
 			RoomFloor.CreateClosedDoors(Connections);
 		}
 
-		public void Update(GameTime gameTime){
-		//	if (Cleared)
-		//	{
-		//		RoomFloor.CreateDoors(Connections);
-		//	}
+		public void CheckCleared()
+		{
+			Cleared = RoomFloor.EnemyCount < 1;
+			if (Cleared)
+			{
+				//Method to create open doors
+				RoomFloor.CreateOpenDoors(Connections);
+			}
+		}
 
+		public void Update(GameTime gameTime)
+		{
+			CheckCleared();
 		}
 
 		public void Draw(SpriteBatch sb)

@@ -50,9 +50,9 @@ namespace Final_Game.LevelGen
 		public List<Tile> Spawners { get; private set; } = new List<Tile>();
 
 		/// <summary>
-		/// Does the room have any enemies?
+		/// How many enemies are left in the room.
 		/// </summary>
-		public bool HasEnemies { get; private set; }
+		public int EnemyCount { get; private set; } = 0;
 
 		public int RoomFloorLayout;
 		public int EnemyPositionLayout;
@@ -114,7 +114,11 @@ namespace Final_Game.LevelGen
 
 				if (ObstaclePos.Count == 0 || EnemyPos.Count == 0)
 				{
-					continue;
+					//invalidEnemyObstacleCombo = false;
+					//obstaclesFit = true;
+					//enemiesFit = true;
+					//continue;
+					break;
 				}
 				invalidEnemyObstacleCombo = EnsureNoOverlap(EnemyPos, ObstaclePos);
 				obstaclesFit = PositionsFit(ObstaclePos);
@@ -129,6 +133,7 @@ namespace Final_Game.LevelGen
 				{
 					Layout[enemyPos.X, enemyPos.Y].IsEnemySpawner = true;
 					Spawners.Add(Layout[enemyPos.X, enemyPos.Y]);
+					EnemyCount++;
 				}
 			}
 
@@ -170,9 +175,9 @@ namespace Final_Game.LevelGen
 		private string selectLine(string[] pool, ref int i)
 		{
 			string result;
-			i = _random.Next(pool.Length);
 			do
 			{
+				i = _random.Next(pool.Length);
 				result = pool[i];
 			} while (result.StartsWith("//"));
 
@@ -246,6 +251,49 @@ namespace Final_Game.LevelGen
 						"L");
 			}
 		}
+
+		/// <summary>
+		/// Creates open doors based on existing closed doors.
+		/// </summary>
+		public void CreateOpenDoors(Dictionary<string, bool> connections)
+		{
+			if (connections["North"])
+			{
+				Layout[0, (Columns - 1) / 2] =
+					TileMaker.SetTile(
+						TileType.OpenDoor,
+						new Vector2((Columns - 1) / 2 * Game1.TileSize, 0),
+						"U");
+
+				Debug.WriteLine("here");
+			}
+			if (connections["South"])
+			{
+				Layout[Rows - 1, (Columns - 1) / 2] =
+					TileMaker.SetTile(
+						TileType.OpenDoor,
+						new Vector2((Columns - 1) / 2 * Game1.TileSize, (Rows - 1) * Game1.TileSize),
+						"B");
+			}
+			if (connections["East"])
+			{
+				Layout[(Rows - 1) / 2, Columns - 1] =
+					TileMaker.SetTile(
+						TileType.OpenDoor,
+						new Vector2((Columns - 1) * Game1.TileSize, (Rows - 1) / 2 * Game1.TileSize),
+						"R");
+			}
+			if (connections["West"])
+			{
+				Layout[(Rows - 1) / 2, 0] =
+					TileMaker.SetTile(
+						TileType.OpenDoor,
+						new Vector2(0, (Rows - 1) / 2 * Game1.TileSize),
+						"L");
+			}
+		}
+
+		
 
 		public void Update(GameTime gameTime)
 		{

@@ -25,11 +25,22 @@ namespace Final_Game.LevelGen
 		private static Random _random = new Random();
 
 		/// <summary>
-		/// Room to start in.
+		/// Position on map of starting room.
 		/// </summary>
-		public Room StartRoom;
+		public Point StartPoint;
+		/// <summary>
+		/// Position on map of room player is currently in.
+		/// </summary>
+		public Point CurrentPoint;
 
-		public Room CurrentRoom;
+		/// <summary>
+		/// Room player started in.
+		/// </summary>
+		public Room CurrentRoom { get { return Map[CurrentPoint.X, CurrentPoint.Y]; } }
+		/// <summary>
+		/// Room player is in.
+		/// </summary>
+		public Room StartRoom { get { return Map[StartPoint.X, StartPoint.Y]; } }
 		#endregion
 
 		#region Constructor(s)
@@ -38,16 +49,16 @@ namespace Final_Game.LevelGen
 			Map = new Room[height, width];
 
 			//Create first room (randomly placed)
-			Point startPoint = 
+			Point StartPoint = 
 				new Point(
 					_random.Next(Map.GetLength(0)),
 					_random.Next(Map.GetLength(1)));
-			Map[startPoint.X, startPoint.Y] = new Room(
-				new Point(startPoint.X, startPoint.Y));
+			Map[StartPoint.X, StartPoint.Y] = new Room(
+				new Point(StartPoint.X, StartPoint.Y));
 
-			_rooms.Add(Map[startPoint.X, startPoint.Y]);
-			StartRoom = Map[startPoint.X, startPoint.Y];
-			CurrentRoom = StartRoom;
+			_rooms.Add(Map[StartPoint.X, StartPoint.Y]);
+			CurrentPoint = StartPoint;
+
 
 			//Expand rooms.
 			for (int i = 1; i < size; i++)
@@ -63,7 +74,7 @@ namespace Final_Game.LevelGen
 			}
 
 
-			Debug.WriteLine($"Start room [{startPoint.Y}, {startPoint.X}]");
+			Debug.WriteLine($"Start room [{StartPoint.Y}, {StartPoint.X}]");
 			PrintLevel();
 		}
 		#endregion

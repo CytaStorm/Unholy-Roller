@@ -103,6 +103,7 @@ namespace Final_Game.LevelGen
 					break;
 
 				case TileType.ClosedDoor:
+					result.DoorOrientation = orientation;
 					result.CollisionOn = true;
 					result.TileSprite = new Sprite(_tileTextures[5], GetOrientationSource(orientation),
 						new Rectangle(
@@ -113,6 +114,7 @@ namespace Final_Game.LevelGen
 					break;
 
 				case TileType.OpenDoor:
+					result.DoorOrientation = orientation;
 					result.CollisionOn = true;
 					result.TileSprite = new Sprite(_tileTextures[6], GetOrientationSource(orientation),
 						new Rectangle(

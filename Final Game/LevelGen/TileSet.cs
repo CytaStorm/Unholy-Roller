@@ -264,8 +264,6 @@ namespace Final_Game.LevelGen
 						TileType.OpenDoor,
 						new Vector2((Columns - 1) / 2 * Game1.TileSize, 0),
 						"U");
-
-				Debug.WriteLine("here");
 			}
 			if (connections["South"])
 			{

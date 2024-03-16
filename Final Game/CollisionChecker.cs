@@ -3,6 +3,7 @@ using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -72,94 +73,147 @@ namespace Final_Game
 
 		public static bool CheckTilemapCollision(Entity.Entity e, Tileset tileset)
 		{
-			// Check if entity'll hit any tile in the dungeon
-			for (int y = 0; y < tileset.Layout.GetLength(0); y++)
+			//Point holds position of collided tile in room tileset,
+			//Rectangle holds the hitbox of player upon intersect.
+			Dictionary<Point, Rectangle> collisions = new Dictionary<Point, Rectangle>();
+
+			//Find all collisions on the map.
+			for (int row = 0; row < tileset.Layout.GetLength(0); row++)
 			{
-				for (int x = 0; x < tileset.Layout.GetLength(1); x++)
+				for (int col = 0; col < tileset.Layout.GetLength(1); col++)
 				{
-					Tile curTile = tileset.Layout[y, x];
-
-					if (curTile.CollisionOn)
-					{
-						// Get final position of entity hitbox
-						Vector2 colPosition = e.WorldPosition + e.Velocity;
-						Rectangle colHitbox = new Rectangle(
-							(int)colPosition.X,
-							(int)colPosition.Y,
-							e.Hitbox.Width,
-							e.Hitbox.Height);
-
-						float numShifts = e.Velocity.Length();
-						bool intersects = false;
-						Rectangle temp = new Rectangle();
-						Vector2 tempPoint = Vector2.Zero;
-
-						//Check for tunneling
-						if (numShifts > 1f)
-						{
-							Vector2 normVelo = e.Velocity;
-							normVelo.Normalize();
-
-							// Explain what this does
-							for (int i = 0; i < (int)numShifts; i++)
-							{
-								tempPoint = e.WorldPosition + normVelo * (i + 1);
-								temp = new Rectangle(
-								(int)MathF.Round(tempPoint.X),
-								(int)MathF.Round(tempPoint.Y),
-								e.Hitbox.Width,
-								e.Hitbox.Height);
-
-								intersects = temp.Intersects(curTile.Hitbox);
-
-								if (intersects)
-									break;
-							}
-
-							// Check if final hitbox position overlaps
-							if (!intersects)
-							{
-								temp = colHitbox;
-								tempPoint = e.WorldPosition;
-								intersects = colHitbox.Intersects(curTile.Hitbox);
-							}
-						}
-						else
-						{
-							// If change in dist isn't significant
-							// Just use final hitbox position to check overlap
-							temp = colHitbox;
-							tempPoint = e.WorldPosition;
-
-							intersects = colHitbox.Intersects(curTile.Hitbox);
-						}
-
-
-						// Check if entity will hit the tile
-						if (intersects)
-						{
-							//Vector2 distFromTile = curTile.WorldPosition - tempPoint;
-
-							Rectangle overlap = Rectangle.Intersect(temp, curTile.Hitbox);
-
-							// Determine direction entity hit the tile
-
-							if (overlap.Height >= overlap.Width)
-							{
-								e.OnHitTile(curTile, CollisionDirection.Horizontal);
-							}
-							else
-							{
-								e.OnHitTile(curTile, CollisionDirection.Vertical);
-							}
-							return true;
-						}
-					}
+					CheckTileCollision(row, col, collisions, e, tileset);
 				}
 			}
+			//Choose which collision to process.
+			ProcessCollisions(e, tileset, collisions);
 
 			return false;
 		}
+
+		/// <summary>
+		/// Determines if the tile is intersecting with the player,
+		/// if it is, adds it to the dictionary supplied.
+		/// </summary>
+		/// <param name="row">Row in 2D array of tiles to check.</param>
+		/// <param name="col">Column in 2D array of tiles to check.</param>
+		/// <param name="collisionsList">List of collisions.</param>
+		/// <param name="e">Entity to check collisions with.</param>
+		/// <param name="collisions">Dictionary containing the tiles that entity
+		/// has collided with.</param>
+		private static void CheckTileCollision(
+			int row, int col, Dictionary<Point, Rectangle> collisionsList,
+			Entity.Entity e, Tileset tileset)
+		{
+			Tile curTile = tileset.Layout[row, col];
+
+			//If there is no tile collision.
+			if (!curTile.CollisionOn)
+			{
+				return;
+			}
+
+			#region Tunneling
+			// Get final position of entity hitbox
+			Vector2 collisionPosition = e.WorldPosition + e.Velocity;
+			Rectangle finalHitbox = new Rectangle(
+				(int)collisionPosition.X,
+				(int)collisionPosition.Y,
+				e.Hitbox.Width,
+				e.Hitbox.Height);
+
+			int numShifts = (int) e.Velocity.Length();
+			bool intersects = false;
+
+			//Check if need to calculate tunneling
+
+			//No need to calculate tunnelling.
+			if (numShifts <= 1f)
+			{
+				// If change in dist isn't significant
+				// Just use final hitbox position to check overlap
+				if (finalHitbox.Intersects(curTile.Hitbox))
+				{
+					collisionsList.Add(new Point(row, col), finalHitbox);
+				}
+				return;
+			}
+
+			Vector2 normVelo = e.Velocity;
+			normVelo.Normalize();
+
+			//Checks if entity will hit a map tile along its travel path.
+			Rectangle shiftedHitbox;
+			for (int i = 0; i < numShifts; i++)
+			{
+				Vector2 shiftedPosition = e.WorldPosition + normVelo * (i + 1);
+				shiftedHitbox = new Rectangle(
+				(int)MathF.Round(shiftedPosition.X),
+				(int)MathF.Round(shiftedPosition.Y),
+				e.Hitbox.Width,
+				e.Hitbox.Height);
+
+				intersects = shiftedHitbox.Intersects(curTile.Hitbox);
+				if (intersects)
+				{
+					collisionsList.Add(new Point(row, col), shiftedHitbox);
+					return;
+				}
+			}
+			//Check if entity will hit a map tile at its final position
+			if (!intersects) 
+			{ 
+				intersects = finalHitbox.Intersects(curTile.Hitbox);
+				if (intersects)
+				{
+					collisionsList.Add(new Point(row, col), finalHitbox);
+					return;
+				}
+			}
+			#endregion
+			return;
+		}
+
+		/// <summary>
+		/// Decide which collision to process.
+		/// </summary>
+		/// <param name="e">Entity that collides with tile.</param>
+		/// <param name="tileset">Tileset that to calculate collisions with.</param>
+		/// <param name="collisions">Dictionary containing the tiles that entity
+		/// has collided with.</param>
+		private static void ProcessCollisions(
+			Entity.Entity e, Tileset tileset, Dictionary<Point, Rectangle> collisions)
+		{
+			Rectangle largestOverlap = new Rectangle();
+			Point largestOverlapTilePos = new Point();
+			if (collisions.Count == 0) return;
+
+			//Determine which tile to calculate collisions off of.
+			//Largest intersection area wins.
+			foreach (KeyValuePair<Point, Rectangle> pair in collisions)
+			{
+				Rectangle overlap = Rectangle.Intersect(
+					pair.Value, tileset.Layout[pair.Key.X, pair.Key.Y].Hitbox);
+				if (largestOverlap.Width * largestOverlap.Height <=
+					overlap.Width * overlap.Height) 
+				{
+					largestOverlap = overlap;
+					largestOverlapTilePos = pair.Key;
+				}
+			}
+			// Determine direction entity hit the tile
+			Tile curTile = tileset.Layout[largestOverlapTilePos.X, largestOverlapTilePos.Y];
+
+			if (largestOverlap.Height >= largestOverlap.Width)
+			{
+				e.OnHitTile(curTile, CollisionDirection.Horizontal);
+				return;
+			}
+			e.OnHitTile(curTile, CollisionDirection.Vertical);
+			return;
+		}
+
+
 
 		//public static bool CheckEntityCollision(Entity e1, Entity e2)
 		//{

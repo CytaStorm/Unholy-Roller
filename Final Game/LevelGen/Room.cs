@@ -10,7 +10,8 @@ namespace Final_Game.LevelGen
 	{
 
 		#region Fields
-		public bool Cleared { get; private set; } = true;
+		public bool Cleared { get; private set; }
+		private bool _firstClear = true;
 		/// <summary>
 		/// Top left corner of the room.
 		/// </summary>
@@ -119,8 +120,10 @@ namespace Final_Game.LevelGen
 		public void CheckCleared()
 		{
 			Cleared = RoomFloor.EnemyCount < 1;
-			if (Cleared)
+			//Firstclear added so room only adds open doors once.
+			if (Cleared && _firstClear)
 			{
+				_firstClear = false;
 				//Method to create open doors
 				RoomFloor.CreateOpenDoors(Connections);
 			}

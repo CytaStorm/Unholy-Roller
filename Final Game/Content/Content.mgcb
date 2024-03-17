@@ -85,6 +85,13 @@
 /processorParam:TextureFormat=Color
 /build:EmptyButton.png
 
+#begin MediumArial.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:MediumArial.spritefont
+
 #begin Room Layouts/enemyLayouts.txt
 /copy:Room Layouts/enemyLayouts.txt
 

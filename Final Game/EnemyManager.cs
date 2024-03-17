@@ -36,8 +36,8 @@ namespace Final_Game
 
             Enemies = new List<Enemy>();
 
-            BasicPuncher testEnemy = new BasicPuncher(gm, new Vector2(300f, 200f));
-            Enemies.Add(testEnemy);
+            //BasicPuncher testEnemy = new BasicPuncher(gm, new Vector2(300f, 200f));
+            //Enemies.Add(testEnemy);
         }
 
         // Methods

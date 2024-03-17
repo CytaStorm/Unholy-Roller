@@ -228,5 +228,17 @@ namespace Final_Game.Entity
 
         #endregion
 
+
+        /// <summary>
+        /// Moves entity to the center of the specified room
+        /// </summary>
+        /// <param name="r"> room to move to </param>
+        public void MoveToRoomCenter(Room r)
+        {
+            Vector2 distFromRoomCenter = r.Center.ToVector2() - WorldPosition;
+
+            Move(distFromRoomCenter);
+        }
+
     }
 }

@@ -28,6 +28,8 @@ namespace Final_Game.Entity
 		private int _numRedirects;
 		private int _maxRedirects;
 
+		private float _walkSpeed;
+
 		private float _brakeSpeed;
 		private float _frictionMagnitude;
 
@@ -79,6 +81,7 @@ namespace Final_Game.Entity
 
 			// Set movement vars
 			Speed = 20f;
+			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
 			_transitionToWalkingSpeed = 1f;
@@ -258,28 +261,28 @@ namespace Final_Game.Entity
 			// Move up
 			if (kb.IsKeyDown(Keys.W))
 			{
-				Velocity = new Vector2(Velocity.X, Velocity.Y - Speed);
+				Velocity = new Vector2(Velocity.X, Velocity.Y - _walkSpeed);
 			}
 			// Move down
 			if (kb.IsKeyDown(Keys.S))
 			{
-				Velocity = new Vector2(Velocity.X, Velocity.Y + Speed);
+				Velocity = new Vector2(Velocity.X, Velocity.Y + _walkSpeed);
 			}
 			// Move left
 			if (kb.IsKeyDown(Keys.A))
 			{
-				Velocity = new Vector2(Velocity.X - Speed, Velocity.Y);
+				Velocity = new Vector2(Velocity.X - _walkSpeed, Velocity.Y);
 			}
 			// Move right
 			if (kb.IsKeyDown(Keys.D))
 			{
-				Velocity = new Vector2(Velocity.X + Speed, Velocity.Y);
+				Velocity = new Vector2(Velocity.X + _walkSpeed, Velocity.Y);
 			}
 
-			// Maximize Velocity at speed
-			if (Velocity.LengthSquared() > Speed * Speed)
+			// Max Velocity is _walkSpeed
+			if (Velocity.LengthSquared() > _walkSpeed * _walkSpeed)
 			{
-				Velocity *= Speed / Velocity.Length();
+				Velocity = Velocity * _walkSpeed / Velocity.Length();
 			}
 		}
 

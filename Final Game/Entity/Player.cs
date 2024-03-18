@@ -10,7 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
+
 
 namespace Final_Game.Entity
 {
@@ -28,16 +28,33 @@ namespace Final_Game.Entity
 		private int _numRedirects;
 		private int _maxRedirects;
 
+		private float _walkSpeed;
+
 		private float _brakeSpeed;
 		private float _frictionMagnitude;
 
 		private float _transitionToWalkingSpeed;
-		#endregion
 
-		#region Properties
-		public PlayerState State { get; private set; }
+    // Time dilation
+    double _timeTransitionDuration = 0.2;
+    double _transitionTimeCounter = 0.2;
+    float _normalTimeMultiplier = 1f;
+    float _minTimeMultiplier = 0.3f;
+
+    #endregion
+
+    #region Properties
+    public PlayerState State { get; private set; }
 		public Vector2 ScreenPosition { get; private set; }
+
+		/// <summary>
+		/// Multiply any expression that uses Elapsed Seconds by this coefficient
+		/// to scale it to bullet time
+		/// </summary>
+		public static float BulletTimeMultiplier { get; private set; } = 1f;
+
 		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
+
 		#endregion
 
 		// Constructors
@@ -67,6 +84,7 @@ namespace Final_Game.Entity
 
 			// Set movement vars
 			Speed = 20f;
+			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
 			_transitionToWalkingSpeed = 1f;
@@ -85,6 +103,8 @@ namespace Final_Game.Entity
 		// Methods
 		public override void Update(GameTime gameTime)
 		{
+			UpdateBulletTime(gameTime);
+
 			switch (State)
 			{
 				case PlayerState.Walking:
@@ -115,7 +135,7 @@ namespace Final_Game.Entity
 
 			HandleEnemyCollisions();
 
-		    Move(Velocity);
+			Move(Velocity * BulletTimeMultiplier);
 		}
 		public override void Draw(SpriteBatch sb)
 		{
@@ -153,7 +173,7 @@ namespace Final_Game.Entity
 			}
 
 			// Place self on part of tile that was hit
-			PlaceOnHitSurface(tile, colDir);
+			PlaceOnHitEdge(tile, colDir);
 
 			if (State == PlayerState.Rolling)
 			{
@@ -169,57 +189,57 @@ namespace Final_Game.Entity
 			base.OnHitTile(tile, colDir);
 		}
 
-    public override void OnHitEntity(Entity entity, CollisionDirection colDir)
-    {
-        switch (entity.Type)
-        {
-            case EntityType.Enemy:
-                if (State != PlayerState.Walking)
-                {
-                    if (!entity.IsInvincible)
-                    {
-                        // Speed up
-                        Vector2 acc = Velocity;
-                        acc.Normalize();
-                        acc *= 0.05f;
-                        Accelerate(acc);
+	public override void OnHitEntity(Entity entity, CollisionDirection colDir)
+	{
+		switch (entity.Type)
+		{
+			case EntityType.Enemy:
+				if (State != PlayerState.Walking)
+				{
+					if (!entity.IsInvincible)
+					{
+						// Speed up
+						Vector2 acc = Velocity;
+						acc.Normalize();
+						acc *= 0.05f;
+						Accelerate(acc);
 
-                        // Get an extra redirect
-                        if (_numRedirects < _maxRedirects)
-                            _numRedirects++;
-                    }
+						// Get an extra redirect
+						if (_numRedirects < _maxRedirects)
+							_numRedirects++;
+					}
 
-                    entity.TakeDamage(Damage);
-                }
-                else
-                {
-                    // Player gets knocked back if standing on top of enemy
-                    Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
-                    distToEnemy.Normalize();
-                    distToEnemy *= -5;
+					entity.TakeDamage(Damage);
+				}
+				else
+				{
+					// Player gets knocked back if standing on top of enemy
+					Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
+					distToEnemy.Normalize();
+					distToEnemy *= -5;
 
-                    this.TakeDamage(1);
+					this.TakeDamage(1);
 
-                    Velocity = distToEnemy;
-                    State = PlayerState.Rolling;
-                }
-                break;
-        }
-    }
+					Velocity = distToEnemy;
+					State = PlayerState.Rolling;
+				}
+				break;
+		}
+	}
 
-    private void HandleEnemyCollisions()
-    {
-        for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
-        {
-            Enemy curEnemy = Game1.EManager.Enemies[i];
+	private void HandleEnemyCollisions()
+	{
+		for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
+		{
+			Enemy curEnemy = Game1.EManager.Enemies[i];
 
-    CollisionChecker.CheckEntityCollision(this, curEnemy);
-        }
-    }
+	CollisionChecker.CheckEntityCollision(this, curEnemy);
+		}
+	}
 
-    #endregion
+	#endregion
 
-    #region Movement Helper Methods
+		#region Movement Helper Methods
 
 		private void TransferRoom(Tile tile)
 		{
@@ -251,28 +271,28 @@ namespace Final_Game.Entity
 			// Move up
 			if (kb.IsKeyDown(Keys.W))
 			{
-				Velocity = new Vector2(Velocity.X, Velocity.Y - Speed);
+				Velocity = new Vector2(Velocity.X, Velocity.Y - _walkSpeed);
 			}
 			// Move down
 			if (kb.IsKeyDown(Keys.S))
 			{
-				Velocity = new Vector2(Velocity.X, Velocity.Y + Speed);
+				Velocity = new Vector2(Velocity.X, Velocity.Y + _walkSpeed);
 			}
 			// Move left
 			if (kb.IsKeyDown(Keys.A))
 			{
-				Velocity = new Vector2(Velocity.X - Speed, Velocity.Y);
+				Velocity = new Vector2(Velocity.X - _walkSpeed, Velocity.Y);
 			}
 			// Move right
 			if (kb.IsKeyDown(Keys.D))
 			{
-				Velocity = new Vector2(Velocity.X + Speed, Velocity.Y);
+				Velocity = new Vector2(Velocity.X + _walkSpeed, Velocity.Y);
 			}
 
-			// Maximize Velocity at speed
-			if (Velocity.LengthSquared() > Speed * Speed)
+			// Max Velocity is _walkSpeed
+			if (Velocity.LengthSquared() > _walkSpeed * _walkSpeed)
 			{
-				Velocity *= Speed / Velocity.Length();
+				Velocity = Velocity * _walkSpeed / Velocity.Length();
 			}
 		}
 
@@ -326,7 +346,7 @@ namespace Final_Game.Entity
 				//    Velocity = distance;
 				//}
 
-				//_numRedirects--;
+				_numRedirects--;
 
 				// Player is now rolling
 				State = PlayerState.Rolling;
@@ -342,7 +362,7 @@ namespace Final_Game.Entity
 			{
 				Vector2 deceleration = -Velocity;
 				deceleration.Normalize();
-				deceleration *= _brakeSpeed;
+				deceleration *= _brakeSpeed * BulletTimeMultiplier;
 
 				Velocity += deceleration;
 			}
@@ -360,7 +380,7 @@ namespace Final_Game.Entity
 				// Naturally decelerate over time
 				Vector2 natDeceleration = -Velocity;
 				natDeceleration.Normalize();
-				Velocity += natDeceleration * _frictionMagnitude;
+				Velocity += natDeceleration * _frictionMagnitude * BulletTimeMultiplier;
 			}
 		}
 		public void Ricochet(CollisionDirection hitDirection)
@@ -380,9 +400,9 @@ namespace Final_Game.Entity
 
 		public void Ricochet(Vector2 newDirection)
 		{
-		    Velocity = newDirection;
+			Velocity = newDirection;
 
-		    State = PlayerState.Rolling;
+			State = PlayerState.Rolling;
 		}
 
 		private void ApplyScreenBoundRicochet()
@@ -398,12 +418,38 @@ namespace Final_Game.Entity
 				Velocity = new Vector2(Velocity.X, -Velocity.Y);
 			}
 		}
-		#endregion
 
-		#region Drawing Helper Methods
-		private void DrawLaunchArrow(SpriteBatch sb)
+        private void UpdateBulletTime(GameTime gameTime)
+        {
+            if (Game1.IsMouseButtonPressed(1) && _numRedirects > 0)
+            {
+                // Transition from normal -> bullet time
+                _transitionTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;
+
+            }
+            else if (Game1.IsMouseButtonReleased(1))
+            {
+                // Transition from bullet -> normal time
+                _transitionTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
+            // Enforce time counter bounds
+			_transitionTimeCounter = 
+				MathHelper.Clamp((float)_transitionTimeCounter, 0, (float)_timeTransitionDuration);
+
+            // Set time multiplier
+			// Interpolates between minTimeMultiplier and normalTimeMultiplier
+			// based on whether the transitionTimeCounter is counting up or down
+            BulletTimeMultiplier =
+                (float)(_minTimeMultiplier + _transitionTimeCounter / _timeTransitionDuration *
+                (_normalTimeMultiplier - _minTimeMultiplier));
+        }
+
+        #endregion
+
+        #region Drawing Helper Methods
+        private void DrawLaunchArrow(SpriteBatch sb)
 		{
-			
 			// Get angle between arrow and mouse
 			Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 
@@ -422,18 +468,18 @@ namespace Final_Game.Entity
 			directionFromPlayerToMouse.Normalize();
 			directionFromPlayerToMouse *= 120; // Radius
 
-
 			Rectangle arrowSourceRect = new Rectangle();
+
 			if (_numRedirects > _maxRedirects)
 			{
-				// Launch Arrow
+				// Use Launch Arrow Source Rect
 				arrowSourceRect = new Rectangle(
 					_launchArrowSpriteWidth, 0,
 					_launchArrowSpriteWidth, _launchArrowSpriteWidth);
 			}
 			else
 			{
-				// Redirect Arrow
+				// Use Redirect Arrow Source Rect
 				arrowSourceRect = new Rectangle(
 					0, 0,
 					_launchArrowSpriteWidth, _launchArrowSpriteWidth);
@@ -454,25 +500,29 @@ namespace Final_Game.Entity
 				0f
 				);
 
-			// Todo: Display remaining redirects
-			//Vector2 redirectStringDimensions =
-			//    Game1.ARIAL32.MeasureString(_numRedirects.ToString());
+			// Display remaining redirects
+			if (_numRedirects <= _maxRedirects)
+			{
+				Vector2 redirectStringDimensions =
+					UI.MediumArial.MeasureString(_numRedirects.ToString());
 
-			//Vector2 textPos = centerPlayerPos + directionFromPlayerToMouse;
-			//textPos = new Vector2(
-			//    textPos.X - redirectStringDimensions.X / 2,
-			//    textPos.Y - redirectStringDimensions.Y / 2);
+				Vector2 textPos = centerScreenPos + directionFromPlayerToMouse;
+				textPos = new Vector2(
+					textPos.X - redirectStringDimensions.X / 2,
+					textPos.Y - redirectStringDimensions.Y / 2);
 
-			//sb.DrawString(
-			//    Game1.ARIAL32,
-			//    _numRedirects.ToString(),
-			//    textPos,
-			//    Color.White);
+				sb.DrawString(
+					UI.MediumArial,
+					_numRedirects.ToString(),
+					textPos,
+					Color.White);
+			}
 		}
 
 		public override void DrawGizmos()
 		{
-      Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
+			// Draw hitbox
+			Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
 
 			Vector2 hitboxDistFromPlayer =
 				new Vector2(
@@ -486,24 +536,32 @@ namespace Final_Game.Entity
 					Hitbox.Width,
 					Hitbox.Height);
 
-      ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
-    }
+			ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
+		}
 
 		#endregion
 
+		/// <summary>
+		/// Resets all key variables
+		/// </summary>
 		public void Reset()
 		{
+			// Restore Health
 			CurHealth = MaxHealth;
 
+			// Restore Redirects
 			_numRedirects = _maxRedirects + 1;
 
+			// Stop Moving
 			Velocity = Vector2.Zero;
 
+			// Set Default State 
 			State = PlayerState.Walking;
 
+			// Set player at the center of the current level
 			WorldPosition = new Vector2(
-				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
-				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
+				Game1.TestLevel.CurrentRoom.RoomFloor.Width / 2,
+				Game1.TestLevel.CurrentRoom.RoomFloor.Height / 2);
 		}
 	}
 }

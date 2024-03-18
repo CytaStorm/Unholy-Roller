@@ -560,8 +560,8 @@ namespace Final_Game.Entity
 
 			// Set player at the center of the current level
 			WorldPosition = new Vector2(
-				Game1.TestLevel.CurrentRoom.RoomFloor.Width / 2,
-				Game1.TestLevel.CurrentRoom.RoomFloor.Height / 2);
+				Game1.TestLevel.CurrentRoom.Tileset.Width / 2,
+				Game1.TestLevel.CurrentRoom.Tileset.Height / 2);
 		}
 	}
 }

@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace Final_Game
 {
-  /// <summary>
+	/// <summary>
 	/// Which state the game is in.
 	/// </summary>
 	public enum GameState
@@ -20,9 +20,9 @@ namespace Final_Game
 		Play,
 		Pause,
 		GameOver,
-    Cutscene
+		Cutscene
 	}
-  
+
 	public class Game1 : Game
 	{
 		private GraphicsDeviceManager _graphics;
@@ -30,7 +30,7 @@ namespace Final_Game
 
 		public static Room TutorialRoom { get; private set; }
 
-    #region Fields
+		#region Fields
 		/// <summary>
 		/// Level the player is currently on.
 		/// </summary>
@@ -42,7 +42,6 @@ namespace Final_Game
 		public static Player Player { get; private set; }
 
 		// Cursor
-		private Texture2D _cursorTexture;
 
 		/// <summary>
 		/// Cursor object.
@@ -57,71 +56,71 @@ namespace Final_Game
 		/// <summary>
 		/// Mouse controller object for control of cursor in-game.
 		/// </summary>
-    private MouseCursor _gameplayCursor;
+		private MouseCursor _gameplayCursor;
 		/// <summary>
 		/// Mouse controller object for control of cursor in menus.
 		/// </summary>
-    private MouseCursor _menuCursor;
+		private MouseCursor _menuCursor;
 
-    /// <summary>
+		/// <summary>
 		/// Screen width, in pixels.
 		/// </summary>
-    public static int WindowWidth = 1920;
+		public static int WindowWidth = 1920;
 		/// <summary>
 		/// Screen height, in pixels.
 		/// </summary>
-    public static int WindowHeight = 1080;
+		public static int WindowHeight = 1080;
 
 		// Cutscenes
 		private CutsceneManager _csManager;
-    #endregion
+		#endregion
 
-    #region Properties
+		#region Properties
 		// Screen
-    /// <summary>
+		/// <summary>
 		/// Rectangle respresenting the bounds of the screen, in pixels.
 		/// </summary>
-    public static Rectangle ScreenBounds => 
-			new Rectangle(0, 0, WindowWidth, WindowHeight);
-      
-    /// <summary>
+		public static Rectangle ScreenBounds =>
+				new Rectangle(0, 0, WindowWidth, WindowHeight);
+
+		/// <summary>
 		/// Center of the screen, in pixels.
 		/// </summary>
-		public static Vector2 ScreenCenter => 
+		public static Vector2 ScreenCenter =>
 			new Vector2(WindowWidth / 2, WindowHeight / 2);
 
-    // Mouse
-    /// <summary>
+		// Mouse
+		/// <summary>
 		/// Current state of the mouse.
 		/// </summary>
-    public static MouseState CurMouse { get; private set; }
+		public static MouseState CurMouse { get; private set; }
 		/// <summary>
 		/// Previous state of the mouse.
 		/// </summary>
-    public static MouseState PrevMouse { get; private set; }
-    public static bool MouseIsOnScreen => 
-      ScreenBounds.Contains(CurMouse.Position);
+		public static MouseState PrevMouse { get; private set; }
+		public static bool MouseIsOnScreen =>
+		  ScreenBounds.Contains(CurMouse.Position);
 
-    // Keyboard
-    /// <summary>
+		// Keyboard
+		/// <summary>
 		/// Current state of the keyboard.
 		/// </summary>
-    public static KeyboardState CurKB { get; private set; }
+		public static KeyboardState CurKB { get; private set; }
 		/// <summary>
 		/// Previous state of the keyboard.
 		/// </summary>
-    public static KeyboardState PrevKB { get; private set; }
+		public static KeyboardState PrevKB { get; private set; }
 
 		// Environment
-    /// <summary>
+		/// <summary>
 		/// How large the each map tile is, in pixels.
 		/// </summary>
-    public static int TileSize { get; private set; } = 100;
+		public static int TileSize { get; private set; } = 100;
 
 		/// <summary>
 		/// Game FSM.
 		/// </summary>
-    public static GameState State { get; private set; }
+		public static GameState State { get; private set; }
 
 		/// <summary>
 		/// Object that creates tiles.
@@ -130,7 +129,7 @@ namespace Final_Game
 
 		// Enemy Management
 		public static EnemyManager EManager { get; private set; }
-    #endregion
+		#endregion
 
 		public Game1()
 		{
@@ -142,7 +141,7 @@ namespace Final_Game
 			_graphics.PreferredBackBufferWidth = WindowWidth;
 			_graphics.PreferredBackBufferHeight = WindowHeight;
 			_graphics.ApplyChanges();
-		} 
+		}
 
 		protected override void Initialize()
 		{
@@ -153,8 +152,8 @@ namespace Final_Game
 			TutorialRoom = new Room(new Point(0, 0));
 
 			Player = new Player(this, new Vector2(
-				TestLevel.CurrentRoom.TileSet.Width / 2, 
-				TestLevel.CurrentRoom.TileSet.Height / 2));
+				TestLevel.CurrentRoom.Tileset.Width / 2,
+				TestLevel.CurrentRoom.Tileset.Height / 2));
 
 
 			Debug.WriteLine(UI.GetWrappedText("My ass is blue", 3));
@@ -175,7 +174,7 @@ namespace Final_Game
 
 			// Create Entity Managers
 			EManager = new EnemyManager(this);
-			
+
 			// Create custom cursor
 			_gameplayCursor = MouseCursor.FromTexture2D(
 				_cursorTexture, _cursorTexture.Width / 2, _cursorTexture.Height / 2);
@@ -184,14 +183,14 @@ namespace Final_Game
 			_menuCursor = MouseCursor.Arrow;
 
 			// Create UI Manager
-            _ui = new UI(this, _spriteBatch);
+			_ui = new UI(this, _spriteBatch);
 
 			// Create Cutscene Manager
 			_csManager = new CutsceneManager(this);
 
 			// Hook Up Buttons
 			SubscribeToButtons();
-        }
+		}
 
 		protected override void Update(GameTime gameTime)
 		{
@@ -210,12 +209,12 @@ namespace Final_Game
 
 					if (_csManager.Scene == Cutscene.None)
 						TestLevel.CurrentRoom.Update(gameTime);
-            
+
 					EManager.Update(gameTime);
 
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
-                    break;
+					break;
 
 				case GameState.Pause:
 					if (SingleKeyPress(Keys.Escape))
@@ -225,8 +224,8 @@ namespace Final_Game
 				case GameState.Cutscene:
 					_csManager.Update(gameTime);
 
-                    break;
-            }
+					break;
+			}
 
 			_ui.Update(gameTime);
 
@@ -240,9 +239,9 @@ namespace Final_Game
 		protected override void Draw(GameTime gameTime)
 		{
 			// Only Draw Game if Game Window has focus
-            if (!this.IsActive) return;
+			if (!this.IsActive) return;
 
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			_spriteBatch.Begin();
 
@@ -250,9 +249,9 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					
+
 					TestLevel.CurrentRoom.Draw(_spriteBatch);
-					
+
 					Player.Draw(_spriteBatch);
 
 					EManager.Draw(_spriteBatch, gameTime);
@@ -265,7 +264,7 @@ namespace Final_Game
 			}
 
 			_ui.Draw(gameTime);
-			
+
 			_spriteBatch.End();
 
 			//DrawDebug();
@@ -287,16 +286,16 @@ namespace Final_Game
 			}
 		}
 
-        private void ResetGame()
-        {
-            Player.Reset();
-        }
+		private void ResetGame()
+		{
+			Player.Reset();
+		}
 
-        #region Mouse Wrapper Methods
-        public static bool IsMouseLeftClicked()
+		#region Mouse Wrapper Methods
+		public static bool IsMouseLeftClicked()
 		{
 			return
-				MouseIsOnScreen && 
+				MouseIsOnScreen &&
 				CurMouse.LeftButton == ButtonState.Released &&
 				PrevMouse.LeftButton == ButtonState.Pressed;
 		}
@@ -339,19 +338,19 @@ namespace Final_Game
 					return false;
 			}
 		}
-    #endregion
+		#endregion
 
-    #region Keyboard Wrapper Methods
+		#region Keyboard Wrapper Methods
 
 		public static bool SingleKeyPress(Keys k)
 		{
 			return CurKB.IsKeyDown(k) && PrevKB.IsKeyUp(k);
 		}
 
-    #endregion
+		#endregion
 
-    #region Button Methods
-		
+		#region Button Methods
+
 		public void SubscribeToButtons()
 		{
 			_ui.MenuButtons[0].OnClicked += StartGame;
@@ -372,8 +371,8 @@ namespace Final_Game
 		private void ResumeGame()
 		{
 			State = GameState.Play;
-      Mouse.SetCursor(_gameplayCursor);
-    }
+			Mouse.SetCursor(_gameplayCursor);
+		}
 
 		private void ReturnToMainMenu()
 		{
@@ -388,19 +387,19 @@ namespace Final_Game
 			Exit();
 		}
 
-    public void StartTutorial()
-    {
-        State = GameState.Cutscene;
-        Mouse.SetCursor(_gameplayCursor);
+		public void StartTutorial()
+		{
+			State = GameState.Cutscene;
+			Mouse.SetCursor(_gameplayCursor);
 
-        _csManager.StartCutscene(Cutscene.Tutorial);
+			_csManager.StartCutscene(Cutscene.Tutorial);
 
-        Player.MoveToRoomCenter(TutorialRoom);
-    }
+			Player.MoveToRoomCenter(TutorialRoom);
+		}
 
-    #endregion
+		#endregion
 
-    private void DrawDebug()
+		private void DrawDebug()
 		{
 			// Debug Drawing
 			ShapeBatch.Begin(GraphicsDevice);
@@ -411,4 +410,5 @@ namespace Final_Game
 
 			ShapeBatch.End();
 		}
-  }
+	}
+}

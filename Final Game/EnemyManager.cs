@@ -50,6 +50,8 @@ namespace Final_Game
                 // Spawn on spawn tile
                 Enemy addition = new BasicPuncher(gm, curSpawner.WorldPosition);
 
+            }
+        }
 
         public void Update(GameTime gameTime)
         {
@@ -108,19 +110,6 @@ namespace Final_Game
             Clear();
 
             CreateRoomEnemies(r);
-        }
-
-        public void CreateRoomEnemies(Room r)
-        {
-            for (int i = 0; i < r.RoomFloor.Spawners.Count; i++)
-            {
-                Tile curSpawner = r.RoomFloor.Spawners[i];
-
-                // Spawn on spawn tile
-                Enemy addition = new BasicPuncher(gm, curSpawner.WorldPosition);
-
-                Enemies.Add(addition);
-            }
         }
 
         public void DrawGizmos()

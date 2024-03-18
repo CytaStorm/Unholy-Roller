@@ -11,6 +11,9 @@ using System.Runtime.CompilerServices;
 
 namespace Final_Game
 {
+	/// <summary>
+	/// Which state the game is in.
+	/// </summary>
 	public enum GameState
 	{
 		Menu,
@@ -23,53 +26,102 @@ namespace Final_Game
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
-		public static Level TestLevel { get; private set; }
+
 
         #region Fields
-		// Player
+		/// <summary>
+		/// Level the player is currently on.
+		/// </summary>
+		public static Level TestLevel { get; private set; }
+
+		/// <summary>
+		/// Player Object
+		/// </summary>
 		public static Player Player { get; private set; }
 
-		// Cursor
+		/// <summary>
+		/// Cursor object.
+		/// </summary>
 		private Texture2D _cursorTexture;
 
-		// UI
+		/// <summary>
+		/// UI controller object.
+		/// </summary>
 		private UI _ui;
 
-		// Mouse
+		/// <summary>
+		/// Mouse controller object for control of cursor in-game.
+		/// </summary>
         private MouseCursor _gameplayCursor;
+		/// <summary>
+		/// Mouse controller object for control of cursor in menus.
+		/// </summary>
         private MouseCursor _menuCursor;
 
-		// Screen
+		/// <summary>
+		/// Screen width, in pixels.
+		/// </summary>
         public static int WindowWidth = 1920;
+		/// <summary>
+		/// Screen height, in pixels.
+		/// </summary>
         public static int WindowHeight = 1080;
         #endregion
 
         #region Properties
-		// Screen
+		/// <summary>
+		/// Rectangle respresenting the bounds of the screen, in pixels.
+		/// </summary>
         public static Rectangle ScreenBounds => 
 			new Rectangle(0, 0, WindowWidth, WindowHeight);
+		/// <summary>
+		/// Center of the screen, in pixels.
+		/// </summary>
 		public static Vector2 ScreenCenter => 
 			new Vector2(WindowWidth / 2, WindowHeight / 2);
 
-        // Mouse
+		/// <summary>
+		/// Current state of the mouse.
+		/// </summary>
         public static MouseState CurMouse { get; private set; }
+		/// <summary>
+		/// Previous state of the mouse.
+		/// </summary>
         public static MouseState PrevMouse { get; private set; }
+		/// <summary>
+		/// Is the mouse on screen?
+		/// </summary>
         public static bool MouseIsOnScreen => 
 			ScreenBounds.Contains(CurMouse.Position);
 
         // Keyboard
+		/// <summary>
+		/// Current state of the keyboard.
+		/// </summary>
         public static KeyboardState CurKB { get; private set; }
+		/// <summary>
+		/// Previous state of the keyboard.
+		/// </summary>
         public static KeyboardState PrevKB { get; private set; }
 
-		// Environment
+		/// <summary>
+		/// How large the each map tile is, in pixels.
+		/// </summary>
         public static int TileSize { get; private set; } = 100;
 
-		// Game FSM
+		/// <summary>
+		/// Game FSM.
+		/// </summary>
         public static GameState State { get; private set; }
 
+		/// <summary>
+		/// Object that creates tiles.
+		/// </summary>
 		private static TileMaker tilemaker;
 
-		// Enemy Management
+		/// <summary>
+		/// Enemy manager.
+		/// </summary>
 		public static EnemyManager EManager { get; private set; }
 
         #endregion
@@ -137,22 +189,16 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-          if (this.IsActive)
-					{
-						Player.Update(gameTime);
-						TestLevel.CurrentRoom.Update(gameTime);
-            
-            EManager.Update(gameTime);
-					}
+					PlayUpdate(gameTime);
 
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
-                    break;
+						break;
 
 				case GameState.Pause:
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(false);
-					break;
+						break;
             }
 
 			_ui.Update(gameTime);
@@ -163,6 +209,8 @@ namespace Final_Game
 
 			base.Update(gameTime);
 		}
+
+		
 
 		protected override void Draw(GameTime gameTime)
 		{
@@ -191,6 +239,7 @@ namespace Final_Game
 			base.Draw(gameTime);
 		}
 
+		#region Update Game FSM Methods
 		private void PauseGame(bool paused)
 		{
 			if (paused)
@@ -205,7 +254,19 @@ namespace Final_Game
 			}
 		}
 
-        private void ResetGame()
+		private void PlayUpdate(GameTime gameTime)
+		{
+			if (IsActive)
+			{
+				Player.Update(gameTime);
+				TestLevel.CurrentRoom.Update(gameTime);
+
+				EManager.Update(gameTime);
+			}
+		}
+		#endregion
+
+		private void ResetGame()
         {
             Player.Reset();
         }

@@ -142,7 +142,7 @@ namespace Final_Game
 		{
 			// TODO: Add your initialization logic here
 			tilemaker = new TileMaker(Content);
-			TestLevel = new Level(2, 2, 4);
+			TestLevel = new Level(10, 10, 25);
 			Player = new Player(this, new Vector2(
 				TestLevel.CurrentRoom.Tileset.Width / 2, 
 				TestLevel.CurrentRoom.Tileset.Height / 2));

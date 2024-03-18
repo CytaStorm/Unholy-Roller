@@ -10,25 +10,38 @@ namespace Final_Game.LevelGen
 	{
 
 		#region Fields
-		public bool Cleared { get; private set; }
+		/// <summary>
+		/// First clear of room, used to make empty rooms automatically clear.
+		/// </summary>
 		private bool _firstClear = true;
+		#endregion
+
+		#region Properties
 		/// <summary>
 		/// Top left corner of the room.
 		/// </summary>
-		public Point Origin = new Point(0, 0);
+		public Point Origin { get; private set; } = new Point(0, 0);
+
 		/// <summary>
 		/// Center of the room.
 		/// </summary>
 		public Point Center
 		{
 			get => new Point(
-				Origin.X + RoomFloor.Width / 2,
-				Origin.Y + RoomFloor.Height / 2);
+				Origin.X + Tileset.Width / 2,
+				Origin.Y + Tileset.Height / 2);
 		}
+
+		/// <summary>
+		/// Has the room been cleared of enemies?
+		/// </summary>
+		public bool Cleared { get; private set; }
+
 		/// <summary>
 		/// Where on the map the room is.
 		/// </summary>
-		public Point MapPosition;
+		public Point MapPosition { get; private set; }
+
 		/// <summary>
 		/// X position on map where the room is.
 		/// </summary>
@@ -37,24 +50,48 @@ namespace Final_Game.LevelGen
 		/// Y position on map where the room is.
 		/// </summary>
 		public int Y { get { return MapPosition.Y; } }
+
+		/// <summary>
+		/// Tileset of the room containing layout, enemies,\
+		/// and obstacles.
+		/// </summary>
+		public Tileset Tileset { get; set; }
+
+		/// <summary>
+		/// Which layout of the room floor the room uses.
+		/// </summary>
+		public int RoomFloorLayout { get; set; }
+		/// <summary>
+		/// Which layout of enemies the room uses.
+		/// </summary>
+		public int EnemyPositionLayout { get; set; }
+		/// <summary>
+		/// Which layout of obstacles the room uses.
+		/// </summary>
+		public int ObstaclePositionLayout { get; set; }
+
 		/// <summary>
 		/// Does the room have a possible connection 
 		/// on its North/South/East/West side?
 		/// </summary>
-		public Dictionary<string, bool> PossibleConnections;
+		public Dictionary<string, bool> PossibleConnections { get; private set; }
 		/// <summary>
-		/// To which rooms the room is connected to.
+		/// To which rooms the room is actually connected to.
 		/// </summary>
-		public Dictionary<string, bool> Connections;
-		public Tileset RoomFloor { get; set; }
+		public Dictionary<string, bool> ActualConnections { get; private set; }
 
-		public int RoomFloorLayout { get; set; }
-		public int EnemyPositionLayout { get; set; }
-		public int ObstaclePositionLayout { get; set; }
+		/// <summary>
+		/// Is this room the boss room?
+		/// </summary>
+		public bool IsBossRoom { get; set; }
 		#endregion
 
 		#region Constructor(s)
 
+		/// <summary>
+		/// Constructs a room.
+		/// </summary>
+		/// <param name="mapPosition">Position of room in the level map.</param>
 		public Room(Point mapPosition)
 		{
 			//Set up room data.
@@ -66,15 +103,16 @@ namespace Final_Game.LevelGen
 				{ "East", Y != Level.Map.GetLength(1) - 1 && Level.Map[X, Y + 1] == null},
 				{ "West",  Y != 0 && Level.Map[X, Y - 1] == null}
 			};
-
-			Connections = new Dictionary<string, bool>()
+			ActualConnections = new Dictionary<string, bool>()
 			{
 				{ "North", false },
 				{ "South", false },
 				{ "East", false },
 				{ "West", false }
 			};
-			RoomFloor = new Tileset();
+
+			//Create the tileset.
+			Tileset = new Tileset();
 		}
 		#endregion
 
@@ -100,32 +138,35 @@ namespace Final_Game.LevelGen
 			//out of bounds rooms on the map.
 			if (X != 0)
 			{
-				Connections["North"] = Level.Map[X - 1, Y] != null;
+				ActualConnections["North"] = Level.Map[X - 1, Y] != null;
 			}
 			if (X != Level.Map.GetLength(0) - 1)
 			{
-				Connections["South"] = Level.Map[X + 1, Y] != null;
+				ActualConnections["South"] = Level.Map[X + 1, Y] != null;
 			}
 			if (Y != Level.Map.GetLength (1) - 1)
 			{
-				Connections["East"] = Level.Map[X, Y + 1] != null;
+				ActualConnections["East"] = Level.Map[X, Y + 1] != null;
 			}
 			if (Y != 0) 
 			{
-				Connections["West"] = Level.Map[X, Y - 1] != null;
+				ActualConnections["West"] = Level.Map[X, Y - 1] != null;
 			}
-			RoomFloor.CreateClosedDoors(Connections);
+			Tileset.CreateClosedDoors(ActualConnections);
 		}
 
+		/// <summary>
+		/// Checks if the room has been cleared.
+		/// </summary>
 		public void CheckCleared()
 		{
-			Cleared = RoomFloor.EnemyCount < 1;
+			Cleared = Tileset.EnemyCount < 1;
 			//Firstclear added so room only adds open doors once.
 			if (Cleared && _firstClear)
 			{
 				_firstClear = false;
 				//Method to create open doors
-				RoomFloor.CreateOpenDoors(Connections);
+				Tileset.CreateOpenDoors(ActualConnections);
 			}
 		}
 
@@ -136,7 +177,7 @@ namespace Final_Game.LevelGen
 
 		public void Draw(SpriteBatch sb)
 		{
-			RoomFloor.Draw(sb);
+			Tileset.Draw(sb);
 		}
 		#endregion
 	}

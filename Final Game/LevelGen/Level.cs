@@ -11,39 +11,49 @@ namespace Final_Game.LevelGen
 	public class Level
 	{
 		#region Fields
-		// <summary>
+		/// <summary>
 		/// All rooms that make up the level.
 		/// </summary>
 		public static Room[,] Map;
+
 		/// <summary>
 		/// List of all rooms.
 		/// </summary>
 		private static List<Room> _rooms = new List<Room>();
-		/// <summary>s
-		/// Random to use in class.
+
+		/// <summary>
+		/// Random object to use in class.
 		/// </summary>
 		private static Random _random = new Random();
 
 		/// <summary>
-		/// Position on map of starting room.
+		/// Position on map of the starting room.
 		/// </summary>
 		public Point StartPoint;
+
 		/// <summary>
-		/// Position on map of room player is currently in.
+		/// Position on map of the room player is currently in.
 		/// </summary>
 		public Point CurrentPoint;
 
 		/// <summary>
-		/// Room player started in.
+		/// Room player is in.
 		/// </summary>
 		public Room CurrentRoom { get { return Map[CurrentPoint.X, CurrentPoint.Y]; } }
+
 		/// <summary>
-		/// Room player is in.
+		/// Room player started in.
 		/// </summary>
 		public Room StartRoom { get { return Map[StartPoint.X, StartPoint.Y]; } }
 		#endregion
 
 		#region Constructor(s)
+		/// <summary>
+		/// Constructor for level.
+		/// </summary>
+		/// <param name="height">Places to generate rooms on the Y axis.</param>
+		/// <param name="width">Places to generate rooms on the X axis.</param>
+		/// <param name="size">How many rooms to generate.</param>
 		public Level(int height, int width, int size)
 		{
 			Map = new Room[height, width];
@@ -59,7 +69,6 @@ namespace Final_Game.LevelGen
 			_rooms.Add(Map[StartPoint.X, StartPoint.Y]);
 			CurrentPoint = StartPoint;
 
-
 			//Expand rooms.
 			for (int i = 1; i < size; i++)
 			{
@@ -67,12 +76,14 @@ namespace Final_Game.LevelGen
 				ExpandLevel(_rooms);
 			}
 
-			//Create connections.
+			//Create connections between rooms.
 			foreach (Room room in _rooms)
 			{
 				room.CreateConnections();
 			}
 
+			//Determine Boss Room
+			DetermineBossRoom();
 
 			Debug.WriteLine($"Start room [{StartPoint.Y}, {StartPoint.X}]");
 			PrintLevel();
@@ -153,7 +164,25 @@ namespace Final_Game.LevelGen
 			return;
 		}
 
-		//Prints out level to Debug.
+		private void DetermineBossRoom()
+		{
+			Room farthestRoom = null;
+			float furthestDistance = 0;
+			Vector2 startPointVector2 = StartPoint.ToVector2();
+			foreach (Room room in _rooms) 
+			{
+				Vector2 distanceVector = startPointVector2 + room.MapPosition.ToVector2();
+				if (distanceVector.Length()  > furthestDistance )
+				{
+					farthestRoom = room;
+				}
+			}
+			farthestRoom.IsBossRoom = true;
+		}
+
+		/// <summary>
+		/// Prints out Level Map to Debug.
+		/// </summary>
 		public void PrintLevel()
 		{
 			for (int row = 0; row < Map.GetLength(0); row++)
@@ -162,6 +191,11 @@ namespace Final_Game.LevelGen
 				{
 					if (Map[row, col] != null)
 					{
+						if (Map[row, col].IsBossRoom)
+						{
+							Debug.Write("BOSS | ");
+							continue;
+						}
 						Debug.Write("ROOM | ");
 						continue;
 					}
@@ -173,7 +207,6 @@ namespace Final_Game.LevelGen
 			//Debug.WriteLine("--------------------------------------------------" +
 			//	"------------------------------------------------------");
 		}
-
 		#endregion
 
 	}

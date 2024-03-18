@@ -214,7 +214,7 @@ namespace Final_Game.LevelGen
 		/// <summary>
 		/// Creates closed doors based on the Room's connections list.
 		/// </summary>
-		/// <param name="connections">Connections dictionary that specifies 
+		/// <param name="connections">ActualConnections dictionary that specifies 
 		/// which cardinal directions have a door.</param>
 		public void CreateClosedDoors(Dictionary<string, bool> connections)
 		{

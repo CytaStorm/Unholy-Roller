@@ -1,4 +1,3 @@
-
 ﻿using Final_Game.Entity;
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
@@ -12,74 +11,126 @@ using System.Runtime.CompilerServices;
 
 namespace Final_Game
 {
+  /// <summary>
+	/// Which state the game is in.
+	/// </summary>
 	public enum GameState
 	{
 		Menu,
 		Play,
 		Pause,
 		GameOver,
-		Cutscene
+    Cutscene
 	}
-
+  
 	public class Game1 : Game
 	{
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
-		public static Level TestLevel { get; private set; }
 
 		public static Room TutorialRoom { get; private set; }
 
-        #region Fields
-		// Player
+    #region Fields
+		/// <summary>
+		/// Level the player is currently on.
+		/// </summary>
+		public static Level TestLevel { get; private set; }
+
+		/// <summary>
+		/// Player Object
+		/// </summary>
 		public static Player Player { get; private set; }
 
 		// Cursor
 		private Texture2D _cursorTexture;
 
-		// UI
+		/// <summary>
+		/// Cursor object.
+		/// </summary>
+		private Texture2D _cursorTexture;
+
+		/// <summary>
+		/// UI controller object.
+		/// </summary>
 		private UI _ui;
 
-		// Mouse
-        private MouseCursor _gameplayCursor;
-        private MouseCursor _menuCursor;
+		/// <summary>
+		/// Mouse controller object for control of cursor in-game.
+		/// </summary>
+    private MouseCursor _gameplayCursor;
+		/// <summary>
+		/// Mouse controller object for control of cursor in menus.
+		/// </summary>
+    private MouseCursor _menuCursor;
 
-		// Screen
-        public static int WindowWidth = 1920;
-        public static int WindowHeight = 1080;
+    /// <summary>
+		/// Screen width, in pixels.
+		/// </summary>
+    public static int WindowWidth = 1920;
+		/// <summary>
+		/// Screen height, in pixels.
+		/// </summary>
+    public static int WindowHeight = 1080;
 
 		// Cutscenes
 		private CutsceneManager _csManager;
-        #endregion
+    #endregion
 
-        #region Properties
+    #region Properties
 		// Screen
-        public static Rectangle ScreenBounds => 
+    /// <summary>
+		/// Rectangle respresenting the bounds of the screen, in pixels.
+		/// </summary>
+    public static Rectangle ScreenBounds => 
 			new Rectangle(0, 0, WindowWidth, WindowHeight);
+      
+    /// <summary>
+		/// Center of the screen, in pixels.
+		/// </summary>
 		public static Vector2 ScreenCenter => 
 			new Vector2(WindowWidth / 2, WindowHeight / 2);
 
-        // Mouse
-        public static MouseState CurMouse { get; private set; }
-        public static MouseState PrevMouse { get; private set; }
-        public static bool MouseIsOnScreen => 
-			ScreenBounds.Contains(CurMouse.Position);
+    // Mouse
+    /// <summary>
+		/// Current state of the mouse.
+		/// </summary>
+    public static MouseState CurMouse { get; private set; }
+		/// <summary>
+		/// Previous state of the mouse.
+		/// </summary>
+    public static MouseState PrevMouse { get; private set; }
+    public static bool MouseIsOnScreen => 
+      ScreenBounds.Contains(CurMouse.Position);
 
-        // Keyboard
-        public static KeyboardState CurKB { get; private set; }
-        public static KeyboardState PrevKB { get; private set; }
+    // Keyboard
+    /// <summary>
+		/// Current state of the keyboard.
+		/// </summary>
+    public static KeyboardState CurKB { get; private set; }
+		/// <summary>
+		/// Previous state of the keyboard.
+		/// </summary>
+    public static KeyboardState PrevKB { get; private set; }
 
 		// Environment
-        public static int TileSize { get; private set; } = 100;
+    /// <summary>
+		/// How large the each map tile is, in pixels.
+		/// </summary>
+    public static int TileSize { get; private set; } = 100;
 
-		// Game FSM
-        public static GameState State { get; private set; }
+		/// <summary>
+		/// Game FSM.
+		/// </summary>
+    public static GameState State { get; private set; }
 
+		/// <summary>
+		/// Object that creates tiles.
+		/// </summary>
 		private static TileMaker tilemaker;
 
 		// Enemy Management
 		public static EnemyManager EManager { get; private set; }
-
-        #endregion
+    #endregion
 
 		public Game1()
 		{
@@ -102,8 +153,8 @@ namespace Final_Game
 			TutorialRoom = new Room(new Point(0, 0));
 
 			Player = new Player(this, new Vector2(
-				TestLevel.CurrentRoom.RoomFloor.Width / 2, 
-				TestLevel.CurrentRoom.RoomFloor.Height / 2));
+				TestLevel.CurrentRoom.TileSet.Width / 2, 
+				TestLevel.CurrentRoom.TileSet.Height / 2));
 
 
 			Debug.WriteLine(UI.GetWrappedText("My ass is blue", 3));
@@ -288,18 +339,18 @@ namespace Final_Game
 					return false;
 			}
 		}
-        #endregion
+    #endregion
 
-        #region Keyboard Wrapper Methods
+    #region Keyboard Wrapper Methods
 
 		public static bool SingleKeyPress(Keys k)
 		{
 			return CurKB.IsKeyDown(k) && PrevKB.IsKeyUp(k);
 		}
 
-        #endregion
+    #endregion
 
-        #region Button Methods
+    #region Button Methods
 		
 		public void SubscribeToButtons()
 		{
@@ -321,8 +372,8 @@ namespace Final_Game
 		private void ResumeGame()
 		{
 			State = GameState.Play;
-            Mouse.SetCursor(_gameplayCursor);
-        }
+      Mouse.SetCursor(_gameplayCursor);
+    }
 
 		private void ReturnToMainMenu()
 		{
@@ -337,19 +388,19 @@ namespace Final_Game
 			Exit();
 		}
 
-        public void StartTutorial()
-        {
-            State = GameState.Cutscene;
-            Mouse.SetCursor(_gameplayCursor);
+    public void StartTutorial()
+    {
+        State = GameState.Cutscene;
+        Mouse.SetCursor(_gameplayCursor);
 
-            _csManager.StartCutscene(Cutscene.Tutorial);
+        _csManager.StartCutscene(Cutscene.Tutorial);
 
-			Player.MoveToRoomCenter(TutorialRoom);
-        }
+        Player.MoveToRoomCenter(TutorialRoom);
+    }
 
-        #endregion
+    #endregion
 
-        private void DrawDebug()
+    private void DrawDebug()
 		{
 			// Debug Drawing
 			ShapeBatch.Begin(GraphicsDevice);
@@ -360,5 +411,4 @@ namespace Final_Game
 
 			ShapeBatch.End();
 		}
-    }
-}
+  }

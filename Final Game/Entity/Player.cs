@@ -35,16 +35,16 @@ namespace Final_Game.Entity
 
 		private float _transitionToWalkingSpeed;
 
-        // Time dilation
-        double _timeTransitionDuration = 0.2;
-        double _transitionTimeCounter = 0.2;
-        float _normalTimeMultiplier = 1f;
-        float _minTimeMultiplier = 0.3f;
+    // Time dilation
+    double _timeTransitionDuration = 0.2;
+    double _transitionTimeCounter = 0.2;
+    float _normalTimeMultiplier = 1f;
+    float _minTimeMultiplier = 0.3f;
 
-        #endregion
+    #endregion
 
-        #region Properties
-        public PlayerState State { get; private set; }
+    #region Properties
+    public PlayerState State { get; private set; }
 		public Vector2 ScreenPosition { get; private set; }
 
 		/// <summary>
@@ -52,6 +52,9 @@ namespace Final_Game.Entity
 		/// to scale it to bullet time
 		/// </summary>
 		public static float BulletTimeMultiplier { get; private set; } = 1f;
+
+		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
+
 		#endregion
 
 		// Constructors
@@ -105,7 +108,8 @@ namespace Final_Game.Entity
 			switch (State)
 			{
 				case PlayerState.Walking:
-					MoveWithKeyboard(Game1.CurKB);   
+					MoveWithKeyboard(Game1.CurKB);
+					//Debug.WriteLine($"Current worldPos {WorldPosition}");
 					break;
 
 				case PlayerState.Rolling:
@@ -127,7 +131,7 @@ namespace Final_Game.Entity
 
 			//ApplyScreenBoundRicochet();
 
-			CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.RoomFloor);
+			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
 			HandleEnemyCollisions();
 
@@ -158,9 +162,11 @@ namespace Final_Game.Entity
 					break;
 
 				case TileType.OpenDoor:
+					//Return so no calculating placing
+					//player on the open door.
 					Debug.WriteLine("HIT OPEN DOOR");
 					TransferRoom(tile);
-					break;
+					return;
 
 				case TileType.Wall:
 					break;
@@ -241,15 +247,19 @@ namespace Final_Game.Entity
 			{
 				case "U":
 					Game1.TestLevel.CurrentPoint += new Point(-1, 0);
+					Move(new Vector2(0, (CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "B":
 					Game1.TestLevel.CurrentPoint += new Point(1, 0);
+					Move(new Vector2(0, -(CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "L":
 					Game1.TestLevel.CurrentPoint += new Point(0, -1);
+					Move(new Vector2((CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 				case "R":
 					Game1.TestLevel.CurrentPoint += new Point(0, 1);
+					Move(new Vector2(-(CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 			}
 		}

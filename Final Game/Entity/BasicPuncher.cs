@@ -154,7 +154,7 @@ namespace Final_Game.Entity
 
             CheckEnemyCollisions();
 
-            CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.RoomFloor);
+            CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.Tileset);
 
             Move(Velocity * Player.BulletTimeMultiplier);
 

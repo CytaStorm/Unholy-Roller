@@ -38,6 +38,7 @@ namespace Final_Game.Entity
 		public Sprite Image { get; private set; }
 		public PlayerState State { get; private set; }
 		public Vector2 ScreenPosition { get; private set; }
+		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
 		#endregion
 
 		// Constructors
@@ -84,7 +85,8 @@ namespace Final_Game.Entity
 			switch (State)
 			{
 				case PlayerState.Walking:
-					MoveWithKeyboard(Game1.CurKB);   
+					MoveWithKeyboard(Game1.CurKB);
+					Debug.WriteLine($"Current worldPos {WorldPosition}");
 					break;
 
 				case PlayerState.Rolling:
@@ -106,9 +108,9 @@ namespace Final_Game.Entity
 
 			//ApplyScreenBoundRicochet();
 
-			CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.RoomFloor);
+			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
-		   Move(Velocity);
+			Move(Velocity);
 		}
 		public override void Draw(SpriteBatch sb)
 		{
@@ -135,9 +137,11 @@ namespace Final_Game.Entity
 					break;
 
 				case TileType.OpenDoor:
+					//Return so no calculating placing
+					//player on the open door.
 					Debug.WriteLine("HIT OPEN DOOR");
 					TransferRoom(tile);
-					break;
+					return;
 
 				case TileType.Wall:
 					break;
@@ -166,15 +170,19 @@ namespace Final_Game.Entity
 			{
 				case "U":
 					Game1.TestLevel.CurrentPoint += new Point(-1, 0);
+					Move(new Vector2(0, (CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "B":
 					Game1.TestLevel.CurrentPoint += new Point(1, 0);
+					Move(new Vector2(0, -(CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "L":
 					Game1.TestLevel.CurrentPoint += new Point(0, -1);
+					Move(new Vector2((CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 				case "R":
 					Game1.TestLevel.CurrentPoint += new Point(0, 1);
+					Move(new Vector2(-(CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 			}
 		}

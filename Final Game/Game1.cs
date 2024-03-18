@@ -1,9 +1,10 @@
-﻿using Final_Game.Entity;
+using Final_Game.Entity;
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -68,6 +69,9 @@ namespace Final_Game
 
 		private static TileMaker tilemaker;
 
+		// Enemy Management
+		public static EnemyManager EManager { get; private set; }
+
         #endregion
 
 		public Game1()
@@ -105,6 +109,9 @@ namespace Final_Game
 
 			// Create player
 			Player = new Player(this, new Vector2(300, 300));
+
+			// Create Entity Managers
+			EManager = new EnemyManager(this);
 			
 			// Create custom cursor
 			_gameplayCursor = MouseCursor.FromTexture2D(
@@ -130,23 +137,21 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					if (this.IsActive)
+          if (this.IsActive)
 					{
 						Player.Update(gameTime);
 						TestLevel.CurrentRoom.Update(gameTime);
+            
+            EManager.Update(gameTime);
 					}
-						
+
 					if (SingleKeyPress(Keys.Escape))
-					{
 						PauseGame(true);
-					}
                     break;
 
 				case GameState.Pause:
 					if (SingleKeyPress(Keys.Escape))
-					{
 						PauseGame(false);
-					}
 					break;
             }
 
@@ -172,6 +177,8 @@ namespace Final_Game
 				case GameState.Play:
 					Player.Draw(_spriteBatch);
 
+					EManager.Draw(_spriteBatch, gameTime);
+
 					break;
 			}
 
@@ -179,12 +186,7 @@ namespace Final_Game
 			
 			_spriteBatch.End();
 
-			ShapeBatch.Begin(GraphicsDevice);
-
-			// Debug Drawing
-			// ShapeBatch.Box(Player.Hitbox, Color.White);
-
-			ShapeBatch.End();
+			//DrawDebug();
 
 			base.Draw(gameTime);
 		}
@@ -202,6 +204,7 @@ namespace Final_Game
 				Mouse.SetCursor(_gameplayCursor);
 			}
 		}
+
         private void ResetGame()
         {
             Player.Reset();
@@ -301,6 +304,18 @@ namespace Final_Game
 			Exit();
 		}
 
-        #endregion
+		#endregion
+
+		private void DrawDebug()
+		{
+			// Debug Drawing
+			ShapeBatch.Begin(GraphicsDevice);
+
+			Player.DrawGizmos();
+
+			EManager.DrawGizmos();
+
+			ShapeBatch.End();
+		}
     }
 }

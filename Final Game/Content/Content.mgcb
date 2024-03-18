@@ -1,9 +1,9 @@
 
 #----------------------------- Global Properties ----------------------------#
 
-/outputDir:bin/$(Platform)
-/intermediateDir:obj/$(Platform)
-/platform:DesktopGL
+/outputDir:bin
+/intermediateDir:obj
+/platform:Windows
 /config:
 /profile:Reach
 /compress:False
@@ -85,6 +85,12 @@
 /processorParam:TextureFormat=Color
 /build:EmptyButton.png
 
+#begin Room Layouts/enemyLayouts.txt
+/copy:Room Layouts/enemyLayouts.txt
+
+#begin Room Layouts/obstacleLayouts.txt
+/copy:Room Layouts/obstacleLayouts.txt
+
 #begin Room Layouts/roomLayouts.txt
 /copy:Room Layouts/roomLayouts.txt
 
@@ -100,7 +106,7 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/BasicBlueClean.png
 
-#begin Sprites/BasicBlueClean.png
+#begin Sprites/BasicEnemy.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -110,7 +116,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/BasicBlueClean.png
+/build:Sprites/BasicEnemy.png
 
 #begin Sprites/ClosedDoorAtlas.png
 /importer:TextureImporter
@@ -136,18 +142,6 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/CursorSprite.png
 
-#begin Sprites/CursorSprite.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/CursorSprite.png
-
 #begin Sprites/GutterTileAtlas.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -159,30 +153,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/GutterTileAtlas.png
-
-#begin Sprites/GutterTileAtlas.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/GutterTileAtlas.png
-
-#begin Sprites/LaunchArrowSpritesheet.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/LaunchArrowSpritesheet.png
 
 #begin Sprites/LaunchArrowSpritesheet.png
 /importer:TextureImporter
@@ -208,7 +178,7 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/OpenDoorAtlas.png
 
-#begin Sprites/PlaceholderDoor.png
+#begin Sprites/PinPunchSpritesheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -218,7 +188,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/PlaceholderDoor.png
+/build:Sprites/PinPunchSpritesheet.png
 
 #begin Sprites/PlaceholderDoor.png
 /importer:TextureImporter
@@ -244,30 +214,6 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/PlaceholderTile.png
 
-#begin Sprites/PlaceholderTile.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/PlaceholderTile.png
-
-#begin Sprites/PurpleTile.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/PurpleTile.png
-
 #begin Sprites/PurpleTile.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -291,30 +237,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/SpikeTile.png
-
-#begin Sprites/SpikeTile.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/SpikeTile.png
-
-#begin Sprites/WallSheet.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Sprites/WallSheet.png
 
 #begin Sprites/WallSheet.png
 /importer:TextureImporter

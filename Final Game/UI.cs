@@ -28,6 +28,11 @@ namespace Final_Game
 		//private Sprite _heart;
 		//private Sprite _halfHeart;
 		//private Sprite _emptyHeart;
+
+		// Player Speed
+		private Texture2D _speedometerPin;
+		private Texture2D _speedometerCrest;
+		private float _maxSpeedometerSpeed;
 		#endregion
 
 		#region Properties
@@ -65,6 +70,12 @@ namespace Final_Game
 			//    emptyHeart,
 			//    new Rectangle(0, 0, 100, 100),
 			//    new Rectangle(0, 0, 100, 100));
+
+			// Setup Player Speedometer
+			_speedometerPin = _gm.Content.Load<Texture2D>("SpeedometerPin");
+			_speedometerCrest = _gm.Content.Load<Texture2D>("SpeedometerCrest");
+			_maxSpeedometerSpeed = 60f;
+
 
 			// Load Fonts
 			TitleCaseArial = _gm.Content.Load<SpriteFont>("TitleCaseArial");
@@ -123,6 +134,8 @@ namespace Final_Game
 				case GameState.Play:
 					DrawPlayerHealth();
 
+					DrawPlayerSpeedometer();
+
 					// Display Bullet Time multiplier
 					//_spriteBatch.DrawString(
 					//    Game1.ARIAL32,
@@ -159,6 +172,39 @@ namespace Final_Game
 			//        _emptyHeart.Draw(_spriteBatch, new Vector2(i * 105f, 10f));
 			//    }
 			//}
+		}
+
+		private void DrawPlayerSpeedometer()
+		{
+			// Draw Speed dial
+			_spriteBatch.Draw(
+				_speedometerCrest,
+				new Vector2(60f, 40f),
+				Color.White);
+
+			float minAngle = 5 * MathF.PI / 4;
+			float maxAngle = 11 * MathF.PI / 6;
+
+			float maxAngularDisplacement = MathHelper.TwoPi - (maxAngle - minAngle);
+
+			float curPlayerSpeed = Game1.Player.Velocity.Length();
+
+			float playerSpeedPercent = curPlayerSpeed / _maxSpeedometerSpeed;
+
+			// Interpolate between min and max angle using
+			// player speed
+			_spriteBatch.Draw(
+				_speedometerPin,
+				new Vector2(
+					60f + _speedometerCrest.Bounds.Center.X, 
+					40f + _speedometerCrest.Bounds.Center.Y),
+				_speedometerPin.Bounds,
+				Color.White,
+				playerSpeedPercent * maxAngularDisplacement - minAngle,
+				_speedometerPin.Bounds.Center.ToVector2(),
+				1f,
+				SpriteEffects.None,
+				0f);
 		}
 
 		#region Menu Drawing Methods

@@ -336,7 +336,7 @@ namespace Final_Game.Entity
 				//    Velocity = distance;
 				//}
 
-				//_numRedirects--;
+				_numRedirects--;
 
 				// Player is now rolling
 				State = PlayerState.Rolling;
@@ -490,20 +490,23 @@ namespace Final_Game.Entity
 				0f
 				);
 
-			// Todo: Display remaining redirects
-			//Vector2 redirectStringDimensions =
-			//    Game1.ARIAL32.MeasureString(_numRedirects.ToString());
+			// Display remaining redirects
+			if (_numRedirects <= _maxRedirects)
+			{
+				Vector2 redirectStringDimensions =
+					UI.MediumArial.MeasureString(_numRedirects.ToString());
 
-			//Vector2 textPos = centerPlayerPos + directionFromPlayerToMouse;
-			//textPos = new Vector2(
-			//    textPos.X - redirectStringDimensions.X / 2,
-			//    textPos.Y - redirectStringDimensions.Y / 2);
+				Vector2 textPos = centerScreenPos + directionFromPlayerToMouse;
+				textPos = new Vector2(
+					textPos.X - redirectStringDimensions.X / 2,
+					textPos.Y - redirectStringDimensions.Y / 2);
 
-			//sb.DrawString(
-			//    Game1.ARIAL32,
-			//    _numRedirects.ToString(),
-			//    textPos,
-			//    Color.White);
+				sb.DrawString(
+					UI.MediumArial,
+					_numRedirects.ToString(),
+					textPos,
+					Color.White);
+			}
 		}
 
 		public override void DrawGizmos()

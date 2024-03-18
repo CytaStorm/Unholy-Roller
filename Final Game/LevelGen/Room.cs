@@ -22,8 +22,8 @@ namespace Final_Game.LevelGen
 		public Point Center
 		{
 			get => new Point(
-				Origin.X + RoomFloor.Width / 2,
-				Origin.Y + RoomFloor.Height / 2);
+				Origin.X + Tileset.Width / 2,
+				Origin.Y + Tileset.Height / 2);
 		}
 		/// <summary>
 		/// Where on the map the room is.
@@ -46,7 +46,7 @@ namespace Final_Game.LevelGen
 		/// To which rooms the room is connected to.
 		/// </summary>
 		public Dictionary<string, bool> Connections;
-		public Tileset RoomFloor { get; set; }
+		public Tileset Tileset { get; set; }
 
 		public int RoomFloorLayout { get; set; }
 		public int EnemyPositionLayout { get; set; }
@@ -74,7 +74,7 @@ namespace Final_Game.LevelGen
 				{ "East", false },
 				{ "West", false }
 			};
-			RoomFloor = new Tileset();
+			Tileset = new Tileset();
 		}
 		#endregion
 
@@ -114,18 +114,18 @@ namespace Final_Game.LevelGen
 			{
 				Connections["West"] = Level.Map[X, Y - 1] != null;
 			}
-			RoomFloor.CreateClosedDoors(Connections);
+			Tileset.CreateClosedDoors(Connections);
 		}
 
 		public void CheckCleared()
 		{
-			Cleared = RoomFloor.EnemyCount < 1;
+			Cleared = Tileset.EnemyCount < 1;
 			//Firstclear added so room only adds open doors once.
 			if (Cleared && _firstClear)
 			{
 				_firstClear = false;
 				//Method to create open doors
-				RoomFloor.CreateOpenDoors(Connections);
+				Tileset.CreateOpenDoors(Connections);
 			}
 		}
 
@@ -136,7 +136,7 @@ namespace Final_Game.LevelGen
 
 		public void Draw(SpriteBatch sb)
 		{
-			RoomFloor.Draw(sb);
+			Tileset.Draw(sb);
 		}
 		#endregion
 	}

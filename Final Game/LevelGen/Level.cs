@@ -34,11 +34,11 @@ namespace Final_Game.LevelGen
 		public Point CurrentPoint;
 
 		/// <summary>
-		/// Room player started in.
+		/// Room player is in.
 		/// </summary>
 		public Room CurrentRoom { get { return Map[CurrentPoint.X, CurrentPoint.Y]; } }
 		/// <summary>
-		/// Room player is in.
+		/// Room player started in.
 		/// </summary>
 		public Room StartRoom { get { return Map[StartPoint.X, StartPoint.Y]; } }
 		#endregion

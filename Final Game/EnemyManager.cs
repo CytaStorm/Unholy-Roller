@@ -57,9 +57,9 @@ namespace Final_Game
 
         public void CreateRoomEnemies(Room r)
         {
-            for (int i = 0; i < r.RoomFloor.Spawners.Count; i++)
+            for (int i = 0; i < r.Tileset.Spawners.Count; i++)
             {
-                Tile curSpawner = r.RoomFloor.Spawners[i];
+                Tile curSpawner = r.Tileset.Spawners[i];
 
                 // Spawn on spawn tile
                 Enemy addition = new BasicPuncher(gm, curSpawner.WorldPosition);

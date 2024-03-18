@@ -79,6 +79,11 @@ namespace Final_Game.LevelGen
 		/// To which rooms the room is actually connected to.
 		/// </summary>
 		public Dictionary<string, bool> ActualConnections { get; private set; }
+
+		/// <summary>
+		/// Is this room the boss room?
+		/// </summary>
+		public bool IsBossRoom { get; set; }
 		#endregion
 
 		#region Constructor(s)

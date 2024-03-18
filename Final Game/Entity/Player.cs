@@ -89,7 +89,7 @@ namespace Final_Game.Entity
 			{
 				case PlayerState.Walking:
 					MoveWithKeyboard(Game1.CurKB);
-					Debug.WriteLine($"Current worldPos {WorldPosition}");
+					//Debug.WriteLine($"Current worldPos {WorldPosition}");
 					break;
 
 				case PlayerState.Rolling:
@@ -378,14 +378,14 @@ namespace Final_Game.Entity
 		}
 
 
-    public void Ricochet(Vector2 newDirection)
-    {
-        Velocity = newDirection;
+		public void Ricochet(Vector2 newDirection)
+		{
+		    Velocity = newDirection;
 
-        State = PlayerState.Rolling;
-    }
+		    State = PlayerState.Rolling;
+		}
 
-    private void ApplyScreenBoundRicochet()
+		private void ApplyScreenBoundRicochet()
 		{
 			if (WorldPosition.X + Image.DestinationRect.Width > Game1.WindowWidth ||
 				WorldPosition.X <= 0)

@@ -82,6 +82,9 @@ namespace Final_Game.LevelGen
 				room.CreateConnections();
 			}
 
+			//Determine Boss Room
+			DetermineBossRoom();
+
 			Debug.WriteLine($"Start room [{StartPoint.Y}, {StartPoint.X}]");
 			PrintLevel();
 		}
@@ -161,6 +164,22 @@ namespace Final_Game.LevelGen
 			return;
 		}
 
+		private void DetermineBossRoom()
+		{
+			Room farthestRoom = null;
+			float furthestDistance = 0;
+			Vector2 startPointVector2 = StartPoint.ToVector2();
+			foreach (Room room in _rooms) 
+			{
+				Vector2 distanceVector = startPointVector2 + room.MapPosition.ToVector2();
+				if (distanceVector.Length()  > furthestDistance )
+				{
+					farthestRoom = room;
+				}
+			}
+			farthestRoom.IsBossRoom = true;
+		}
+
 		/// <summary>
 		/// Prints out Level Map to Debug.
 		/// </summary>
@@ -172,6 +191,11 @@ namespace Final_Game.LevelGen
 				{
 					if (Map[row, col] != null)
 					{
+						if (Map[row, col].IsBossRoom)
+						{
+							Debug.Write("BOSS | ");
+							continue;
+						}
 						Debug.Write("ROOM | ");
 						continue;
 					}

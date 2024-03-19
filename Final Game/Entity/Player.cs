@@ -115,7 +115,7 @@ namespace Final_Game.Entity
 
 			HandleEnemyCollisions();
 
-		    Move(Velocity);
+			Move(Velocity);
 		}
 		public override void Draw(SpriteBatch sb)
 		{
@@ -169,57 +169,57 @@ namespace Final_Game.Entity
 			base.OnHitTile(tile, colDir);
 		}
 
-    public override void OnHitEntity(Entity entity, CollisionDirection colDir)
-    {
-        switch (entity.Type)
-        {
-            case EntityType.Enemy:
-                if (State != PlayerState.Walking)
-                {
-                    if (!entity.IsInvincible)
-                    {
-                        // Speed up
-                        Vector2 acc = Velocity;
-                        acc.Normalize();
-                        acc *= 0.05f;
-                        Accelerate(acc);
+	public override void OnHitEntity(Entity entity, CollisionDirection colDir)
+	{
+		switch (entity.Type)
+		{
+			case EntityType.Enemy:
+				if (State != PlayerState.Walking)
+				{
+					if (!entity.IsInvincible)
+					{
+						// Speed up
+						Vector2 acc = Velocity;
+						acc.Normalize();
+						acc *= 0.05f;
+						Accelerate(acc);
 
-                        // Get an extra redirect
-                        if (_numRedirects < _maxRedirects)
-                            _numRedirects++;
-                    }
+						// Get an extra redirect
+						if (_numRedirects < _maxRedirects)
+							_numRedirects++;
+					}
 
-                    entity.TakeDamage(Damage);
-                }
-                else
-                {
-                    // Player gets knocked back if standing on top of enemy
-                    Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
-                    distToEnemy.Normalize();
-                    distToEnemy *= -5;
+					entity.TakeDamage(Damage);
+				}
+				else
+				{
+					// Player gets knocked back if standing on top of enemy
+					Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
+					distToEnemy.Normalize();
+					distToEnemy *= -5;
 
-                    this.TakeDamage(1);
+					this.TakeDamage(1);
 
-                    Velocity = distToEnemy;
-                    State = PlayerState.Rolling;
-                }
-                break;
-        }
-    }
+					Velocity = distToEnemy;
+					State = PlayerState.Rolling;
+				}
+				break;
+		}
+	}
 
-    private void HandleEnemyCollisions()
-    {
-        for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
-        {
-            Enemy curEnemy = Game1.EManager.Enemies[i];
+	private void HandleEnemyCollisions()
+	{
+		for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
+		{
+			Enemy curEnemy = Game1.EManager.Enemies[i];
 
-    CollisionChecker.CheckEntityCollision(this, curEnemy);
-        }
-    }
+	CollisionChecker.CheckEntityCollision(this, curEnemy);
+		}
+	}
 
-    #endregion
+	#endregion
 
-    #region Movement Helper Methods
+	#region Movement Helper Methods
 
 		private void TransferRoom(Tile tile)
 		{
@@ -380,9 +380,9 @@ namespace Final_Game.Entity
 
 		public void Ricochet(Vector2 newDirection)
 		{
-		    Velocity = newDirection;
+			Velocity = newDirection;
 
-		    State = PlayerState.Rolling;
+			State = PlayerState.Rolling;
 		}
 
 		private void ApplyScreenBoundRicochet()
@@ -472,7 +472,7 @@ namespace Final_Game.Entity
 
 		public override void DrawGizmos()
 		{
-      Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
+	  Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
 
 			Vector2 hitboxDistFromPlayer =
 				new Vector2(
@@ -486,8 +486,8 @@ namespace Final_Game.Entity
 					Hitbox.Width,
 					Hitbox.Height);
 
-      ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
-    }
+	  ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
+	}
 
 		#endregion
 

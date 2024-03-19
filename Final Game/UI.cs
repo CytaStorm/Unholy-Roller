@@ -25,14 +25,21 @@ namespace Final_Game
 		private Slider _testSlider;
 
 		// Player Health
-		//private Sprite _heart;
-		//private Sprite _halfHeart;
-		//private Sprite _emptyHeart;
+		private Texture2D _blueBallSpritesheet;
+		private int _brokenBallSpriteWidth;
 
 		// Player Speed
 		private Texture2D _speedometerPin;
 		private Texture2D _speedometerCrest;
 		private float _maxSpeedometerSpeed;
+
+		// Shake effect
+		private double _shakeDuration;
+		private double _shakeTimer;
+		private Vector2 _maxShakeOffset;
+		private float _maxShakeMagnitude;
+		private float _maxShakeMultiplier;
+
 		#endregion
 
 		#region Properties
@@ -52,38 +59,30 @@ namespace Final_Game
 			_gm = gm;
 			_spriteBatch = sb;
 
-			// Heart image
-			//Texture2D heart = _gm.Content.Load<Texture2D>("BowlingHeart");
-			//_heart = new Sprite(
-			//    heart,
-			//    new Rectangle(0, 0, 100, 100),
-			//    new Rectangle(0, 0, 100, 100));
-
-			//Texture2D halfHeart = _gm.Content.Load<Texture2D>("BowlingHalfHeart");
-			//_halfHeart = new Sprite(
-			//    halfHeart,
-			//    new Rectangle(0, 0, 100, 100),
-			//    new Rectangle(0, 0, 100, 100));
-
-			//Texture2D emptyHeart = _gm.Content.Load<Texture2D>("EmptyHeart");
-			//_emptyHeart = new Sprite(
-			//    emptyHeart,
-			//    new Rectangle(0, 0, 100, 100),
-			//    new Rectangle(0, 0, 100, 100));
+			// Load Health Images
+			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
+			_brokenBallSpriteWidth = 360;
 
 			// Setup Player Speedometer
 			_speedometerPin = _gm.Content.Load<Texture2D>("SpeedometerPin");
 			_speedometerCrest = _gm.Content.Load<Texture2D>("SpeedometerCrest");
 			_maxSpeedometerSpeed = 60f;
 
-
 			// Load Fonts
 			TitleCaseArial = _gm.Content.Load<SpriteFont>("TitleCaseArial");
 			MediumArial = _gm.Content.Load<SpriteFont>("MediumArial");
 
-			CreateButtons();
+			// Setup effects
+			_maxShakeMagnitude = 15f;
+			_maxShakeMultiplier = 3f;
+			_maxShakeOffset = new Vector2(_maxShakeMagnitude, _maxShakeMagnitude);
+			_shakeDuration = 0.5;
+
+            CreateButtons();
 
 			CreateSliders();
+
+			SubscribeToEntities();
 		}
 
 		// Methods
@@ -142,36 +141,91 @@ namespace Final_Game
 					//    $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
 					//    new Vector2(0f, 200f),
 					//    Color.White);
+					if (_shakeTimer > 0)
+					{
+						_shakeTimer -=
+							gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+					}
 					break;
 
 				case GameState.Pause:
 					DrawPauseMenu();
 
 					break;
+
+				case GameState.GameOver:
+					_spriteBatch.DrawString(
+						MediumArial,
+						"You Die :P",
+						Game1.ScreenCenter,
+						Color.Black);
+					break;
 			}
 		}
 
-		private void DrawPlayerHealth()
+        #region HUD Drawing Methods
+
+        private void DrawPlayerHealth()
 		{
-			// Draw whole hearts
-			//int temp = Game1.Player1.CurHealth;
-			//for (int i = 0; i < (int)Math.Round(Game1.Player1.MaxHealth / 2.0); i++)
-			//{
-			//    if (temp / 2 >= 1)
-			//    {
-			//        _heart.Draw(_spriteBatch, new Vector2(i * 105f, 10f));
-			//        temp -= 2;
-			//    }
-			//    else if (temp > 0)
-			//    {
-			//        _halfHeart.Draw(_spriteBatch, new Vector2(i * 105f, 10f));
-			//        temp -= 1;
-			//    }
-			//    else
-			//    {
-			//        _emptyHeart.Draw(_spriteBatch, new Vector2(i * 105f, 10f));
-			//    }
-			//}
+			Color tint = Color.White;
+			Rectangle source = 
+				new Rectangle(0, 0, _brokenBallSpriteWidth, _brokenBallSpriteWidth);
+
+			// Get damage aesthetics
+			if (Game1.Player.CurHealth > Game1.Player.MaxHealth * 3 / 4)
+			{
+				// Unscathed
+				tint = Color.White;
+
+			}
+			else if (Game1.Player.CurHealth > Game1.Player.MaxHealth * 2 / 4)
+			{
+				// Light Damage
+				tint = Color.LightPink;
+				source.X = _brokenBallSpriteWidth;
+			}
+			else if (Game1.Player.CurHealth > Game1.Player.MaxHealth * 1 / 4)
+			{
+				// Medium Damage
+				tint = Color.Pink;
+                source.X = _brokenBallSpriteWidth * 2;
+            }
+			else
+			{
+				// Heavy Damage
+				tint = Color.Red;
+				source.X = _brokenBallSpriteWidth * 3;
+			}
+
+			// Get smiling aesthetic
+			if (Game1.Player.IsSmiling)
+				source.Y = _brokenBallSpriteWidth;
+
+			Vector2 drawPos = new Vector2(60f, 40f);
+
+			// Vibrate the image
+			// Max magnitude of shake progressively decreases
+			if (_shakeTimer > 0)
+			{
+				float remainingShakeProgress = (float)(_shakeTimer / _shakeDuration);
+				float xBound = _maxShakeOffset.X * remainingShakeProgress;
+				float yBound = _maxShakeOffset.Y * remainingShakeProgress;
+
+                Random rand = new Random();
+                float xOffset = (rand.NextSingle() * xBound * 2) - xBound;
+                float yOffset = (rand.NextSingle() * yBound * 2) - yBound;
+
+                Vector2 offset = new Vector2(xOffset, yOffset);
+
+				drawPos += offset;
+            }
+
+            // Draw image
+            _spriteBatch.Draw(
+				_blueBallSpritesheet,
+				drawPos,
+				source,
+				tint);
 		}
 
 		private void DrawPlayerSpeedometer()
@@ -182,6 +236,9 @@ namespace Final_Game
 				new Vector2(60f, 40f),
 				Color.White);
 
+			DrawPlayerHealth();
+
+			// Draw Pin
 			float minAngle = 5 * MathF.PI / 4;
 			float maxAngle = 11 * MathF.PI / 6;
 
@@ -206,6 +263,8 @@ namespace Final_Game
 				SpriteEffects.None,
 				0f);
 		}
+
+        #endregion
 
 		#region Menu Drawing Methods
 		private void DrawMainMenu()
@@ -360,5 +419,27 @@ namespace Final_Game
 		}
 
         #endregion
+
+		private void SubscribeToEntities()
+		{
+			Game1.Player.OnPlayerDamaged += PlayerWasDamaged;
+		}
+
+		private void PlayerWasDamaged(int amount)
+		{
+			// Vibrate health UI
+			// Vibration magnitude increases as health decreases
+			float shakeMaxMag = _maxShakeMagnitude;
+            if (Game1.Player.CurHealth > 0)
+			{
+				shakeMaxMag =
+					_maxShakeMagnitude * 
+					(1 - (float)Game1.Player.CurHealth / Game1.Player.MaxHealth) *
+					_maxShakeMultiplier;
+			}
+
+			_maxShakeOffset = new Vector2(shakeMaxMag, shakeMaxMag);
+			_shakeTimer = _shakeDuration;
+		}
     }
 }

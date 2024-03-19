@@ -33,18 +33,21 @@ namespace Final_Game.Entity
 		private float _brakeSpeed;
 		private float _frictionMagnitude;
 
+		private Sprite _smileSprite;
+		private float _smileSpeed;
+
 		private float _transitionToWalkingSpeed;
 
-    // Time dilation
-    double _timeTransitionDuration = 0.2;
-    double _transitionTimeCounter = 0.2;
-    float _normalTimeMultiplier = 1f;
-    float _minTimeMultiplier = 0.3f;
+		// Time dilation
+		double _timeTransitionDuration = 0.2;
+		double _transitionTimeCounter = 0.2;
+		float _normalTimeMultiplier = 1f;
+		float _minTimeMultiplier = 0.3f;
 
-    #endregion
+		#endregion
 
-    #region Properties
-    public PlayerState State { get; private set; }
+		#region Properties
+		public PlayerState State { get; private set; }
 		public Vector2 ScreenPosition { get; private set; }
 
 		/// <summary>
@@ -55,16 +58,35 @@ namespace Final_Game.Entity
 
 		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
 
+		/// <summary>
+		/// Gets whether or not player is moving fast enough for
+		/// their sprite to change to smiling
+		/// </summary>
+		public bool IsSmiling => 
+			Velocity.LengthSquared() >= _smileSpeed * _smileSpeed;
+
 		#endregion
+
+		public event EntityDamaged OnPlayerDamaged;
 
 		// Constructors
 		public Player(Game1 gm, Vector2 worldPosition)
 		{
 			// Set images
 			Texture2D playerSprite = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
+			
+			// main sprite
 			Image = new Sprite(playerSprite,
 				new Rectangle(0, 0, 120, 120),
 				new Rectangle(0, 0, Game1.TileSize, Game1.TileSize));
+			
+			// smiling sprite
+			_smileSprite = new Sprite(
+				gm.Content.Load<Texture2D>("Sprites/SpookyBlueTeeth"),
+				new Rectangle(0, 0, 120, 120),
+				Image.DestinationRect);
+
+			// launch arrow image
 			_launchArrowsTexture = gm.Content.Load<Texture2D>("Sprites/LaunchArrowSpritesheet");
 
 			// Set position on screen
@@ -88,6 +110,7 @@ namespace Final_Game.Entity
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
 			_transitionToWalkingSpeed = 1f;
+			_smileSpeed = 48f;
 
 			// Set default state
 			State = PlayerState.Walking;
@@ -95,6 +118,11 @@ namespace Final_Game.Entity
 			// Give launches
 			_maxRedirects = 3;
 			_numRedirects = _maxRedirects + 1;
+
+			// Health
+			MaxHealth = 6;
+			CurHealth = MaxHealth;
+			InvDuration = 0.5;
 
 			// Set attack vars
 			Damage = 1;
@@ -104,6 +132,8 @@ namespace Final_Game.Entity
 		public override void Update(GameTime gameTime)
 		{
 			UpdateBulletTime(gameTime);
+
+			TickInvincibility(gameTime);
 
 			switch (State)
 			{
@@ -140,8 +170,12 @@ namespace Final_Game.Entity
 		public override void Draw(SpriteBatch sb)
 		{
 			// Draw player image
-			Image.Draw(sb, ScreenPosition);
+			if (!IsSmiling)
+				Image.Draw(sb, ScreenPosition);
+			else
+				_smileSprite.Draw(sb, ScreenPosition);
 
+			// Draw player launch arrow
 			if (_numRedirects > 0 && 
 				Game1.IsMouseButtonPressed(1))
 			{
@@ -189,53 +223,53 @@ namespace Final_Game.Entity
 			base.OnHitTile(tile, colDir);
 		}
 
-	public override void OnHitEntity(Entity entity, CollisionDirection colDir)
-	{
-		switch (entity.Type)
+		public override void OnHitEntity(Entity entity, CollisionDirection colDir)
 		{
-			case EntityType.Enemy:
-				if (State != PlayerState.Walking)
-				{
-					if (!entity.IsInvincible)
+			switch (entity.Type)
+			{
+				case EntityType.Enemy:
+					if (State != PlayerState.Walking)
 					{
-						// Speed up
-						Vector2 acc = Velocity;
-						acc.Normalize();
-						acc *= 0.05f;
-						Accelerate(acc);
+						if (!entity.IsInvincible)
+						{
+							// Speed up
+							Vector2 acc = Velocity;
+							acc.Normalize();
+							acc *= 0.05f;
+							Accelerate(acc);
 
-						// Get an extra redirect
-						if (_numRedirects < _maxRedirects)
-							_numRedirects++;
+							// Get an extra redirect
+							if (_numRedirects < _maxRedirects)
+								_numRedirects++;
+						}
+
+						entity.TakeDamage(Damage);
 					}
+					else
+					{
+						// Player gets knocked back if standing on top of enemy
+						Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
+						distToEnemy.Normalize();
+						distToEnemy *= -5;
 
-					entity.TakeDamage(Damage);
-				}
-				else
-				{
-					// Player gets knocked back if standing on top of enemy
-					Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
-					distToEnemy.Normalize();
-					distToEnemy *= -5;
+						this.TakeDamage(1);
 
-					this.TakeDamage(1);
-
-					Velocity = distToEnemy;
-					State = PlayerState.Rolling;
-				}
-				break;
+						Velocity = distToEnemy;
+						State = PlayerState.Rolling;
+					}
+					break;
+			}
 		}
-	}
 
-	private void HandleEnemyCollisions()
-	{
-		for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
+		private void HandleEnemyCollisions()
 		{
-			Enemy curEnemy = Game1.EManager.Enemies[i];
+			for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
+			{
+				Enemy curEnemy = Game1.EManager.Enemies[i];
 
-	CollisionChecker.CheckEntityCollision(this, curEnemy);
+				CollisionChecker.CheckEntityCollision(this, curEnemy);
+			}
 		}
-	}
 
 	#endregion
 
@@ -563,5 +597,25 @@ namespace Final_Game.Entity
 				Game1.TestLevel.CurrentRoom.Tileset.Width / 2,
 				Game1.TestLevel.CurrentRoom.Tileset.Height / 2);
 		}
-	}
+
+        public override void TakeDamage(int amount)
+        {
+            // Take damage if not invincible
+            if (InvTimer <= 0)
+            {
+                CurHealth -= amount;
+
+				OnPlayerDamaged(amount);
+
+                // Temporarily become invincible
+                InvTimer = InvDuration;
+
+                // Handle low health
+                if (CurHealth <= 0)
+                {
+					Die();
+                }
+            }
+        }
+    }
 }

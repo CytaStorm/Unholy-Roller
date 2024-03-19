@@ -16,6 +16,8 @@ namespace Final_Game.Entity
         Enemy
     }
 
+    public delegate void EntityDamaged(int amount);  
+
     public abstract class Entity : IMovable, IDamageable, ICollidable
     {
         #region Move Properties

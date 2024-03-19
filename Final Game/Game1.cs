@@ -214,6 +214,7 @@ namespace Final_Game
 
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
+
 					break;
 
 				case GameState.Pause:

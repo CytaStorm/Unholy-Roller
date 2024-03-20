@@ -1,16 +1,9 @@
 using Final_Game.LevelGen;
-using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Final_Game.Entity
 {
@@ -38,9 +31,10 @@ namespace Final_Game.Entity
 		public PlayerState State { get; private set; }
 		public Vector2 ScreenPosition { get; private set; }
 		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
+		public int Combo { get; set; }
 		#endregion
 
-		// Constructors
+		#region Constructor(s)
 		public Player(Game1 gm, Vector2 worldPosition)
 		{
 			// Set images
@@ -74,6 +68,8 @@ namespace Final_Game.Entity
 			// Set default state
 			State = PlayerState.Walking;
 
+			//Set combo
+			Combo = 0;
 			// Give launches
 			_maxRedirects = 3;
 			_numRedirects = _maxRedirects + 1;
@@ -81,8 +77,9 @@ namespace Final_Game.Entity
 			// Set attack vars
 			Damage = 1;
 		}
+		#endregion
 
-		// Methods
+		#region Methods
 		public override void Update(GameTime gameTime)
 		{
 			switch (State)
@@ -169,76 +166,79 @@ namespace Final_Game.Entity
 			base.OnHitTile(tile, colDir);
 		}
 
-	public override void OnHitEntity(Entity entity, CollisionDirection colDir)
-	{
-		switch (entity.Type)
+		public override void OnHitEntity(Entity entity, CollisionDirection colDir)
 		{
-			case EntityType.Enemy:
-				if (State != PlayerState.Walking)
-				{
-					if (!entity.IsInvincible)
+			switch (entity.Type)
+			{
+				case EntityType.Enemy:
+					if (State != PlayerState.Walking)
 					{
-						// Speed up
-						Vector2 acc = Velocity;
-						acc.Normalize();
-						acc *= 0.05f;
-						Accelerate(acc);
-
-						// Get an extra redirect
-						if (_numRedirects < _maxRedirects)
-							_numRedirects++;
+						if (!entity.IsInvincible)
+						{
+							// Speed up
+							Vector2 acc = Velocity;
+							acc.Normalize();
+							acc *= 0.05f;
+							Accelerate(acc);
+	
+							// Get an extra redirect
+							if (_numRedirects < _maxRedirects)
+								_numRedirects++;
+						}
+	
+						entity.TakeDamage(Damage);
 					}
-
-					entity.TakeDamage(Damage);
-				}
-				else
-				{
-					// Player gets knocked back if standing on top of enemy
-					Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
-					distToEnemy.Normalize();
-					distToEnemy *= -5;
-
-					this.TakeDamage(1);
-
-					Velocity = distToEnemy;
-					State = PlayerState.Rolling;
-				}
+					else
+					{
+						// Player gets knocked back if standing on top of enemy
+						Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
+						distToEnemy.Normalize();
+						distToEnemy *= -5;
+	
+						this.TakeDamage(1);
+	
+						Velocity = distToEnemy;
+						State = PlayerState.Rolling;
+					}
 				break;
+			}
 		}
-	}
 
-	private void HandleEnemyCollisions()
-	{
-		for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
+		private void HandleEnemyCollisions()
 		{
-			Enemy curEnemy = Game1.EManager.Enemies[i];
-
-	CollisionChecker.CheckEntityCollision(this, curEnemy);
+			for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
+			{
+				Enemy curEnemy = Game1.EManager.Enemies[i];
+	
+				if (CollisionChecker.CheckEntityCollision(this, curEnemy))
+				{
+					Debug.WriteLine("Combo increase");
+				}
+			}
 		}
-	}
-
-	#endregion
-
-	#region Movement Helper Methods
+	
+		#endregion
+	
+		#region Movement Helper Methods
 
 		private void TransferRoom(Tile tile)
 		{
 			switch (tile.DoorOrientation)
 			{
 				case "U":
-					Game1.TestLevel.CurrentPoint += new Point(-1, 0);
+					Game1.TestLevel.LoadRoomUsingOffset(new Point(-1, 0));
 					Move(new Vector2(0, (CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "B":
-					Game1.TestLevel.CurrentPoint += new Point(1, 0);
+					Game1.TestLevel.LoadRoomUsingOffset(new Point(1, 0));
 					Move(new Vector2(0, -(CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "L":
-					Game1.TestLevel.CurrentPoint += new Point(0, -1);
+					Game1.TestLevel.LoadRoomUsingOffset(new Point(0, -1));
 					Move(new Vector2((CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 				case "R":
-					Game1.TestLevel.CurrentPoint += new Point(0, 1);
+					Game1.TestLevel.LoadRoomUsingOffset(new Point(0, 1));
 					Move(new Vector2(-(CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 			}
@@ -377,7 +377,6 @@ namespace Final_Game.Entity
 			State = PlayerState.Rolling;
 		}
 
-
 		public void Ricochet(Vector2 newDirection)
 		{
 			Velocity = newDirection;
@@ -472,7 +471,7 @@ namespace Final_Game.Entity
 
 		public override void DrawGizmos()
 		{
-	  Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
+			Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
 
 			Vector2 hitboxDistFromPlayer =
 				new Vector2(
@@ -486,8 +485,8 @@ namespace Final_Game.Entity
 					Hitbox.Width,
 					Hitbox.Height);
 
-	  ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
-	}
+			ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
+		}
 
 		#endregion
 
@@ -505,5 +504,6 @@ namespace Final_Game.Entity
 				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
 				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
 		}
+	#endregion
 	}
 }

@@ -1,13 +1,8 @@
 using Final_Game.Entity;
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace Final_Game
 {
@@ -147,10 +142,14 @@ namespace Final_Game
 				TestLevel.CurrentRoom.Tileset.Width / 2, 
 				TestLevel.CurrentRoom.Tileset.Height / 2));
 
+			// Create Entity Managers
+			EManager = new EnemyManager(this);
 
 			// Set default game state
 			State = GameState.Menu;
 
+			//Load in first level content.
+			TestLevel.LoadRoomUsingOffset(new Point(0, 0));
 			base.Initialize();
 		}
 
@@ -159,21 +158,15 @@ namespace Final_Game
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 
-			// Create player
-			Player = new Player(this, new Vector2(300, 300));
-
-			// Create Entity Managers
-			EManager = new EnemyManager(this);
-			
 			// Create custom cursor
 			_gameplayCursor = MouseCursor.FromTexture2D(
 				_cursorTexture, _cursorTexture.Width / 2, _cursorTexture.Height / 2);
-
-			// Create default cursor
-			_menuCursor = MouseCursor.Arrow;
-
+			
 			// Create UI Manager
             _ui = new UI(this, _spriteBatch);
+			
+			// Create default cursor
+			_menuCursor = MouseCursor.Arrow;
 
 			// Hook Up Buttons
 			SubscribeToButtons();

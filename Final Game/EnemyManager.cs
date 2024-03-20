@@ -2,16 +2,11 @@
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Final_Game
 {
-    public class EnemyManager
+	public class EnemyManager
     {
         // Fields
         private Texture2D _dummyImage;

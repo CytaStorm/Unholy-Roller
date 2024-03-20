@@ -44,6 +44,14 @@ namespace Final_Game
 		private float _maxShakeMagnitude;
 		private float _maxShakeMultiplier;
 
+		// Game Over Assets
+		private Sprite _deadBall;
+		private float _maxHoverOffset;
+		private float _hoverOffset;
+		private double _hoverDuration;
+		private double _hoverTimeCounter;
+		private bool hoverUp = true;
+
 		#endregion
 
 		#region Properties
@@ -52,14 +60,14 @@ namespace Final_Game
 		public Button[] PauseButtons { get; private set; }
 		public Button[] GameOverButtons { get; private set; }
 
-        // Fonts
-        public static SpriteFont TitleCaseArial { get; private set; }
+		// Fonts
+		public static SpriteFont TitleCaseArial { get; private set; }
 		public static SpriteFont MediumArial { get; private set; }
 
-        #endregion
+		#endregion
 
-        // Constructors
-        public UI(Game1 gm, SpriteBatch sb)
+		// Constructors
+		public UI(Game1 gm, SpriteBatch sb)
 		{
 			_gm = gm;
 			_spriteBatch = sb;
@@ -76,6 +84,17 @@ namespace Final_Game
 			_speedometerCrest = _gm.Content.Load<Texture2D>("SpeedometerCrest");
 			_maxSpeedometerSpeed = 60f;
 
+			// Gameover Assets
+			Texture2D deadBallTexture = _gm.Content.Load<Texture2D>("Sprites/DeadBall");
+			_deadBall = new Sprite(
+				deadBallTexture,
+				deadBallTexture.Bounds,
+				new Rectangle(
+					0, 0, 
+					deadBallTexture.Width * 3 / 4, deadBallTexture.Width * 3 / 4));
+			_maxHoverOffset = 50f;
+			_hoverDuration = 2;
+
 			// Load Fonts
 			TitleCaseArial = _gm.Content.Load<SpriteFont>("TitleCaseArial");
 			MediumArial = _gm.Content.Load<SpriteFont>("MediumArial");
@@ -86,7 +105,7 @@ namespace Final_Game
 			_maxShakeOffset = new Vector2(_maxShakeMagnitude, _maxShakeMagnitude);
 			_shakeDuration = 0.5;
 
-            CreateButtons();
+			CreateButtons();
 
 			CreateSliders();
 
@@ -121,12 +140,30 @@ namespace Final_Game
 
 				case GameState.GameOver:
 
-                    // Update game over buttons
-                    foreach (Button b in GameOverButtons)
-                    {
-                        b.Update(gameTime);
+					// Oscillate dead bowling ball
+					if (hoverUp)
+					{
+						_hoverTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
+
+						if (_hoverTimeCounter > _hoverDuration)
+							hoverUp = false;
+					}
+					else
+					{
+						_hoverTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;
+                        if (_hoverTimeCounter < 0) 
+							hoverUp = true;
                     }
-                    break;
+
+					_hoverOffset = 
+						(float)(_hoverTimeCounter / _hoverDuration) * _maxHoverOffset;
+
+					// Update game over buttons
+					foreach (Button b in GameOverButtons)
+					{
+						b.Update(gameTime);
+					}
+					break;
 			}
 		}
 		public void Draw(GameTime gameTime)
@@ -176,9 +213,9 @@ namespace Final_Game
 			}
 		}
 
-        #region HUD Drawing Methods
+		#region HUD Drawing Methods
 
-        private void DrawPlayerHealth()
+		private void DrawPlayerHealth()
 		{
 			Color tint = Color.White;
 			Rectangle source = 
@@ -201,8 +238,8 @@ namespace Final_Game
 			{
 				// Medium Damage
 				tint = Color.Pink;
-                source.X = _brokenBallSpriteWidth * 2;
-            }
+				source.X = _brokenBallSpriteWidth * 2;
+			}
 			else
 			{
 				// Heavy Damage
@@ -224,17 +261,17 @@ namespace Final_Game
 				float xBound = _maxShakeOffset.X * remainingShakeProgress;
 				float yBound = _maxShakeOffset.Y * remainingShakeProgress;
 
-                Random rand = new Random();
-                float xOffset = (rand.NextSingle() * xBound * 2) - xBound;
-                float yOffset = (rand.NextSingle() * yBound * 2) - yBound;
+				Random rand = new Random();
+				float xOffset = (rand.NextSingle() * xBound * 2) - xBound;
+				float yOffset = (rand.NextSingle() * yBound * 2) - yBound;
 
-                Vector2 offset = new Vector2(xOffset, yOffset);
+				Vector2 offset = new Vector2(xOffset, yOffset);
 
 				drawPos += offset;
-            }
+			}
 
-            // Draw image
-            _spriteBatch.Draw(
+			// Draw image
+			_spriteBatch.Draw(
 				_blueBallSpritesheet,
 				drawPos,
 				source,
@@ -277,7 +314,7 @@ namespace Final_Game
 				0f);
 		}
 
-        #endregion
+		#endregion
 
 		#region Menu Drawing Methods
 		private void DrawMainMenu()
@@ -324,25 +361,36 @@ namespace Final_Game
 
 		private void DrawGameOverMenu()
 		{
-            string gameOverText = "You Die :P";
+			// Draw Game Over Heading
+			string gameOverText = "You Died :P";
 
 			Vector2 textPos =
 				new Vector2(
 				GetCenteredTextPos(gameOverText, TitleCaseArial, Game1.ScreenCenter).X,
-				200f);
+				100f);
 
-            _spriteBatch.DrawString(
-                TitleCaseArial,
-                gameOverText,
-                textPos,
-                Color.Black);
+			_spriteBatch.DrawString(
+				TitleCaseArial,
+				gameOverText,
+				textPos,
+				Color.Black);
 
-            // Draw game over buttons
-            foreach (Button b in GameOverButtons)
-            {
-                b.Draw(_spriteBatch);
-            }
-        }
+			// Draw dead ball
+			Vector2 drawPos = new Vector2(
+				Game1.ScreenCenter.X - _deadBall.DestinationRect.Width / 2,
+				Game1.ScreenCenter.Y - _deadBall.DestinationRect.Height / 2 - 150);
+
+			drawPos = new Vector2(drawPos.X, drawPos.Y + _hoverOffset);
+
+			_deadBall.Draw(_spriteBatch, drawPos);
+
+			// Draw game over buttons
+			foreach (Button b in GameOverButtons)
+			{
+				b.Draw(_spriteBatch);
+			}
+		}
+
 		#endregion
 
 		#region Component Creation Methods
@@ -389,39 +437,39 @@ namespace Final_Game
 			PauseButtons[1].TextColor = Color.Coral;
 			PauseButtons[1].SetText("Main Menu", TitleCaseArial);
 
-            // Make Game Over Buttons
-            GameOverButtons = new Button[2];
+			// Make Game Over Buttons
+			GameOverButtons = new Button[2];
 
-            buttonBounds.Y = Game1.ScreenCenter.ToPoint().Y;
-            GameOverButtons[0] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
-            GameOverButtons[0].TintColor = Color.Black;
-            GameOverButtons[0].TextColor = Color.Orange;
-            GameOverButtons[0].SetText("Retry", TitleCaseArial);
+			buttonBounds.Y = Game1.ScreenCenter.ToPoint().Y + 100;
+			GameOverButtons[0] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+			GameOverButtons[0].TintColor = Color.Black;
+			GameOverButtons[0].TextColor = Color.Orange;
+			GameOverButtons[0].SetText("Retry", TitleCaseArial);
 
 			buttonBounds.Y += emptyButton.Height;
-            GameOverButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
-            GameOverButtons[1].TextColor = Color.Coral;
-            GameOverButtons[1].SetText("Main Menu", TitleCaseArial);
-        }
+			GameOverButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+			GameOverButtons[1].TextColor = Color.Coral;
+			GameOverButtons[1].SetText("Main Menu", TitleCaseArial);
+		}
 		private void CreateSliders()
 		{
 			Texture2D sliderBarImage = _gm.Content.Load<Texture2D>("BasicSliderBar");
 			Texture2D sliderKnobImage = _gm.Content.Load<Texture2D>("BasicSliderKnob");
 			_testSlider = new Slider(new Point(50, 200), sliderBarImage, sliderKnobImage);
 		}
-        #endregion
+		#endregion
 
-        #region Global Helper Methods
-        /// <summary>
-        /// Adds a newline character to the closest space in text 
-        /// after a specified number of characters
-        /// number of characters 
-        /// </summary>
-        /// <param name="text"> text to wrap </param>
-        /// <param name="numChars"> max number of chars before line wrap </param>
-        /// <returns> wrapped text </returns>
-        /// <exception cref="Exception"> Number of characters cannot be less than 1 </exception>
-        public static string GetWrappedText(string text, int numChars)
+		#region Global Helper Methods
+		/// <summary>
+		/// Adds a newline character to the closest space in text 
+		/// after a specified number of characters
+		/// number of characters 
+		/// </summary>
+		/// <param name="text"> text to wrap </param>
+		/// <param name="numChars"> max number of chars before line wrap </param>
+		/// <returns> wrapped text </returns>
+		/// <exception cref="Exception"> Number of characters cannot be less than 1 </exception>
+		public static string GetWrappedText(string text, int numChars)
 		{
 			string result = text;
 			
@@ -482,14 +530,14 @@ namespace Final_Game
 			return centerPos - textDimensions / 2;
 		}
 
-        #endregion
+		#endregion
 
-        #region Subscription Methods
+		#region Subscription Methods
 
-        /// <summary>
-        /// Links UI methods to the events of game entities
-        /// </summary>
-        private void SubscribeToEntities()
+		/// <summary>
+		/// Links UI methods to the events of game entities
+		/// </summary>
+		private void SubscribeToEntities()
 		{
 			Game1.Player.OnPlayerDamaged += PlayerWasDamaged;
 
@@ -502,11 +550,11 @@ namespace Final_Game
 		/// <param name="amount"> damage dealt to player </param>
 		private void PlayerWasDamaged(int amount)
 		{
-            // Respond if damage was actually dealt to player
-            if (amount <= 0)
-                return;
+			// Respond if damage was actually dealt to player
+			if (amount <= 0)
+				return;
 
-            if (Game1.Player.CurHealth > 0)
+			if (Game1.Player.CurHealth > 0)
 			{
 				// Vibrate health UI
 				// Vibration magnitude increases as health decreases
@@ -524,6 +572,6 @@ namespace Final_Game
 			}
 		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

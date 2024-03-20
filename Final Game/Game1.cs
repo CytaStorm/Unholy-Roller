@@ -3,6 +3,7 @@ using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
 
 namespace Final_Game
 {
@@ -199,6 +200,8 @@ namespace Final_Game
 			// Store controller states
 			PrevMouse = CurMouse;
 			PrevKB = CurKB;
+			Debug.WriteLine(TestLevel.CurrentRoom.Cleared);
+			Debug.WriteLine(TestLevel.CurrentRoom.Tileset.EnemyCount);
 
 			base.Update(gameTime);
 		}

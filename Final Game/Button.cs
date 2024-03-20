@@ -63,8 +63,7 @@ namespace Final_Game
 				if (Game1.IsMouseLeftClicked())
 				{
 					// Do something
-					if (OnClicked != null)
-						OnClicked();
+					if (OnClicked != null) OnClicked();
 				}
 
 				if (Game1.IsMouseButtonPressed(1))

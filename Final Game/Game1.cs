@@ -120,7 +120,7 @@ namespace Final_Game
 		/// <summary>
 		/// Game FSM.
 		/// </summary>
-		public static GameState State { get; private set; }
+		public GameState State { get; set; }
 
 		/// <summary>
 		/// Object that creates tiles.
@@ -190,6 +190,9 @@ namespace Final_Game
 
 			// Hook Up Buttons
 			SubscribeToButtons();
+
+			// Make any other subscriptions
+			Player.OnPlayerDeath += EnterGameOver;
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -255,7 +258,7 @@ namespace Final_Game
 
 					Player.Draw(_spriteBatch);
 
-					EManager.Draw(_spriteBatch, gameTime);
+					EManager.Draw(_spriteBatch);
 
 					break;
 
@@ -290,6 +293,11 @@ namespace Final_Game
 		private void ResetGame()
 		{
 			Player.Reset();
+		}
+
+		private void EnterGameOver()
+		{
+			_csManager.StartCutscene(Cutscene.GameOver);
 		}
 
 		#region Mouse Wrapper Methods
@@ -356,11 +364,16 @@ namespace Final_Game
 		{
 			_ui.MenuButtons[0].OnClicked += StartGame;
 			_ui.MenuButtons[1].OnClicked += StartTutorial;
-			_ui.MenuButtons[2].OnClicked += EndGame;
+			_ui.MenuButtons[2].OnClicked += ExitGame;
 
 			_ui.PauseButtons[0].OnClicked += ResumeGame;
 			_ui.PauseButtons[1].OnClicked += ReturnToMainMenu;
 			_ui.PauseButtons[1].OnClicked += _csManager.EndCurrentScene;
+
+			_ui.GameOverButtons[0].OnClicked += ResetGame;
+			_ui.GameOverButtons[0].OnClicked += StartGame;
+			_ui.GameOverButtons[1].OnClicked += ReturnToMainMenu;
+
 		}
 
 		private void StartGame()
@@ -383,7 +396,7 @@ namespace Final_Game
 			ResetGame();
 		}
 
-		private void EndGame()
+		private void ExitGame()
 		{
 			Exit();
 		}

@@ -38,6 +38,8 @@ namespace Final_Game.Entity
 
 		private float _transitionToWalkingSpeed;
 
+		private bool _controllable = true;
+
 		// Time dilation
 		double _timeTransitionDuration = 0.2;
 		double _transitionTimeCounter = 0.2;
@@ -68,6 +70,7 @@ namespace Final_Game.Entity
 		#endregion
 
 		public event EntityDamaged OnPlayerDamaged;
+		public event EntityDying OnPlayerDeath;
 
 		// Constructors
 		public Player(Game1 gm, Vector2 worldPosition)
@@ -131,21 +134,22 @@ namespace Final_Game.Entity
 		// Methods
 		public override void Update(GameTime gameTime)
 		{
-			UpdateBulletTime(gameTime);
+			if (_controllable) UpdateBulletTime(gameTime);
 
 			TickInvincibility(gameTime);
 
 			switch (State)
 			{
 				case PlayerState.Walking:
-					MoveWithKeyboard(Game1.CurKB);
+
+					if (_controllable) MoveWithKeyboard(Game1.CurKB);
 					//Debug.WriteLine($"Current worldPos {WorldPosition}");
 					break;
 
 				case PlayerState.Rolling:
 					ApplyFriction();
 
-					HandleBraking();
+					if (_controllable) HandleBraking();
 
 					// Transition to walking
 					if (Velocity.Length() < 1f)
@@ -157,7 +161,7 @@ namespace Final_Game.Entity
 					break;
 			}
 
-			HandleLaunch();
+			if (_controllable) HandleLaunch();
 
 			//ApplyScreenBoundRicochet();
 
@@ -176,7 +180,8 @@ namespace Final_Game.Entity
 				_smileSprite.Draw(sb, ScreenPosition);
 
 			// Draw player launch arrow
-			if (_numRedirects > 0 && 
+			if (_controllable && 
+				_numRedirects > 0 && 
 				Game1.IsMouseButtonPressed(1))
 			{
 				DrawLaunchArrow(sb);
@@ -592,30 +597,34 @@ namespace Final_Game.Entity
 			// Set Default State 
 			State = PlayerState.Walking;
 
+			_controllable = true;
+
 			// Set player at the center of the current level
-			WorldPosition = new Vector2(
-				Game1.TestLevel.CurrentRoom.Tileset.Width / 2,
-				Game1.TestLevel.CurrentRoom.Tileset.Height / 2);
+			MoveToRoomCenter(CurrentRoom);
 		}
 
         public override void TakeDamage(int amount)
         {
-            // Take damage if not invincible
-            if (InvTimer <= 0)
-            {
-                CurHealth -= amount;
+			// Take damage if not invincible
+			if (InvTimer > 0 || CurHealth < 0) return;
+                
+			CurHealth -= amount;
 
-				OnPlayerDamaged(amount);
+			// Notify subscribers
+			OnPlayerDamaged(amount);
 
-                // Temporarily become invincible
-                InvTimer = InvDuration;
+			// Temporarily become invincible
+			InvTimer = InvDuration;
 
-                // Handle low health
-                if (CurHealth <= 0)
-                {
-					Die();
-                }
-            }
+			// Handle low health
+			if (CurHealth <= 0)
+			{
+				_controllable = false;
+
+				BulletTimeMultiplier = _minTimeMultiplier;
+
+				OnPlayerDeath();
+			}
         }
     }
 }

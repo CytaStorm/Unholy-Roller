@@ -24,6 +24,9 @@ namespace Final_Game
 		// Sliders
 		private Slider _testSlider;
 
+		// Backgrounds
+		private Texture2D _blankPanel;
+
 		// Player Health
 		private Texture2D _blueBallSpritesheet;
 		private int _brokenBallSpriteWidth;
@@ -33,7 +36,7 @@ namespace Final_Game
 		private Texture2D _speedometerCrest;
 		private float _maxSpeedometerSpeed;
 
-		// Shake effect
+		// Shake Effect
 		private double _shakeDuration;
 		private double _shakeTimer;
 		private Vector2 _maxShakeOffset;
@@ -46,6 +49,7 @@ namespace Final_Game
 		// Button Containers
 		public Button[] MenuButtons { get; private set; }
 		public Button[] PauseButtons { get; private set; }
+		public Button[] GameOverButtons { get; private set; }
 
         // Fonts
         public static SpriteFont TitleCaseArial { get; private set; }
@@ -58,6 +62,9 @@ namespace Final_Game
 		{
 			_gm = gm;
 			_spriteBatch = sb;
+
+			// Load Backgrounds
+			_blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
 
 			// Load Health Images
 			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
@@ -88,7 +95,7 @@ namespace Final_Game
 		// Methods
 		public void Update(GameTime gameTime)
 		{
-			switch (Game1.State)
+			switch (_gm.State)
 			{
 				case GameState.Menu:
 
@@ -110,11 +117,20 @@ namespace Final_Game
 						b.Update(gameTime);
 					}
 					break;
+
+				case GameState.GameOver:
+
+                    // Update game over buttons
+                    foreach (Button b in GameOverButtons)
+                    {
+                        b.Update(gameTime);
+                    }
+                    break;
 			}
 		}
 		public void Draw(GameTime gameTime)
 		{
-			switch (Game1.State)
+			switch (_gm.State)
 			{
 				case GameState.Menu:
 					DrawMainMenu();
@@ -154,11 +170,7 @@ namespace Final_Game
 					break;
 
 				case GameState.GameOver:
-					_spriteBatch.DrawString(
-						MediumArial,
-						"You Die :P",
-						Game1.ScreenCenter,
-						Color.Black);
+					DrawGameOverMenu();
 					break;
 			}
 		}
@@ -308,6 +320,28 @@ namespace Final_Game
 				b.Draw(_spriteBatch);
 			}
 		}
+
+		private void DrawGameOverMenu()
+		{
+            string gameOverText = "You Die :P";
+
+			Vector2 textPos =
+				new Vector2(
+				GetCenteredTextPos(gameOverText, TitleCaseArial, Game1.ScreenCenter).X,
+				200f);
+
+            _spriteBatch.DrawString(
+                TitleCaseArial,
+                gameOverText,
+                textPos,
+                Color.Black);
+
+            // Draw game over buttons
+            foreach (Button b in GameOverButtons)
+            {
+                b.Draw(_spriteBatch);
+            }
+        }
 		#endregion
 
 		#region Component Creation Methods
@@ -353,7 +387,21 @@ namespace Final_Game
 			PauseButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
 			PauseButtons[1].TextColor = Color.Coral;
 			PauseButtons[1].SetText("Main Menu", TitleCaseArial);
-		}
+
+            // Make Game Over Buttons
+            GameOverButtons = new Button[2];
+
+            buttonBounds.Y = Game1.ScreenCenter.ToPoint().Y;
+            GameOverButtons[0] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+            GameOverButtons[0].TintColor = Color.Black;
+            GameOverButtons[0].TextColor = Color.Orange;
+            GameOverButtons[0].SetText("Retry", TitleCaseArial);
+
+			buttonBounds.Y += emptyButton.Height;
+            GameOverButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+            GameOverButtons[1].TextColor = Color.Coral;
+            GameOverButtons[1].SetText("Main Menu", TitleCaseArial);
+        }
 		private void CreateSliders()
 		{
 			Texture2D sliderBarImage = _gm.Content.Load<Texture2D>("BasicSliderBar");
@@ -418,28 +466,63 @@ namespace Final_Game
 			return result;
 		}
 
+		/// <summary>
+		/// Gets the position necessary to draw the specified text
+		/// centered on the specified center position
+		/// </summary>
+		/// <param name="text"> text to center </param>
+		/// <param name="font"> font text will be drawn in </param>
+		/// <param name="centerPos"> position to center text on </param>
+		/// <returns></returns>
+		public static Vector2 GetCenteredTextPos(string text, SpriteFont font, Vector2 centerPos)
+		{
+			Vector2 textDimensions = font.MeasureString(text);
+
+			return centerPos - textDimensions / 2;
+		}
+
         #endregion
 
-		private void SubscribeToEntities()
+        #region Subscription Methods
+
+        /// <summary>
+        /// Links UI methods to the events of game entities
+        /// </summary>
+        private void SubscribeToEntities()
 		{
 			Game1.Player.OnPlayerDamaged += PlayerWasDamaged;
+
+			return;
 		}
 
+		/// <summary>
+		/// Creates a UI response when the player's health decreases
+		/// </summary>
+		/// <param name="amount"> damage dealt to player </param>
 		private void PlayerWasDamaged(int amount)
 		{
-			// Vibrate health UI
-			// Vibration magnitude increases as health decreases
-			float shakeMaxMag = _maxShakeMagnitude;
+            // Respond if damage was actually dealt to player
+            if (amount <= 0)
+                return;
+
             if (Game1.Player.CurHealth > 0)
 			{
-				shakeMaxMag =
-					_maxShakeMagnitude * 
-					(1 - (float)Game1.Player.CurHealth / Game1.Player.MaxHealth) *
-					_maxShakeMultiplier;
-			}
+				// Vibrate health UI
+				// Vibration magnitude increases as health decreases
+				float shakeMaxMag = _maxShakeMagnitude;
+				if (Game1.Player.CurHealth > 0)
+				{
+					shakeMaxMag =
+						_maxShakeMagnitude * 
+						(1 - (float)Game1.Player.CurHealth / Game1.Player.MaxHealth) *
+						_maxShakeMultiplier;
+				}
 
-			_maxShakeOffset = new Vector2(shakeMaxMag, shakeMaxMag);
-			_shakeTimer = _shakeDuration;
+				_maxShakeOffset = new Vector2(shakeMaxMag, shakeMaxMag);
+				_shakeTimer = _shakeDuration;
+			}
 		}
+
+        #endregion
     }
 }

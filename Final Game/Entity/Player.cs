@@ -167,7 +167,7 @@ namespace Final_Game.Entity
 				case TileType.OpenDoor:
 					//Return so no calculating placing
 					//player on the open door.
-					Debug.WriteLine("HIT OPEN DOOR");
+					//Debug.WriteLine("HIT OPEN DOOR");
 					TransferRoom(tile);
 					return;
 

@@ -140,6 +140,7 @@ namespace Final_Game.Entity
                 // Handle low health
                 if (CurHealth <= 0)
                 {
+                    Debug.WriteLine("here");
                     // Enemy is temporarily knocked out
                     _koTimer = _koDuration;
                 }

@@ -1,10 +1,7 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using System.Runtime.InteropServices;
-using System.ComponentModel.Design;
 using System.Diagnostics;
-using System.Linq;
 
 namespace Final_Game.LevelGen
 {
@@ -164,8 +161,12 @@ namespace Final_Game.LevelGen
 			return;
 		}
 
+		/// <summary>
+		/// Set the boss room on the map.
+		/// </summary>
 		private void DetermineBossRoom()
 		{
+			//Sets farthest room as boss room.
 			Room farthestRoom = null;
 			float furthestDistance = 0;
 			Vector2 startPointVector2 = StartPoint.ToVector2();
@@ -178,6 +179,23 @@ namespace Final_Game.LevelGen
 				}
 			}
 			farthestRoom.IsBossRoom = true;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="newRoomOffset"></param>
+		public void LoadRoomUsingOffset(Point newRoomOffset)
+		{
+			CurrentPoint += newRoomOffset;
+			if (!CurrentRoom.Cleared)
+			{
+				Game1.EManager.CreateRoomEnemies(CurrentRoom);
+			}
+			foreach(Tile tile in CurrentRoom.Tileset.Spawners)
+			{
+				Debug.WriteLine(tile.WorldPosition);
+			}
 		}
 
 		/// <summary>

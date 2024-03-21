@@ -169,6 +169,7 @@ namespace Final_Game.Entity
 					//player on the open door.
 					//Debug.WriteLine("HIT OPEN DOOR");
 					TransferRoom(tile);
+					_numRedirects = _maxRedirects;
 					return;
 
 				case TileType.Wall:

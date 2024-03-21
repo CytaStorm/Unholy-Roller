@@ -155,6 +155,11 @@ namespace Final_Game.Entity
 		
 		protected virtual void DetermineState(float playerDist)
 		{
+			if (IsKO)
+			{
+				ActionState = EnemyState.Idle;
+				return;
+			}
 			if (playerDist < _aggroRange)
 			{
 				ActionState = EnemyState.Attack;

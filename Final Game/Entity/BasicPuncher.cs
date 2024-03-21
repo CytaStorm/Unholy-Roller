@@ -85,7 +85,7 @@ namespace Final_Game.Entity
 		{
 			TickInvincibility(gameTime);
 
-			//TickKnockout(gameTime);
+			TickKnockout(gameTime);
 
 			//CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
 
@@ -160,7 +160,7 @@ namespace Final_Game.Entity
 			Move(Velocity * Player.BulletTimeMultiplier);
 
 			// Update animations
-
+			
 			UpdateWalkAnimation(gameTime);
 
 			return;
@@ -180,11 +180,7 @@ namespace Final_Game.Entity
 				Image.DestinationRect.Height);
 
 			bool onScreen = screenHit.Intersects(Game1.ScreenBounds);
-
-			if (!onScreen)
-			{
-				return;
-			}
+			if (!onScreen) return;
 
 			if (IsKO)
 			{

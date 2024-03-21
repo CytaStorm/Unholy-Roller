@@ -155,9 +155,6 @@ namespace Final_Game
 				TestLevel.CurrentRoom.Tileset.Width / 2,
 				TestLevel.CurrentRoom.Tileset.Height / 2));
 
-
-			Debug.WriteLine(UI.GetWrappedText("My ass is blue", 3));
-
 			// Set default game state
 			State = GameState.Menu;
 
@@ -271,7 +268,20 @@ namespace Final_Game
 
 			_spriteBatch.End();
 
-			//DrawDebug();
+			// Draw simplified shapes
+
+			ShapeBatch.Begin(GraphicsDevice);
+
+			switch (State)
+			{
+				case GameState.Play:
+					//DrawDebug();
+
+					_ui.DrawMinimap();
+					break;
+			}
+
+			ShapeBatch.End();
 
 			base.Draw(gameTime);
 		}

@@ -52,6 +52,10 @@ namespace Final_Game
 		private double _hoverTimeCounter;
 		private bool hoverUp = true;
 
+		// Minimap
+		private int _defaultRoomSize = 16;
+		private float _minimapScale = 0.1f;
+		private Point _minimapPos;
 		#endregion
 
 		#region Properties
@@ -71,6 +75,14 @@ namespace Final_Game
 		{
 			_gm = gm;
 			_spriteBatch = sb;
+
+			// Minimap
+			_defaultRoomSize = 20;
+			_minimapScale = 0.1f;
+			_minimapPos = new Point(
+				Game1.ScreenBounds.Right - Level.Map.GetLength(0) * _defaultRoomSize - 150,
+				50);
+
 
 			// Load Backgrounds
 			_blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
@@ -573,5 +585,40 @@ namespace Final_Game
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Draws a simplified representation of the map,
+		/// highlighting the room the player is in and 
+		/// the boss room
+		/// </summary>
+		public void DrawMinimap()
+		{
+			// Draw each room in current level relative to each other
+			for (int y = 0; y < Level.Map.GetLength(0); y++)
+			{
+				for (int x = 0; x < Level.Map.GetLength(1); x++)
+				{
+					Room curRoom = Level.Map[y, x];
+
+					if (curRoom != null)
+					{
+						Rectangle roomBounds = new Rectangle(
+							_minimapPos.X + x * _defaultRoomSize,
+							_minimapPos.Y + y * _defaultRoomSize,
+							_defaultRoomSize,
+							_defaultRoomSize);
+
+						Color boxColor = Color.Black;
+						if (curRoom == Game1.TestLevel.CurrentRoom)
+							boxColor = Color.White;
+						else if (curRoom.IsBossRoom)
+							boxColor = Color.Gold;
+
+						// Draw box representing room
+						ShapeBatch.Box(roomBounds, boxColor * 0.6f);
+					}
+				}
+			}
+		}
 	}
 }

@@ -72,7 +72,6 @@ namespace Final_Game.Entity
 
 		// Constructors
 		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
-		#endregion
 
 		#region Constructor(s)
 
@@ -111,7 +110,7 @@ namespace Final_Game.Entity
 			Hitbox = new Rectangle(worldPosition.ToPoint(), new Point(Image.DestinationRect.Width, Image.DestinationRect.Height));
 
 			// Set movement vars
-			Speed = 20f;
+			Speed = 12f;
 			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
@@ -367,7 +366,7 @@ namespace Final_Game.Entity
 				distance.Normalize();
 	
 				// Speed is less than max
-				if (Velocity.LengthSquared() <= Speed * Speed)
+				if (Velocity.LengthSquared() < Speed * Speed)
 				{
 					// Launch player at max speed
 					distance *= Speed;
@@ -637,5 +636,5 @@ namespace Final_Game.Entity
         }
     }
 	#endregion
-	}
 }
+

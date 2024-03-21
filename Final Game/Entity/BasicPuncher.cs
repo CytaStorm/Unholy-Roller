@@ -217,9 +217,10 @@ namespace Final_Game.Entity
 					if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0.0)
 					{
 						Image.TintColor = Color.Orange;
-						Image.Draw(spriteBatch, screenPos);
-						DrawAttacking(spriteBatch, screenPos, distFromPlayer);
 					}
+
+					Image.Draw(spriteBatch, screenPos);
+					DrawAttacking(spriteBatch, screenPos, distFromPlayer);
 					break;
 			}
 

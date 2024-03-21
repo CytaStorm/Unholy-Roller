@@ -1,4 +1,4 @@
-using Final_Game.Entity;
+﻿using Final_Game.Entity;
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -15,7 +15,8 @@ namespace Final_Game
 		Menu,
 		Play,
 		Pause,
-		GameOver
+		GameOver,
+		Cutscene
 	}
 
 	public class Game1 : Game
@@ -23,8 +24,9 @@ namespace Final_Game
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
 
+		public static Room TutorialRoom { get; private set; }
 
-        #region Fields
+		#region Fields
 		/// <summary>
 		/// Level the player is currently on.
 		/// </summary>
@@ -34,6 +36,8 @@ namespace Final_Game
 		/// Player Object
 		/// </summary>
 		public static Player Player { get; private set; }
+
+		// Cursor
 
 		/// <summary>
 		/// Cursor object.
@@ -48,79 +52,80 @@ namespace Final_Game
 		/// <summary>
 		/// Mouse controller object for control of cursor in-game.
 		/// </summary>
-        private MouseCursor _gameplayCursor;
+		private MouseCursor _gameplayCursor;
 		/// <summary>
 		/// Mouse controller object for control of cursor in menus.
 		/// </summary>
-        private MouseCursor _menuCursor;
+		private MouseCursor _menuCursor;
 
 		/// <summary>
 		/// Screen width, in pixels.
 		/// </summary>
-        public static int WindowWidth = 1920;
+		public static int WindowWidth = 1920;
 		/// <summary>
 		/// Screen height, in pixels.
 		/// </summary>
-        public static int WindowHeight = 1080;
-        #endregion
+		public static int WindowHeight = 1080;
 
-        #region Properties
+		// Cutscenes
+		private CutsceneManager _csManager;
+		#endregion
+
+		#region Properties
+		// Screen
 		/// <summary>
 		/// Rectangle respresenting the bounds of the screen, in pixels.
 		/// </summary>
-        public static Rectangle ScreenBounds => 
-			new Rectangle(0, 0, WindowWidth, WindowHeight);
+		public static Rectangle ScreenBounds =>
+				new Rectangle(0, 0, WindowWidth, WindowHeight);
+
 		/// <summary>
 		/// Center of the screen, in pixels.
 		/// </summary>
-		public static Vector2 ScreenCenter => 
+		public static Vector2 ScreenCenter =>
 			new Vector2(WindowWidth / 2, WindowHeight / 2);
 
+		// Mouse
 		/// <summary>
 		/// Current state of the mouse.
 		/// </summary>
-        public static MouseState CurMouse { get; private set; }
+		public static MouseState CurMouse { get; private set; }
 		/// <summary>
 		/// Previous state of the mouse.
 		/// </summary>
-        public static MouseState PrevMouse { get; private set; }
-		/// <summary>
-		/// Is the mouse on screen?
-		/// </summary>
-        public static bool MouseIsOnScreen => 
-			ScreenBounds.Contains(CurMouse.Position);
+		public static MouseState PrevMouse { get; private set; }
+		public static bool MouseIsOnScreen =>
+		  ScreenBounds.Contains(CurMouse.Position);
 
-        // Keyboard
+		// Keyboard
 		/// <summary>
 		/// Current state of the keyboard.
 		/// </summary>
-        public static KeyboardState CurKB { get; private set; }
+		public static KeyboardState CurKB { get; private set; }
 		/// <summary>
 		/// Previous state of the keyboard.
 		/// </summary>
-        public static KeyboardState PrevKB { get; private set; }
+		public static KeyboardState PrevKB { get; private set; }
 
+		// Environment
 		/// <summary>
 		/// How large the each map tile is, in pixels.
 		/// </summary>
-        public static int TileSize { get; private set; } = 100;
+		public static int TileSize { get; private set; } = 100;
 
 		/// <summary>
 		/// Game FSM.
 		/// </summary>
-        public static GameState State { get; private set; }
+		public static GameState State { get; private set; }
 
 		/// <summary>
 		/// Object that creates tiles.
 		/// </summary>
 		private static TileMaker tilemaker;
 
-		/// <summary>
-		/// Enemy manager.
-		/// </summary>
+		// Enemy Management
 		public static EnemyManager EManager { get; private set; }
-
-        #endregion
+		#endregion
 
 		public Game1()
 		{
@@ -132,17 +137,22 @@ namespace Final_Game
 			_graphics.PreferredBackBufferWidth = WindowWidth;
 			_graphics.PreferredBackBufferHeight = WindowHeight;
 			_graphics.ApplyChanges();
-		} 
+		}
 
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
 			tilemaker = new TileMaker(Content);
+
 			TestLevel = new Level(10, 10, 25);
+
+			TutorialRoom = new Room(new Point(0, 0));
+
 			Player = new Player(this, new Vector2(
-				TestLevel.CurrentRoom.Tileset.Width / 2, 
+				TestLevel.CurrentRoom.Tileset.Width / 2,
 				TestLevel.CurrentRoom.Tileset.Height / 2));
 
+
+			Debug.WriteLine(UI.GetWrappedText("My ass is blue", 3));
 			// Create Entity Managers
 			EManager = new EnemyManager(this);
 
@@ -169,12 +179,21 @@ namespace Final_Game
 			// Create default cursor
 			_menuCursor = MouseCursor.Arrow;
 
+			// Create UI Manager
+			_ui = new UI(this, _spriteBatch);
+
+			// Create Cutscene Manager
+			_csManager = new CutsceneManager(this);
+
 			// Hook Up Buttons
 			SubscribeToButtons();
-        }
+		}
 
 		protected override void Update(GameTime gameTime)
 		{
+			// Only Update game if Game Window has focus
+			if (!this.IsActive) return;
+
 			// Get controller states
 			CurMouse = Mouse.GetState();
 			CurKB = Keyboard.GetState();
@@ -183,17 +202,27 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					PlayUpdate(gameTime);
+					Player.Update(gameTime);
+
+					if (_csManager.Scene == Cutscene.None)
+						TestLevel.CurrentRoom.Update(gameTime);
+
+					EManager.Update(gameTime);
 
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
-						break;
+					break;
 
 				case GameState.Pause:
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(false);
-						break;
-            }
+					break;
+
+				case GameState.Cutscene:
+					_csManager.Update(gameTime);
+
+					break;
+			}
 
 			_ui.Update(gameTime);
 
@@ -206,28 +235,35 @@ namespace Final_Game
 			base.Update(gameTime);
 		}
 
-		
-
 		protected override void Draw(GameTime gameTime)
 		{
+			// Only Draw Game if Game Window has focus
+			if (!this.IsActive) return;
+
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			_spriteBatch.Begin();
-			TestLevel.CurrentRoom.Draw(_spriteBatch);
 
 			// Draw game
 			switch (State)
 			{
 				case GameState.Play:
+
+					TestLevel.CurrentRoom.Draw(_spriteBatch);
+
 					Player.Draw(_spriteBatch);
 
 					EManager.Draw(_spriteBatch, gameTime);
 
 					break;
+
+				case GameState.Cutscene:
+					_csManager.Draw(_spriteBatch);
+					break;
 			}
 
 			_ui.Draw(gameTime);
-			
+
 			_spriteBatch.End();
 
 			//DrawDebug();
@@ -235,8 +271,7 @@ namespace Final_Game
 			base.Draw(gameTime);
 		}
 
-		#region Update Game FSM Methods
-		private void PauseGame(bool paused)
+		public void PauseGame(bool paused)
 		{
 			if (paused)
 			{
@@ -250,28 +285,16 @@ namespace Final_Game
 			}
 		}
 
-		private void PlayUpdate(GameTime gameTime)
-		{
-			if (IsActive)
-			{
-				Player.Update(gameTime);
-				TestLevel.CurrentRoom.Update(gameTime);
-
-				EManager.Update(gameTime);
-			}
-		}
-		#endregion
-
 		private void ResetGame()
-        {
-            Player.Reset();
-        }
+		{
+			Player.Reset();
+		}
 
-        #region Mouse Wrapper Methods
-        public static bool IsMouseLeftClicked()
+		#region Mouse Wrapper Methods
+		public static bool IsMouseLeftClicked()
 		{
 			return
-				MouseIsOnScreen && 
+				MouseIsOnScreen &&
 				CurMouse.LeftButton == ButtonState.Released &&
 				PrevMouse.LeftButton == ButtonState.Pressed;
 		}
@@ -314,26 +337,28 @@ namespace Final_Game
 					return false;
 			}
 		}
-        #endregion
+		#endregion
 
-        #region Keyboard Wrapper Methods
+		#region Keyboard Wrapper Methods
 
 		public static bool SingleKeyPress(Keys k)
 		{
 			return CurKB.IsKeyDown(k) && PrevKB.IsKeyUp(k);
 		}
 
-        #endregion
+		#endregion
 
-        #region Button Methods
-		
+		#region Button Methods
+
 		public void SubscribeToButtons()
 		{
 			_ui.MenuButtons[0].OnClicked += StartGame;
+			_ui.MenuButtons[1].OnClicked += StartTutorial;
 			_ui.MenuButtons[2].OnClicked += EndGame;
 
 			_ui.PauseButtons[0].OnClicked += ResumeGame;
 			_ui.PauseButtons[1].OnClicked += ReturnToMainMenu;
+			_ui.PauseButtons[1].OnClicked += _csManager.EndCurrentScene;
 		}
 
 		private void StartGame()
@@ -345,8 +370,8 @@ namespace Final_Game
 		private void ResumeGame()
 		{
 			State = GameState.Play;
-            Mouse.SetCursor(_gameplayCursor);
-        }
+			Mouse.SetCursor(_gameplayCursor);
+		}
 
 		private void ReturnToMainMenu()
 		{
@@ -359,6 +384,16 @@ namespace Final_Game
 		private void EndGame()
 		{
 			Exit();
+		}
+
+		public void StartTutorial()
+		{
+			State = GameState.Cutscene;
+			Mouse.SetCursor(_gameplayCursor);
+
+			_csManager.StartCutscene(Cutscene.Tutorial);
+
+			Player.MoveToRoomCenter(TutorialRoom);
 		}
 
 		#endregion
@@ -374,5 +409,5 @@ namespace Final_Game
 
 			ShapeBatch.End();
 		}
-    }
+	}
 }

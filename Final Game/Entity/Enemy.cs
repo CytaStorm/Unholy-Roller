@@ -122,7 +122,8 @@ namespace Final_Game.Entity
         {
             if (_koTimer > 0)
             {
-                _koTimer -= gameTime.ElapsedGameTime.TotalSeconds;
+                _koTimer -= gameTime.ElapsedGameTime.TotalSeconds 
+                    * Player.BulletTimeMultiplier;
             }
         }
 

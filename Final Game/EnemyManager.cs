@@ -30,26 +30,12 @@ namespace Final_Game
             _gloveImage = gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
 
             Enemies = new List<Enemy>();
+
+            //BasicPuncher testEnemy = new BasicPuncher(gm, new Vector2(300f, 200f));
+            //Enemies.Add(testEnemy);
         }
 
         // Methods
-
-        /// <summary>
-        /// Destroys all enemies in the scene
-        /// </summary>
-        public void Clear()
-        {
-            Enemies.Clear();
-        }
-
-        public void ResetRoomEnemies(Room r)
-        {
-            // Remove all enemies
-            Clear();
-
-            CreateRoomEnemies(r);
-        }
-
         public void CreateRoomEnemies(Room r)
         {
             for (int i = 0; i < r.Tileset.Spawners.Count; i++)
@@ -59,7 +45,6 @@ namespace Final_Game
                 // Spawn on spawn tile
                 Enemy addition = new BasicPuncher(gm, curSpawner.WorldPosition);
 
-                Enemies.Add(addition);
             }
         }
 
@@ -105,6 +90,23 @@ namespace Final_Game
             }
         }
 
+
+        /// <summary>
+        /// Destroys all enemies in the scene
+        /// </summary>
+        public void Clear()
+        {
+            Enemies.Clear();
+        }
+
+        public void ResetRoomEnemies(Room r)
+        {
+            // Remove all enemies
+            Clear();
+
+            CreateRoomEnemies(r);
+        }
+
         public void DrawGizmos()
         {
             for (int i = 0; i < Enemies.Count; i++)
@@ -112,5 +114,6 @@ namespace Final_Game
                 Enemies[i].DrawGizmos();
             }
         }
+
     }
 }

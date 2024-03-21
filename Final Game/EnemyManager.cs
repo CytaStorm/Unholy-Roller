@@ -3,6 +3,7 @@ using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Final_Game
 {
@@ -43,8 +44,7 @@ namespace Final_Game
                 Tile curSpawner = r.Tileset.Spawners[i];
 
                 // Spawn on spawn tile
-                Enemy addition = new BasicPuncher(gm, curSpawner.WorldPosition);
-
+                Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
             }
         }
 

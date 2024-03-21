@@ -143,9 +143,9 @@ namespace Final_Game
 		{
 			tilemaker = new TileMaker(Content);
 
-			TestLevel = new Level(10, 10, 25);
+			TestLevel = new Level(2, 2, 4);
 
-			TutorialRoom = new Room(new Point(0, 0));
+			//TutorialRoom = new Room(new Point(0, 0));
 
 			Player = new Player(this, new Vector2(
 				TestLevel.CurrentRoom.Tileset.Width / 2,
@@ -153,6 +153,7 @@ namespace Final_Game
 
 
 			Debug.WriteLine(UI.GetWrappedText("My ass is blue", 3));
+
 			// Create Entity Managers
 			EManager = new EnemyManager(this);
 
@@ -192,7 +193,7 @@ namespace Final_Game
 		protected override void Update(GameTime gameTime)
 		{
 			// Only Update game if Game Window has focus
-			if (!this.IsActive) return;
+			if (!IsActive) return;
 
 			// Get controller states
 			CurMouse = Mouse.GetState();

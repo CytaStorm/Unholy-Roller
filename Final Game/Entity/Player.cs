@@ -212,7 +212,7 @@ namespace Final_Game.Entity
 	
 				if (CollisionChecker.CheckEntityCollision(this, curEnemy))
 				{
-					Debug.WriteLine("Combo increase");
+					//Debug.WriteLine("Combo increase");
 				}
 			}
 		}

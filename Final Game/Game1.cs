@@ -200,8 +200,8 @@ namespace Final_Game
 			// Store controller states
 			PrevMouse = CurMouse;
 			PrevKB = CurKB;
-			Debug.WriteLine(TestLevel.CurrentRoom.Cleared);
-			Debug.WriteLine(TestLevel.CurrentRoom.Tileset.EnemyCount);
+			//Debug.WriteLine(TestLevel.CurrentRoom.Cleared);
+			//Debug.WriteLine(TestLevel.CurrentRoom.Tileset.EnemyCount);
 
 			base.Update(gameTime);
 		}

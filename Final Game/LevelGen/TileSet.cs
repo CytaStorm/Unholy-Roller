@@ -1,20 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net.Sockets;
 
 namespace Final_Game.LevelGen
 {
 	public class Tileset : IGameObject
 	{
 		#region Fields
-		public bool devRendering = false;
+		public bool devRendering = true;
 		private static Random _random = new Random();
 
 		/// <summary>
@@ -48,11 +43,6 @@ namespace Final_Game.LevelGen
 		public List<Tile> Doors { get; private set; } = new List<Tile>();
 
 		public List<Tile> Spawners { get; private set; } = new List<Tile>();
-
-		/// <summary>
-		/// How many enemies are left in the room.
-		/// </summary>
-		public int EnemyCount { get; private set; } = 0;
 
 		public int RoomFloorLayout;
 		public int EnemyPositionLayout;
@@ -133,7 +123,6 @@ namespace Final_Game.LevelGen
 				{
 					Layout[enemyPos.X, enemyPos.Y].IsEnemySpawner = true;
 					Spawners.Add(Layout[enemyPos.X, enemyPos.Y]);
-					EnemyCount++;
 				}
 			}
 

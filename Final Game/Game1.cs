@@ -157,7 +157,9 @@ namespace Final_Game
 
 			// Set default game state
 			State = GameState.Menu;
-
+      
+      //Load in first level content.
+			TestLevel.LoadRoomUsingOffset(new Point(0, 0));
 			base.Initialize();
 		}
 

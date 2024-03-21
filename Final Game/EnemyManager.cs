@@ -2,16 +2,12 @@
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Final_Game
 {
-    public class EnemyManager
+	public class EnemyManager
     {
         // Fields
         private Texture2D _dummyImage;
@@ -54,8 +50,7 @@ namespace Final_Game
                 Tile curSpawner = r.Tileset.Spawners[i];
 
                 // Spawn on spawn tile
-                Enemy addition = new BasicPuncher(gm, curSpawner.WorldPosition);
-
+                Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
             }
         }
 

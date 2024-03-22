@@ -9,12 +9,14 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using System.Runtime.CompilerServices;
 
 namespace Final_Game
 {
     public enum Cutscene
     {
         Tutorial,
+        GameOver,
         None
     }
 
@@ -42,6 +44,15 @@ namespace Final_Game
 
         #endregion
 
+        #region GameOver Vars
+
+        private Texture2D _blankPanel;
+
+        private double _backgroundFadeDuration;
+        private double _backgroundFadeTimeCounter;
+
+        #endregion
+
         #region General Fields
         // Text scrolling
         private string _curText;
@@ -62,6 +73,8 @@ namespace Final_Game
         public CutsceneManager(Game1 gm)
         {
             this.gm = gm;
+
+            _blankPanel = gm.Content.Load<Texture2D>("BlankPanel");
 
             // Write tutorial
             _walkInstructions =
@@ -92,7 +105,9 @@ namespace Final_Game
         public void Update(GameTime gameTime)
         {
             // Add text scroll
-            if (_writeLength < _curText.Length && _incrementCharTimeCounter < _waitToIncrementCharTime)
+            if (_curText != null &&
+                _writeLength < _curText.Length && 
+                _incrementCharTimeCounter < _waitToIncrementCharTime)
             {
                 _incrementCharTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -106,8 +121,6 @@ namespace Final_Game
                 }
             }
 
-
-
             // Transfer phases
             if (_phaseTransferTimer > 0)
             {
@@ -119,7 +132,7 @@ namespace Final_Game
 
             // Pause game if not paused and vice versa
             if (_isPausable && Game1.SingleKeyPress(Keys.Escape))
-                gm.PauseGame(Game1.State != GameState.Pause);
+                gm.PauseGame(gm.State != GameState.Pause);
 
             // Update current cutscene
             switch (Scene)
@@ -130,6 +143,11 @@ namespace Final_Game
                     Game1.TutorialRoom.Update(gameTime);
 
                     RunTutorialCutscene();
+                    break;
+
+                case Cutscene.GameOver:
+                    RunGameOverCutscene(gameTime);
+
                     break;
             }
         }
@@ -146,11 +164,21 @@ namespace Final_Game
 
                     DrawTutorialCutscene(sb);
                     break;
+
+                case Cutscene.GameOver:
+                    DrawGameOverCutscene(sb);
+                    break;
             }
         }
 
         public void StartCutscene(Cutscene scene)
         {
+            gm.State = GameState.Cutscene;
+
+            _isPausable = true;
+
+            _curText = null;
+
             switch (scene)
             {
                 case Cutscene.Tutorial:
@@ -166,6 +194,17 @@ namespace Final_Game
                     Scene = Cutscene.Tutorial;
 
                     PhaseNum = 1;
+                    break;
+
+                case Cutscene.GameOver:
+                    _backgroundFadeDuration = 2;
+                    _backgroundFadeTimeCounter = 0;
+
+                    Scene = Cutscene.GameOver;
+
+                    PhaseNum = 1;
+
+                    _isPausable = false;
                     break;
             }
         }
@@ -199,6 +238,13 @@ namespace Final_Game
 
         public void EndCurrentScene()
         {
+            switch (Scene)
+            {
+                case Cutscene.GameOver:
+                    gm.State = GameState.GameOver;
+                    break;
+            }
+
             // End Scene
             PhaseNum = 0;
             Scene = Cutscene.None;
@@ -295,7 +341,6 @@ namespace Final_Game
 
             }
         }
-
         private void DrawTutorialCutscene(SpriteBatch sb)
         {
             string tempText = _curText.Substring(0, _writeLength);
@@ -321,6 +366,43 @@ namespace Final_Game
                 textPosition,
                 Color.White);
         }
+
+        private void RunGameOverCutscene(GameTime gameTime)
+        {
+            switch (PhaseNum)
+            {
+                case 1:
+                    if (_backgroundFadeTimeCounter < _backgroundFadeDuration)
+                    {
+                        // Fade in a black screen
+                        _backgroundFadeTimeCounter += 
+                            gameTime.ElapsedGameTime.TotalSeconds;
+
+                        Game1.Player.Update(gameTime);
+                        Game1.EManager.Update(gameTime);
+                    }
+                    else
+                    {
+                        EndCurrentScene();
+                    }
+
+                    break;
+            }
+        }
+        private void DrawGameOverCutscene(SpriteBatch sb)
+        {
+            Game1.TestLevel.CurrentRoom.Draw(sb);
+
+            Game1.Player.Draw(sb);
+
+            Game1.EManager.Draw(sb);
+
+            sb.Draw(
+                _blankPanel,
+                Game1.ScreenBounds,
+                Color.White * (float)(_backgroundFadeTimeCounter / _backgroundFadeDuration));
+        }
+
 
         #endregion
     }

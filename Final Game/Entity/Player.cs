@@ -56,10 +56,15 @@ namespace Final_Game.Entity
 		/// </summary>
 		private float _frictionMagnitude;
 
+		private Sprite _smileSprite;
 		/// <summary>
 		/// TBD
 		/// </summary>
+		private float _smileSpeed;
+
 		private float _transitionToWalkingSpeed;
+
+		private bool _controllable = true;
 
 		/// <summary>
 		/// TIme left before combo resets.
@@ -86,17 +91,40 @@ namespace Final_Game.Entity
 
 		public int Combo { get; set; }
 
-		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
+		/// <summary>
+		/// Gets whether or not player is moving fast enough for
+		/// their sprite to change to smiling
+		/// </summary>
+		public bool IsSmiling => 
+			Velocity.LengthSquared() >= _smileSpeed * _smileSpeed;
+
 		#endregion
 
+		public event EntityDamaged OnPlayerDamaged;
+		public event EntityDying OnPlayerDeath;
+
+		// Constructors
+		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
+
 		#region Constructor(s)
+
 		public Player(Game1 gm, Vector2 worldPosition)
 		{
 			// Set images
 			Texture2D playerSprite = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
+			
+			// main sprite
 			Image = new Sprite(playerSprite,
 				new Rectangle(0, 0, 120, 120),
 				new Rectangle(0, 0, Game1.TileSize, Game1.TileSize));
+			
+			// smiling sprite
+			_smileSprite = new Sprite(
+				gm.Content.Load<Texture2D>("Sprites/SpookyBlueTeeth"),
+				new Rectangle(0, 0, 120, 120),
+				Image.DestinationRect);
+
+			// launch arrow image
 			_launchArrowsTexture = gm.Content.Load<Texture2D>("Sprites/LaunchArrowSpritesheet");
 
 			// Set position on screen
@@ -114,11 +142,12 @@ namespace Final_Game.Entity
 			Hitbox = new Rectangle(worldPosition.ToPoint(), new Point(Image.DestinationRect.Width, Image.DestinationRect.Height));
 
 			// Set movement vars
-			Speed = 20f;
+			Speed = 12f;
 			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
 			_transitionToWalkingSpeed = 1f;
+			_smileSpeed = 48f;
 
 			// Set default state
 			State = PlayerState.Walking;
@@ -128,6 +157,11 @@ namespace Final_Game.Entity
 			// Give launches
 			_maxRedirects = 3;
 			_numRedirects = _maxRedirects + 1;
+
+			// Health
+			MaxHealth = 6;
+			CurHealth = MaxHealth;
+			InvDuration = 0.5;
 
 			// Set attack vars
 			Damage = 1;
@@ -141,13 +175,16 @@ namespace Final_Game.Entity
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
-			UpdateBulletTime(gameTime);
 			UpdateCombo(gameTime);
+			if (_controllable) UpdateBulletTime(gameTime);
+
+			TickInvincibility(gameTime);
 
 			switch (State)
 			{
 				case PlayerState.Walking:
-					MoveWithKeyboard(Game1.CurKB);
+
+					if (_controllable) MoveWithKeyboard(Game1.CurKB);
 					//Debug.WriteLine($"Current worldPos {WorldPosition}");
 					// Reset Combo if too much time has passed since prev hit.
 					break;
@@ -155,7 +192,7 @@ namespace Final_Game.Entity
 				case PlayerState.Rolling:
 					ApplyFriction();
 
-					HandleBraking();
+					if (_controllable) HandleBraking();
 
 					// Transition to walking
 					if (Velocity.Length() < 1f)
@@ -167,7 +204,7 @@ namespace Final_Game.Entity
 					break;
 			}
 
-			HandleLaunch();
+			if (_controllable) HandleLaunch();
 
 			//ApplyScreenBoundRicochet();
 
@@ -180,9 +217,14 @@ namespace Final_Game.Entity
 		public override void Draw(SpriteBatch sb)
 		{
 			// Draw player image
-			Image.Draw(sb, ScreenPosition);
+			if (!IsSmiling)
+				Image.Draw(sb, ScreenPosition);
+			else
+				_smileSprite.Draw(sb, ScreenPosition);
 
-			if (_numRedirects > 0 && 
+			// Draw player launch arrow
+			if (_controllable && 
+				_numRedirects > 0 && 
 				Game1.IsMouseButtonPressed(1))
 			{
 				DrawLaunchArrow(sb);
@@ -229,6 +271,7 @@ namespace Final_Game.Entity
 
 			base.OnHitTile(tile, colDir);
 		}
+
 		public override void OnHitEntity(Entity entity, CollisionDirection colDir)
 		{
 			switch (entity.Type)
@@ -243,14 +286,14 @@ namespace Final_Game.Entity
 							acc.Normalize();
 							acc *= 0.05f;
 							Accelerate(acc);
-	
+
 							// Get an extra redirect
 							if (_numRedirects < _maxRedirects)
 								_numRedirects++;
 							Combo++;
 							_comboResetDuration = 5f;
 						}
-	
+
 						entity.TakeDamage(Damage);
 					}
 					else
@@ -259,21 +302,22 @@ namespace Final_Game.Entity
 						Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
 						distToEnemy.Normalize();
 						distToEnemy *= -5;
-	
+            
 						this.TakeDamage(1);
-	
+
 						Velocity = distToEnemy;
 						State = PlayerState.Rolling;
 					}
 					break;
 				}
 			}
+
 		private void HandleEnemyCollisions()
 		{
 			for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
 			{
 				Enemy curEnemy = Game1.EManager.Enemies[i];
-	
+
 				if (CollisionChecker.CheckEntityCollision(this, curEnemy))
 				{
 					//Debug.WriteLine("Combo increase");
@@ -362,7 +406,7 @@ namespace Final_Game.Entity
 				distance.Normalize();
 	
 				// Speed is less than max
-				if (Velocity.LengthSquared() <= Speed * Speed)
+				if (Velocity.LengthSquared() < Speed * Speed)
 				{
 					// Launch player at max speed
 					distance *= Speed;
@@ -600,7 +644,9 @@ namespace Final_Game.Entity
 	
 			// Set Default State 
 			State = PlayerState.Walking;
-	
+
+			_controllable = true;
+
 			// Set player at the center of the current level
 			WorldPosition = new Vector2(
 				Game1.TestLevel.CurrentRoom.Tileset.Width / 2,
@@ -611,7 +657,7 @@ namespace Final_Game.Entity
 		{
 			if (_comboResetDuration > 0) 
 			{
-				Debug.WriteLine("here");
+				//Debug.WriteLine("here");
 				_comboResetDuration -= gameTime.ElapsedGameTime.TotalSeconds;
 			}
 			if (_comboResetDuration <= 0)
@@ -619,7 +665,33 @@ namespace Final_Game.Entity
 				Combo = 0;
 			}
 			return;
+		}
+
+        public override void TakeDamage(int amount)
+        {
+			// Take damage if not invincible
+			if (InvTimer > 0 || CurHealth <= 0) return;
+                
+			CurHealth -= amount;
+
+			// Notify subscribers
+			OnPlayerDamaged(amount);
+
+			// Temporarily become invincible
+			InvTimer = InvDuration;
+
+			// Handle low health
+			if (CurHealth <= 0)
+			{
+				_controllable = false;
+
+				BulletTimeMultiplier = _minTimeMultiplier;
+
+				OnPlayerDeath();
+			}
+			return;
         }
+    }
 	#endregion
-	}
 }
+

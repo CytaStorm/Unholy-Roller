@@ -1,5 +1,6 @@
 ﻿using Final_Game;
 using Final_Game.Entity;
+using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -24,72 +25,109 @@ namespace Final_Game
 		// Sliders
 		private Slider _testSlider;
 
+		// Backgrounds
+		private Texture2D _blankPanel;
+
 		// Player Health
-		//private Sprite _heart;
-		//private Sprite _halfHeart;
-		//private Sprite _emptyHeart;
+		private Texture2D _blueBallSpritesheet;
+		private int _brokenBallSpriteWidth;
 
 		// Player Speed
 		private Texture2D _speedometerPin;
 		private Texture2D _speedometerCrest;
 		private float _maxSpeedometerSpeed;
+
+		// Shake Effect
+		private double _shakeDuration;
+		private double _shakeTimer;
+		private Vector2 _maxShakeOffset;
+		private float _maxShakeMagnitude;
+		private float _maxShakeMultiplier;
+
+		// Game Over Assets
+		private Sprite _deadBall;
+		private float _maxHoverOffset;
+		private float _hoverOffset;
+		private double _hoverDuration;
+		private double _hoverTimeCounter;
+		private bool hoverUp = true;
+
+		// Minimap
+		private int _defaultRoomSize = 16;
+		private float _minimapScale = 0.1f;
+		private Point _minimapPos;
 		#endregion
 
 		#region Properties
 		// Button Containers
 		public Button[] MenuButtons { get; private set; }
 		public Button[] PauseButtons { get; private set; }
+		public Button[] GameOverButtons { get; private set; }
 
-        // Fonts
-        public static SpriteFont TitleCaseArial { get; private set; }
+		// Fonts
+		public static SpriteFont TitleCaseArial { get; private set; }
 		public static SpriteFont MediumArial { get; private set; }
 
-        #endregion
+		#endregion
 
-        // Constructors
-        public UI(Game1 gm, SpriteBatch sb)
+		// Constructors
+		public UI(Game1 gm, SpriteBatch sb)
 		{
 			_gm = gm;
 			_spriteBatch = sb;
 
-			// Heart image
-			//Texture2D heart = _gm.Content.Load<Texture2D>("BowlingHeart");
-			//_heart = new Sprite(
-			//    heart,
-			//    new Rectangle(0, 0, 100, 100),
-			//    new Rectangle(0, 0, 100, 100));
+			// Minimap
+			_defaultRoomSize = 20;
+			_minimapScale = 0.1f;
+			_minimapPos = new Point(
+				Game1.ScreenBounds.Right - Level.Map.GetLength(0) * _defaultRoomSize - 150,
+				50);
 
-			//Texture2D halfHeart = _gm.Content.Load<Texture2D>("BowlingHalfHeart");
-			//_halfHeart = new Sprite(
-			//    halfHeart,
-			//    new Rectangle(0, 0, 100, 100),
-			//    new Rectangle(0, 0, 100, 100));
 
-			//Texture2D emptyHeart = _gm.Content.Load<Texture2D>("EmptyHeart");
-			//_emptyHeart = new Sprite(
-			//    emptyHeart,
-			//    new Rectangle(0, 0, 100, 100),
-			//    new Rectangle(0, 0, 100, 100));
+			// Load Backgrounds
+			_blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
+
+			// Load Health Images
+			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
+			_brokenBallSpriteWidth = 360;
 
 			// Setup Player Speedometer
 			_speedometerPin = _gm.Content.Load<Texture2D>("SpeedometerPin");
 			_speedometerCrest = _gm.Content.Load<Texture2D>("SpeedometerCrest");
 			_maxSpeedometerSpeed = 60f;
 
+			// Gameover Assets
+			Texture2D deadBallTexture = _gm.Content.Load<Texture2D>("Sprites/DeadBall");
+			_deadBall = new Sprite(
+				deadBallTexture,
+				deadBallTexture.Bounds,
+				new Rectangle(
+					0, 0, 
+					deadBallTexture.Width * 3 / 4, deadBallTexture.Width * 3 / 4));
+			_maxHoverOffset = 50f;
+			_hoverDuration = 2;
 
 			// Load Fonts
 			TitleCaseArial = _gm.Content.Load<SpriteFont>("TitleCaseArial");
 			MediumArial = _gm.Content.Load<SpriteFont>("MediumArial");
 
+			// Setup effects
+			_maxShakeMagnitude = 15f;
+			_maxShakeMultiplier = 3f;
+			_maxShakeOffset = new Vector2(_maxShakeMagnitude, _maxShakeMagnitude);
+			_shakeDuration = 0.5;
+
 			CreateButtons();
 
 			CreateSliders();
+
+			SubscribeToEntities();
 		}
 
 		// Methods
 		public void Update(GameTime gameTime)
 		{
-			switch (Game1.State)
+			switch (_gm.State)
 			{
 				case GameState.Menu:
 
@@ -111,11 +149,38 @@ namespace Final_Game
 						b.Update(gameTime);
 					}
 					break;
+
+				case GameState.GameOver:
+
+					// Oscillate dead bowling ball
+					if (hoverUp)
+					{
+						_hoverTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
+
+						if (_hoverTimeCounter > _hoverDuration)
+							hoverUp = false;
+					}
+					else
+					{
+						_hoverTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;
+                        if (_hoverTimeCounter < 0) 
+							hoverUp = true;
+                    }
+
+					_hoverOffset = 
+						(float)(_hoverTimeCounter / _hoverDuration) * _maxHoverOffset;
+
+					// Update game over buttons
+					foreach (Button b in GameOverButtons)
+					{
+						b.Update(gameTime);
+					}
+					break;
 			}
 		}
 		public void Draw(GameTime gameTime)
 		{
-			switch (Game1.State)
+			switch (_gm.State)
 			{
 				case GameState.Menu:
 					DrawMainMenu();
@@ -132,8 +197,6 @@ namespace Final_Game
 					break;
 
 				case GameState.Play:
-					DrawPlayerHealth();
-
 					DrawPlayerSpeedometer();
 
 					DrawPlayerCombo();
@@ -144,41 +207,33 @@ namespace Final_Game
 					//    $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
 					//    new Vector2(0f, 200f),
 					//    Color.White);
+					if (_shakeTimer > 0)
+					{
+						_shakeTimer -=
+							gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+					}
 					break;
 
 				case GameState.Pause:
 					DrawPauseMenu();
 
 					break;
+
+				case GameState.GameOver:
+					DrawGameOverMenu();
+					break;
 			}
 		}
 
-		private void DrawPlayerHealth()
-		{
-			// How many half hearts the player has.
-			int currentHealth = Game1.Player.CurHealth;
-			int wholeHearts = currentHealth / 2;
-
-			//Draw whole hearts
-			for (int i = 0; i < wholeHearts; i++)
-			{
-				//Draw whole hearts using size of heart sprite * i
-			}
-
-			if (currentHealth % 2 == 1)
-			{
-				//Draw half heart after full heart
-			}
-			return;
-		}
+		#region HUD Drawing Methods
 
 		private void DrawPlayerCombo()
-		{
+		{		
 			_spriteBatch.DrawString(
 				TitleCaseArial,
 				Game1.Player.Combo.ToString(),
 				new Vector2(
-					100, 400),
+				100, 400),
 				Color.White);
 			return;
 		}
@@ -191,6 +246,7 @@ namespace Final_Game
 				new Vector2(60f, 40f),
 				Color.White);
 
+			// Draw Pin
 			float minAngle = 5 * MathF.PI / 4;
 			float maxAngle = 11 * MathF.PI / 6;
 
@@ -215,6 +271,8 @@ namespace Final_Game
 				SpriteEffects.None,
 				0f);
 		}
+
+		#endregion
 
 		#region Menu Drawing Methods
 		private void DrawMainMenu()
@@ -260,6 +318,39 @@ namespace Final_Game
 			}
 			return;
 		}
+
+		private void DrawGameOverMenu()
+		{
+			// Draw Game Over Heading
+			string gameOverText = "You Died :P";
+
+			Vector2 textPos =
+				new Vector2(
+				GetCenteredTextPos(gameOverText, TitleCaseArial, Game1.ScreenCenter).X,
+				100f);
+
+			_spriteBatch.DrawString(
+				TitleCaseArial,
+				gameOverText,
+				textPos,
+				Color.Black);
+
+			// Draw dead ball
+			Vector2 drawPos = new Vector2(
+				Game1.ScreenCenter.X - _deadBall.DestinationRect.Width / 2,
+				Game1.ScreenCenter.Y - _deadBall.DestinationRect.Height / 2 - 150);
+
+			drawPos = new Vector2(drawPos.X, drawPos.Y + _hoverOffset);
+
+			_deadBall.Draw(_spriteBatch, drawPos);
+
+			// Draw game over buttons
+			foreach (Button b in GameOverButtons)
+			{
+				b.Draw(_spriteBatch);
+			}
+		}
+
 		#endregion
 
 		#region Component Creation Methods
@@ -305,6 +396,20 @@ namespace Final_Game
 			PauseButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
 			PauseButtons[1].TextColor = Color.Coral;
 			PauseButtons[1].SetText("Main Menu", TitleCaseArial);
+
+			// Make Game Over Buttons
+			GameOverButtons = new Button[2];
+
+			buttonBounds.Y = Game1.ScreenCenter.ToPoint().Y + 100;
+			GameOverButtons[0] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+			GameOverButtons[0].TintColor = Color.Black;
+			GameOverButtons[0].TextColor = Color.Orange;
+			GameOverButtons[0].SetText("Retry", TitleCaseArial);
+
+			buttonBounds.Y += emptyButton.Height;
+			GameOverButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+			GameOverButtons[1].TextColor = Color.Coral;
+			GameOverButtons[1].SetText("Main Menu", TitleCaseArial);
 			return;
 		}
 		private void CreateSliders()
@@ -314,19 +419,19 @@ namespace Final_Game
 			_testSlider = new Slider(new Point(50, 200), sliderBarImage, sliderKnobImage);
 			return;
 		}
-        #endregion
+		#endregion
 
-        #region Global Helper Methods
-        /// <summary>
-        /// Adds a newline character to the closest space in text 
-        /// after a specified number of characters
-        /// number of characters 
-        /// </summary>
-        /// <param name="text"> text to wrap </param>
-        /// <param name="numChars"> max number of chars before line wrap </param>
-        /// <returns> wrapped text </returns>
-        /// <exception cref="Exception"> Number of characters cannot be less than 1 </exception>
-        public static string GetWrappedText(string text, int numChars)
+		#region Global Helper Methods
+		/// <summary>
+		/// Adds a newline character to the closest space in text 
+		/// after a specified number of characters
+		/// number of characters 
+		/// </summary>
+		/// <param name="text"> text to wrap </param>
+		/// <param name="numChars"> max number of chars before line wrap </param>
+		/// <returns> wrapped text </returns>
+		/// <exception cref="Exception"> Number of characters cannot be less than 1 </exception>
+		public static string GetWrappedText(string text, int numChars)
 		{
 			string result = text;
 			
@@ -372,6 +477,98 @@ namespace Final_Game
 			return result;
 		}
 
-        #endregion
-    }
+		/// <summary>
+		/// Gets the position necessary to draw the specified text
+		/// centered on the specified center position
+		/// </summary>
+		/// <param name="text"> text to center </param>
+		/// <param name="font"> font text will be drawn in </param>
+		/// <param name="centerPos"> position to center text on </param>
+		/// <returns></returns>
+		public static Vector2 GetCenteredTextPos(string text, SpriteFont font, Vector2 centerPos)
+		{
+			Vector2 textDimensions = font.MeasureString(text);
+
+			return centerPos - textDimensions / 2;
+		}
+
+		#endregion
+
+		#region Subscription Methods
+
+		/// <summary>
+		/// Links UI methods to the events of game entities
+		/// </summary>
+		private void SubscribeToEntities()
+		{
+			Game1.Player.OnPlayerDamaged += PlayerWasDamaged;
+
+			return;
+		}
+
+		/// <summary>
+		/// Creates a UI response when the player's health decreases
+		/// </summary>
+		/// <param name="amount"> damage dealt to player </param>
+		private void PlayerWasDamaged(int amount)
+		{
+			// Respond if damage was actually dealt to player
+			if (amount <= 0)
+				return;
+
+			if (Game1.Player.CurHealth > 0)
+			{
+				// Vibrate health UI
+				// Vibration magnitude increases as health decreases
+				float shakeMaxMag = _maxShakeMagnitude;
+				if (Game1.Player.CurHealth > 0)
+				{
+					shakeMaxMag =
+						_maxShakeMagnitude * 
+						(1 - (float)Game1.Player.CurHealth / Game1.Player.MaxHealth) *
+						_maxShakeMultiplier;
+				}
+
+				_maxShakeOffset = new Vector2(shakeMaxMag, shakeMaxMag);
+				_shakeTimer = _shakeDuration;
+			}
+		}
+
+		#endregion
+
+		/// <summary>
+		/// Draws a simplified representation of the map,
+		/// highlighting the room the player is in and 
+		/// the boss room
+		/// </summary>
+		public void DrawMinimap()
+		{
+			// Draw each room in current level relative to each other
+			for (int y = 0; y < Level.Map.GetLength(0); y++)
+			{
+				for (int x = 0; x < Level.Map.GetLength(1); x++)
+				{
+					Room curRoom = Level.Map[y, x];
+
+					if (curRoom != null)
+					{
+						Rectangle roomBounds = new Rectangle(
+							_minimapPos.X + x * _defaultRoomSize,
+							_minimapPos.Y + y * _defaultRoomSize,
+							_defaultRoomSize,
+							_defaultRoomSize);
+
+						Color boxColor = Color.Black;
+						if (curRoom == Game1.TestLevel.CurrentRoom)
+							boxColor = Color.White;
+						else if (curRoom.IsBossRoom)
+							boxColor = Color.Gold;
+
+						// Draw box representing room
+						ShapeBatch.Box(roomBounds, boxColor * 0.6f);
+					}
+				}
+			}
+		}
+	}
 }

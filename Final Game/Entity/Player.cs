@@ -4,6 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
+
 
 namespace Final_Game.Entity
 {
@@ -21,6 +27,8 @@ namespace Final_Game.Entity
 		private int _numRedirects;
 		private int _maxRedirects;
 
+		private float _walkSpeed;
+
 		private float _brakeSpeed;
 		private float _frictionMagnitude;
 
@@ -30,13 +38,28 @@ namespace Final_Game.Entity
 		/// TIme left before combo resets.
 		/// </summary>
 		private double _comboResetDuration;
+
+		// Time dilation
+		double _timeTransitionDuration = 0.2;
+		double _transitionTimeCounter = 0.2;
+		float _normalTimeMultiplier = 1f;
+		float _minTimeMultiplier = 0.3f;
+
 		#endregion
 
 		#region Properties
 		public PlayerState State { get; private set; }
 		public Vector2 ScreenPosition { get; private set; }
-		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
+
+		/// <summary>
+		/// Multiply any expression that uses Elapsed Seconds by this coefficient
+		/// to scale it to bullet time
+		/// </summary>
+		public static float BulletTimeMultiplier { get; private set; } = 1f;
+
 		public int Combo { get; set; }
+
+		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
 		#endregion
 
 		#region Constructor(s)
@@ -66,6 +89,7 @@ namespace Final_Game.Entity
 
 			// Set movement vars
 			Speed = 20f;
+			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
 			_transitionToWalkingSpeed = 1f;
@@ -87,6 +111,8 @@ namespace Final_Game.Entity
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
+			UpdateBulletTime(gameTime);
+
 			switch (State)
 			{
 				case PlayerState.Walking:
@@ -118,7 +144,7 @@ namespace Final_Game.Entity
 			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
 			HandleEnemyCollisions();
-
+			Move(Velocity * BulletTimeMultiplier);
 			Move(Velocity);
 		}
 		public override void Draw(SpriteBatch sb)
@@ -148,8 +174,9 @@ namespace Final_Game.Entity
 				case TileType.OpenDoor:
 					//Return so no calculating placing
 					//player on the open door.
-					Debug.WriteLine("HIT OPEN DOOR");
+					//Debug.WriteLine("HIT OPEN DOOR");
 					TransferRoom(tile);
+					_numRedirects = _maxRedirects;
 					return;
 
 				case TileType.Wall:
@@ -157,7 +184,7 @@ namespace Final_Game.Entity
 			}
 
 			// Place self on part of tile that was hit
-			PlaceOnHitSurface(tile, colDir);
+			PlaceOnHitEdge(tile, colDir);
 
 			if (State == PlayerState.Rolling)
 			{
@@ -172,7 +199,6 @@ namespace Final_Game.Entity
 
 			base.OnHitTile(tile, colDir);
 		}
-
 		public override void OnHitEntity(Entity entity, CollisionDirection colDir)
 		{
 			switch (entity.Type)
@@ -209,10 +235,9 @@ namespace Final_Game.Entity
 						Velocity = distToEnemy;
 						State = PlayerState.Rolling;
 					}
-				break;
+					break;
+				}
 			}
-		}
-
 		private void HandleEnemyCollisions()
 		{
 			for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
@@ -221,7 +246,7 @@ namespace Final_Game.Entity
 	
 				if (CollisionChecker.CheckEntityCollision(this, curEnemy))
 				{
-					Debug.WriteLine("Combo increase");
+					//Debug.WriteLine("Combo increase");
 				}
 			}
 		}
@@ -229,7 +254,7 @@ namespace Final_Game.Entity
 		#endregion
 	
 		#region Movement Helper Methods
-
+	
 		private void TransferRoom(Tile tile)
 		{
 			switch (tile.DoorOrientation)
@@ -252,60 +277,60 @@ namespace Final_Game.Entity
 					break;
 			}
 		}
-
+	
 		public void MoveWithKeyboard(KeyboardState kb)
 		{
 			Velocity = Vector2.Zero;
-
+	
 			// Move up
 			if (kb.IsKeyDown(Keys.W))
 			{
-				Velocity = new Vector2(Velocity.X, Velocity.Y - Speed);
+				Velocity = new Vector2(Velocity.X, Velocity.Y - _walkSpeed);
 			}
 			// Move down
 			if (kb.IsKeyDown(Keys.S))
 			{
-				Velocity = new Vector2(Velocity.X, Velocity.Y + Speed);
+				Velocity = new Vector2(Velocity.X, Velocity.Y + _walkSpeed);
 			}
 			// Move left
 			if (kb.IsKeyDown(Keys.A))
 			{
-				Velocity = new Vector2(Velocity.X - Speed, Velocity.Y);
+				Velocity = new Vector2(Velocity.X - _walkSpeed, Velocity.Y);
 			}
 			// Move right
 			if (kb.IsKeyDown(Keys.D))
 			{
-				Velocity = new Vector2(Velocity.X + Speed, Velocity.Y);
+				Velocity = new Vector2(Velocity.X + _walkSpeed, Velocity.Y);
 			}
-
-			// Maximize Velocity at speed
-			if (Velocity.LengthSquared() > Speed * Speed)
+	
+			// Max Velocity is _walkSpeed
+			if (Velocity.LengthSquared() > _walkSpeed * _walkSpeed)
 			{
-				Velocity *= Speed / Velocity.Length();
+				Velocity = Velocity * _walkSpeed / Velocity.Length();
 			}
 		}
-
+	
 		private void HandleLaunch()
 		{
 			if (Game1.IsMouseButtonPressed(1))
 			{
 				// Todo: Slow time
 			}
-
+	
 			// Launch Player in direction of Mouse
 			if (_numRedirects > 0 && Game1.IsMouseLeftClicked())
 			{
 				// Get mouse Position
 				Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
-
+	
 				// Aim from center of the Player
 				Vector2 centerPos = new Vector2(ScreenPosition.X + Image.DestinationRect.Width / 2,
 					ScreenPosition.Y + Image.DestinationRect.Height / 2);
-
+	
 				// Aim toward mouse at player speed
 				Vector2 distance = mousePos - centerPos;
 				distance.Normalize();
-
+	
 				// Speed is less than max
 				if (Velocity.LengthSquared() <= Speed * Speed)
 				{
@@ -319,7 +344,7 @@ namespace Final_Game.Entity
 					distance *= Velocity.Length();
 					Velocity = distance;
 				}
-
+	
 				// Launch Player at max speed
 				// Redirect Player at cur speed
 				//if (_numRedirects > _maxRedirects)
@@ -334,34 +359,34 @@ namespace Final_Game.Entity
 				//    distance *= Velocity.Length();
 				//    Velocity = distance;
 				//}
-
-				//_numRedirects--;
-
+	
+				_numRedirects--;
+	
 				// Player is now rolling
 				State = PlayerState.Rolling;
 			}
 		}
-
+	
 		private void HandleBraking()
 		{
 			float lowestBrakableSpeed = 0.1f * 0.1f;
-
+	
 			if (Game1.IsMouseButtonPressed(2) && 
 				Velocity.LengthSquared() >= lowestBrakableSpeed)
 			{
 				Vector2 deceleration = -Velocity;
 				deceleration.Normalize();
-				deceleration *= _brakeSpeed;
-
+				deceleration *= _brakeSpeed * BulletTimeMultiplier;
+	
 				Velocity += deceleration;
 			}
 		}
-
+	
 		public void Accelerate(Vector2 force)
 		{
 			Velocity += force;
 		}
-
+	
 		private void ApplyFriction()
 		{
 			if (Velocity.LengthSquared() > MathF.Pow(_transitionToWalkingSpeed, 2))
@@ -369,7 +394,7 @@ namespace Final_Game.Entity
 				// Naturally decelerate over time
 				Vector2 natDeceleration = -Velocity;
 				natDeceleration.Normalize();
-				Velocity += natDeceleration * _frictionMagnitude;
+				Velocity += natDeceleration * _frictionMagnitude * BulletTimeMultiplier;
 			}
 		}
 		public void Ricochet(CollisionDirection hitDirection)
@@ -382,17 +407,17 @@ namespace Final_Game.Entity
 			{
 				Velocity = new Vector2(-Velocity.X, Velocity.Y);
 			}
-
+	
 			State = PlayerState.Rolling;
 		}
-
+	
 		public void Ricochet(Vector2 newDirection)
 		{
 			Velocity = newDirection;
-
+	
 			State = PlayerState.Rolling;
 		}
-
+	
 		private void ApplyScreenBoundRicochet()
 		{
 			if (WorldPosition.X + Image.DestinationRect.Width > Game1.WindowWidth ||
@@ -406,47 +431,73 @@ namespace Final_Game.Entity
 				Velocity = new Vector2(Velocity.X, -Velocity.Y);
 			}
 		}
+	
+		private void UpdateBulletTime(GameTime gameTime)
+		{
+			if (Game1.IsMouseButtonPressed(1) && _numRedirects > 0)
+			{
+				// Transition from normal -> bullet time
+				_transitionTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;
+	
+			}
+			else if (Game1.IsMouseButtonReleased(1))
+			{
+				// Transition from bullet -> normal time
+				_transitionTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
+			}
+	
+			// Enforce time counter bounds
+			_transitionTimeCounter = 
+				MathHelper.Clamp((float)_transitionTimeCounter, 0, (float)_timeTransitionDuration);
+	
+			// Set time multiplier
+			// Interpolates between minTimeMultiplier and normalTimeMultiplier
+			// based on whether the transitionTimeCounter is counting up or down
+			BulletTimeMultiplier =
+				(float)(_minTimeMultiplier + _transitionTimeCounter / _timeTransitionDuration *
+				(_normalTimeMultiplier - _minTimeMultiplier));
+		}
+	
 		#endregion
-
+	
 		#region Drawing Helper Methods
 		private void DrawLaunchArrow(SpriteBatch sb)
 		{
-			
 			// Get angle between arrow and mouse
 			Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
-
+	
 			Vector2 centerScreenPos = new Vector2(
 				ScreenPosition.X + Image.DestinationRect.Width / 2,
 				ScreenPosition.Y + Image.DestinationRect.Height / 2);
-
+	
 			Vector2 playerToMouseDistance = mousePos - centerScreenPos;
-
+	
 			float angleBetweenArrowAndMouse = MathF.Atan2(
 				playerToMouseDistance.X,
 				playerToMouseDistance.Y);
-
+	
 			// Scale distance from player to mouse for drawing
 			Vector2 directionFromPlayerToMouse = playerToMouseDistance;
 			directionFromPlayerToMouse.Normalize();
 			directionFromPlayerToMouse *= 120; // Radius
-
-
+	
 			Rectangle arrowSourceRect = new Rectangle();
+	
 			if (_numRedirects > _maxRedirects)
 			{
-				// Launch Arrow
+				// Use Launch Arrow Source Rect
 				arrowSourceRect = new Rectangle(
 					_launchArrowSpriteWidth, 0,
 					_launchArrowSpriteWidth, _launchArrowSpriteWidth);
 			}
 			else
 			{
-				// Redirect Arrow
+				// Use Redirect Arrow Source Rect
 				arrowSourceRect = new Rectangle(
 					0, 0,
 					_launchArrowSpriteWidth, _launchArrowSpriteWidth);
 			}
-
+	
 			// Draw aiming arrow
 			sb.Draw(
 				_launchArrowsTexture,
@@ -461,57 +512,69 @@ namespace Final_Game.Entity
 				SpriteEffects.None,
 				0f
 				);
-
-			// Todo: Display remaining redirects
-			//Vector2 redirectStringDimensions =
-			//    Game1.ARIAL32.MeasureString(_numRedirects.ToString());
-
-			//Vector2 textPos = centerPlayerPos + directionFromPlayerToMouse;
-			//textPos = new Vector2(
-			//    textPos.X - redirectStringDimensions.X / 2,
-			//    textPos.Y - redirectStringDimensions.Y / 2);
-
-			//sb.DrawString(
-			//    Game1.ARIAL32,
-			//    _numRedirects.ToString(),
-			//    textPos,
-			//    Color.White);
+	
+			// Display remaining redirects
+			if (_numRedirects <= _maxRedirects)
+			{
+				Vector2 redirectStringDimensions =
+					UI.MediumArial.MeasureString(_numRedirects.ToString());
+	
+				Vector2 textPos = centerScreenPos + directionFromPlayerToMouse;
+				textPos = new Vector2(
+					textPos.X - redirectStringDimensions.X / 2,
+					textPos.Y - redirectStringDimensions.Y / 2);
+	
+				sb.DrawString(
+					UI.MediumArial,
+					_numRedirects.ToString(),
+					textPos,
+					Color.White);
+			}
 		}
-
+	
 		public override void DrawGizmos()
 		{
+			// Draw hitbox
 			Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
-
+	
 			Vector2 hitboxDistFromPlayer =
 				new Vector2(
 					WorldPosition.X - Hitbox.X,
 					WorldPosition.Y - Hitbox.Y);
-
+	
 			Rectangle hitboxInScreenSpace =
 				new Rectangle(
 					(int)(ScreenPosition.X + hitboxDistFromPlayer.X),
 					(int)(ScreenPosition.Y + hitboxDistFromPlayer.Y),
 					Hitbox.Width,
 					Hitbox.Height);
-
+	
 			ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
 		}
-
+	
 		#endregion
-
+	
+		/// <summary>
+		/// Resets all key variables
+		/// </summary>
 		public void Reset()
 		{
+			// Restore Health
 			CurHealth = MaxHealth;
-
+	
+			// Restore Redirects
 			_numRedirects = _maxRedirects + 1;
-
+	
+			// Stop Moving
 			Velocity = Vector2.Zero;
-
+	
+			// Set Default State 
 			State = PlayerState.Walking;
-
+	
+			// Set player at the center of the current level
 			WorldPosition = new Vector2(
-				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
-				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
+				Game1.TestLevel.CurrentRoom.Tileset.Width / 2,
+				Game1.TestLevel.CurrentRoom.Tileset.Height / 2);
 		}
 	
 		public void TickCombo(GameTime gameTime)

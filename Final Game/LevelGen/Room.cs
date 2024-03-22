@@ -158,7 +158,7 @@ namespace Final_Game.LevelGen
 		/// </summary>
 		public void CheckCleared()
 		{
-			Cleared = Tileset.EnemyCount < 1;
+			Cleared = Game1.EManager.Enemies.Count < 1;
 			//Firstclear added so room only adds open doors once.
 			if (Cleared && _firstClear)
 			{

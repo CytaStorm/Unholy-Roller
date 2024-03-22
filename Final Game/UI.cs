@@ -136,6 +136,8 @@ namespace Final_Game
 
 					DrawPlayerSpeedometer();
 
+					DrawPlayerCombo();
+
 					// Display Bullet Time multiplier
 					//_spriteBatch.DrawString(
 					//    Game1.ARIAL32,
@@ -153,25 +155,32 @@ namespace Final_Game
 
 		private void DrawPlayerHealth()
 		{
-			// Draw whole hearts
-			//int temp = Game1.Player1.CurHealth;
-			//for (int i = 0; i < (int)Math.Round(Game1.Player1.MaxHealth / 2.0); i++)
-			//{
-			//    if (temp / 2 >= 1)
-			//    {
-			//        _heart.Draw(_spriteBatch, new Vector2(i * 105f, 10f));
-			//        temp -= 2;
-			//    }
-			//    else if (temp > 0)
-			//    {
-			//        _halfHeart.Draw(_spriteBatch, new Vector2(i * 105f, 10f));
-			//        temp -= 1;
-			//    }
-			//    else
-			//    {
-			//        _emptyHeart.Draw(_spriteBatch, new Vector2(i * 105f, 10f));
-			//    }
-			//}
+			// How many half hearts the player has.
+			int currentHealth = Game1.Player.CurHealth;
+			int wholeHearts = currentHealth / 2;
+
+			//Draw whole hearts
+			for (int i = 0; i < wholeHearts; i++)
+			{
+				//Draw whole hearts using size of heart sprite * i
+			}
+
+			if (currentHealth % 2 == 1)
+			{
+				//Draw half heart after full heart
+			}
+			return;
+		}
+
+		private void DrawPlayerCombo()
+		{
+			_spriteBatch.DrawString(
+				TitleCaseArial,
+				Game1.Player.Combo.ToString(),
+				new Vector2(
+					100, 400),
+				Color.White);
+			return;
 		}
 
 		private void DrawPlayerSpeedometer()
@@ -227,6 +236,7 @@ namespace Final_Game
 			{
 				b.Draw(_spriteBatch);
 			}
+			return;
 		}
 
 		private void DrawPauseMenu()
@@ -248,6 +258,7 @@ namespace Final_Game
 			{
 				b.Draw(_spriteBatch);
 			}
+			return;
 		}
 		#endregion
 
@@ -294,12 +305,14 @@ namespace Final_Game
 			PauseButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
 			PauseButtons[1].TextColor = Color.Coral;
 			PauseButtons[1].SetText("Main Menu", TitleCaseArial);
+			return;
 		}
 		private void CreateSliders()
 		{
 			Texture2D sliderBarImage = _gm.Content.Load<Texture2D>("BasicSliderBar");
 			Texture2D sliderKnobImage = _gm.Content.Load<Texture2D>("BasicSliderKnob");
 			_testSlider = new Slider(new Point(50, 200), sliderBarImage, sliderKnobImage);
+			return;
 		}
         #endregion
 

@@ -197,6 +197,8 @@ namespace Final_Game
 					break;
 
 				case GameState.Play:
+					DrawPlayerHealth();
+
 					DrawPlayerSpeedometer();
 
 					DrawPlayerCombo();
@@ -238,7 +240,70 @@ namespace Final_Game
 			return;
 		}
 
-		private void DrawPlayerSpeedometer()
+        private void DrawPlayerHealth()
+        {
+            Color tint = Color.White;
+            Rectangle source =
+                new Rectangle(0, 0, _brokenBallSpriteWidth, _brokenBallSpriteWidth);
+
+            // Get damage aesthetics
+            if (Game1.Player.CurHealth > Game1.Player.MaxHealth * 3 / 4)
+            {
+                // Unscathed
+                tint = Color.White;
+
+            }
+            else if (Game1.Player.CurHealth > Game1.Player.MaxHealth * 2 / 4)
+            {
+                // Light Damage
+                tint = Color.LightPink;
+                source.X = _brokenBallSpriteWidth;
+            }
+            else if (Game1.Player.CurHealth > Game1.Player.MaxHealth * 1 / 4)
+            {
+                // Medium Damage
+                tint = Color.Pink;
+                source.X = _brokenBallSpriteWidth * 2;
+            }
+            else
+            {
+                // Heavy Damage
+                tint = Color.Red;
+                source.X = _brokenBallSpriteWidth * 3;
+            }
+
+            // Get smiling aesthetic
+            if (Game1.Player.IsSmiling)
+                source.Y = _brokenBallSpriteWidth;
+
+            Vector2 drawPos = new Vector2(60f, 40f);
+
+            // Vibrate the image
+            // Max magnitude of shake progressively decreases
+            if (_shakeTimer > 0)
+            {
+                float remainingShakeProgress = (float)(_shakeTimer / _shakeDuration);
+                float xBound = _maxShakeOffset.X * remainingShakeProgress;
+                float yBound = _maxShakeOffset.Y * remainingShakeProgress;
+
+                Random rand = new Random();
+                float xOffset = (rand.NextSingle() * xBound * 2) - xBound;
+                float yOffset = (rand.NextSingle() * yBound * 2) - yBound;
+
+                Vector2 offset = new Vector2(xOffset, yOffset);
+
+                drawPos += offset;
+            }
+
+            // Draw image
+            _spriteBatch.Draw(
+                _blueBallSpritesheet,
+                drawPos,
+                source,
+                tint);
+        }
+
+        private void DrawPlayerSpeedometer()
 		{
 			// Draw Speed dial
 			_spriteBatch.Draw(

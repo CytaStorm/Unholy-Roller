@@ -25,6 +25,11 @@ namespace Final_Game.Entity
 		private float _frictionMagnitude;
 
 		private float _transitionToWalkingSpeed;
+
+		/// <summary>
+		/// TIme left before combo resets.
+		/// </summary>
+		private double _comboResetDuration;
 		#endregion
 
 		#region Properties
@@ -87,6 +92,8 @@ namespace Final_Game.Entity
 				case PlayerState.Walking:
 					MoveWithKeyboard(Game1.CurKB);
 					//Debug.WriteLine($"Current worldPos {WorldPosition}");
+					// Reset Combo if too much time has passed since prev hit.
+					if (_comboResetDuration <= 0) Combo = 0;
 					break;
 
 				case PlayerState.Rolling:
@@ -184,6 +191,8 @@ namespace Final_Game.Entity
 							// Get an extra redirect
 							if (_numRedirects < _maxRedirects)
 								_numRedirects++;
+							Combo++;
+							_comboResetDuration = 5f;
 						}
 	
 						entity.TakeDamage(Damage);
@@ -504,6 +513,14 @@ namespace Final_Game.Entity
 				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
 				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
 		}
+	
+		public void TickCombo(GameTime gameTime)
+		{
+			if (_comboResetDuration >  0) 
+			{
+				_comboResetDuration -= gameTime.ElapsedGameTime.TotalSeconds;
+			}
+        }
 	#endregion
 	}
 }

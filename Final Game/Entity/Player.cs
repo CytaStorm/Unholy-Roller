@@ -21,23 +21,56 @@ namespace Final_Game.Entity
 	public class Player : Entity
 	{
 		#region Fields
+		/// <summary>
+		/// Texture for the arrow displayed when you
+		/// hold down Mouse1.
+		/// </summary>
 		private Texture2D _launchArrowsTexture;
+		/// <summary>
+		/// Width of the Launch arrow sprite, in pixels.
+		/// </summary>
 		private int _launchArrowSpriteWidth;
 
+		/// <summary>
+		/// Amount of redirects the player has left to use.
+		/// </summary>
 		private int _numRedirects;
+		/// <summary>
+		/// Maxmium amount of redirects that play has.
+		/// </summary>
 		private int _maxRedirects;
 
+		/// <summary>
+		/// Speed of the player when walking.
+		/// </summary>
 		private float _walkSpeed;
 
+		/// <summary>
+		/// The speed at which the player loses speed
+		/// when holding Mouse2.
+		/// </summary>
 		private float _brakeSpeed;
+		/// <summary>
+		/// How much friction there is applied to player
+		/// as they freely roll around.
+		/// </summary>
 		private float _frictionMagnitude;
 
 		private Sprite _smileSprite;
+		/// <summary>
+		/// TBD
+		/// </summary>
 		private float _smileSpeed;
 
 		private float _transitionToWalkingSpeed;
 
 		private bool _controllable = true;
+
+		/// <summary>
+		/// TIme left before combo resets.
+		/// </summary>
+		private double _comboResetDuration;
+
 		// Time dilation
 		double _timeTransitionDuration = 0.2;
 		double _transitionTimeCounter = 0.2;
@@ -106,7 +139,6 @@ namespace Final_Game.Entity
 			WorldPosition = worldPosition;
 
 			// Set hitbox
-
 			Hitbox = new Rectangle(worldPosition.ToPoint(), new Point(Image.DestinationRect.Width, Image.DestinationRect.Height));
 
 			// Set movement vars
@@ -133,12 +165,17 @@ namespace Final_Game.Entity
 
 			// Set attack vars
 			Damage = 1;
+
+			//Set Health
+			MaxHealth = 6;
+			CurHealth = MaxHealth;
 		}
 		#endregion
 
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
+			UpdateCombo(gameTime);
 			if (_controllable) UpdateBulletTime(gameTime);
 
 			TickInvincibility(gameTime);
@@ -149,6 +186,7 @@ namespace Final_Game.Entity
 
 					if (_controllable) MoveWithKeyboard(Game1.CurKB);
 					//Debug.WriteLine($"Current worldPos {WorldPosition}");
+					// Reset Combo if too much time has passed since prev hit.
 					break;
 
 				case PlayerState.Rolling:
@@ -252,6 +290,8 @@ namespace Final_Game.Entity
 							// Get an extra redirect
 							if (_numRedirects < _maxRedirects)
 								_numRedirects++;
+							Combo++;
+							_comboResetDuration = 5f;
 						}
 
 						entity.TakeDamage(Damage);
@@ -608,7 +648,23 @@ namespace Final_Game.Entity
 			_controllable = true;
 
 			// Set player at the center of the current level
-			MoveToRoomCenter(CurrentRoom);
+			WorldPosition = new Vector2(
+				Game1.TestLevel.CurrentRoom.Tileset.Width / 2,
+				Game1.TestLevel.CurrentRoom.Tileset.Height / 2);
+		}
+	
+		private void UpdateCombo(GameTime gameTime)
+		{
+			if (_comboResetDuration > 0) 
+			{
+				//Debug.WriteLine("here");
+				_comboResetDuration -= gameTime.ElapsedGameTime.TotalSeconds;
+			}
+			if (_comboResetDuration <= 0)
+			{
+				Combo = 0;
+			}
+			return;
 		}
 
         public override void TakeDamage(int amount)
@@ -633,6 +689,7 @@ namespace Final_Game.Entity
 
 				OnPlayerDeath();
 			}
+			return;
         }
     }
 	#endregion

@@ -197,9 +197,9 @@ namespace Final_Game
 					break;
 
 				case GameState.Play:
-					DrawPlayerHealth();
-
 					DrawPlayerSpeedometer();
+
+					DrawPlayerCombo();
 
 					// Display Bullet Time multiplier
 					//_spriteBatch.DrawString(
@@ -227,67 +227,15 @@ namespace Final_Game
 
 		#region HUD Drawing Methods
 
-		private void DrawPlayerHealth()
-		{
-			Color tint = Color.White;
-			Rectangle source = 
-				new Rectangle(0, 0, _brokenBallSpriteWidth, _brokenBallSpriteWidth);
-
-			// Get damage aesthetics
-			if (Game1.Player.CurHealth > Game1.Player.MaxHealth * 3 / 4)
-			{
-				// Unscathed
-				tint = Color.White;
-
-			}
-			else if (Game1.Player.CurHealth > Game1.Player.MaxHealth * 2 / 4)
-			{
-				// Light Damage
-				tint = Color.LightPink;
-				source.X = _brokenBallSpriteWidth;
-			}
-			else if (Game1.Player.CurHealth > Game1.Player.MaxHealth * 1 / 4)
-			{
-				// Medium Damage
-				tint = Color.Pink;
-				source.X = _brokenBallSpriteWidth * 2;
-			}
-			else
-			{
-				// Heavy Damage
-				tint = Color.Red;
-				source.X = _brokenBallSpriteWidth * 3;
-			}
-
-			// Get smiling aesthetic
-			if (Game1.Player.IsSmiling)
-				source.Y = _brokenBallSpriteWidth;
-
-			Vector2 drawPos = new Vector2(60f, 40f);
-
-			// Vibrate the image
-			// Max magnitude of shake progressively decreases
-			if (_shakeTimer > 0)
-			{
-				float remainingShakeProgress = (float)(_shakeTimer / _shakeDuration);
-				float xBound = _maxShakeOffset.X * remainingShakeProgress;
-				float yBound = _maxShakeOffset.Y * remainingShakeProgress;
-
-				Random rand = new Random();
-				float xOffset = (rand.NextSingle() * xBound * 2) - xBound;
-				float yOffset = (rand.NextSingle() * yBound * 2) - yBound;
-
-				Vector2 offset = new Vector2(xOffset, yOffset);
-
-				drawPos += offset;
-			}
-
-			// Draw image
-			_spriteBatch.Draw(
-				_blueBallSpritesheet,
-				drawPos,
-				source,
-				tint);
+		private void DrawPlayerCombo()
+		{		
+			_spriteBatch.DrawString(
+				TitleCaseArial,
+				Game1.Player.Combo.ToString(),
+				new Vector2(
+				100, 400),
+				Color.White);
+			return;
 		}
 
 		private void DrawPlayerSpeedometer()
@@ -297,8 +245,6 @@ namespace Final_Game
 				_speedometerCrest,
 				new Vector2(60f, 40f),
 				Color.White);
-
-			DrawPlayerHealth();
 
 			// Draw Pin
 			float minAngle = 5 * MathF.PI / 4;
@@ -348,6 +294,7 @@ namespace Final_Game
 			{
 				b.Draw(_spriteBatch);
 			}
+			return;
 		}
 
 		private void DrawPauseMenu()
@@ -369,6 +316,7 @@ namespace Final_Game
 			{
 				b.Draw(_spriteBatch);
 			}
+			return;
 		}
 
 		private void DrawGameOverMenu()
@@ -462,12 +410,14 @@ namespace Final_Game
 			GameOverButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
 			GameOverButtons[1].TextColor = Color.Coral;
 			GameOverButtons[1].SetText("Main Menu", TitleCaseArial);
+			return;
 		}
 		private void CreateSliders()
 		{
 			Texture2D sliderBarImage = _gm.Content.Load<Texture2D>("BasicSliderBar");
 			Texture2D sliderKnobImage = _gm.Content.Load<Texture2D>("BasicSliderKnob");
 			_testSlider = new Slider(new Point(50, 200), sliderBarImage, sliderKnobImage);
+			return;
 		}
 		#endregion
 

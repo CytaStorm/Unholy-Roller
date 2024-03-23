@@ -12,21 +12,26 @@ namespace Final_Game
 {
     public class PickupManager
     {
-        // Fields
+        #region Fields
         private Game1 _gm;
+        #endregion
 
-        // Properties
+        #region Properties
         public List<Entity.Entity> Pickups { get; private set; }
+        #endregion
 
+        #region Constructor(s)
         public PickupManager(Game1 gm)
         {
             _gm = gm;
 
             Pickups = new List<Entity.Entity>();
 
-            CreateTestPickups();
+            //CreateTestPickups();
         }
+        #endregion
 
+        #region Method(s)
         public void Update(GameTime gameTime)
         {
             // Remove Collected Pickups
@@ -50,16 +55,20 @@ namespace Final_Game
             }
         }
 
+        /// <summary>
+        /// Creates one of every type of pickup in the room
+        /// the player is currently in
+        /// </summary>
         public void CreateTestPickups()
         {
             //Rectangle roomBounds = new Rectangle(
-            //    0,
-            //    0,
-            //    Game1.TestLevel.CurrentRoom.Tileset.Width,
-            //    Game1.TestLevel.CurrentRoom.Tileset.Height);
+            //    Game1.TileSize,
+            //    Game1.TileSize,
+            //    Game1.TestLevel.CurrentRoom.Tileset.Width - Game1.TileSize,
+            //    Game1.TestLevel.CurrentRoom.Tileset.Height - Game1.TileSize);
 
             // Health Pickup
-            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(900, 900)));
+            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(100, 100)));
 
             return;
         }
@@ -73,5 +82,7 @@ namespace Final_Game
 
             return;
         }
+
+        #endregion
     }
 }

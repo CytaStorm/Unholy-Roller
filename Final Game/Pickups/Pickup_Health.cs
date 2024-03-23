@@ -12,22 +12,34 @@ namespace Final_Game.Pickups
 {
 	public class Pickup_Health : Entity.Entity
 	{
-		// Fields
-		private int _healingPower;
+        #region Fields
+        private int _healingPower;
+		#endregion
 
+		#region Constructor(s)
+
+		/// <summary>
+		/// Creates a health pickup at the specified world position
+		/// </summary>
+		/// <param name="content"> image data source </param>
+		/// <param name="worldPosition"> where to spawn the pickup </param>
 		public Pickup_Health(ContentManager content, Vector2 worldPosition)
 		{
+			// Set Image
 			Texture2D texture = content.Load<Texture2D>("Sprites/HealthPin");
 			Image = new Sprite(
 				texture,
 				new Rectangle(25, 0, texture.Width - 50, texture.Height),
 				new Rectangle(0, 0, Game1.TileSize, Game1.TileSize));
 
+			// Set Health
 			MaxHealth = 1;
 			CurHealth = MaxHealth;
 
+			// Set Position
 			WorldPosition = worldPosition;
 
+			// Set Hitbox
 			Point worldPoint = worldPosition.ToPoint();
 			Hitbox = new Rectangle(
 				worldPoint.X,
@@ -35,10 +47,15 @@ namespace Final_Game.Pickups
 				texture.Width,
 				texture.Height);
 
+			// Set Effect
 			_healingPower = 2;
 
+			// Set Type
 			Type = EntityType.Pickup;
 		}
+		#endregion
+
+		#region Method(s)
 
 		public override void Update(GameTime gameTime) { }
 
@@ -68,5 +85,7 @@ namespace Final_Game.Pickups
 				entity.Heal(_healingPower);
 			}
         }
+
+        #endregion
     }
 }

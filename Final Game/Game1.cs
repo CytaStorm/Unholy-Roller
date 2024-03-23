@@ -11,10 +11,10 @@ using System.Runtime.CompilerServices;
 
 namespace Final_Game
 {
-	/// <summary>
-	/// Which state the game is in.
-	/// </summary>
-	public enum GameState
+    /// <summary>
+    /// Which state the game is in.
+    /// </summary>
+    public enum GameState
 	{
 		Menu,
 		Play,
@@ -129,6 +129,9 @@ namespace Final_Game
 
 		// Enemy Management
 		public static EnemyManager EManager { get; private set; }
+
+		// Pickup Management
+		public static PickupManager PManager { get; private set; }
 		#endregion
 
 		public Game1()
@@ -173,6 +176,7 @@ namespace Final_Game
 
 			// Create Entity Managers
 			EManager = new EnemyManager(this);
+			PManager = new PickupManager(this);
 
 			// Create custom cursor
 			_gameplayCursor = MouseCursor.FromTexture2D(
@@ -213,6 +217,8 @@ namespace Final_Game
 						TestLevel.CurrentRoom.Update(gameTime);
 
 					EManager.Update(gameTime);
+
+					PManager.Update(gameTime);
 
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
@@ -259,6 +265,8 @@ namespace Final_Game
 
 					EManager.Draw(_spriteBatch);
 
+					PManager.Draw(_spriteBatch);
+
 					break;
 
 				case GameState.Cutscene:
@@ -277,7 +285,7 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					//DrawDebug();
+					DrawDebug();
 
 					_ui.DrawMinimap();
 					break;
@@ -428,13 +436,11 @@ namespace Final_Game
 		private void DrawDebug()
 		{
 			// Debug Drawing
-			ShapeBatch.Begin(GraphicsDevice);
-
 			Player.DrawGizmos();
 
 			EManager.DrawGizmos();
 
-			ShapeBatch.End();
+			PManager.DrawGizmos();
 		}
 	}
 }

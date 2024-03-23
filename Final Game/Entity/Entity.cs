@@ -12,7 +12,8 @@ namespace Final_Game.Entity
     public enum EntityType
     {
         Player,
-        Enemy
+        Enemy,
+        Pickup
     }
 
     public delegate void EntityDamaged(int amount);
@@ -217,6 +218,25 @@ namespace Final_Game.Entity
             }
         }
 
+        /// <summary>
+        /// Restores entity's health by the specified amount, without
+        /// exceeding their max health.
+        /// </summary>
+        /// <param name="amount"> amount to heal entity by </param>
+        public virtual void Heal(int amount)
+        {
+            // Restore health
+            CurHealth += amount;
+
+            // Clamp to max health
+            if (CurHealth > MaxHealth)
+            {
+                CurHealth = MaxHealth;
+            }
+
+            return;
+        }
+
 
         public virtual void Die() { }
 
@@ -227,7 +247,14 @@ namespace Final_Game.Entity
         /// <summary>
         /// Draws entity's debug information (e.g. Hitbox)
         /// </summary>
-        public virtual void DrawGizmos() { }
+        public virtual void DrawGizmos() 
+        {
+            // Draw hitbox relative to the player
+            Vector2 distFromPlayer = WorldPosition - Game1.Player.WorldPosition;
+            Vector2 screenPos = Game1.Player.ScreenPosition + distFromPlayer;
+
+            ShapeBatch.Box(Hitbox, Color.Red * 0.4f);
+        }
 
         #endregion
 

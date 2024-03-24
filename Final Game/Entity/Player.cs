@@ -210,7 +210,8 @@ namespace Final_Game.Entity
 
 			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
-			HandleEnemyCollisions();
+			CheckEnemyCollisions();
+			CheckPickupCollisions();
 			Move(Velocity * BulletTimeMultiplier);
 			Move(Velocity);
 		}
@@ -277,42 +278,16 @@ namespace Final_Game.Entity
 			switch (entity.Type)
 			{
 				case EntityType.Enemy:
-					if (State != PlayerState.Walking)
-					{
-						if (!entity.IsInvincible)
-						{
-							// Speed up
-							Vector2 acc = Velocity;
-							acc.Normalize();
-							acc *= 0.05f;
-							Accelerate(acc);
-
-							// Get an extra redirect
-							if (_numRedirects < _maxRedirects)
-								_numRedirects++;
-							Combo++;
-							_comboResetDuration = 5f;
-						}
-
-						entity.TakeDamage(Damage);
-					}
-					else
-					{
-						// Player gets knocked back if standing on top of enemy
-						Vector2 distToEnemy = entity.CenterPosition - CenterPosition;
-						distToEnemy.Normalize();
-						distToEnemy *= -5;
-            
-						this.TakeDamage(1);
-
-						Velocity = distToEnemy;
-						State = PlayerState.Rolling;
-					}
+					HandleEnemyCollision((Enemy)entity);		
 					break;
-				}
-			}
 
-		private void HandleEnemyCollisions()
+				case EntityType.Pickup:
+					entity.TakeDamage(1);
+					break;
+			}
+		}
+
+		private void CheckEnemyCollisions()
 		{
 			for (int i = 0; i < Game1.EManager.Enemies.Count; i++)
 			{
@@ -323,6 +298,53 @@ namespace Final_Game.Entity
 					//Debug.WriteLine("Combo increase");
 				}
 			}
+		}
+		private void CheckPickupCollisions()
+		{
+			foreach(Entity p in Game1.PManager.Pickups)
+			{
+				CollisionChecker.CheckEntityCollision(this, p);
+			}
+
+			return;
+		}
+
+		private void HandleEnemyCollision(Enemy hitEnemy)
+		{
+            if (State == PlayerState.Rolling)
+            {
+                if (!hitEnemy.IsInvincible)
+                {
+                    // Speed up
+                    Vector2 acc = Velocity;
+                    acc.Normalize();
+                    acc *= 0.05f;
+                    Accelerate(acc);
+
+                    // Get an extra redirect
+                    if (_numRedirects < _maxRedirects)
+                        _numRedirects++;
+
+                    Combo++;
+                    _comboResetDuration = 5f;
+                }
+
+                hitEnemy.TakeDamage(Damage);
+            }
+            else
+            {
+                // Player gets knocked back if standing on top of enemy
+                Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
+                distToEnemy.Normalize();
+                distToEnemy *= -5;
+
+                this.TakeDamage(1);
+
+                Velocity = distToEnemy;
+                State = PlayerState.Rolling;
+            }
+
+            return;
 		}
 	
 		#endregion
@@ -648,9 +670,7 @@ namespace Final_Game.Entity
 			_controllable = true;
 
 			// Set player at the center of the current level
-			WorldPosition = new Vector2(
-				Game1.TestLevel.CurrentRoom.Tileset.Width / 2,
-				Game1.TestLevel.CurrentRoom.Tileset.Height / 2);
+			MoveToRoomCenter(CurrentRoom);
 		}
 	
 		private void UpdateCombo(GameTime gameTime)

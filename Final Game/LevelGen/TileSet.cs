@@ -2,7 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Final_Game.LevelGen
 {
@@ -147,13 +149,23 @@ namespace Final_Game.LevelGen
 			Tile result;
 			int tileIdInt;
 			string orientation = string.Empty;
+			
 			//Special tile Handling
 			if (!int.TryParse(tileString, out tileIdInt))
 			{
 				string[] sValues = tileString.Split('.');
 				tileIdInt = int.Parse(sValues[0]);
 				orientation = sValues[1];
+
+				//Ensures compatibility with CRLF/LF roomLayout etc files.
+				if (orientation[orientation.Length - 1] == '\r')
+				{
+					orientation = orientation.Substring(0, orientation.Length - 1);
+				}
 			}
+
+			
+
 			result = TileMaker.SetTile(
 				(TileType)tileIdInt,
 				new Vector2(col * Game1.TileSize, row * Game1.TileSize),

@@ -156,7 +156,8 @@ namespace Final_Game
 
 			Player = new Player(this, new Vector2(
 				TestLevel.CurrentRoom.Tileset.Width / 2,
-				TestLevel.CurrentRoom.Tileset.Height / 2));
+				800));
+			Player.MoveToRoomCenter(TutorialRoom);
 
 			// Set default game state
 			State = GameState.Menu;
@@ -285,7 +286,7 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					DrawDebug();
+					//DrawDebug();
 
 					_ui.DrawMinimap();
 					break;
@@ -312,6 +313,7 @@ namespace Final_Game
 
 		private void ResetGame()
 		{
+			// Reset Entites
 			Player.Reset();
 		}
 

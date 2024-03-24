@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -15,20 +16,42 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 // 2/7/24
 // Create a window for tilemap editing
 
+public enum TileType
+{
+    Grass,
+    Wall = 'w',
+    Spike = 's',
+    Placeholder,
+    ClosedDoor,
+    OpenDoor
+}
+
 namespace TileEditorHW
 {
     public partial class MapEditor : Form
     {
-        // Fields
-        private PictureBox[,]? tiles;
+
+        #region Fields
+        private Tile[,]? tiles;
+
         private Color curColor;
+        private Image curImage;
 
         private int mapCols;
         private int mapRows;
 
         private bool changesSaved = true;
 
-        // Constructors
+        private int boxHeight;
+        private int tileYOffset = 30;
+
+        // Image Presets
+        private Image leftBumperWall;
+        private Image spikes;
+
+        #endregion
+
+        #region Constructors
 
         /// <summary>
         /// Creates an empty map editor window whose editor has the
@@ -40,18 +63,14 @@ namespace TileEditorHW
         {
             InitializeComponent();
 
+            SetImagePresets();
+
             this.mapRows = rows;
             this.mapCols = cols;
 
             ResizeEditor(cols, rows);
 
-            // Set color choices
-            buttonChoice1.BackColor = Color.Gray;
-            buttonChoice2.BackColor = Color.Green;
-            buttonChoice3.BackColor = Color.Blue;
-            buttonChoice4.BackColor = Color.Red;
-            buttonChoice5.BackColor = Color.Orange;
-            buttonChoice6.BackColor = Color.Purple;
+            SetTileChoices();
 
             //buttonChoice1.Image = Image.FromFile("../../../SpikeTile.png");
 
@@ -68,56 +87,175 @@ namespace TileEditorHW
         {
             InitializeComponent();
 
+            SetImagePresets();
+
             LoadFile(filename);
 
-            // Set color choices
-            buttonChoice1.BackColor = Color.Gray;
-            buttonChoice2.BackColor = Color.Green;
-            buttonChoice3.BackColor = Color.Blue;
-            buttonChoice4.BackColor = Color.Red;
-            buttonChoice5.BackColor = Color.Orange;
-            buttonChoice6.BackColor = Color.Purple;
+            SetTileChoices();
 
             // Set default color
             curColor = buttonChoice1.BackColor;
             pictureCurTile.BackColor = curColor;
         }
 
+        #endregion
+
+        #region Methods
+
+        #region Saving / Loading Methods
         /// <summary>
-        /// Changes selected color to that of 
-        /// the color choice button clicked in editor
+        /// Writes the all of the tile data to a .level file
+        /// Stores TileType, Row, & Col
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ChooseColor(object sender, EventArgs e)
+        /// <param name="filename"> where to save the file </param>
+        private void SaveFile(string filename)
         {
-            Button b = (Button)sender;
+            // Open the file
+            StreamWriter output = new StreamWriter(filename);
 
-            // Change color to match color choice
-            curColor = b.BackColor;
+            // Save map width and height
+            output.WriteLine($"{mapCols},{mapRows}");
 
-            // Display currently chosen color
-            pictureCurTile.BackColor = curColor;
+            // Collect obstacle position data
+            string obstaclePositions = "";
+            for (int y = 1; y < tiles!.GetLength(0) - 1; y++)
+            {
+                for (int x = 1; x < tiles.GetLength(1) - 1; x++)
+                {
+                    if (tiles[y, x].Image != null)
+                    {
+                        // Format: "TileType,Row,Col|"
+                        obstaclePositions +=
+                            $"{GetTileChar(tiles[y, x].Image)}," +
+                            $"{(tiles[y, x].Top - tileYOffset) / boxHeight}," +
+                            $"{tiles[y, x].Left / boxHeight}|";
+                    }
+                }
+            }
+
+            // Write data to file
+            output.Write(obstaclePositions.Substring(0, obstaclePositions.Length - 1));
+
+            // Close the file
+            output.Close();
         }
 
         /// <summary>
-        /// Sets the clicked tile to the currently selected color
+        /// Loads the specified map file to the editor
         /// </summary>
-        /// <param name="sender"> tile to change </param>
-        /// <param name="e"></param>
-        private void SetTileColor(object? sender, EventArgs e)
+        /// <param name="filename"> map file to load </param>
+        public void LoadFile(string filename)
         {
-            PictureBox tile = (PictureBox)sender!;
+            StreamReader input = null;
+            try
+            {
+                // Open the file
+                input = new StreamReader(filename);
 
-            // Change tile color
-            tile.BackColor = curColor;
+                // Load tile data
+                bool resized = false;
+                string line = "";
+                while ((line = input.ReadLine()!) != null)
+                {
+                    if (!resized)
+                    {
+                        // Resize editor and window
+                        string[] mapDimensions = line.Split(",");
 
-            // User has made changes
-            if (changesSaved) this.Text += " *";
-            changesSaved = false;
+                        mapCols = int.Parse(mapDimensions[0]);
+                        mapRows = int.Parse(mapDimensions[1]);
 
+                        ResizeEditor(mapCols, mapRows);
+
+                        resized = true;
+
+                        continue;
+                    }
+
+                    // Load tile colors
+                    string[] tileLine = line.Split("|");
+                    for (int i = 0; i < tileLine.Length; i++)
+                    {
+                        string[] obstacleData = tileLine[i].Split(",");
+
+                        char type = char.Parse(obstacleData[0]);
+                        int row = int.Parse(obstacleData[1]);
+                        int col = int.Parse(obstacleData[2]);
+
+                        tiles[row, col].Image = GetTileImage(type);
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Error: " + e.Message);
+            }
+            finally
+            {
+                // If a file was read close it
+                if (input != null)
+                    input.Close();
+            }
+        }
+        #endregion
+
+        #region Conversion Methods
+
+        /// <summary>
+        /// Gets the image corresponding to the 
+        /// specified tile type
+        /// </summary>
+        /// <param name="tileType"></param>
+        /// <returns></returns>
+        private Image GetTileImage(char tileType)
+        {
+            switch (tileType)
+            {
+                case 'w':
+                    return leftBumperWall;
+
+                case 's':
+                    return spikes;
+
+                default:
+                    return null;
+            }
         }
 
+        /// <summary>
+        /// Gets the character that represents this tile
+        /// </summary>
+        /// <param name="tileImage"></param>
+        /// <returns></returns>
+        private char GetTileChar(Image tileImage)
+        {
+            if (tileImage == leftBumperWall) return 'w';
+            else if (tileImage == spikes) return 's';
+            else return ' ';
+        }
+        #endregion
+
+        #region Editor Setup Methods
+        private void SetImagePresets()
+        {
+            leftBumperWall = Image.FromFile("../../../LeftBumperWall.png");
+            spikes = Image.FromFile("../../../SpikeTile.png");
+        }
+        private void SetTileChoices()
+        {
+            // Set color choices
+            buttonChoice1.Image = leftBumperWall;
+            buttonChoice2.Image = spikes;
+            buttonChoice3.BackColor = Color.Blue;
+            buttonChoice4.BackColor = Color.Red;
+            buttonChoice5.BackColor = Color.Orange;
+            buttonChoice6.BackColor = Color.Purple;
+        }
+
+        #endregion
+
+        #region Component Methods
         /// <summary>
         /// Prompts user to save current map, then writes map data
         /// to specified file
@@ -150,32 +288,6 @@ namespace TileEditorHW
                 changesSaved = true;
                 this.Text = Text.Substring(0, Text.Length - 2); // Exclude asterisk
             }
-        }
-
-        /// <summary>
-        /// Writes current map data to the specified file
-        /// </summary>
-        /// <param name="filename"> file to write to </param>
-        private void SaveFile(string filename)
-        {
-            // Open the file
-            StreamWriter output = new StreamWriter(filename);
-
-            // Save map width and height
-            output.WriteLine($"{mapCols},{mapRows}");
-
-            // Write all tile data to the file
-            for (int y = 0; y < tiles!.GetLength(0); y++)
-            {
-                for (int x = 0; x < tiles.GetLength(1); x++)
-                {
-                    output.Write(tiles[y, x].BackColor.ToArgb() + " ");
-                }
-                output.WriteLine();
-            }
-
-            // Close the file
-            output.Close();
         }
 
         /// <summary>
@@ -213,58 +325,76 @@ namespace TileEditorHW
                 changesSaved = true;
             }
         }
+        #endregion
+
+        #region Component Subscriber Methods
+        /// <summary>
+        /// Changes selected image to that of 
+        /// the image choice button clicked in editor
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ChooseImage(object sender, EventArgs e)
+        {
+            Button b = (Button)sender;
+
+            // Change color to match color choice
+            curImage = b.Image;
+
+            // Display currently chosen color
+            pictureCurTile.Image = curImage;
+        }
 
         /// <summary>
-        /// Loads the specified map file to the editor
+        /// Sets the clicked tile to the currently selected image
         /// </summary>
-        /// <param name="filename"> map file to load </param>
-        public void LoadFile(string filename)
+        /// <param name="sender"> tile to change </param>
+        /// <param name="e"></param>
+        private void SetTileImage(object? sender, EventArgs e)
         {
-            StreamReader input = null;
-            try
+            Tile tile = (Tile)sender!;
+
+            int col = tile.Left / boxHeight;
+            int row = (tile.Top - tileYOffset) / boxHeight;
+
+            // Make edge tiles un-editable
+            // Make tiles directly in front
+            // of each door un-editable
+            bool inFrontOfLeftDoor =
+                col == 1 &&
+                row == mapRows / 2;
+            bool behindRightDoor =
+                col == mapCols - 2 &&
+                row == mapRows / 2; 
+            bool belowTopDoor =
+                col == mapCols / 2 &&
+                row == 1;
+            bool aboveBottomDoor =
+                col == mapCols / 2 &&
+                row == mapRows - 2;
+
+            if (col == 0 ||
+                col == mapCols - 1 ||
+                row == 0 ||
+                row == mapRows - 1 ||
+                inFrontOfLeftDoor || behindRightDoor ||
+                belowTopDoor || aboveBottomDoor)
             {
-                // Open the file
-                input = new StreamReader(filename);
-
-                // Load tile data
-                bool resized = false;
-                int y = 0;
-                string line = "";
-                while ((line = input.ReadLine()!) != null)
-                {
-                    if (!resized)
-                    {
-                        // Resize editor and window
-                        string[] mapDimensions = line.Split(",");
-
-                        mapCols = int.Parse(mapDimensions[0]);
-                        mapRows = int.Parse(mapDimensions[1]);
-
-                        ResizeEditor(mapCols, mapRows);
-
-                        resized = true;
-
-                        continue;
-                    }
-
-                    // Load tile colors
-                    string[] tileLine = line.Split(" ");
-                    for (int x = 0; x < tiles!.GetLength(1); x++)
-                    {
-                        tiles[y, x].BackColor = Color.FromArgb(int.Parse(tileLine[x]));
-                    }
-
-                    y++;
-                }
-
+                tileReportText.Text = "Invalid Tile!";
+                return;
             }
-            finally
-            {
-                // If a file was read close it
-                if (input != null)
-                    input.Close();
-            }
+
+            // Change tile color
+            tile.Image = curImage;
+
+            // User has made changes
+            if (changesSaved) this.Text += " *";
+            changesSaved = false;
+
+            // User has touched a valid tile
+            tileReportText.Text = "";
         }
+        #endregion
 
         /// <summary>
         /// Resizes the editor and window to fit the specified number of square tiles,
@@ -275,10 +405,10 @@ namespace TileEditorHW
         private void ResizeEditor(int cols, int rows)
         {
             // Create tile storage
-            tiles = new PictureBox[rows, cols];
+            tiles = new Tile[rows, cols];
 
             // Determine tile dimensions
-            int boxHeight = (groupMapEditor.Height - 30) / rows;
+            boxHeight = (groupMapEditor.Height - tileYOffset) / rows;
 
             // Resize editing space
             groupMapEditor.Width = boxHeight * cols;
@@ -293,7 +423,7 @@ namespace TileEditorHW
                 for (int x = 0; x < tiles.GetLength(1); x++)
                 {
                     // Create tile
-                    tiles[y, x] = new PictureBox();
+                    tiles[y, x] = new Tile();
 
                     tiles[y, x].SetBounds(
                         x * boxHeight,
@@ -301,9 +431,22 @@ namespace TileEditorHW
                         boxHeight,
                         boxHeight);
 
-                    tiles[y, x].BackColor = Color.Green;
+                    // Edge tiles are walls
+                    if (tiles[y, x].Left == 0 ||
+                        tiles[y, x].Left / boxHeight == mapCols - 1 ||
+                        tiles[y, x].Top - tileYOffset == 0 ||
+                        tiles[y, x].Top / boxHeight == mapRows - 1)
+                    {
+                        tiles[y, x].BackgroundImage = Image.FromFile("../../../LeftBumperWall.png");
+                    }
+                    else
+                    {
+                        // Otherwise use floor image
+                        tiles[y, x].BackgroundImage = Image.FromFile("../../../PurpleTile.png");
+                    }
 
-                    tiles[y, x].Click += SetTileColor;
+
+                    tiles[y, x].Click += SetTileImage;
 
                     // Add to editor
                     groupMapEditor.Controls.Add(tiles[y, x]);
@@ -322,7 +465,7 @@ namespace TileEditorHW
             if (!changesSaved)
             {
                 // Warn user about unsaved changes
-                DialogResult choice = 
+                DialogResult choice =
                     MessageBox.Show(
                     "There are unsaved changes. Are you sure you want to quit?",
                     "Unsaved changes",
@@ -336,5 +479,7 @@ namespace TileEditorHW
                 }
             }
         }
+
+        #endregion
     }
 }

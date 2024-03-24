@@ -40,6 +40,8 @@
             buttonChoice3 = new Button();
             buttonChoice2 = new Button();
             buttonChoice1 = new Button();
+            label1 = new Label();
+            tileReportText = new TextBox();
             groupCurTile.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureCurTile).BeginInit();
             groupColorChoice.SuspendLayout();
@@ -114,7 +116,7 @@
             buttonChoice6.Size = new Size(87, 84);
             buttonChoice6.TabIndex = 5;
             buttonChoice6.UseVisualStyleBackColor = true;
-            buttonChoice6.Click += ChooseColor;
+            buttonChoice6.Click += ChooseImage;
             // 
             // buttonChoice5
             // 
@@ -123,7 +125,7 @@
             buttonChoice5.Size = new Size(87, 84);
             buttonChoice5.TabIndex = 4;
             buttonChoice5.UseVisualStyleBackColor = true;
-            buttonChoice5.Click += ChooseColor;
+            buttonChoice5.Click += ChooseImage;
             // 
             // buttonChoice4
             // 
@@ -132,7 +134,7 @@
             buttonChoice4.Size = new Size(87, 84);
             buttonChoice4.TabIndex = 3;
             buttonChoice4.UseVisualStyleBackColor = true;
-            buttonChoice4.Click += ChooseColor;
+            buttonChoice4.Click += ChooseImage;
             // 
             // buttonChoice3
             // 
@@ -141,7 +143,7 @@
             buttonChoice3.Size = new Size(87, 84);
             buttonChoice3.TabIndex = 2;
             buttonChoice3.UseVisualStyleBackColor = true;
-            buttonChoice3.Click += ChooseColor;
+            buttonChoice3.Click += ChooseImage;
             // 
             // buttonChoice2
             // 
@@ -150,7 +152,7 @@
             buttonChoice2.Size = new Size(87, 84);
             buttonChoice2.TabIndex = 1;
             buttonChoice2.UseVisualStyleBackColor = true;
-            buttonChoice2.Click += ChooseColor;
+            buttonChoice2.Click += ChooseImage;
             // 
             // buttonChoice1
             // 
@@ -159,13 +161,32 @@
             buttonChoice1.Size = new Size(87, 84);
             buttonChoice1.TabIndex = 0;
             buttonChoice1.UseVisualStyleBackColor = true;
-            buttonChoice1.Click += ChooseColor;
+            buttonChoice1.Click += ChooseImage;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(0, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(59, 25);
+            label1.TabIndex = 10;
+            label1.Text = "label1";
+            // 
+            // tileReportText
+            // 
+            tileReportText.Location = new Point(488, 699);
+            tileReportText.Name = "tileReportText";
+            tileReportText.ReadOnly = true;
+            tileReportText.Size = new Size(342, 31);
+            tileReportText.TabIndex = 11;
             // 
             // MapEditor
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1097, 933);
+            Controls.Add(tileReportText);
+            Controls.Add(label1);
             Controls.Add(groupMapEditor);
             Controls.Add(groupCurTile);
             Controls.Add(buttonLoad);
@@ -178,6 +199,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureCurTile).EndInit();
             groupColorChoice.ResumeLayout(false);
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -194,5 +216,7 @@
         private Button buttonChoice3;
         private Button buttonChoice2;
         private Button buttonChoice1;
+        private Label label1;
+        private TextBox tileReportText;
     }
 }

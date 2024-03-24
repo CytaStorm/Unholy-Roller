@@ -117,14 +117,17 @@ namespace Final_Game.LevelGen
 				enemiesFit = PositionsFit(EnemyPos);
 			} while (!invalidEnemyObstacleCombo && obstaclesFit && enemiesFit);
 
+			Debug.WriteLine("here");
+			Debug.WriteLine(ObstaclePos.Count);
+
 			//Add positions to Layout
 			if (EnemyPos != null)
 			{
 				// Set spawners
 				foreach (Point enemyPos in EnemyPos)
 				{
-					Layout[enemyPos.X, enemyPos.Y].IsEnemySpawner = true;
-					Spawners.Add(Layout[enemyPos.X, enemyPos.Y]);
+					Layout[enemyPos.Y, enemyPos.X].IsEnemySpawner = true;
+					Spawners.Add(Layout[enemyPos.Y, enemyPos.X]);
 				}
 			}
 
@@ -133,7 +136,8 @@ namespace Final_Game.LevelGen
 				// Set obstacles
 				foreach (Point obstaclePos in ObstaclePos)
 				{
-					Layout[obstaclePos.X, obstaclePos.Y] = TileMaker.SetTile(
+					Debug.WriteLine(obstaclePos);
+					Layout[obstaclePos.Y, obstaclePos.X] = TileMaker.SetTile(
 						TileType.Spike, new Vector2(
 							obstaclePos.X * Game1.TileSize,
 							obstaclePos.Y * Game1.TileSize),
@@ -323,7 +327,6 @@ namespace Final_Game.LevelGen
 							curTile.TileSprite.TintColor = Color.IndianRed;
 						}
 					}
-
 					curTile.Draw(spriteBatch, screenPos);
 
 					curTile.TileSprite.TintColor = Color.White;

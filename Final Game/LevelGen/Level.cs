@@ -167,7 +167,7 @@ namespace Final_Game.LevelGen
 		private void DetermineBossRoom()
 		{
 			//Sets farthest room as boss room.
-			Room farthestRoom = null;
+			Room farthestRoom = StartRoom;
 			float furthestDistance = 0;
 			Vector2 startPointVector2 = StartPoint.ToVector2();
 			foreach (Room room in _rooms) 
@@ -192,10 +192,10 @@ namespace Final_Game.LevelGen
 			{
 				Game1.EManager.CreateRoomEnemies(CurrentRoom);
 			}
-			foreach(Tile tile in CurrentRoom.Tileset.Spawners)
-			{
-				Debug.WriteLine(tile.WorldPosition);
-			}
+			//foreach(Tile tile in CurrentRoom.Tileset.Spawners)
+			//{
+			//	Debug.WriteLine(tile.WorldPosition);
+			//}
 		}
 
 		/// <summary>

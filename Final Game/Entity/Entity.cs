@@ -147,8 +147,10 @@ namespace Final_Game.Entity
                 if (Velocity.X > 0)
                 {
                     Vector2 whereItShouldBe =
-                        new Vector2(tile.WorldPosition.X - Hitbox.Width, WorldPosition.Y);
-                    Move(whereItShouldBe - WorldPosition);
+                        new Vector2(
+                            Image.DestinationRect.Width - MathF.Abs(tile.WorldPosition.X - WorldPosition.X), 
+                            0);
+                    Move(-whereItShouldBe);
                 }
 
                 // Moving Left = Right edge collision
@@ -165,8 +167,10 @@ namespace Final_Game.Entity
                 if (Velocity.Y > 0)
                 {
                     Vector2 whereItShouldBe =
-                        new Vector2(WorldPosition.X, tile.WorldPosition.Y - Hitbox.Height);
-                    Move(whereItShouldBe - WorldPosition);
+                        new Vector2(
+                            0,
+                            Image.DestinationRect.Height - (tile.WorldPosition.Y - WorldPosition.Y));
+                    Move(-whereItShouldBe);
                 }
 
                 // Moving Up = Bottom edge collision

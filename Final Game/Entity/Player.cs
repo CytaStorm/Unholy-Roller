@@ -142,7 +142,7 @@ namespace Final_Game.Entity
 			Hitbox = new Rectangle(worldPosition.ToPoint(), new Point(Image.DestinationRect.Width, Image.DestinationRect.Height));
 
 			// Set movement vars
-			Speed = 12f;
+			Speed = 20f;
 			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
@@ -213,7 +213,6 @@ namespace Final_Game.Entity
 			CheckEnemyCollisions();
 			CheckPickupCollisions();
 			Move(Velocity * BulletTimeMultiplier);
-			Move(Velocity);
 		}
 		public override void Draw(SpriteBatch sb)
 		{
@@ -668,6 +667,9 @@ namespace Final_Game.Entity
 			State = PlayerState.Walking;
 
 			_controllable = true;
+
+			// Reset combo
+			Combo = 0;
 
 			// Set player at the center of the current level
 			MoveToRoomCenter(CurrentRoom);

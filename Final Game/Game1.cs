@@ -285,7 +285,7 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					DrawDebug();
+					//DrawDebug();
 
 					_ui.DrawMinimap();
 					break;
@@ -312,6 +312,7 @@ namespace Final_Game
 
 		private void ResetGame()
 		{
+			// Reset Entites
 			Player.Reset();
 		}
 

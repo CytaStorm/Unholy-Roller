@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -142,7 +143,7 @@ namespace Final_Game.Entity
 			Hitbox = new Rectangle(worldPosition.ToPoint(), new Point(Image.DestinationRect.Width, Image.DestinationRect.Height));
 
 			// Set movement vars
-			Speed = 12f;
+			Speed = 20f;
 			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
@@ -171,11 +172,12 @@ namespace Final_Game.Entity
 			CurHealth = MaxHealth;
 		}
 		#endregion
-
+		
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
 			UpdateCombo(gameTime);
+
 			if (_controllable) UpdateBulletTime(gameTime);
 
 			TickInvincibility(gameTime);
@@ -213,7 +215,6 @@ namespace Final_Game.Entity
 			CheckEnemyCollisions();
 			CheckPickupCollisions();
 			Move(Velocity * BulletTimeMultiplier);
-			Move(Velocity);
 		}
 		public override void Draw(SpriteBatch sb)
 		{
@@ -248,6 +249,7 @@ namespace Final_Game.Entity
 					//Return so no calculating placing
 					//player on the open door.
 					//Debug.WriteLine("HIT OPEN DOOR");
+
 					TransferRoom(tile);
 					_numRedirects = _maxRedirects;
 					return;
@@ -267,7 +269,7 @@ namespace Final_Game.Entity
 			}
 			else if (State == PlayerState.Walking)
 			{
-				Move(-Velocity);
+				Move(-Velocity * BulletTimeMultiplier);
 			}
 
 			base.OnHitTile(tile, colDir);
@@ -278,11 +280,14 @@ namespace Final_Game.Entity
 			switch (entity.Type)
 			{
 				case EntityType.Enemy:
-					HandleEnemyCollision((Enemy)entity);		
+					Enemy hitEnemy = (Enemy)entity;
+
+					HandleEnemyCollision(hitEnemy);		
 					break;
 
 				case EntityType.Pickup:
 					entity.TakeDamage(1);
+
 					break;
 			}
 		}
@@ -318,7 +323,7 @@ namespace Final_Game.Entity
                     // Speed up
                     Vector2 acc = Velocity;
                     acc.Normalize();
-                    acc *= 0.05f;
+                    acc *= 0.25f;
                     Accelerate(acc);
 
                     // Get an extra redirect
@@ -530,7 +535,7 @@ namespace Final_Game.Entity
 	
 		private void UpdateBulletTime(GameTime gameTime)
 		{
-			if (Game1.IsMouseButtonPressed(1) && _numRedirects > 0)
+			if (Game1.IsMouseButtonPressed(1) && _numRedirects > 0 && !CurrentRoom.Cleared)
 			{
 				// Transition from normal -> bullet time
 				_transitionTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;
@@ -668,6 +673,9 @@ namespace Final_Game.Entity
 			State = PlayerState.Walking;
 
 			_controllable = true;
+
+			// Reset combo
+			Combo = 0;
 
 			// Set player at the center of the current level
 			MoveToRoomCenter(CurrentRoom);

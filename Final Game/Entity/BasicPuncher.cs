@@ -87,6 +87,7 @@ namespace Final_Game.Entity
 
 			TickKnockout(gameTime);
 
+
 			//CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
 
 			Vector2 distanceFromPlayer = Game1.Player.CenterPosition - CenterPosition;
@@ -152,6 +153,8 @@ namespace Final_Game.Entity
 					}
 					break;
 			}
+
+			CollisionOn = !IsKO;
 
 			CheckEnemyCollisions();
 

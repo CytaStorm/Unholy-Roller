@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -247,6 +248,7 @@ namespace Final_Game.Entity
 					//Return so no calculating placing
 					//player on the open door.
 					//Debug.WriteLine("HIT OPEN DOOR");
+
 					TransferRoom(tile);
 					_numRedirects = _maxRedirects;
 					return;
@@ -266,7 +268,7 @@ namespace Final_Game.Entity
 			}
 			else if (State == PlayerState.Walking)
 			{
-				Move(-Velocity);
+				Move(-Velocity * BulletTimeMultiplier);
 			}
 
 			base.OnHitTile(tile, colDir);

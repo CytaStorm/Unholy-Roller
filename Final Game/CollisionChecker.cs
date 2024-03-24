@@ -215,6 +215,10 @@ namespace Final_Game
 
 		public static bool CheckEntityCollision(Entity.Entity e1, Entity.Entity e2)
 		{
+			// Don't check collisions if hitbox is off
+			if (!e1.CollisionOn || !e2.CollisionOn)
+				return false;
+
 			// Get where first entity's hitbox will be
 			Rectangle colRect1 = new Rectangle(
 				e1.Hitbox.X + (int)e1.Velocity.X,

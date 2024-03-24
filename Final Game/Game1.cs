@@ -156,7 +156,8 @@ namespace Final_Game
 
 			Player = new Player(this, new Vector2(
 				TestLevel.CurrentRoom.Tileset.Width / 2,
-				TestLevel.CurrentRoom.Tileset.Height / 2));
+				800));
+			Player.MoveToRoomCenter(TutorialRoom);
 
 			// Set default game state
 			State = GameState.Menu;

@@ -172,11 +172,12 @@ namespace Final_Game.Entity
 			CurHealth = MaxHealth;
 		}
 		#endregion
-
+		
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
 			UpdateCombo(gameTime);
+
 			if (_controllable) UpdateBulletTime(gameTime);
 
 			TickInvincibility(gameTime);
@@ -279,11 +280,14 @@ namespace Final_Game.Entity
 			switch (entity.Type)
 			{
 				case EntityType.Enemy:
-					HandleEnemyCollision((Enemy)entity);		
+					Enemy hitEnemy = (Enemy)entity;
+
+					HandleEnemyCollision(hitEnemy);		
 					break;
 
 				case EntityType.Pickup:
 					entity.TakeDamage(1);
+
 					break;
 			}
 		}
@@ -319,7 +323,7 @@ namespace Final_Game.Entity
                     // Speed up
                     Vector2 acc = Velocity;
                     acc.Normalize();
-                    acc *= 0.05f;
+                    acc *= 0.25f;
                     Accelerate(acc);
 
                     // Get an extra redirect
@@ -531,7 +535,7 @@ namespace Final_Game.Entity
 	
 		private void UpdateBulletTime(GameTime gameTime)
 		{
-			if (Game1.IsMouseButtonPressed(1) && _numRedirects > 0)
+			if (Game1.IsMouseButtonPressed(1) && _numRedirects > 0 && !CurrentRoom.Cleared)
 			{
 				// Transition from normal -> bullet time
 				_transitionTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;

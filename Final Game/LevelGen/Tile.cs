@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace Final_Game.LevelGen
 
 		public void Draw(SpriteBatch sb, Vector2 screenPos)
 		{
+			//Debug.WriteLine(TileSprite.Texture);
 			TileSprite.Draw(sb, screenPos);
 		}
 

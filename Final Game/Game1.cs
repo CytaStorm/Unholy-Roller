@@ -150,14 +150,14 @@ namespace Final_Game
 		{
 			tilemaker = new TileMaker(Content);
 
-			TestLevel = new Level(10, 10, 25);
+			TestLevel = new Level(1, 1, 1);
 
-			TutorialRoom = new Room(new Point(0, 0));
+			//TutorialRoom = new Room(new Point(0, 0));
 
-			Player = new Player(this, new Vector2(
-				TestLevel.CurrentRoom.Tileset.Width / 2,
-				800));
-			Player.MoveToRoomCenter(TutorialRoom);
+			//Player = new Player(this, new Vector2(
+			//	TestLevel.CurrentRoom.Tileset.Width / 2,
+			//	800));
+			//Player.MoveToRoomCenter(TutorialRoom);
 
 			// Set default game state
 			State = GameState.Menu;

@@ -79,7 +79,6 @@ namespace Final_Game.LevelGen
 
 			result.WorldPosition = position;
 
-
 			switch (tileType)
 			{
 				case TileType.Grass:

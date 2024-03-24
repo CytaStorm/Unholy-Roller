@@ -2,7 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Final_Game.LevelGen
 {
@@ -115,14 +117,17 @@ namespace Final_Game.LevelGen
 				enemiesFit = PositionsFit(EnemyPos);
 			} while (!invalidEnemyObstacleCombo && obstaclesFit && enemiesFit);
 
+			Debug.WriteLine("here");
+			Debug.WriteLine(ObstaclePos.Count);
+
 			//Add positions to Layout
 			if (EnemyPos != null)
 			{
 				// Set spawners
 				foreach (Point enemyPos in EnemyPos)
 				{
-					Layout[enemyPos.X, enemyPos.Y].IsEnemySpawner = true;
-					Spawners.Add(Layout[enemyPos.X, enemyPos.Y]);
+					Layout[enemyPos.Y, enemyPos.X].IsEnemySpawner = true;
+					Spawners.Add(Layout[enemyPos.Y, enemyPos.X]);
 				}
 			}
 
@@ -131,7 +136,8 @@ namespace Final_Game.LevelGen
 				// Set obstacles
 				foreach (Point obstaclePos in ObstaclePos)
 				{
-					Layout[obstaclePos.X, obstaclePos.Y] = TileMaker.SetTile(
+					Debug.WriteLine(obstaclePos);
+					Layout[obstaclePos.Y, obstaclePos.X] = TileMaker.SetTile(
 						TileType.Spike, new Vector2(
 							obstaclePos.X * Game1.TileSize,
 							obstaclePos.Y * Game1.TileSize),
@@ -147,13 +153,23 @@ namespace Final_Game.LevelGen
 			Tile result;
 			int tileIdInt;
 			string orientation = string.Empty;
+			
 			//Special tile Handling
 			if (!int.TryParse(tileString, out tileIdInt))
 			{
 				string[] sValues = tileString.Split('.');
 				tileIdInt = int.Parse(sValues[0]);
 				orientation = sValues[1];
+
+				//Ensures compatibility with CRLF/LF roomLayout etc files.
+				if (orientation[orientation.Length - 1] == '\r')
+				{
+					orientation = orientation.Substring(0, orientation.Length - 1);
+				}
 			}
+
+			
+
 			result = TileMaker.SetTile(
 				(TileType)tileIdInt,
 				new Vector2(col * Game1.TileSize, row * Game1.TileSize),
@@ -311,7 +327,6 @@ namespace Final_Game.LevelGen
 							curTile.TileSprite.TintColor = Color.IndianRed;
 						}
 					}
-
 					curTile.Draw(spriteBatch, screenPos);
 
 					curTile.TileSprite.TintColor = Color.White;

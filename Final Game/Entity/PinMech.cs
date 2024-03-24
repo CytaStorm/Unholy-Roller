@@ -7,18 +7,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
+using System.Security.Cryptography;
 
 namespace Final_Game.Entity
 {
     public enum BossState
     {
         PinThrow,
+        PinBombs,
         Overheated,
         HandSwipe,
+        Idle
 
     }
     public class PinMech : Enemy
     {
+        private double overHeatTimer;
+        private BossState BossActionState;
+        private int pinBombsChanceModifier;
         // Constructors
         public PinMech(Game1 gm, Vector2 position)
             : base(gm, position)
@@ -35,8 +41,8 @@ namespace Final_Game.Entity
                 new Rectangle(
                     (int)position.X,
                     (int)position.Y,
-                    (int)(Game1.TileSize * 4.5f),
-                    (int)(Game1.TileSize * 4.5f *
+                    (int)(Game1.TileSize * 3.0f),
+                    (int)(Game1.TileSize * 3.0f *
                     140 / 120)));
 
             // Position
@@ -46,8 +52,8 @@ namespace Final_Game.Entity
             Hitbox = new Rectangle(
                 (int)WorldPosition.X + Image.DestinationRect.Width / 2 - 50,
                 (int)WorldPosition.Y + Image.DestinationRect.Height - 100,
-                100,
-                100);
+                200,
+                200);
 
             // Default Speed
             Speed = 5f;
@@ -67,7 +73,7 @@ namespace Final_Game.Entity
             _attackWindupDuration = 0.25;
             _attackWindupTimer = _attackWindupDuration;
 
-            _attackCooldown = 0.8;
+            _attackCooldown = 1;
             _attackCooldownTimer = 0.0;
 
             _gloveSpriteSheet = gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
@@ -84,6 +90,7 @@ namespace Final_Game.Entity
             // Animation
             _gloveFrameWidth = _gloveSpriteSheet.Width / 3;
             _walkAnimSecondsPerFrame = 0.12;
+            pinBombsChanceModifier = 100;
             return;
         }
 
@@ -102,18 +109,20 @@ namespace Final_Game.Entity
 
             DetermineState(playerDist);
 
-            if(ActionState == EnemyState.Chase)
+
+            switch (BossActionState)
             {
-                ActionState = EnemyState.Idle;
-            }
-            switch (ActionState)
-            {
-                case EnemyState.Idle:
+                case BossState.Idle:
+                    Velocity = Vector2.Zero;
+                    break;
+                case BossState.PinThrow:
                     Velocity = Vector2.Zero;
                     break;
 
-
-                case EnemyState.Attack:
+                case BossState.PinBombs:
+                    Velocity = Vector2.Zero;
+                    break;
+                case BossState.HandSwipe:
                     Velocity = Vector2.Zero;
 
                     // Apply attack cooldown
@@ -207,9 +216,9 @@ namespace Final_Game.Entity
 
             //Image.Draw(spriteBatch, screenPos);
 
-            switch (ActionState)
+            switch (BossActionState)
             {
-                case EnemyState.Idle:
+                case BossState.Idle:
                     if (IsKO)
                     {
                         DrawKoed(spriteBatch, screenPos);
@@ -218,11 +227,23 @@ namespace Final_Game.Entity
                     Image.Draw(spriteBatch, screenPos);
                     break;
 
-                case EnemyState.Chase:
-                    DrawWalking(spriteBatch, screenPos);
+                case BossState.PinBombs:
+                    if (IsKO)
+                    {
+                        DrawKoed(spriteBatch, screenPos);
+                        break;
+                    }
+                    Image.Draw(spriteBatch, screenPos);
                     break;
-
-                case EnemyState.Attack:
+                case BossState.PinThrow:
+                    if (IsKO)
+                    {
+                        DrawKoed(spriteBatch, screenPos);
+                        break;
+                    }
+                    Image.Draw(spriteBatch, screenPos);
+                    break;
+                case BossState.HandSwipe:
                     if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0.0)
                     {
                         Image.TintColor = Color.Orange;
@@ -337,6 +358,35 @@ namespace Final_Game.Entity
             _attackLandedOnce = false;
             _attackDirChosen = false;
 
+            return;
+        }
+        protected override void DetermineState(float playerDist)
+        {
+            Random rng = new Random();
+            if (_attackCooldownTimer <= 0)
+            {
+                if (playerDist < _aggroRange)
+                {
+                    BossActionState = BossState.HandSwipe;
+                    return;
+                }
+                else
+                {
+
+                    if (rng.Next(1, 101) < pinBombsChanceModifier)
+                    {
+                        BossActionState = BossState.PinThrow;
+                        pinBombsChanceModifier = 0;
+                    }
+                    else
+                    {
+                        BossActionState = BossState.PinBombs;
+                    }
+                    EndAttack(true);
+                    return;
+                }
+            }
+            ActionState = EnemyState.Idle;
             return;
         }
 

@@ -25,6 +25,10 @@ namespace Final_Game.Entity
         private double overHeatTimer;
         private BossState BossActionState;
         private int pinBombsChanceModifier;
+        private double pinBombsDuration;
+        private double pinBombsDurationTimer;
+        private double pinBombsDelay;
+        private List<Indicator> indicators;
         // Constructors
         public PinMech(Game1 gm, Vector2 position)
             : base(gm, position)
@@ -75,8 +79,11 @@ namespace Final_Game.Entity
 
             _attackCooldown = 1;
             _attackCooldownTimer = 0.0;
-
+            pinBombsDuration = 5;
+            pinBombsDurationTimer = pinBombsDuration;
+            pinBombsDelay = 0.2;
             _gloveSpriteSheet = gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
+            indicators = new List<Indicator>();
 
             // Set type
             Type = EntityType.Enemy;
@@ -106,6 +113,7 @@ namespace Final_Game.Entity
 
             Vector2 distanceFromPlayer = Game1.Player.CenterPosition - CenterPosition;
             float playerDist = distanceFromPlayer.Length();
+            int roomParamters = Game1.Player.CurrentRoom
 
             DetermineState(playerDist);
 
@@ -121,6 +129,20 @@ namespace Final_Game.Entity
 
                 case BossState.PinBombs:
                     Velocity = Vector2.Zero;
+                    pinBombsChanceModifier = 100;
+                    if(pinBombsDurationTimer > 0)
+                    {
+                        pinBombsDurationTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+                        if(pinBombsDelay > 0)
+                        {
+                            pinBombsDelay -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+                        }
+                        else
+                        {
+                            indicators.Add(new Indicator(Game1.Player.WorldPosition, BossActionState));
+                            indicators.Add(new Indicator(new Vector2()))
+                        }
+                    }
                     break;
                 case BossState.HandSwipe:
                     Velocity = Vector2.Zero;
@@ -363,28 +385,36 @@ namespace Final_Game.Entity
         protected override void DetermineState(float playerDist)
         {
             Random rng = new Random();
-            if (_attackCooldownTimer <= 0)
+            if (pinBombsDurationTimer > 0 || BossActionState != BossState.PinBombs)
             {
-                if (playerDist < _aggroRange)
+                if (_attackCooldownTimer <= 0)
                 {
-                    BossActionState = BossState.HandSwipe;
-                    return;
-                }
-                else
-                {
-
-                    if (rng.Next(1, 101) < pinBombsChanceModifier)
+                    if (playerDist < _aggroRange)
                     {
-                        BossActionState = BossState.PinThrow;
-                        pinBombsChanceModifier = 0;
+                        BossActionState = BossState.HandSwipe;
+                        return;
                     }
                     else
                     {
-                        BossActionState = BossState.PinBombs;
+
+                        if (rng.Next(1, 101) < pinBombsChanceModifier)
+                        {
+                            BossActionState = BossState.PinThrow;
+                            pinBombsChanceModifier = 0;
+                        }
+                        else
+                        {
+                            BossActionState = BossState.PinBombs;
+                        }
+                        EndAttack(true);
+                        return;
                     }
-                    EndAttack(true);
-                    return;
                 }
+            }
+            else
+            {
+                BossActionState = BossState.PinBombs;
+                return;
             }
             ActionState = EnemyState.Idle;
             return;

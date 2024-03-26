@@ -92,7 +92,7 @@ namespace Final_Game.LevelGen
 				"../../../Content/Room Layouts/obstacleLayouts.txt");
 
 			List<Point> EnemyPos;
-			List<Point> ObstaclePos;
+			Dictionary<Point, char> ObstaclePos;
 
 			//Select Enemy and Obstacle positions, ensure no overlap, and that
 			//they fit in the room.
@@ -102,7 +102,7 @@ namespace Final_Game.LevelGen
 			do
 			{
 				EnemyPos = ConvertPositions(selectLine(allEnemyPos, ref EnemyPositionLayout));
-				ObstaclePos = ConvertPositions(selectLine(allObstaclePos, ref EnemyPositionLayout));
+				ObstaclePos = ReadObstacles(selectLine(allObstaclePos, ref EnemyPositionLayout));
 
 				if (ObstaclePos.Count == 0 || EnemyPos.Count == 0)
 				{
@@ -115,10 +115,8 @@ namespace Final_Game.LevelGen
 				invalidEnemyObstacleCombo = EnsureNoOverlap(EnemyPos, ObstaclePos);
 				obstaclesFit = PositionsFit(ObstaclePos);
 				enemiesFit = PositionsFit(EnemyPos);
+				Debug.WriteLine(invalidEnemyObstacleCombo);
 			} while (!invalidEnemyObstacleCombo && obstaclesFit && enemiesFit);
-
-			Debug.WriteLine("here");
-			Debug.WriteLine(ObstaclePos.Count);
 
 			//Add positions to Layout
 			if (EnemyPos != null)
@@ -134,16 +132,12 @@ namespace Final_Game.LevelGen
 			if (ObstaclePos != null)
 			{
 				// Set obstacles
-				foreach (Point obstaclePos in ObstaclePos)
+				foreach (KeyValuePair<Point, char> obstaclePos in ObstaclePos)
 				{
-					Debug.WriteLine(obstaclePos);
-					Layout[obstaclePos.Y, obstaclePos.X] = TileMaker.SetTile(
-						TileType.Spike, new Vector2(
-							obstaclePos.X * Game1.TileSize,
-							obstaclePos.Y * Game1.TileSize),
-							"");
+					CreateObstacle(obstaclePos);
 				}
 			}
+			Debug.WriteLine("Here " + EnemyPos.Count);
 		}
 		#endregion
 
@@ -189,11 +183,11 @@ namespace Final_Game.LevelGen
 			return result;
 		}
 
-		private bool EnsureNoOverlap(List<Point> EnemyPos, List<Point> ObstaclePos)
+		private bool EnsureNoOverlap(List<Point> EnemyPos, Dictionary<Point, char> ObstaclePos)
 		{
-			foreach (Point obstacle in ObstaclePos)
+			foreach (KeyValuePair<Point, char> pair in ObstaclePos)
 			{
-				if (EnemyPos.IndexOf(obstacle) != -1)
+				if (EnemyPos.IndexOf(pair.Key) != -1)
 				{
 					return false;
 				}
@@ -201,6 +195,11 @@ namespace Final_Game.LevelGen
 			return true;
 		}
 
+		/// <summary>
+		/// Checks if the List of enemy positions fits on the map.
+		/// </summary>
+		/// <param name="positionsToCheck">List of positions to check.</param>
+		/// <returns>If the positions fit on the map.</returns>
 		private bool PositionsFit(List<Point> positionsToCheck)
 		{
 			foreach (Point position in positionsToCheck)
@@ -209,6 +208,26 @@ namespace Final_Game.LevelGen
 					position.X < 0 ||
 					position.Y > Layout.GetLength(0) ||
 					position.Y < 0)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		/// <summary>
+		/// Checks if Dictionary of obstacle positions fits within the map.
+		/// </summary>
+		/// <param name="positionsToCheck"></param>
+		/// <returns>If the positions fit on the map.</returns>
+		private bool PositionsFit(Dictionary<Point, char> positionsToCheck)
+		{
+			foreach (KeyValuePair<Point, char> position in positionsToCheck)
+			{
+				if (position.Key.X > Layout.GetLength(1) ||
+					position.Key.X < 0 ||
+					position.Key.Y > Layout.GetLength(0) ||
+					position.Key.Y < 0)
 				{
 					return false;
 				}
@@ -366,6 +385,37 @@ namespace Final_Game.LevelGen
 			return result;
 		}
 
+		/// <summary>
+		/// Takes in a string array of osbtacle positions and if they are a wall or
+		/// a spike, and converts it to a dictionary of points and chars, indicating
+		/// if it is a wall or a spike.
+		/// </summary>
+		/// <param name="allPositions">Obstacle position and type data.</param>
+		/// <returns></returns>
+		public Dictionary<Point,char> ReadObstacles(string allPositions)
+		{
+			if (allPositions.Length == 0)
+			{
+				return new Dictionary<Point, char>();
+			}
+
+			string[] positions = allPositions.Split('|');
+			Dictionary<Point, char> result = new Dictionary<Point, char>(positions.Length);
+
+			for (int i = 0; i < positions.Length; i++)
+			{
+				string[] posData = positions[i].Split(',');
+
+				char wallOrSpike = posData[0][0];
+				//Matrix shenanigans
+				int X = int.Parse(posData[2]);
+				int Y = int.Parse(posData[1]);
+				result.Add(new Point(X, Y), wallOrSpike);
+
+			}
+			return result;
+		}
+
 		public string GetDoorientation(int x, int y)
 		{
 			if (x == 0) return "left";
@@ -374,6 +424,33 @@ namespace Final_Game.LevelGen
 			else if (y == Rows - 1) return "bottom";
 			else throw new Exception("Tile is not in border");
 		}
+
+		/// <summary>
+		/// Creates obstacles based on the keyvalue pair.
+		/// </summary>
+		/// <param name="pair">Keyvalue pair containing position and type of obstacle.</param>
+		private void CreateObstacle(KeyValuePair<Point, char> pair)
+		{
+			//Wall obstacle
+			if (pair.Value == 'w')
+			{
+				Layout[pair.Key.Y, pair.Key.X] = TileMaker.SetTile(
+					TileType.Wall, new Vector2(
+						pair.Key.X * Game1.TileSize,
+						pair.Key.Y * Game1.TileSize),
+						"OBSTACLEWALL");
+				return;
+			}
+
+			//Spike obstacle
+			Layout[pair.Key.Y, pair.Key.X] = TileMaker.SetTile(
+				TileType.Spike, new Vector2(
+					pair.Key.X * Game1.TileSize,
+					pair.Key.Y * Game1.TileSize),
+					"");
+			return;
+		}
+
 	#endregion
 	}
 }

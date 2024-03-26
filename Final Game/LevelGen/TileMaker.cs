@@ -13,6 +13,7 @@ namespace Final_Game.LevelGen
 		Grass,
 		Wall,
 		Spike,
+		ObstacleWall,
 		Placeholder,
 		ClosedDoor,
 		OpenDoor
@@ -176,6 +177,8 @@ namespace Final_Game.LevelGen
 					return new Rectangle(sourceTilesize, sourceTilesize * 2, sourceTilesize, sourceTilesize);
 				case "BR":
 					return new Rectangle(sourceTilesize * 2, sourceTilesize * 2, sourceTilesize, sourceTilesize);
+				case "OBSTACLEWALL":
+					return new Rectangle(sourceTilesize, sourceTilesize, sourceTilesize, sourceTilesize);
 			}
 			return new Rectangle(0, 0, sourceTilesize, sourceTilesize);
 		}

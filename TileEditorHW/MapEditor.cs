@@ -33,6 +33,8 @@ namespace MapEditorTool
 
         #region Fields
         private Tile[,]? tiles;
+        private List<string> loadedMaps;
+        private int curMapIndex;
 
         private Color curColor;
         private Image curImage;
@@ -63,6 +65,8 @@ namespace MapEditorTool
         {
             InitializeComponent();
 
+            loadedMaps = new List<string>();
+
             SetImagePresets();
 
             this.mapRows = rows;
@@ -86,6 +90,8 @@ namespace MapEditorTool
         public MapEditor(string filename)
         {
             InitializeComponent();
+
+            loadedMaps = new List<string>();
 
             SetImagePresets();
 
@@ -113,8 +119,11 @@ namespace MapEditorTool
             // Open the file
             StreamWriter output = new StreamWriter(filename);
 
+            // Todo: Loop through each map in the loaded maps
+            // and write its data to a save file
+
             // Save map width and height
-            output.WriteLine($"{mapCols},{mapRows}");
+            output.WriteLine($"//{mapCols},{mapRows}");
 
             // Collect obstacle position data
             string obstaclePositions = "";
@@ -152,6 +161,9 @@ namespace MapEditorTool
                 // Open the file
                 input = new StreamReader(filename);
 
+                // Get rid of currently stored map files
+                loadedMaps.Clear();
+
                 // Load tile data
                 bool resized = false;
                 string line = "";
@@ -160,7 +172,9 @@ namespace MapEditorTool
                     if (!resized)
                     {
                         // Resize editor and window
-                        string[] mapDimensions = line.Split(",");
+                        // Skip the "//"
+                        string[] mapDimensions =
+                            line.Substring(2, line.Length - 2).Split(",");
 
                         mapCols = int.Parse(mapDimensions[0]);
                         mapRows = int.Parse(mapDimensions[1]);
@@ -172,8 +186,9 @@ namespace MapEditorTool
                         continue;
                     }
 
-                    // Load tile colors
+                    // Load tiles
                     string[] tileLine = line.Split("|");
+
                     for (int i = 0; i < tileLine.Length; i++)
                     {
                         string[] obstacleData = tileLine[i].Split(",");
@@ -184,8 +199,10 @@ namespace MapEditorTool
 
                         tiles[row, col].Image = GetTileImage(type);
                     }
-                }
 
+                    // Add map to storage
+                    loadedMaps.Add(line);
+                }
             }
             catch (Exception e)
             {
@@ -198,6 +215,107 @@ namespace MapEditorTool
                     input.Close();
             }
         }
+
+        public void SaveMap(int index)
+        {
+            // Todo: Update index of map in list
+            // with current maps data
+
+            // Open the file
+            StreamWriter output = new StreamWriter(loadedMaps[index]);
+
+            // Save map width and height
+            output.WriteLine($"//{mapCols},{mapRows}");
+
+            // Collect obstacle position data
+            string obstaclePositions = "";
+            for (int y = 1; y < tiles!.GetLength(0) - 1; y++)
+            {
+                for (int x = 1; x < tiles.GetLength(1) - 1; x++)
+                {
+                    if (tiles[y, x].Image != null)
+                    {
+                        // Format: "TileType,Row,Col|"
+                        obstaclePositions +=
+                            $"{GetTileChar(tiles[y, x].Image)}," +
+                            $"{(tiles[y, x].Top - tileYOffset) / boxHeight}," +
+                            $"{tiles[y, x].Left / boxHeight}|";
+                    }
+                }
+            }
+
+            // Write data to file
+            output.Write(obstaclePositions.Substring(0, obstaclePositions.Length - 1));
+
+            // Close the file
+            output.Close();
+        }
+
+        public bool LoadMap(int index)
+        {
+            if (index < 0 || index >= loadedMaps.Count)
+            {
+                MessageBox.Show("Invalid Map Index");
+                return false;
+            }
+
+            StreamReader input = null;
+            try
+            {
+                // Open the file
+                input = new StreamReader(loadedMaps[index]);
+
+                // Load tile data
+                bool resized = false;
+                string line = "";
+                while ((line = input.ReadLine()!) != null)
+                {
+                    if (!resized)
+                    {
+                        // Resize editor and window
+                        // Skip the "//"
+                        string[] mapDimensions =
+                            line.Substring(2, line.Length - 2).Split(",");
+
+                        mapCols = int.Parse(mapDimensions[0]);
+                        mapRows = int.Parse(mapDimensions[1]);
+
+                        ResizeEditor(mapCols, mapRows);
+
+                        resized = true;
+
+                        continue;
+                    }
+
+                    // Load tiles
+                    string[] tileLine = line.Split("|");
+
+                    for (int i = 0; i < tileLine.Length; i++)
+                    {
+                        string[] obstacleData = tileLine[i].Split(",");
+
+                        char type = char.Parse(obstacleData[0]);
+                        int row = int.Parse(obstacleData[1]);
+                        int col = int.Parse(obstacleData[2]);
+
+                        tiles[row, col].Image = GetTileImage(type);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Error: " + e.Message);
+            }
+            finally
+            {
+                // If a file was read close it
+                if (input != null)
+                    input.Close();
+            }
+
+            return true;
+        }
+
         #endregion
 
         #region Conversion Methods
@@ -325,6 +443,21 @@ namespace MapEditorTool
                 changesSaved = true;
             }
         }
+
+        private void buttonPrev_Click(object sender, EventArgs e)
+        {
+            if (!LoadMap(curMapIndex - 1)) return;
+
+            curMapIndex--;
+        }
+
+        private void buttonNext_Click(object sender, EventArgs e)
+        {
+            if (!LoadMap(curMapIndex + 1)) return;
+
+            curMapIndex++;
+        }
+
         #endregion
 
         #region Component Subscriber Methods
@@ -365,7 +498,7 @@ namespace MapEditorTool
                 row == mapRows / 2;
             bool behindRightDoor =
                 col == mapCols - 2 &&
-                row == mapRows / 2; 
+                row == mapRows / 2;
             bool belowTopDoor =
                 col == mapCols / 2 &&
                 row == 1;
@@ -406,6 +539,9 @@ namespace MapEditorTool
         {
             // Create tile storage
             tiles = new Tile[rows, cols];
+
+            mapRows = rows;
+            mapCols = cols;
 
             // Determine tile dimensions
             boxHeight = (groupMapEditor.Height - tileYOffset) / rows;
@@ -481,5 +617,6 @@ namespace MapEditorTool
         }
 
         #endregion
+
     }
 }

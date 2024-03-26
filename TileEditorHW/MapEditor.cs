@@ -26,7 +26,7 @@ public enum TileType
     OpenDoor
 }
 
-namespace TileEditorHW
+namespace MapEditorTool
 {
     public partial class MapEditor : Form
     {
@@ -75,8 +75,8 @@ namespace TileEditorHW
             //buttonChoice1.Image = Image.FromFile("../../../SpikeTile.png");
 
             // Set default color
-            curColor = buttonChoice1.BackColor;
-            pictureCurTile.BackColor = curColor;
+            curImage = buttonChoice1.Image;
+            pictureCurTile.Image = curImage;
         }
 
         /// <summary>
@@ -94,8 +94,8 @@ namespace TileEditorHW
             SetTileChoices();
 
             // Set default color
-            curColor = buttonChoice1.BackColor;
-            pictureCurTile.BackColor = curColor;
+            curImage = buttonChoice1.Image;
+            pictureCurTile.Image = curImage;
         }
 
         #endregion

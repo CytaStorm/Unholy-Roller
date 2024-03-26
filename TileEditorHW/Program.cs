@@ -1,4 +1,4 @@
-namespace TileEditorHW
+namespace MapEditorTool
 {
     internal static class Program
     {

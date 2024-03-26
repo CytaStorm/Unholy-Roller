@@ -1,4 +1,4 @@
-﻿namespace TileEditorHW
+﻿namespace MapEditorTool
 {
     partial class Form1
     {

@@ -2,7 +2,7 @@
 // 2/7/24
 // Create a window for choosing map editor parameters
 
-namespace TileEditorHW
+namespace MapEditorTool
 {
     public partial class Form1 : Form
     {

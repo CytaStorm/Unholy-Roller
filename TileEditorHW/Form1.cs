@@ -2,7 +2,7 @@
 // 2/7/24
 // Create a window for choosing map editor parameters
 
-namespace TileEditorHW
+namespace MapEditorTool
 {
     public partial class Form1 : Form
     {
@@ -33,45 +33,24 @@ namespace TileEditorHW
             // Check for errors
             List<string> errors = new List<string>();
 
-            // Check value entered for width is an integer
-            int mapWidth;
-            bool isInt = int.TryParse(textTileWidth.Text, out mapWidth);
+            // Check value entered for Dimensions is an integer
+            int mapDimensions;
+            bool isInt = int.TryParse(textTileDimensions.Text, out mapDimensions);
             if (isInt)
             {
-                // Check Width is within bounds
-                if (mapWidth > maxCols)
+                // Check Dimensions is within bounds
+                if (mapDimensions > maxRows)
                 {
-                    errors.Add($"Width too large. Maximum is {maxCols}");
+                    errors.Add($"Dimensions too large. Maximum is {maxRows}");
                 }
-                else if (mapWidth < minCols)
+                else if (mapDimensions < minRows)
                 {
-                    errors.Add($"Width too small. Minimum is {minCols}");
+                    errors.Add($"Dimensions too small. Minimum is {minRows}");
                 }
             }
             else
             {
-                errors.Add("Width.Text is not an integer");
-            }
-
-            // Check value entered for height is an integer
-            int mapHeight;
-            isInt = int.TryParse(textTileHeight.Text, out mapHeight);
-            if (isInt)
-            {
-
-                // Check Height is within bounds
-                if (mapHeight > maxRows)
-                {
-                    errors.Add($"Height too large. Maximum is {maxRows}");
-                }
-                else if (mapHeight < minRows)
-                {
-                    errors.Add($"Height too small. Minimum is {minRows}");
-                }
-            }
-            else
-            {
-                errors.Add("Height.Text is not an integer");
+                errors.Add($"{textTileDimensions.Text} is not an integer");
             }
 
             // Report Errors
@@ -89,7 +68,7 @@ namespace TileEditorHW
             else
             {
                 // Create an empty map
-                editor = new MapEditor(mapWidth, mapHeight);
+                editor = new MapEditor(mapDimensions, mapDimensions);
 
                 // Display map editor
                 editor.ShowDialog();
@@ -128,5 +107,6 @@ namespace TileEditorHW
                 editor.ShowDialog();
             }
         }
+
     }
 }

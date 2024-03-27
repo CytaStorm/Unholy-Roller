@@ -326,7 +326,7 @@ namespace Final_Game.Entity
 						canBeTriggered = false;
 					}
 
-					if(canBeTriggered)
+					if(canBeTriggered && State == PlayerState.Rolling)
 					{
 						TriggerHitStop();
 					}

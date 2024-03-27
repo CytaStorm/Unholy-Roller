@@ -35,6 +35,11 @@ namespace Final_Game.LevelGen
 		public Point CurrentPoint;
 
 		/// <summary>
+		/// Position on map of the boss room.
+		/// </summary>
+		public Point BossPoint;
+
+		/// <summary>
 		/// Room player is in.
 		/// </summary>
 		public Room CurrentRoom { get { return Map[CurrentPoint.X, CurrentPoint.Y]; } }
@@ -43,6 +48,11 @@ namespace Final_Game.LevelGen
 		/// Room player started in.
 		/// </summary>
 		public Room StartRoom { get { return Map[StartPoint.X, StartPoint.Y]; } }
+
+		/// <summary>
+		/// Boss Room.
+		/// </summary>
+		public Room BossRoom { get { return Map[BossPoint.X, BossPoint.Y]; } }
 		#endregion
 
 		#region Constructor(s)
@@ -198,6 +208,7 @@ namespace Final_Game.LevelGen
 				}
 			}
 			farthestRoom.IsBossRoom = true;
+			BossPoint = farthestRoom.MapPosition;
 		}
 
 		/// <summary>

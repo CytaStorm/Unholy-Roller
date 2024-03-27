@@ -42,7 +42,7 @@ namespace MapEditorTool
 		private int mapCols;
 		private int mapRows;
 
-		private bool changesSaved = true;
+		private bool curChangesSaved = true;
 
 		private int boxHeight;
 		private int tileYOffset = 30;
@@ -66,6 +66,7 @@ namespace MapEditorTool
 			InitializeComponent();
 
 			loadedMaps = new List<Tuple<int, string>>();
+			loadedMaps.Add(new Tuple<int, string>(default, default));
 
 			SetImagePresets();
 
@@ -346,7 +347,7 @@ namespace MapEditorTool
 					MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 				// User saved their changes
-				changesSaved = true;
+				curChangesSaved = true;
 				this.Text = Text.Substring(0, Text.Length - 2); // Exclude asterisk
 			}
 
@@ -384,22 +385,59 @@ namespace MapEditorTool
 					MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 				// User hasn't made changes yet
-				changesSaved = true;
+				curChangesSaved = true;
 			}
 		}
 
 		private void buttonPrev_Click(object sender, EventArgs e)
 		{
-			if (!LoadMap(curMapIndex - 1)) return;
+            // Warn user about unsaved changes
+            if (!curChangesSaved)
+            {
+                DialogResult choice =
+                    MessageBox.Show(
+                    "There are unsaved changes. Are you sure you want to switch?",
+                    "Unsaved changes",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
 
-			curMapIndex--;
+                if (choice == DialogResult.Yes)
+                    UpdateSaveStatus(true);
+                else
+                    return;
+            }
+
+			// Try to load previous map
+            if (!LoadMap(curMapIndex - 1)) return;
+
+			// Keep track of map index
+            curMapIndex--;
 		}
 
 		private void buttonNext_Click(object sender, EventArgs e)
 		{
-			if (!LoadMap(curMapIndex + 1)) return;
+            // Warn user about unsaved changes
+            if (!curChangesSaved)
+            {
+                DialogResult choice =
+                    MessageBox.Show(
+                    "There are unsaved changes. Are you sure you want to switch?",
+                    "Unsaved changes",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
 
-			curMapIndex++;
+
+				if (choice == DialogResult.Yes) 
+					UpdateSaveStatus(true);
+				else 
+					return;
+            }
+
+			// Try to load next map
+            if (!LoadMap(curMapIndex + 1)) return;
+
+			// Keep track of map index
+            curMapIndex++;
 		}
 
 		#endregion
@@ -465,8 +503,7 @@ namespace MapEditorTool
 			tile.Image = curImage;
 
 			// User has made changes
-			if (changesSaved) this.Text += " *";
-			changesSaved = false;
+			UpdateSaveStatus(false);
 
 			// User has touched a valid tile
 			tileReportText.Text = "";
@@ -525,7 +562,6 @@ namespace MapEditorTool
 						tiles[y, x].BackgroundImage = Image.FromFile("../../../PurpleTile.png");
 					}
 
-
 					tiles[y, x].Click += SetTileImage;
 
 					// Add to editor
@@ -542,7 +578,7 @@ namespace MapEditorTool
 		/// <param name="e"></param>
 		private void MapEditor_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			if (!changesSaved)
+			if (!curChangesSaved)
 			{
 				// Warn user about unsaved changes
 				DialogResult choice =
@@ -560,6 +596,21 @@ namespace MapEditorTool
 			}
 		}
 
+		private void UpdateSaveStatus(bool saved)
+		{
+			if (!saved && curChangesSaved)
+			{
+                // User has made changes
+                this.Text += " *";
+                curChangesSaved = false;
+            }
+			else if (saved && !curChangesSaved)
+			{
+                // User saved their changes
+                curChangesSaved = true;
+                this.Text = Text.Substring(0, Text.Length - 2); // Exclude asterisk
+            }
+		}
 		#endregion
 
 	}

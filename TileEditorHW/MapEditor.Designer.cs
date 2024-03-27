@@ -1,4 +1,4 @@
-﻿namespace TileEditorHW
+﻿namespace MapEditorTool
 {
     partial class MapEditor
     {
@@ -42,6 +42,8 @@
             buttonChoice1 = new Button();
             label1 = new Label();
             tileReportText = new TextBox();
+            buttonPrev = new Button();
+            buttonNext = new Button();
             groupCurTile.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureCurTile).BeginInit();
             groupColorChoice.SuspendLayout();
@@ -180,11 +182,33 @@
             tileReportText.Size = new Size(342, 31);
             tileReportText.TabIndex = 11;
             // 
+            // buttonPrev
+            // 
+            buttonPrev.Location = new Point(488, 751);
+            buttonPrev.Name = "buttonPrev";
+            buttonPrev.Size = new Size(131, 53);
+            buttonPrev.TabIndex = 12;
+            buttonPrev.Text = "Prev";
+            buttonPrev.UseVisualStyleBackColor = true;
+            buttonPrev.Click += buttonPrev_Click;
+            // 
+            // buttonNext
+            // 
+            buttonNext.Location = new Point(659, 751);
+            buttonNext.Name = "buttonNext";
+            buttonNext.Size = new Size(131, 53);
+            buttonNext.TabIndex = 13;
+            buttonNext.Text = "Next";
+            buttonNext.UseVisualStyleBackColor = true;
+            buttonNext.Click += buttonNext_Click;
+            // 
             // MapEditor
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1097, 933);
+            Controls.Add(buttonNext);
+            Controls.Add(buttonPrev);
             Controls.Add(tileReportText);
             Controls.Add(label1);
             Controls.Add(groupMapEditor);
@@ -218,5 +242,7 @@
         private Button buttonChoice1;
         private Label label1;
         private TextBox tileReportText;
+        private Button buttonPrev;
+        private Button buttonNext;
     }
 }

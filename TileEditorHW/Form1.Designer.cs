@@ -1,4 +1,4 @@
-﻿namespace TileEditorHW
+﻿namespace MapEditorTool
 {
     partial class Form1
     {
@@ -31,18 +31,17 @@
             buttonLoad = new Button();
             groupCreate = new GroupBox();
             buttonCreate = new Button();
-            labelTileHeight = new Label();
             labelTileWidth = new Label();
-            textTileHeight = new TextBox();
-            textTileWidth = new TextBox();
+            textTileDimensions = new TextBox();
             groupCreate.SuspendLayout();
             SuspendLayout();
             // 
             // buttonLoad
             // 
-            buttonLoad.Location = new Point(64, 25);
+            buttonLoad.Location = new Point(45, 15);
+            buttonLoad.Margin = new Padding(2);
             buttonLoad.Name = "buttonLoad";
-            buttonLoad.Size = new Size(268, 114);
+            buttonLoad.Size = new Size(188, 68);
             buttonLoad.TabIndex = 0;
             buttonLoad.Text = "Load Map";
             buttonLoad.UseVisualStyleBackColor = true;
@@ -51,66 +50,54 @@
             // groupCreate
             // 
             groupCreate.Controls.Add(buttonCreate);
-            groupCreate.Controls.Add(labelTileHeight);
             groupCreate.Controls.Add(labelTileWidth);
-            groupCreate.Controls.Add(textTileHeight);
-            groupCreate.Controls.Add(textTileWidth);
-            groupCreate.Location = new Point(38, 198);
+            groupCreate.Controls.Add(textTileDimensions);
+            groupCreate.Location = new Point(27, 119);
+            groupCreate.Margin = new Padding(2);
             groupCreate.Name = "groupCreate";
-            groupCreate.Size = new Size(319, 252);
+            groupCreate.Padding = new Padding(2);
+            groupCreate.Size = new Size(223, 151);
             groupCreate.TabIndex = 1;
             groupCreate.TabStop = false;
             groupCreate.Text = "Create New Map";
             // 
             // buttonCreate
             // 
-            buttonCreate.Location = new Point(50, 163);
+            buttonCreate.Location = new Point(35, 98);
+            buttonCreate.Margin = new Padding(2);
             buttonCreate.Name = "buttonCreate";
-            buttonCreate.Size = new Size(221, 83);
+            buttonCreate.Size = new Size(155, 50);
             buttonCreate.TabIndex = 2;
             buttonCreate.Text = "Create Map";
             buttonCreate.UseVisualStyleBackColor = true;
             buttonCreate.Click += buttonCreate_Click;
             // 
-            // labelTileHeight
-            // 
-            labelTileHeight.AutoSize = true;
-            labelTileHeight.Location = new Point(13, 108);
-            labelTileHeight.Name = "labelTileHeight";
-            labelTileHeight.Size = new Size(130, 25);
-            labelTileHeight.TabIndex = 3;
-            labelTileHeight.Text = "Height (in tiles)";
-            // 
             // labelTileWidth
             // 
             labelTileWidth.AutoSize = true;
-            labelTileWidth.Location = new Point(13, 50);
+            labelTileWidth.Location = new Point(18, 49);
+            labelTileWidth.Margin = new Padding(2, 0, 2, 0);
             labelTileWidth.Name = "labelTileWidth";
-            labelTileWidth.Size = new Size(125, 25);
+            labelTileWidth.Size = new Size(69, 15);
             labelTileWidth.TabIndex = 2;
-            labelTileWidth.Text = "Width (in tiles)";
+            labelTileWidth.Text = "Dimensions";
             // 
-            // textTileHeight
+            // textTileDimensions
             // 
-            textTileHeight.Location = new Point(144, 108);
-            textTileHeight.Name = "textTileHeight";
-            textTileHeight.Size = new Size(150, 31);
-            textTileHeight.TabIndex = 1;
-            // 
-            // textTileWidth
-            // 
-            textTileWidth.Location = new Point(144, 50);
-            textTileWidth.Name = "textTileWidth";
-            textTileWidth.Size = new Size(150, 31);
-            textTileWidth.TabIndex = 0;
+            textTileDimensions.Location = new Point(101, 46);
+            textTileDimensions.Margin = new Padding(2);
+            textTileDimensions.Name = "textTileDimensions";
+            textTileDimensions.Size = new Size(106, 23);
+            textTileDimensions.TabIndex = 1;
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(396, 484);
+            ClientSize = new Size(277, 290);
             Controls.Add(groupCreate);
             Controls.Add(buttonLoad);
+            Margin = new Padding(2);
             Name = "Form1";
             Text = "Level Editor";
             groupCreate.ResumeLayout(false);
@@ -123,9 +110,7 @@
         private Button buttonLoad;
         private GroupBox groupCreate;
         private Label labelTileWidth;
-        private TextBox textTileHeight;
-        private TextBox textTileWidth;
+        private TextBox textTileDimensions;
         private Button buttonCreate;
-        private Label labelTileHeight;
     }
 }

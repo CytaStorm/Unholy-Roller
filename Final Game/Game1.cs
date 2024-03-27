@@ -150,7 +150,7 @@ namespace Final_Game
 		{
 			tilemaker = new TileMaker(Content);
 
-			TestLevel = new Level(2, 2, 4);
+			TestLevel = new Level(10, 10, 25);
 
 			//TutorialRoom = new Room(new Point(0, 0));
 

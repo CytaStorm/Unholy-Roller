@@ -99,7 +99,7 @@ namespace Final_Game.Entity
 		public bool IsSmiling => 
 			Velocity.LengthSquared() >= _smileSpeed * _smileSpeed;
 
-        private float hitStopDuration = 0.1f;
+        private float hitStopDuration = 0.2f;
         private float hitStopTimeRemaining = 0f;
         public bool canBeTriggered = true;
         private Enemy lastContactedEnemy = null;

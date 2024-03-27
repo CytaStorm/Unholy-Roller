@@ -104,7 +104,7 @@ namespace Final_Game.Entity
 		public event EntityDying OnPlayerDeath;
 
 		// Constructors
-		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
+		public Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
 
 		#region Constructor(s)
 

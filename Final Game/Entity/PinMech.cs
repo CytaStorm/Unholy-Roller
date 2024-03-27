@@ -29,6 +29,7 @@ namespace Final_Game.Entity
         private double pinBombsDurationTimer;
         private double pinBombsDelay;
         private List<Indicator> indicators;
+        private Texture2D circle;
         // Constructors
         public PinMech(Game1 gm, Vector2 position)
             : base(gm, position)
@@ -36,6 +37,7 @@ namespace Final_Game.Entity
             // Set Enemy Image
             Texture2D puncherSpritesheet =
                 gm.Content.Load<Texture2D>("Sprites/BasicEnemy");
+            circle = gm.Content.Load<Texture2D>("RedCircle");
 
             Image = new Sprite(
                 puncherSpritesheet,
@@ -79,9 +81,9 @@ namespace Final_Game.Entity
 
             _attackCooldown = 1;
             _attackCooldownTimer = 0.0;
-            pinBombsDuration = 5;
+            pinBombsDuration = 1000;
             pinBombsDurationTimer = pinBombsDuration;
-            pinBombsDelay = 0.2;
+            pinBombsDelay = 0;
             _gloveSpriteSheet = gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
             indicators = new List<Indicator>();
 
@@ -110,13 +112,21 @@ namespace Final_Game.Entity
             TickKnockout(gameTime);
 
             //CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
-
+            Random rng = new Random();
             Vector2 distanceFromPlayer = Game1.Player.CenterPosition - CenterPosition;
             float playerDist = distanceFromPlayer.Length();
-            int roomParamters = Game1.Player.CurrentRoom
-
+            int roomWidth = Game1.Player.CurrentRoom.Tileset.Width;
+            int roomHeight = Game1.Player.CurrentRoom.Tileset.Height;
+            int originX = Game1.Player.CurrentRoom.Origin.X;
+            int originY = Game1.Player.CurrentRoom.Origin.Y;
             DetermineState(playerDist);
-
+            for (int i = 0; i < indicators.Count; i++)
+            {
+                if (indicators[i].Update(gameTime))
+                {
+                    indicators.RemoveAt(i);
+                }
+            }
 
             switch (BossActionState)
             {
@@ -139,8 +149,9 @@ namespace Final_Game.Entity
                         }
                         else
                         {
-                            indicators.Add(new Indicator(Game1.Player.WorldPosition, BossActionState));
-                            indicators.Add(new Indicator(new Vector2()))
+                            indicators.Add(new Indicator(Game1.Player.WorldPosition, BossActionState, circle)); ;
+                            indicators.Add(new Indicator(new Vector2(rng.Next(originX + Game1.TileSize, originX + roomWidth - Game1.TileSize), rng.Next(originY + Game1.TileSize, originY + roomWidth - Game1.TileSize)), BossActionState, circle));
+                            pinBombsDelay = 0.2;
                         }
                     }
                     break;
@@ -203,11 +214,13 @@ namespace Final_Game.Entity
 
             UpdateWalkAnimation(gameTime);
 
+            
             return;
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
+            
             // Draw Enemy relative to the player
             Vector2 distFromPlayer = WorldPosition - Game1.Player.WorldPosition;
             Vector2 screenPos = Game1.Player.ScreenPosition + distFromPlayer;
@@ -275,7 +288,10 @@ namespace Final_Game.Entity
                     DrawAttacking(spriteBatch, screenPos, distFromPlayer);
                     break;
             }
-
+            for(int i = 0; i < indicators.Count; i++)
+            {
+                indicators[i].Draw(spriteBatch);
+            }
             // Display current health
             //spriteBatch.DrawString(Game1.ARIAL32, $"Hp: {CurHealth}", screenPos, Color.White);
 
@@ -384,7 +400,7 @@ namespace Final_Game.Entity
         }
         protected override void DetermineState(float playerDist)
         {
-            Random rng = new Random();
+           /* Random rng = new Random();
             if (pinBombsDurationTimer > 0 || BossActionState != BossState.PinBombs)
             {
                 if (_attackCooldownTimer <= 0)
@@ -415,8 +431,8 @@ namespace Final_Game.Entity
             {
                 BossActionState = BossState.PinBombs;
                 return;
-            }
-            ActionState = EnemyState.Idle;
+            }*/
+            BossActionState = BossState.PinBombs;
             return;
         }
 

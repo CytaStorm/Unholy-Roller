@@ -25,7 +25,7 @@ namespace Final_Game
 
 	public class Game1 : Game
 	{
-		private GraphicsDeviceManager _graphics;
+		public GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
 
 		public static Room TutorialRoom { get; private set; }
@@ -253,19 +253,20 @@ namespace Final_Game
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			_spriteBatch.Begin();
+            ShapeBatch.Begin(GraphicsDevice);
 
-			// Draw game
-			switch (State)
+            // Draw game
+            switch (State)
 			{
 				case GameState.Play:
 
-					TestLevel.CurrentRoom.Draw(_spriteBatch);
+                    TestLevel.CurrentRoom.Draw(_spriteBatch);
 
 					Player.Draw(_spriteBatch);
 
-					EManager.Draw(_spriteBatch);
+                    EManager.Draw(_spriteBatch);
 
-					PManager.Draw(_spriteBatch);
+                    PManager.Draw(_spriteBatch);
 
 					break;
 
@@ -275,8 +276,8 @@ namespace Final_Game
 			}
 
 			_ui.Draw(gameTime);
-
-			_spriteBatch.End();
+            ShapeBatch.End();
+            _spriteBatch.End();
 
 			// Draw simplified shapes
 

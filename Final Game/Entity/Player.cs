@@ -99,9 +99,15 @@ namespace Final_Game.Entity
 		public bool IsSmiling => 
 			Velocity.LengthSquared() >= _smileSpeed * _smileSpeed;
 
-		#endregion
+        private float hitStopDuration = 0.1f;
+        private float hitStopTimeRemaining = 0f;
+        public bool canBeTriggered = true;
+        private Enemy lastContactedEnemy = null;
 
-		public event EntityDamaged OnPlayerDamaged;
+
+        #endregion
+
+        public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
 		// Constructors
@@ -176,46 +182,59 @@ namespace Final_Game.Entity
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
-			UpdateCombo(gameTime);
+            if (hitStopTimeRemaining <= 0f ) 
+            {
+                UpdateCombo(gameTime);
 
-			if (_controllable) UpdateBulletTime(gameTime);
+                if (_controllable) UpdateBulletTime(gameTime);
 
-			TickInvincibility(gameTime);
+                TickInvincibility(gameTime);
 
-			switch (State)
-			{
-				case PlayerState.Walking:
+                switch (State)
+                {
+                    case PlayerState.Walking:
 
-					if (_controllable) MoveWithKeyboard(Game1.CurKB);
-					//Debug.WriteLine($"Current worldPos {WorldPosition}");
-					// Reset Combo if too much time has passed since prev hit.
-					break;
+                        if (_controllable) MoveWithKeyboard(Game1.CurKB);
+                        //Debug.WriteLine($"Current worldPos {WorldPosition}");
+                        // Reset Combo if too much time has passed since prev hit.
+                        break;
 
-				case PlayerState.Rolling:
-					ApplyFriction();
+                    case PlayerState.Rolling:
+                        ApplyFriction();
 
-					if (_controllable) HandleBraking();
+                        if (_controllable) HandleBraking();
 
-					// Transition to walking
-					if (Velocity.Length() < 1f)
-					{
-						State = PlayerState.Walking;
+                        // Transition to walking
+                        if (Velocity.Length() < 1f)
+                        {
+                            State = PlayerState.Walking;
 
-						_numRedirects = _maxRedirects + 1;
-					}
-					break;
-			}
+                            _numRedirects = _maxRedirects + 1;
+                        }
+                        break;
+                }
 
-			if (_controllable) HandleLaunch();
+                if (_controllable) HandleLaunch();
 
-			//ApplyScreenBoundRicochet();
+                //ApplyScreenBoundRicochet();
 
-			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
+                CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
-			CheckEnemyCollisions();
-			CheckPickupCollisions();
-			Move(Velocity * BulletTimeMultiplier);
-		}
+                CheckEnemyCollisions();
+
+                CheckPickupCollisions();
+
+                Move(Velocity * BulletTimeMultiplier);
+            }
+
+            if (hitStopTimeRemaining > 0)
+            {
+
+                hitStopTimeRemaining -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            }
+            
+        }
 		public override void Draw(SpriteBatch sb)
 		{
 			// Draw player image
@@ -300,9 +319,25 @@ namespace Final_Game.Entity
 
 				if (CollisionChecker.CheckEntityCollision(this, curEnemy))
 				{
-					//Debug.WriteLine("Combo increase");
-				}
-			}
+
+                    //Debug.WriteLine("Combo increase");
+                    if (lastContactedEnemy == curEnemy)
+                    {
+						canBeTriggered = false;
+                    }
+
+					if(canBeTriggered)
+					{
+						TriggerHitStop();
+					}
+                    lastContactedEnemy = curEnemy;
+                }
+
+				else
+				{                 
+					canBeTriggered = true;
+                }
+            }
 		}
 		private void CheckPickupCollisions()
 		{
@@ -328,13 +363,13 @@ namespace Final_Game.Entity
 
                     // Get an extra redirect
                     if (_numRedirects < _maxRedirects)
-                        _numRedirects++;
 
+                        _numRedirects++;
                     Combo++;
                     _comboResetDuration = 5f;
                 }
-
                 hitEnemy.TakeDamage(Damage);
+				
             }
             else
             {
@@ -343,8 +378,7 @@ namespace Final_Game.Entity
                 distToEnemy.Normalize();
                 distToEnemy *= -5;
 
-                this.TakeDamage(1);
-
+                this.TakeDamage(1);               
                 Velocity = distToEnemy;
                 State = PlayerState.Rolling;
             }
@@ -718,6 +752,11 @@ namespace Final_Game.Entity
 				OnPlayerDeath();
 			}
 			return;
+        }
+
+        public void TriggerHitStop()
+        {
+            hitStopTimeRemaining = hitStopDuration;
         }
     }
 	#endregion

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Mime;
 
 namespace Final_Game.LevelGen
 {
@@ -16,7 +17,7 @@ namespace Final_Game.LevelGen
 		/// <summary>
 		/// List of all rooms.
 		/// </summary>
-		private static List<Room> _rooms = new List<Room>();
+		private List<Room> _rooms = new List<Room>();
 
 		/// <summary>
 		/// Random object to use in class.
@@ -34,6 +35,11 @@ namespace Final_Game.LevelGen
 		public Point CurrentPoint;
 
 		/// <summary>
+		/// Position on map of the boss room.
+		/// </summary>
+		public Point BossPoint;
+
+		/// <summary>
 		/// Room player is in.
 		/// </summary>
 		public Room CurrentRoom { get { return Map[CurrentPoint.X, CurrentPoint.Y]; } }
@@ -42,6 +48,11 @@ namespace Final_Game.LevelGen
 		/// Room player started in.
 		/// </summary>
 		public Room StartRoom { get { return Map[StartPoint.X, StartPoint.Y]; } }
+
+		/// <summary>
+		/// Boss Room.
+		/// </summary>
+		public Room BossRoom { get { return Map[BossPoint.X, BossPoint.Y]; } }
 		#endregion
 
 		#region Constructor(s)
@@ -56,7 +67,7 @@ namespace Final_Game.LevelGen
 			Map = new Room[height, width];
 
 			//Create first room (randomly placed)
-			Point StartPoint = 
+			StartPoint = 
 				new Point(
 					_random.Next(Map.GetLength(0)),
 					_random.Next(Map.GetLength(1)));
@@ -82,7 +93,7 @@ namespace Final_Game.LevelGen
 			//Determine Boss Room
 			DetermineBossRoom();
 
-			Debug.WriteLine($"Start room [{StartPoint.Y}, {StartPoint.X}]");
+			Debug.WriteLine($"Start room {StartPoint}");
 			PrintLevel();
 		}
 		#endregion
@@ -162,23 +173,42 @@ namespace Final_Game.LevelGen
 		}
 
 		/// <summary>
-		/// Set the boss room on the map.
+		/// Sets the furthest room with 1 connection from start
+		/// room as boss room.
 		/// </summary>
 		private void DetermineBossRoom()
 		{
-			//Sets farthest room as boss room.
 			Room farthestRoom = StartRoom;
 			float furthestDistance = 0;
-			Vector2 startPointVector2 = StartPoint.ToVector2();
-			foreach (Room room in _rooms) 
+			//Filter out rooms with only 1 connection.
+			List<Room> roomsWithOneConnection = new List<Room>();
+			foreach(Room room in _rooms)
 			{
-				Vector2 distanceVector = startPointVector2 + room.MapPosition.ToVector2();
-				if (distanceVector.Length()  > furthestDistance )
+				if (room.NumberOfConnections == 1)
+				{
+					roomsWithOneConnection.Add(room);
+				}
+			}
+			
+			//If no rooms have only 1 connection, then loop through all rooms.
+			if (_rooms.Count == 0) 
+			{
+				roomsWithOneConnection = _rooms;	
+			}
+
+			//Select boss room.
+			Vector2 startPointVector2 = StartPoint.ToVector2();
+			foreach (Room room in roomsWithOneConnection) 
+			{
+				Vector2 distanceVector = room.MapPosition.ToVector2() - startPointVector2;
+                if (Math.Abs(distanceVector.Length()) > furthestDistance )
 				{
 					farthestRoom = room;
+					furthestDistance = Math.Abs(distanceVector.Length());
 				}
 			}
 			farthestRoom.IsBossRoom = true;
+			BossPoint = farthestRoom.MapPosition;
 		}
 
 		/// <summary>

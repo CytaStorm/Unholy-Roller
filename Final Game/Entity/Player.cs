@@ -99,19 +99,17 @@ namespace Final_Game.Entity
 		public bool IsSmiling => 
 			Velocity.LengthSquared() >= _smileSpeed * _smileSpeed;
 
-        private float hitStopDuration = 0.2f;
-        private float hitStopTimeRemaining = 0f;
-        public bool canBeTriggered = true;
-        private Enemy lastContactedEnemy = null;
+		private float hitStopDuration = 0.2f;
+		private float hitStopTimeRemaining = 0f;
+		public bool canBeTriggered = true;
+		private Enemy lastContactedEnemy = null;
+		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
 
+		#endregion
 
-        #endregion
-
-        public event EntityDamaged OnPlayerDamaged;
+		public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
-		// Constructors
-		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
 
 		#region Constructor(s)
 
@@ -146,7 +144,9 @@ namespace Final_Game.Entity
 			WorldPosition = worldPosition;
 
 			// Set hitbox
-			Hitbox = new Rectangle(worldPosition.ToPoint(), new Point(Image.DestinationRect.Width, Image.DestinationRect.Height));
+			Hitbox = new Rectangle(
+				worldPosition.ToPoint() + new Point(3, 3),
+				new Point(Image.DestinationRect.Width - 6, Image.DestinationRect.Height - 7));
 
 			// Set movement vars
 			Speed = 20f;
@@ -182,59 +182,59 @@ namespace Final_Game.Entity
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
-            if (hitStopTimeRemaining <= 0f ) 
-            {
-                UpdateCombo(gameTime);
+			if (hitStopTimeRemaining <= 0f ) 
+			{
+				UpdateCombo(gameTime);
 
-                if (_controllable) UpdateBulletTime(gameTime);
+				if (_controllable) UpdateBulletTime(gameTime);
 
-                TickInvincibility(gameTime);
+				TickInvincibility(gameTime);
 
-                switch (State)
-                {
-                    case PlayerState.Walking:
+				switch (State)
+				{
+					case PlayerState.Walking:
 
-                        if (_controllable) MoveWithKeyboard(Game1.CurKB);
-                        //Debug.WriteLine($"Current worldPos {WorldPosition}");
-                        // Reset Combo if too much time has passed since prev hit.
-                        break;
+						if (_controllable) MoveWithKeyboard(Game1.CurKB);
+						//Debug.WriteLine($"Current worldPos {WorldPosition}");
+						// Reset Combo if too much time has passed since prev hit.
+						break;
 
-                    case PlayerState.Rolling:
-                        ApplyFriction();
+					case PlayerState.Rolling:
+						ApplyFriction();
 
-                        if (_controllable) HandleBraking();
+						if (_controllable) HandleBraking();
 
-                        // Transition to walking
-                        if (Velocity.Length() < 1f)
-                        {
-                            State = PlayerState.Walking;
+						// Transition to walking
+						if (Velocity.Length() < 1f)
+						{
+							State = PlayerState.Walking;
 
-                            _numRedirects = _maxRedirects + 1;
-                        }
-                        break;
-                }
+							_numRedirects = _maxRedirects + 1;
+						}
+						break;
+				}
 
-                if (_controllable) HandleLaunch();
+				if (_controllable) HandleLaunch();
 
-                //ApplyScreenBoundRicochet();
+				//ApplyScreenBoundRicochet();
 
-                CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
+				CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
-                CheckEnemyCollisions();
+				CheckEnemyCollisions();
 
-                CheckPickupCollisions();
+				CheckPickupCollisions();
 
-                Move(Velocity * BulletTimeMultiplier);
-            }
+				Move(Velocity * BulletTimeMultiplier);
+			}
 
-            if (hitStopTimeRemaining > 0)
-            {
+			if (hitStopTimeRemaining > 0)
+			{
 
-                hitStopTimeRemaining -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+				hitStopTimeRemaining -= (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            }
-            
-        }
+			}
+			
+		}
 		public override void Draw(SpriteBatch sb)
 		{
 			// Draw player image
@@ -320,24 +320,24 @@ namespace Final_Game.Entity
 				if (CollisionChecker.CheckEntityCollision(this, curEnemy))
 				{
 
-                    //Debug.WriteLine("Combo increase");
-                    if (lastContactedEnemy == curEnemy)
-                    {
+					//Debug.WriteLine("Combo increase");
+					if (lastContactedEnemy == curEnemy)
+					{
 						canBeTriggered = false;
-                    }
+					}
 
 					if(canBeTriggered && State == PlayerState.Rolling)
 					{
 						TriggerHitStop();
 					}
-                    lastContactedEnemy = curEnemy;
-                }
+					lastContactedEnemy = curEnemy;
+				}
 
 				else
 				{                 
 					canBeTriggered = true;
-                }
-            }
+				}
+			}
 		}
 		private void CheckPickupCollisions()
 		{
@@ -351,39 +351,39 @@ namespace Final_Game.Entity
 
 		private void HandleEnemyCollision(Enemy hitEnemy)
 		{
-            if (State == PlayerState.Rolling)
-            {
-                if (!hitEnemy.IsInvincible)
-                {
-                    // Speed up
-                    Vector2 acc = Velocity;
-                    acc.Normalize();
-                    acc *= 0.25f;
-                    Accelerate(acc);
+			if (State == PlayerState.Rolling)
+			{
+				if (!hitEnemy.IsInvincible)
+				{
+					// Speed up
+					Vector2 acc = Velocity;
+					acc.Normalize();
+					acc *= 0.25f;
+					Accelerate(acc);
 
-                    // Get an extra redirect
-                    if (_numRedirects < _maxRedirects)
+					// Get an extra redirect
+					if (_numRedirects < _maxRedirects)
 
-                        _numRedirects++;
-                    Combo++;
-                    _comboResetDuration = 5f;
-                }
-                hitEnemy.TakeDamage(Damage);
+						_numRedirects++;
+					Combo++;
+					_comboResetDuration = 5f;
+				}
+				hitEnemy.TakeDamage(Damage);
 				
-            }
-            else
-            {
-                // Player gets knocked back if standing on top of enemy
-                Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
-                distToEnemy.Normalize();
-                distToEnemy *= -5;
+			}
+			else
+			{
+				// Player gets knocked back if standing on top of enemy
+				Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
+				distToEnemy.Normalize();
+				distToEnemy *= -5;
 
-                this.TakeDamage(1);               
-                Velocity = distToEnemy;
-                State = PlayerState.Rolling;
-            }
+				this.TakeDamage(1);               
+				Velocity = distToEnemy;
+				State = PlayerState.Rolling;
+			}
 
-            return;
+			return;
 		}
 	
 		#endregion
@@ -729,11 +729,11 @@ namespace Final_Game.Entity
 			return;
 		}
 
-        public override void TakeDamage(int amount)
-        {
+		public override void TakeDamage(int amount)
+		{
 			// Take damage if not invincible
 			if (InvTimer > 0 || CurHealth <= 0) return;
-                
+				
 			CurHealth -= amount;
 
 			// Notify subscribers
@@ -752,13 +752,13 @@ namespace Final_Game.Entity
 				OnPlayerDeath();
 			}
 			return;
-        }
+		}
 
-        public void TriggerHitStop()
-        {
-            hitStopTimeRemaining = hitStopDuration;
-        }
-    }
+		public void TriggerHitStop()
+		{
+			hitStopTimeRemaining = hitStopDuration;
+		}
+	}
 	#endregion
 }
 

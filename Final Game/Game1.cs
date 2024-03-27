@@ -315,6 +315,9 @@ namespace Final_Game
 		{
 			// Reset Entites
 			Player.Reset();
+
+			//Reset level;
+			TestLevel = new Level(5, 5, 10);
 		}
 
 		private void EnterGameOver()

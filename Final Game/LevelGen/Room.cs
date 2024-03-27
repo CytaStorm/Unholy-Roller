@@ -77,6 +77,25 @@ namespace Final_Game.LevelGen
 		/// To which rooms the room is actually connected to.
 		/// </summary>
 		public Dictionary<string, bool> ActualConnections { get; private set; }
+		/// <summary>
+		/// How many connections the room has.
+		/// </summary>
+		public int NumberOfConnections {
+			get
+			{
+				int numberOfConnections = 0;
+				foreach (bool connection in ActualConnections.Values)
+				{
+					if (connection)
+					{
+						numberOfConnections++;
+					}
+				}
+				return numberOfConnections;
+			}
+		}
+
+
 
 		/// <summary>
 		/// Is this room the boss room?

@@ -150,7 +150,7 @@ namespace Final_Game
 		{
 			tilemaker = new TileMaker(Content);
 
-			TestLevel = new Level(2, 2, 4);
+			TestLevel = new Level(5, 5, 10);
 
 			//TutorialRoom = new Room(new Point(0, 0));
 
@@ -315,6 +315,9 @@ namespace Final_Game
 		{
 			// Reset Entites
 			Player.Reset();
+
+			//Reset level;
+			TestLevel = new Level(5, 5, 10);
 		}
 
 		private void EnterGameOver()

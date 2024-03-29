@@ -44,6 +44,9 @@
             tileReportText = new TextBox();
             buttonPrev = new Button();
             buttonNext = new Button();
+            buttonAddRoom = new Button();
+            textRoomSize = new TextBox();
+            labelRoomDimensions = new Label();
             groupCurTile.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureCurTile).BeginInit();
             groupColorChoice.SuspendLayout();
@@ -78,7 +81,7 @@
             // 
             // buttonLoad
             // 
-            buttonLoad.Location = new Point(68, 751);
+            buttonLoad.Location = new Point(68, 699);
             buttonLoad.Name = "buttonLoad";
             buttonLoad.Size = new Size(180, 124);
             buttonLoad.TabIndex = 7;
@@ -202,11 +205,40 @@
             buttonNext.UseVisualStyleBackColor = true;
             buttonNext.Click += buttonNext_Click;
             // 
+            // buttonAddRoom
+            // 
+            buttonAddRoom.Location = new Point(488, 837);
+            buttonAddRoom.Name = "buttonAddRoom";
+            buttonAddRoom.Size = new Size(140, 69);
+            buttonAddRoom.TabIndex = 14;
+            buttonAddRoom.Text = "Add Map";
+            buttonAddRoom.UseVisualStyleBackColor = true;
+            buttonAddRoom.Click += buttonAddRoom_Click;
+            // 
+            // textRoomSize
+            // 
+            textRoomSize.Location = new Point(659, 875);
+            textRoomSize.Name = "textRoomSize";
+            textRoomSize.Size = new Size(150, 31);
+            textRoomSize.TabIndex = 15;
+            // 
+            // labelRoomDimensions
+            // 
+            labelRoomDimensions.AutoSize = true;
+            labelRoomDimensions.Location = new Point(685, 837);
+            labelRoomDimensions.Name = "labelRoomDimensions";
+            labelRoomDimensions.Size = new Size(109, 25);
+            labelRoomDimensions.TabIndex = 16;
+            labelRoomDimensions.Text = "Dimensions:";
+            // 
             // MapEditor
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1097, 933);
+            Controls.Add(labelRoomDimensions);
+            Controls.Add(textRoomSize);
+            Controls.Add(buttonAddRoom);
             Controls.Add(buttonNext);
             Controls.Add(buttonPrev);
             Controls.Add(tileReportText);
@@ -244,5 +276,8 @@
         private TextBox tileReportText;
         private Button buttonPrev;
         private Button buttonNext;
+        private Button buttonAddRoom;
+        private TextBox textRoomSize;
+        private Label labelRoomDimensions;
     }
 }

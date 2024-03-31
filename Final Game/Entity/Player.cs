@@ -90,14 +90,10 @@ namespace Final_Game.Entity
 		/// </summary>
 		public static float BulletTimeMultiplier { get; private set; } = 1f;
 
-		public int Combo { get; set; }
+		public int Combo;
 
-		/// <summary>
-		/// Gets whether or not player is moving fast enough for
-		/// their sprite to change to smiling
-		/// </summary>
-		public bool IsSmiling => 
-			Velocity.LengthSquared() >= _smileSpeed * _smileSpeed;
+		public bool IsSmiling => Combo > 9;
+		public bool ComboReward => Combo > 9;
 
 		private float hitStopDuration = 0.2f;
 		private float hitStopTimeRemaining = 0f;
@@ -235,6 +231,7 @@ namespace Final_Game.Entity
 			}
 			
 		}
+
 		public override void Draw(SpriteBatch sb)
 		{
 			// Draw player image
@@ -351,38 +348,38 @@ namespace Final_Game.Entity
 
 		private void HandleEnemyCollision(Enemy hitEnemy)
 		{
-			if (State == PlayerState.Rolling)
+			if (State == PlayerState.Rolling &&
+				!hitEnemy.IsInvincible)
 			{
-				if (!hitEnemy.IsInvincible)
-				{
-					// Speed up
-					Vector2 acc = Velocity;
-					acc.Normalize();
-					acc *= 0.25f;
-					Accelerate(acc);
+				// Speed up
+				Vector2 acc = Velocity;
+				acc.Normalize();
+				acc *= 0.25f;
+				Accelerate(acc);
 
-					// Get an extra redirect
-					if (_numRedirects < _maxRedirects)
-
-						_numRedirects++;
-					Combo++;
-					_comboResetDuration = 5f;
-				}
+				// Get an extra redirect
+				if (_numRedirects < _maxRedirects) _numRedirects++;
+				Combo++;
+				_comboResetDuration = 5f;
 				hitEnemy.TakeDamage(Damage);
-				
+				return;
 			}
-			else
+
+			// Player gets hit.
+			// Check for high enough combo.
+			if (ComboReward)
 			{
-				// Player gets knocked back if standing on top of enemy
-				Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
-				distToEnemy.Normalize();
-				distToEnemy *= -5;
-
-				this.TakeDamage(1);               
-				Velocity = distToEnemy;
-				State = PlayerState.Rolling;
+				Combo = 0;
+				return;
 			}
 
+			// Player gets knocked back if standing on top of enemy
+			Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
+			distToEnemy.Normalize();
+			distToEnemy *= -5;
+			this.TakeDamage(1);               
+		    Velocity = distToEnemy;	
+			State = PlayerState.Rolling;
 			return;
 		}
 	

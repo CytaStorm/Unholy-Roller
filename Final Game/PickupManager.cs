@@ -68,9 +68,16 @@ namespace Final_Game
             //    Game1.TestLevel.CurrentRoom.Tileset.Height - Game1.TileSize);
 
             // Health Pickup
-            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(100, 100)));
+            //Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(100, 100)));
 
             return;
+        }
+
+        public void CreateHealthPickup(int xPos, int yPos)
+        {
+            Point selectedTile = new Point(xPos / Game1.TileSize, yPos / Game1.TileSize);
+            if 
+            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(xPos, yPos)));
         }
 
         public void DrawGizmos()

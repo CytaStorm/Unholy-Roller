@@ -255,28 +255,19 @@ namespace Final_Game.Entity
         /// </summary>
         public virtual void DrawGizmos()
         {
-            Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
+            // Draw Hitbox
+            Vector2 hitboxScreenPos =
+                Game1.MainCamera.GetPerspectivePosition(
+                Hitbox.Location.ToVector2() +
+                Game1.MainCamera.WorldToScreenOffset);
 
-            // Draw hitbox
-            Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
+            Rectangle hitboxInScreenSpace = new Rectangle(
+                (int)hitboxScreenPos.X,
+                (int)hitboxScreenPos.Y,
+                (int)(Hitbox.Width * Game1.MainCamera.Zoom),
+                (int)(Hitbox.Height * Game1.MainCamera.Zoom));
 
-            Vector2 distanceFromHitbox =
-                new Vector2(
-                    WorldPosition.X - Hitbox.X,
-                    WorldPosition.Y - Hitbox.Y);
-
-            Vector2 hitboxScreenPos = screenPos + distanceFromHitbox;
-
-            hitboxScreenPos = Game1.MainCamera.GetPerspectivePosition(hitboxScreenPos);
-
-            Rectangle hitboxInScreenSpace =
-                new Rectangle(
-                    (int)(hitboxScreenPos.X),
-                    (int)(hitboxScreenPos.Y),
-                    (int)(Hitbox.Width * Game1.MainCamera.Zoom),
-                    (int)(Hitbox.Height * Game1.MainCamera.Zoom));
-
-            ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
+            ShapeBatch.Box(hitboxInScreenSpace, Color.Red * 0.4f);
         }
 
         #endregion

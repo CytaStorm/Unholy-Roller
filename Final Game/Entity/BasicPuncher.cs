@@ -438,8 +438,7 @@ namespace Final_Game.Entity
 				// Get position of the extended fist
 				// in screen space
 
-				Vector2 attackScreenPos = CenterPosition + _attackDirection * 3f 
-					- new Vector2(_attackRadius / 2, _attackRadius / 2)
+				Vector2 attackScreenPos = CenterPosition + _attackDirection * 3f
                     + Game1.MainCamera.WorldToScreenOffset;
 
 				// Rotate fist so knuckles face player

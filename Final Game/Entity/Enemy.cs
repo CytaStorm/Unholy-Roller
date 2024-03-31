@@ -200,33 +200,34 @@ namespace Final_Game.Entity
 		}
 		public override void DrawGizmos()
 		{
-			// Draw Enemy relative to the player
+			// Visualize attack windup with a vertical progress bar
 			Vector2 screenPos = Game1.MainCamera.GetPerspectivePosition(
 				WorldPosition + Game1.MainCamera.WorldToScreenOffset);
 
-			// Show attack windup 
-			float attackReadiness = (float)((_attackWindupDuration - _attackWindupTimer) / _attackWindupDuration);
-
-			float boxFill = Image.DestinationRect.Height * attackReadiness;
-			int boxFillAsInteger = (int)MathF.Round(boxFill);
-
-			Rectangle readyBox = new Rectangle(
+			// Get amount attack has charged
+			float attackReadiness = 
+				(float)((_attackWindupDuration - _attackWindupTimer) 
+				/ _attackWindupDuration);
+			
+			// Get how full the progress bar should be
+			float boxFill = 
+				Image.DestinationRect.Height * attackReadiness;
+			
+			// Make a rectangle representing attack progress
+			Rectangle attackProgressBar = new Rectangle(
 				(int)screenPos.X,
-				(int)(screenPos.Y + (Image.DestinationRect.Height - boxFillAsInteger) * Game1.MainCamera.Zoom),
+				(int)(screenPos.Y + 
+				(Image.DestinationRect.Height - boxFill) * Game1.MainCamera.Zoom),
 				(int)(Image.DestinationRect.Width * Game1.MainCamera.Zoom),
-				(int)(boxFillAsInteger * Game1.MainCamera.Zoom));
+				(int)boxFill);
 
-			Color fadedYellow = new Color(0.5f, 0.5f, 0.5f, 0.4f);
+			// Draw progress bar
+			ShapeBatch.Box(attackProgressBar, Color.Yellow * 0.4f);
 
-			ShapeBatch.Box(readyBox, fadedYellow);
-
-			// Draw Hitbox
-			base.DrawGizmos();
-
-			//// Attacking
+			// Attacking
 			if (_attackDurationTimer > 0)
 			{
-				// Draw Hitbox
+				// Draw Attack Hitbox
 				int atkHitDistX = (int)WorldPosition.X - _attackHitbox.X;
 				int atkHitDistY = (int)WorldPosition.Y - _attackHitbox.Y;
 
@@ -240,6 +241,8 @@ namespace Final_Game.Entity
 
 				ShapeBatch.Box(drawnAttackHit, fadedGreen);
 			}
+
+			base.DrawGizmos();
 		}
 
 		#endregion

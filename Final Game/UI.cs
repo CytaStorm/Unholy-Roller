@@ -23,7 +23,7 @@ namespace Final_Game
 		private SpriteBatch _spriteBatch;
 
 		// Sliders
-		private Slider _testSlider;
+		public Slider _testSlider;
 
 		// Backgrounds
 		private Texture2D _blankPanel;
@@ -104,6 +104,7 @@ namespace Final_Game
 				new Rectangle(
 					0, 0, 
 					deadBallTexture.Width * 3 / 4, deadBallTexture.Width * 3 / 4));
+			_deadBall.ObeyCamera = false;
 			_maxHoverOffset = 50f;
 			_hoverDuration = 2;
 
@@ -407,7 +408,7 @@ namespace Final_Game
 
 			drawPos = new Vector2(drawPos.X, drawPos.Y + _hoverOffset);
 
-			_deadBall.Draw(_spriteBatch, drawPos);
+			_deadBall.Draw(_spriteBatch, drawPos, 0f, Vector2.Zero);
 
 			// Draw game over buttons
 			foreach (Button b in GameOverButtons)

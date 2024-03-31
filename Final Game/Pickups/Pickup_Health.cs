@@ -62,8 +62,7 @@ namespace Final_Game.Pickups
 		public override void Draw(SpriteBatch sb)
 		{
 			// Draw Pickup relative to the player
-			Vector2 distFromPlayer = WorldPosition - Game1.Player.WorldPosition;
-			Vector2 screenPos = Game1.Player.ScreenPosition + distFromPlayer;
+			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 			// Only draw pickup if it's on screen
 			Rectangle screenHit = new Rectangle(
@@ -75,7 +74,7 @@ namespace Final_Game.Pickups
 			bool onScreen = screenHit.Intersects(Game1.ScreenBounds);
 			if (!onScreen) return;
 
-			Image.Draw(sb, screenPos);
+			Image.Draw(sb, screenPos, 0f, Vector2.Zero);
 		}
 
         public override void OnHitEntity(Entity.Entity entity, CollisionDirection collision)

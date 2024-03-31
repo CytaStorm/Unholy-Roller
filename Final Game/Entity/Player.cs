@@ -90,14 +90,10 @@ namespace Final_Game.Entity
 		/// </summary>
 		public static float BulletTimeMultiplier { get; private set; } = 1f;
 
-		public int Combo { get; set; }
+		public int Combo;
 
-		/// <summary>
-		/// Gets whether or not player is moving fast enough for
-		/// their sprite to change to smiling
-		/// </summary>
-		public bool IsSmiling => 
-			Velocity.LengthSquared() >= _smileSpeed * _smileSpeed;
+		public bool IsSmiling => Combo > 9;
+		public bool ComboReward => Combo > 9;
 
 		private float hitStopDuration = 0.2f;
 		private float hitStopTimeRemaining = 0f;
@@ -182,59 +178,55 @@ namespace Final_Game.Entity
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
-			if (hitStopTimeRemaining <= 0f ) 
-			{
-				UpdateCombo(gameTime);
-
-				if (_controllable) UpdateBulletTime(gameTime);
-
-				TickInvincibility(gameTime);
-
-				switch (State)
-				{
-					case PlayerState.Walking:
-
-						if (_controllable) MoveWithKeyboard(Game1.CurKB);
-						//Debug.WriteLine($"Current worldPos {WorldPosition}");
-						// Reset Combo if too much time has passed since prev hit.
-						break;
-
-					case PlayerState.Rolling:
-						ApplyFriction();
-
-						if (_controllable) HandleBraking();
-
-						// Transition to walking
-						if (Velocity.Length() < 1f)
-						{
-							State = PlayerState.Walking;
-
-							_numRedirects = _maxRedirects + 1;
-						}
-						break;
-				}
-
-				if (_controllable) HandleLaunch();
-
-				//ApplyScreenBoundRicochet();
-
-				CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
-
-				CheckEnemyCollisions();
-
-				CheckPickupCollisions();
-
-				Move(Velocity * BulletTimeMultiplier);
-			}
-
+			//Hitstop
 			if (hitStopTimeRemaining > 0)
 			{
-
 				hitStopTimeRemaining -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-
+				return;
 			}
-			
+
+			UpdateCombo(gameTime);
+
+			if (_controllable) UpdateBulletTime(gameTime);
+
+			TickInvincibility(gameTime);
+
+			switch (State)
+			{
+				case PlayerState.Walking:
+
+					if (_controllable) MoveWithKeyboard(Game1.CurKB);
+					//Debug.WriteLine($"Current worldPos {WorldPosition}");
+					break;
+
+				case PlayerState.Rolling:
+					ApplyFriction();
+
+					if (_controllable) HandleBraking();
+
+					// Transition to walking
+					if (Velocity.Length() < 1f)
+					{
+						State = PlayerState.Walking;
+
+						_numRedirects = _maxRedirects + 1;
+					}
+					break;
+			}
+
+			if (_controllable) HandleLaunch();
+
+			//ApplyScreenBoundRicochet();
+
+			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
+
+			CheckEnemyCollisions();
+
+			CheckPickupCollisions();
+
+			Move(Velocity * BulletTimeMultiplier);
 		}
+
 		public override void Draw(SpriteBatch sb)
 		{
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
@@ -319,72 +311,74 @@ namespace Final_Game.Entity
 			{
 				Enemy curEnemy = Game1.EManager.Enemies[i];
 
-				if (CollisionChecker.CheckEntityCollision(this, curEnemy))
+				//Test if Hitstop needs to be applied.
+				canBeTriggered = lastContactedEnemy != curEnemy;
+				if (CollisionChecker.CheckEntityCollision(this, curEnemy) &&
+					canBeTriggered &&
+					State == PlayerState.Rolling)
 				{
-
-					//Debug.WriteLine("Combo increase");
-					if (lastContactedEnemy == curEnemy)
-					{
-						canBeTriggered = false;
-					}
-
-					if(canBeTriggered && State == PlayerState.Rolling)
-					{
-						TriggerHitStop();
-					}
+					TriggerHitStop();
 					lastContactedEnemy = curEnemy;
+					continue;
 				}
 
-				else
-				{                 
-					canBeTriggered = true;
-				}
+				//Otherwise, hitstop doesn't need to be applied
+				//and will be available to apply to the next enemy.
+				canBeTriggered = true;
 			}
+			return;
 		}
+
 		private void CheckPickupCollisions()
 		{
 			foreach(Entity p in Game1.PManager.Pickups)
 			{
 				CollisionChecker.CheckEntityCollision(this, p);
 			}
-
 			return;
 		}
 
 		private void HandleEnemyCollision(Enemy hitEnemy)
 		{
+			if (hitEnemy.IsInvincible)
+			{
+				return;
+			}
+
 			if (State == PlayerState.Rolling)
 			{
-				if (!hitEnemy.IsInvincible)
+				// Speed up
+				Vector2 acc = Velocity;
+				acc.Normalize();
+				acc *= 0.25f;
+				Accelerate(acc);
+
+				// Get an extra redirect
+				if (_numRedirects < _maxRedirects)
 				{
-					// Speed up
-					Vector2 acc = Velocity;
-					acc.Normalize();
-					acc *= 0.25f;
-					Accelerate(acc);
-
-					// Get an extra redirect
-					if (_numRedirects < _maxRedirects)
-
-						_numRedirects++;
-					Combo++;
-					_comboResetDuration = 5f;
+					_numRedirects++; 
 				}
+				Combo++;
+				_comboResetDuration = 5f;
 				hitEnemy.TakeDamage(Damage);
-				
+				return;
 			}
-			else
+
+			// Player gets hit.
+			// Check for high enough combo.
+			if (ComboReward)
 			{
-				// Player gets knocked back if standing on top of enemy
-				Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
-				distToEnemy.Normalize();
-				distToEnemy *= -5;
-
-				this.TakeDamage(1);               
-				Velocity = distToEnemy;
-				State = PlayerState.Rolling;
+				Combo = 0;
+				return;
 			}
 
+			// Player gets knocked back if standing on top of enemy
+			Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
+			distToEnemy.Normalize();
+			distToEnemy *= -5;
+			this.TakeDamage(1);               
+		    Velocity = distToEnemy;	
+			State = PlayerState.Rolling;
 			return;
 		}
 	

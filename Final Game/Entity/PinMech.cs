@@ -28,7 +28,7 @@ namespace Final_Game.Entity
         private double pinBombsDuration;
         private double pinBombsDurationTimer;
         private double pinBombsDelay;
-        private List<Indicator> indicators;
+        private IndicatorManager indicators;
         private Texture2D circle;
         // Constructors
         public PinMech(Game1 gm, Vector2 position)
@@ -85,7 +85,7 @@ namespace Final_Game.Entity
             pinBombsDurationTimer = pinBombsDuration;
             pinBombsDelay = 0;
             _gloveSpriteSheet = gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
-            indicators = new List<Indicator>();
+            indicators = new IndicatorManager(gm);
 
             // Set type
             Type = EntityType.Enemy;
@@ -120,13 +120,8 @@ namespace Final_Game.Entity
             int originX = Game1.Player.CurrentRoom.Origin.X;
             int originY = Game1.Player.CurrentRoom.Origin.Y;
             DetermineState(playerDist);
-            for (int i = 0; i < indicators.Count; i++)
-            {
-                if (indicators[i].Update(gameTime))
-                {
-                    indicators.RemoveAt(i);
-                }
-            }
+
+            Game1.IManager.Update(gameTime);
 
             switch (BossActionState)
             {
@@ -149,8 +144,8 @@ namespace Final_Game.Entity
                         }
                         else
                         {
-                            indicators.Add(new Indicator(Game1.Player.WorldPosition, BossActionState, circle)); ;
-                            indicators.Add(new Indicator(new Vector2(rng.Next(originX + Game1.TileSize, originX + roomWidth - Game1.TileSize), rng.Next(originY + Game1.TileSize, originY + roomWidth - Game1.TileSize)), BossActionState, circle));
+                            Game1.IManager.Add(new Indicator(Game1.Player.WorldPosition, BossActionState, circle)); ;
+                            Game1.IManager.Add(new Indicator(new Vector2(rng.Next(originX + Game1.TileSize, originX + roomWidth - Game1.TileSize), rng.Next(originY + Game1.TileSize, originY + roomWidth - Game1.TileSize)), BossActionState, circle));
                             pinBombsDelay = 0.2;
                         }
                     }
@@ -288,10 +283,7 @@ namespace Final_Game.Entity
                     DrawAttacking(spriteBatch, screenPos, distFromPlayer);
                     break;
             }
-            for(int i = 0; i < indicators.Count; i++)
-            {
-                indicators[i].Draw(spriteBatch);
-            }
+
             // Display current health
             //spriteBatch.DrawString(Game1.ARIAL32, $"Hp: {CurHealth}", screenPos, Color.White);
 

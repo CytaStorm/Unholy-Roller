@@ -73,6 +73,8 @@ namespace Final_Game
 
 		// Cutscenes
 		private CutsceneManager _csManager;
+
+		
 		#endregion
 
 		#region Properties
@@ -132,9 +134,11 @@ namespace Final_Game
 
 		// Pickup Management
 		public static PickupManager PManager { get; private set; }
-		#endregion
 
-		public Game1()
+        public static IndicatorManager IManager { get; private set; }
+        #endregion
+
+        public Game1()
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
@@ -190,6 +194,8 @@ namespace Final_Game
 
 			// Create Cutscene Manager
 			_csManager = new CutsceneManager(this);
+
+			IManager = new IndicatorManager(this);
 
 			// Hook Up Buttons
 			SubscribeToButtons();
@@ -253,7 +259,7 @@ namespace Final_Game
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			_spriteBatch.Begin();
-            ShapeBatch.Begin(GraphicsDevice);
+            
 
             // Draw game
             switch (State)
@@ -276,7 +282,7 @@ namespace Final_Game
 			}
 
 			_ui.Draw(gameTime);
-            ShapeBatch.End();
+            
             _spriteBatch.End();
 
 			// Draw simplified shapes
@@ -287,9 +293,11 @@ namespace Final_Game
 			{
 				case GameState.Play:
 					DrawDebug();
+                    IManager.Draw();
+                    _ui.DrawMinimap();
+                    
 
-					_ui.DrawMinimap();
-					break;
+                    break;
 			}
 
 			ShapeBatch.End();

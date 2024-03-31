@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Final_Game.Entity
 {
-    internal class Indicator
+    public class Indicator
     {
         
         private Vector2 WorldPos;
@@ -38,7 +38,7 @@ namespace Final_Game.Entity
                 return true;
             
         }
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw()
         {
 
             switch (attackType)
@@ -46,7 +46,9 @@ namespace Final_Game.Entity
                
                 
                 case BossState.PinBombs:
-                    spriteBatch.Draw(redCircle, new Rectangle((int)screenPos.X,(int)screenPos.Y, 125, 125), Color.Red);
+                    ShapeBatch.CircleOutline(screenPos + new Vector2(50,50), 50f, Color.Red);
+                    ShapeBatch.Circle(screenPos + new Vector2(50, 50), (50.0f * (float)(1.1 - timeVisible)), Color.DarkRed);
+                    break;
 
                     break;
                     

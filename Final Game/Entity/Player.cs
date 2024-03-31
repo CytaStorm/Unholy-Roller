@@ -338,8 +338,12 @@ namespace Final_Game.Entity
 
 		private void HandleEnemyCollision(Enemy hitEnemy)
 		{
-			if (State == PlayerState.Rolling &&
-				!hitEnemy.IsInvincible)
+			if (hitEnemy.IsInvincible)
+			{
+				return;
+			}
+
+			if (State == PlayerState.Rolling)
 			{
 				// Speed up
 				Vector2 acc = Velocity;

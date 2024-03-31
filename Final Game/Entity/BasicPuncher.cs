@@ -62,7 +62,18 @@ namespace Final_Game.Entity
 			_attackCooldown = 0.8;
 			_attackCooldownTimer = 0.0;
 
-			_gloveSpriteSheet = gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
+			Texture2D gloveSpritesheet = 
+				gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
+
+			_gloveFrameWidth = gloveSpritesheet.Width / 3;
+			_gloveImages = new Sprite(
+				gloveSpritesheet,
+				new Rectangle(
+					0, 0,
+					_gloveFrameWidth, gloveSpritesheet.Height),
+				new Rectangle(
+					0, 0, 
+					(int)_attackRadius, (int)_attackRadius));
 
 			// Set type
 			Type = EntityType.Enemy;
@@ -74,7 +85,6 @@ namespace Final_Game.Entity
 			ActionState = EnemyState.Chase;
 
 			// Animation
-			_gloveFrameWidth = _gloveSpriteSheet.Width / 3;
 			_walkAnimSecondsPerFrame = 0.12;
 			return;
 		}
@@ -172,8 +182,7 @@ namespace Final_Game.Entity
 		public override void Draw(SpriteBatch spriteBatch)
 		{
 			// Draw Enemy relative to the player
-			Vector2 distFromPlayer = WorldPosition - Game1.Player.WorldPosition;
-			Vector2 screenPos = Game1.Player.ScreenPosition + distFromPlayer;
+			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 			// Only draw enemy if they are on screen
 			Rectangle screenHit = new Rectangle(
@@ -209,7 +218,7 @@ namespace Final_Game.Entity
 						DrawKoed(spriteBatch, screenPos);
 						break;
 					}
-					Image.Draw(spriteBatch, screenPos);
+					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
 					break;
 
 				case EnemyState.Chase:
@@ -222,8 +231,8 @@ namespace Final_Game.Entity
 						Image.TintColor = Color.Orange;
 					}
 
-					Image.Draw(spriteBatch, screenPos);
-					DrawAttacking(spriteBatch, screenPos, distFromPlayer);
+					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					DrawAttacking(spriteBatch, screenPos);
 					break;
 			}
 
@@ -369,103 +378,85 @@ namespace Final_Game.Entity
 								Image.SourceRect.Center.Y - 15);
 
 
-					sb.Draw(
-						Image.Texture,
-						screenPos,
-						Image.SourceRect,
-						Color.White,
-						MathF.PI / 6,
-						origin,
-						(float)Image.DestinationRect.Width / Image.SourceRect.Width,
-						SpriteEffects.None,
-						1f
-						);
+					Image.Draw(sb, screenPos, MathF.PI / 6, origin);
 					break;
 
 				case 2:
-					Image.Draw(sb, screenPos);
+					Image.Draw(sb, screenPos, 0f, Vector2.Zero);
 					break;
 
 				case 3:
-
-  
-					sb.Draw(
-						Image.Texture,
-						screenPos,
-						Image.SourceRect,
-						Color.White,
-						MathF.PI / 6f * -1,
-						new Vector2(
-								Image.SourceRect.Center.X,
-								Image.SourceRect.Y),
-						(float)Image.DestinationRect.Width / Image.SourceRect.Width,
-						SpriteEffects.None,
-						1f);
+						
+                    Image.Draw(
+						sb, 
+						screenPos, 
+						-MathF.PI / 6,
+                        new Vector2(
+                            Image.SourceRect.Center.X,
+                            Image.SourceRect.Y));
 					break;
 
 				case 4:
-					Image.Draw(sb, screenPos);
+					Image.Draw(sb, screenPos, 0f, Vector2.Zero);
 					break;
 			}
 			return;
 		}
 
-		private void DrawAttacking(SpriteBatch sb, Vector2 screenPos, Vector2 distFromPlayer)
+		private void DrawAttacking(SpriteBatch sb, Vector2 screenPos)
 		{
-			// Get vector pointing away from the player
-			// with a length of attack radius
-			//Vector2 windupPosShift = distFromPlayer;
-			//windupPosShift.Normalize();
-			//windupPosShift *= -_attackRange;
-
-			Vector2 windupPosShift = _attackDirection;
 
 			// Draw Attack Windup
 			if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0d)
 			{
-				Vector2 screenWindupPos = screenPos - windupPosShift;
+				// Get the center position of the pulled back fist
+				// in screen space
+				Vector2 windupScreenPos = 
+					this.CenterPosition - _attackDirection 
+					+ Game1.MainCamera.WorldToScreenOffset;
 
-				Rectangle drawnWindupHit = new Rectangle(
-					(int)screenWindupPos.X,
-					(int)screenWindupPos.Y,
-					_attackHitbox.Width,
-					_attackHitbox.Height);
+				// Shift position to top-left of glove image (for drawing)
+				windupScreenPos -= new Vector2(_gloveFrameWidth / 2, _gloveFrameWidth / 2);
 
-				sb.Draw(
-					_gloveSpriteSheet,
-					drawnWindupHit,
-					new Rectangle(0, 0, _gloveFrameWidth, _gloveFrameWidth),
-					Color.White);
+                // Select the correct glove image
+                _gloveImages.SourceRect = 
+					new Rectangle(
+						0, 0, 
+						_gloveFrameWidth, _gloveImages.SourceRect.Height);
+
+				// Draw glove
+				_gloveImages.Draw(
+					sb, 
+					windupScreenPos, 
+					0f, 
+					Vector2.Zero);
 			}
 
 			// Draw actively attacking
 			if (_attackDurationTimer > 0)
 			{
+				// Get position of the extended fist
+				// in screen space
+
+				Vector2 attackScreenPos = CenterPosition + _attackDirection * 3f
+                    + Game1.MainCamera.WorldToScreenOffset;
 
 				// Rotate fist so knuckles face player
 				float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
 
-				Rectangle attackSourceRect = new Rectangle(
-					_gloveFrameWidth * 2,
-					0,
-					_gloveFrameWidth,
-					_gloveFrameWidth);
+				// Get proper glove image
+				_gloveImages.SourceRect = new Rectangle(
+                    _gloveFrameWidth * 2,
+                    0,
+                    _gloveFrameWidth,
+                    _gloveFrameWidth);
 
-				Vector2 centerScreenPos =
-					screenPos + (CenterPosition - WorldPosition);
-
-				sb.Draw(
-					_gloveSpriteSheet,
-					centerScreenPos + _attackDirection * 3.5f,
-					attackSourceRect,
-					Color.White,
+				// Draw glove
+				_gloveImages.Draw(
+					sb,
+					attackScreenPos,
 					dirAngle,
-					new Vector2(
-						attackSourceRect.Center.X,
-						attackSourceRect.Center.Y),
-					1f,
-					SpriteEffects.None,
-					0f);
+					_gloveImages.SourceRect.Center.ToVector2());
 			}
 			return;
 		}

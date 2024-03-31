@@ -145,7 +145,7 @@ namespace Final_Game.Entity
 				new Point(Image.DestinationRect.Width - 6, Image.DestinationRect.Height - 7));
 
 			// Set movement vars
-			Speed = 20f;
+			Speed = 40f;
 			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
@@ -229,18 +229,20 @@ namespace Final_Game.Entity
 
 		public override void Draw(SpriteBatch sb)
 		{
+			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
+
 			// Draw player image
 			if (!IsSmiling)
-				Image.Draw(sb, ScreenPosition);
+				Image.Draw(sb, screenPos, 0f, Vector2.Zero);
 			else
-				_smileSprite.Draw(sb, ScreenPosition);
+				_smileSprite.Draw(sb, screenPos, 0f, Vector2.Zero);
 
 			// Draw player launch arrow
 			if (_controllable && 
 				_numRedirects > 0 && 
 				Game1.IsMouseButtonPressed(1))
 			{
-				DrawLaunchArrow(sb);
+				DrawLaunchArrow(sb, screenPos);
 			}
 		}
 
@@ -590,14 +592,14 @@ namespace Final_Game.Entity
 		#endregion
 	
 		#region Drawing Helper Methods
-		private void DrawLaunchArrow(SpriteBatch sb)
+		private void DrawLaunchArrow(SpriteBatch sb, Vector2 screenPos)
 		{
 			// Get angle between arrow and mouse
 			Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 	
 			Vector2 centerScreenPos = new Vector2(
-				ScreenPosition.X + Image.DestinationRect.Width / 2,
-				ScreenPosition.Y + Image.DestinationRect.Height / 2);
+				screenPos.X + Image.DestinationRect.Width / 2,
+				screenPos.Y + Image.DestinationRect.Height / 2);
 	
 			Vector2 playerToMouseDistance = mousePos - centerScreenPos;
 	
@@ -661,25 +663,6 @@ namespace Final_Game.Entity
 			}
 		}
 	
-		public override void DrawGizmos()
-		{
-			// Draw hitbox
-			Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
-	
-			Vector2 hitboxDistFromPlayer =
-				new Vector2(
-					WorldPosition.X - Hitbox.X,
-					WorldPosition.Y - Hitbox.Y);
-	
-			Rectangle hitboxInScreenSpace =
-				new Rectangle(
-					(int)(ScreenPosition.X + hitboxDistFromPlayer.X),
-					(int)(ScreenPosition.Y + hitboxDistFromPlayer.Y),
-					Hitbox.Width,
-					Hitbox.Height);
-	
-			ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
-		}
 	
 		#endregion
 	

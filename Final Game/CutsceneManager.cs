@@ -138,11 +138,8 @@ namespace Final_Game
             switch (Scene)
             {
                 case Cutscene.Tutorial:
-                    Game1.Player.Update(gameTime);
+                    RunTutorialCutscene(gameTime);
 
-                    Game1.TutorialRoom.Update(gameTime);
-
-                    RunTutorialCutscene();
                     break;
 
                 case Cutscene.GameOver:
@@ -252,8 +249,13 @@ namespace Final_Game
 
         #region Cutscene-Specific Helper Methods
 
-        private void RunTutorialCutscene()
+        private void RunTutorialCutscene(GameTime gameTime)
         {
+            Game1.Player.Update(gameTime);
+
+            Game1.MainCamera.Update(gameTime);
+
+            Game1.TutorialRoom.Update(gameTime);
 
             switch (PhaseNum)
             {
@@ -379,6 +381,9 @@ namespace Final_Game
                             gameTime.ElapsedGameTime.TotalSeconds;
 
                         Game1.Player.Update(gameTime);
+
+                        Game1.MainCamera.Update(gameTime);
+
                         Game1.EManager.Update(gameTime);
                     }
                     else

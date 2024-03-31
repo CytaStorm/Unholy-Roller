@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,15 +21,15 @@ namespace Final_Game.LevelGen
 		public bool IsEnemySpawner { get; set; }
 		public Rectangle Hitbox =>
 			new Rectangle(
-				(int)WorldPosition.X,
-				(int)WorldPosition.Y,
+				(int)(WorldPosition.X),
+				(int)(WorldPosition.Y),
 				Game1.TileSize,
 				Game1.TileSize);
 
 		public void Draw(SpriteBatch sb, Vector2 screenPos)
 		{
 			//Debug.WriteLine(TileSprite.Texture);
-			TileSprite.Draw(sb, screenPos);
+			TileSprite.Draw(sb, screenPos, 0, Vector2.Zero);
 		}
 
 		public void OnHitSomething(ICollidable other, CollisionDirection collision)

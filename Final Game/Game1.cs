@@ -132,6 +132,8 @@ namespace Final_Game
 
 		// Pickup Management
 		public static PickupManager PManager { get; private set; }
+
+		public static Camera MainCamera { get; private set; }
 		#endregion
 
 		public Game1()
@@ -172,6 +174,9 @@ namespace Final_Game
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 
+			// Make Camera
+			MainCamera = new Camera(new Vector2(300, 300), 1f);
+
 			// Create player
 			Player = new Player(this, new Vector2(300, 300));
 
@@ -197,6 +202,7 @@ namespace Final_Game
 
 			// Make any other subscriptions
 			Player.OnPlayerDeath += EnterGameOver;
+
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -213,6 +219,8 @@ namespace Final_Game
 			{
 				case GameState.Play:
 					Player.Update(gameTime);
+
+					MainCamera.Update(gameTime);
 
 					if (_csManager.Scene == Cutscene.None)
 						TestLevel.CurrentRoom.Update(gameTime);
@@ -238,6 +246,8 @@ namespace Final_Game
 			}
 
 			_ui.Update(gameTime);
+
+			// MainCamera.Zoom = _ui._testSlider.CurValue;
 
 			// Store controller states
 			PrevMouse = CurMouse;
@@ -286,7 +296,7 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					//DrawDebug();
+					DrawDebug();
 
 					_ui.DrawMinimap();
 					break;

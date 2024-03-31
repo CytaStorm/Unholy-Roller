@@ -71,7 +71,7 @@ namespace Final_Game
 		//    return CollisionType.None;
 		//}
     
-    public static bool CheckTilemapCollision(Entity.Entity e, Tileset tileset)
+		public static bool CheckTilemapCollision(Entity.Entity e, Tileset tileset)
 		{
 			//Point holds position of collided tile in room tileset,
 			//Rectangle holds the hitbox of player upon intersect.
@@ -119,8 +119,8 @@ namespace Final_Game
 			Rectangle finalHitbox = new Rectangle(
 				(int)collisionPosition.X,
 				(int)collisionPosition.Y,
-				e.Hitbox.Width,
-				e.Hitbox.Height);
+				(int)(e.Hitbox.Width),
+				(int)(e.Hitbox.Height));
 
 			int numShifts = (int) e.Velocity.Length();
 			bool intersects = false;
@@ -150,8 +150,8 @@ namespace Final_Game
 				shiftedHitbox = new Rectangle(
 				(int)MathF.Round(shiftedPosition.X),
 				(int)MathF.Round(shiftedPosition.Y),
-				e.Hitbox.Width,
-				e.Hitbox.Height);
+				(int)(e.Hitbox.Width),
+				(int)(e.Hitbox.Height));
 
 				intersects = shiftedHitbox.Intersects(curTile.Hitbox);
 				if (intersects)

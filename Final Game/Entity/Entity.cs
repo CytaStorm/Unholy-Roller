@@ -22,8 +22,9 @@ namespace Final_Game.Entity
 
     public abstract class Entity : IMovable, IDamageable, ICollidable
     {
+
         #region Move Properties
-        public Vector2 WorldPosition { get; protected set; }
+        public Vector2 WorldPosition { get; set; }
         public Vector2 Velocity { get; protected set; } = Vector2.Zero;
         public Vector2 Acceleration { get; protected set; } = Vector2.Zero;
         public float Speed { get; protected set; }
@@ -148,7 +149,8 @@ namespace Final_Game.Entity
                 {
                     Vector2 whereItShouldBe =
                         new Vector2(
-                            Image.DestinationRect.Width - MathF.Abs(tile.WorldPosition.X - WorldPosition.X), 
+                            Image.DestinationRect.Width 
+                            - MathF.Abs(tile.WorldPosition.X - WorldPosition.X), 
                             0);
                     Move(-whereItShouldBe);
                 }
@@ -251,13 +253,30 @@ namespace Final_Game.Entity
         /// <summary>
         /// Draws entity's debug information (e.g. Hitbox)
         /// </summary>
-        public virtual void DrawGizmos() 
+        public virtual void DrawGizmos()
         {
-            // Draw hitbox relative to the player
-            Vector2 distFromPlayer = WorldPosition - Game1.Player.WorldPosition;
-            Vector2 screenPos = Game1.Player.ScreenPosition + distFromPlayer;
+            Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
-            ShapeBatch.Box(Hitbox, Color.Red * 0.4f);
+            // Draw hitbox
+            Color fadedRed = new Color(1f, 0f, 0f, 0.4f);
+
+            Vector2 distanceFromHitbox =
+                new Vector2(
+                    WorldPosition.X - Hitbox.X,
+                    WorldPosition.Y - Hitbox.Y);
+
+            Vector2 hitboxScreenPos = screenPos + distanceFromHitbox;
+
+            hitboxScreenPos = Game1.MainCamera.GetPerspectivePosition(hitboxScreenPos);
+
+            Rectangle hitboxInScreenSpace =
+                new Rectangle(
+                    (int)(hitboxScreenPos.X),
+                    (int)(hitboxScreenPos.Y),
+                    (int)(Hitbox.Width * Game1.MainCamera.Zoom),
+                    (int)(Hitbox.Height * Game1.MainCamera.Zoom));
+
+            ShapeBatch.Box(hitboxInScreenSpace, fadedRed);
         }
 
         #endregion

@@ -332,8 +332,14 @@ namespace Final_Game.LevelGen
 					Tile curTile = Layout[row, col];
 
 					// Find screen position
-					Vector2 distanceFromPlayer = curTile.WorldPosition - Game1.Player.WorldPosition;
-					Vector2 screenPos = distanceFromPlayer + Game1.Player.ScreenPosition;
+					//Vector2 screenPos =
+					//	new Vector2(
+					//		col * Game1.TileSize * Game1.MainCamera.Zoom,
+					//		row * Game1.TileSize * Game1.MainCamera.Zoom)
+					//	+ Game1.MainCamera.WorldToScreenOffset;
+					//	
+					Vector2 screenPos = 
+						curTile.WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 					if (devRendering)
 					{

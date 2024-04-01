@@ -113,6 +113,12 @@
 #begin Room Layouts/roomLayouts.txt
 /copy:Room Layouts/roomLayouts.txt
 
+#begin Sound Effects/pool_break-105353.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sound Effects/pool_break-105353.wav
+
 #begin SpeedometerCrest.png
 /importer:TextureImporter
 /processor:TextureProcessor

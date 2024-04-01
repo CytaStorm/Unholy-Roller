@@ -141,6 +141,9 @@ namespace Final_Game
 		// Pickup Management
 		public static PickupManager PManager { get; private set; }
 
+		//Sound Manager 
+		public static SoundManager SManager { get; private set; }
+
 		public static Camera MainCamera { get; private set; }
         #endregion
 
@@ -193,6 +196,9 @@ namespace Final_Game
 			// Create Entity Managers
 			EManager = new EnemyManager(this);
 			PManager = new PickupManager(this);
+
+			//Create Sound Manager
+			SManager = new SoundManager(Content);
 
 			// Create custom cursor
 			_gameplayCursor = MouseCursor.FromTexture2D(

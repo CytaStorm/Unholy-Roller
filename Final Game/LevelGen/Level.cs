@@ -184,7 +184,7 @@ namespace Final_Game.LevelGen
 			List<Room> roomsWithOneConnection = new List<Room>();
 			foreach(Room room in _rooms)
 			{
-				if (room.NumberOfConnections == 1)
+				if (room.NumberOfConnections == 1 && room != StartRoom)
 				{
 					roomsWithOneConnection.Add(room);
 				}
@@ -201,7 +201,8 @@ namespace Final_Game.LevelGen
 			foreach (Room room in roomsWithOneConnection) 
 			{
 				Vector2 distanceVector = room.MapPosition.ToVector2() - startPointVector2;
-                if (Math.Abs(distanceVector.Length()) > furthestDistance )
+                if (Math.Abs(distanceVector.Length()) > furthestDistance &&
+					room != StartRoom)
 				{
 					farthestRoom = room;
 					furthestDistance = Math.Abs(distanceVector.Length());

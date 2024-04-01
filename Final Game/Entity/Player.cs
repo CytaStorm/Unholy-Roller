@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
@@ -103,7 +104,7 @@ namespace Final_Game.Entity
 		private float hitStopTimeRemaining = 0f;
 		public bool canBeTriggered = true;
 		private Enemy lastContactedEnemy = null;
-		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
+		private Room CurrentRoom { get { return Game1.CurrentLevel.CurrentRoom; } }
 
 		#endregion
 
@@ -149,7 +150,7 @@ namespace Final_Game.Entity
 				new Point(Image.DestinationRect.Width - 6, Image.DestinationRect.Height - 7));
 
 			// Set movement vars
-			Speed = 40f;
+			Speed = 20f;
 			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
@@ -220,7 +221,8 @@ namespace Final_Game.Entity
 
 				CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
-				CheckEnemyCollisions();
+				if (Game1.CSManager.Scene != Cutscene.Tutorial)
+					CheckEnemyCollisions();
 
 				CheckPickupCollisions();
 

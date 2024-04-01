@@ -80,7 +80,8 @@ namespace Final_Game
 			_defaultRoomSize = 20;
 			_minimapScale = 0.1f;
 			_minimapPos = new Point(
-				Game1.ScreenBounds.Right - Level.Map.GetLength(0) * _defaultRoomSize - 150,
+				Game1.ScreenBounds.Right - Game1.CurrentLevel.Map.GetLength(0) 
+				* _defaultRoomSize - 150,
 				50);
 
 
@@ -610,11 +611,11 @@ namespace Final_Game
 		public void DrawMinimap()
 		{
 			// Draw each room in current level relative to each other
-			for (int y = 0; y < Level.Map.GetLength(0); y++)
+			for (int y = 0; y < Game1.CurrentLevel.Map.GetLength(0); y++)
 			{
-				for (int x = 0; x < Level.Map.GetLength(1); x++)
+				for (int x = 0; x < Game1.CurrentLevel.Map.GetLength(1); x++)
 				{
-					Room curRoom = Level.Map[y, x];
+					Room curRoom = Game1.CurrentLevel.Map[y, x];
 
 					if (curRoom != null)
 					{

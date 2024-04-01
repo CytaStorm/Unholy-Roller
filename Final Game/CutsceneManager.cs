@@ -20,7 +20,7 @@ namespace Final_Game
         None
     }
 
-    internal class CutsceneManager
+    public class CutsceneManager
     {
         private Game1 gm;
 
@@ -155,7 +155,7 @@ namespace Final_Game
             switch (Scene)
             {
                 case Cutscene.Tutorial:
-                    Game1.TutorialRoom.Draw(sb);
+                    Game1.TutorialLevel.CurrentRoom.Draw(sb);
 
                     Game1.Player.Draw(sb);
 
@@ -175,6 +175,8 @@ namespace Final_Game
             _isPausable = true;
 
             _curText = null;
+
+            _writeLength = 0;
 
             switch (scene)
             {
@@ -255,7 +257,7 @@ namespace Final_Game
 
             Game1.MainCamera.Update(gameTime);
 
-            Game1.TutorialRoom.Update(gameTime);
+            Game1.TutorialLevel.CurrentRoom.Update(gameTime);
 
             switch (PhaseNum)
             {

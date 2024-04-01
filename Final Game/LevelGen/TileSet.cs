@@ -11,9 +11,19 @@ namespace Final_Game.LevelGen
 	public class Tileset : IGameObject
 	{
 		#region Fields
+		/// <summary>
+		/// Render dev boxes.
+		/// </summary>
 		public bool devRendering = true;
+
+		/// <summary>
+		/// Random used in-class.
+		/// </summary>
 		private static Random _random = new Random();
 
+		#endregion
+
+		#region Properties
 		/// <summary>
 		/// Set of individual tiles comprising this tileset
 		/// </summary>
@@ -457,6 +467,38 @@ namespace Final_Game.LevelGen
 			return;
 		}
 
-	#endregion
+		/// <summary>
+		/// Returns a random floor tile.
+		/// </summary>
+		/// <returns></returns>
+		public Point FindRandomFloorTile()
+		{
+			List<Point> floorTiles = new List<Point>();
+			for (int x = 0; x < Rows; x++)
+			{
+				for (int y = 0; y < Columns; y++)
+				{
+					IsTileGrass(floorTiles, x, y);
+				}
+			}
+			return floorTiles[_random.Next(floorTiles.Count)];
+		}
+
+		/// <summary>
+		/// If the position on the map is a floor tile, add
+		/// it to the list.
+		/// </summary>
+		/// <param name="floorTiles">List to add floor tiles to.</param>
+		/// <param name="x">X position to check.</param>
+		/// <param name="y">Y positon to check.</param>
+		private void IsTileGrass(List<Point> floorTiles, int x, int y)
+		{
+			if (Layout[x, y].Type == TileType.Grass)
+			{
+				floorTiles.Add(new Point(x, y));
+			}
+		}
+
+		#endregion
 	}
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Final_Game.Entity;
+using Final_Game.LevelGen;
 
 namespace Final_Game
 {
@@ -68,9 +69,21 @@ namespace Final_Game
             //    Game1.TestLevel.CurrentRoom.Tileset.Height - Game1.TileSize);
 
             // Health Pickup
-            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(100, 100)));
+            //Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(100, 100)));
 
             return;
+        }
+
+        public void CreateHealthPickup(int xPos, int yPos)
+        {
+            Point selectedTile = new Point(xPos / Game1.TileSize, yPos / Game1.TileSize);
+            if (Game1.TestLevel.CurrentRoom.Tileset.Layout[selectedTile.X, selectedTile.Y].Type != LevelGen.TileType.Grass)
+            {
+                //Pick closest tile that is grass.
+                selectedTile = Game1.TestLevel.CurrentRoom.Tileset.FindRandomFloorTile();
+            }
+            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
+                selectedTile.X * 60, selectedTile.Y * 60)));
         }
 
         public void DrawGizmos()

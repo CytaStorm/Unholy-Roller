@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace Final_Game.LevelGen
@@ -14,6 +15,10 @@ namespace Final_Game.LevelGen
 		private bool _firstClear = true;
 
 		private Level _parent;
+		/// <summary>
+		/// Random number generator.
+		/// </summary>
+		private Random _random = new Random();
 		#endregion
 
 		#region Properties
@@ -96,8 +101,6 @@ namespace Final_Game.LevelGen
 				return numberOfConnections;
 			}
 		}
-
-
 
 		/// <summary>
 		/// Is this room the boss room?
@@ -190,6 +193,11 @@ namespace Final_Game.LevelGen
 				_firstClear = false;
 				//Method to create open doors
 				Tileset.CreateOpenDoors(ActualConnections);
+				//30% chance to spawn health pickup
+				if (_random.NextDouble() <= 0.3)
+				{
+					Game1.PManager.CreateHealthPickup(Tileset.Rows, Tileset.Columns);
+				}
 			}
 		}
 

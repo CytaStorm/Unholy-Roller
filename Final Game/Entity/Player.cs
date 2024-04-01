@@ -179,51 +179,56 @@ namespace Final_Game.Entity
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
-			if (hitStopTimeRemaining <= 0f ) 
+			if (hitStopTimeRemaining > 0f)
 			{
-				UpdateCombo(gameTime);
-
-				if (_controllable) UpdateBulletTime(gameTime);
-
-				TickInvincibility(gameTime);
-
-				switch (State)
-				{
-					case PlayerState.Walking:
-
-						if (_controllable) MoveWithKeyboard(Game1.CurKB);
-						//Debug.WriteLine($"Current worldPos {WorldPosition}");
-						// Reset Combo if too much time has passed since prev hit.
-						break;
-
-					case PlayerState.Rolling:
-						ApplyFriction();
-
-						if (_controllable) HandleBraking();
-
-						// Transition to walking
-						if (Velocity.Length() < 1f)
-						{
-							State = PlayerState.Walking;
-
-							_numRedirects = _maxRedirects + 1;
-						}
-						break;
-				}
-
-				if (_controllable) HandleLaunch();
-
-				//ApplyScreenBoundRicochet();
-
-				CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
-
-				if (Game1.CSManager.Scene != Cutscene.Tutorial)
-					CheckEnemyCollisions();
-
-				CheckPickupCollisions();
-
-				Move(Velocity * BulletTimeMultiplier);
+				hitStopTimeRemaining -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+				return;
 			}
+
+			UpdateCombo(gameTime);
+
+			if (_controllable) UpdateBulletTime(gameTime);
+
+			TickInvincibility(gameTime);
+
+			switch (State)
+			{
+				case PlayerState.Walking:
+
+					if (_controllable) MoveWithKeyboard(Game1.CurKB);
+					//Debug.WriteLine($"Current worldPos {WorldPosition}");
+					// Reset Combo if too much time has passed since prev hit.
+					break;
+
+				case PlayerState.Rolling:
+					ApplyFriction();
+
+					if (_controllable) HandleBraking();
+
+					// Transition to walking
+					if (Velocity.Length() < 1f)
+					{
+						State = PlayerState.Walking;
+
+						_numRedirects = _maxRedirects + 1;
+					}
+					break;
+			}
+
+			if (_controllable) HandleLaunch();
+
+			//ApplyScreenBoundRicochet();
+
+			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
+
+			if (Game1.CSManager.Scene != Cutscene.Tutorial)
+				CheckEnemyCollisions();
+
+			CheckPickupCollisions();
+
+			Move(Velocity * BulletTimeMultiplier);
+			
+			
 		}
 
 		public override void Draw(SpriteBatch sb)

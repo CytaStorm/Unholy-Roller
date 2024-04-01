@@ -12,6 +12,8 @@ namespace Final_Game.LevelGen
 		/// First clear of room, used to make empty rooms automatically clear.
 		/// </summary>
 		private bool _firstClear = true;
+
+		private Level _parent;
 		#endregion
 
 		#region Properties
@@ -109,16 +111,18 @@ namespace Final_Game.LevelGen
 		/// Constructs a room.
 		/// </summary>
 		/// <param name="mapPosition">Position of room in the level map.</param>
-		public Room(Point mapPosition)
+		public Room(Point mapPosition, Level parent)
 		{
+			this._parent = parent;
+
 			//Set up room data.
 			MapPosition = mapPosition;
 			PossibleConnections = new Dictionary<string, bool>()
 			{
-				{ "North", X != 0 && Level.Map[X - 1, Y] == null},
-				{ "South", X != Level.Map.GetLength(0) - 1 && Level.Map[X + 1, Y] == null},
-				{ "East", Y != Level.Map.GetLength(1) - 1 && Level.Map[X, Y + 1] == null},
-				{ "West",  Y != 0 && Level.Map[X, Y - 1] == null}
+				{ "North", X != 0 && _parent.Map[X - 1, Y] == null},
+				{ "South", X != _parent.Map.GetLength(0) - 1 && _parent.Map[X + 1, Y] == null},
+				{ "East", Y != _parent.Map.GetLength(1) - 1 && _parent.Map[X, Y + 1] == null},
+				{ "West",  Y != 0 && _parent.Map[X, Y - 1] == null}
 			};
 			ActualConnections = new Dictionary<string, bool>()
 			{
@@ -139,10 +143,10 @@ namespace Final_Game.LevelGen
 		/// </summary>
 		public void UpdateAdjacencyPossibilities()
 		{
-			PossibleConnections["North"] = X != 0 && Level.Map[X - 1, Y] == null;
-			PossibleConnections["South"] = X != Level.Map.GetLength(0) - 1 && Level.Map[X + 1, Y] == null;
-			PossibleConnections["East"] = Y != Level.Map.GetLength(1) - 1 && Level.Map[X, Y + 1] == null;
-			PossibleConnections["West"] = Y != 0 && Level.Map[X, Y - 1] == null;
+			PossibleConnections["North"] = X != 0 && _parent.Map[X - 1, Y] == null;
+			PossibleConnections["South"] = X != _parent.Map.GetLength(0) - 1 && _parent.Map[X + 1, Y] == null;
+			PossibleConnections["East"] = Y != _parent.Map.GetLength(1) - 1 && _parent.Map[X, Y + 1] == null;
+			PossibleConnections["West"] = Y != 0 && _parent.Map[X, Y - 1] == null;
 		}
 
 		/// <summary>
@@ -155,19 +159,19 @@ namespace Final_Game.LevelGen
 			//out of bounds rooms on the map.
 			if (X != 0)
 			{
-				ActualConnections["North"] = Level.Map[X - 1, Y] != null;
+				ActualConnections["North"] = _parent.Map[X - 1, Y] != null;
 			}
-			if (X != Level.Map.GetLength(0) - 1)
+			if (X != _parent.Map.GetLength(0) - 1)
 			{
-				ActualConnections["South"] = Level.Map[X + 1, Y] != null;
+				ActualConnections["South"] = _parent.Map[X + 1, Y] != null;
 			}
-			if (Y != Level.Map.GetLength (1) - 1)
+			if (Y != _parent.Map.GetLength (1) - 1)
 			{
-				ActualConnections["East"] = Level.Map[X, Y + 1] != null;
+				ActualConnections["East"] = _parent.Map[X, Y + 1] != null;
 			}
 			if (Y != 0) 
 			{
-				ActualConnections["West"] = Level.Map[X, Y - 1] != null;
+				ActualConnections["West"] = _parent.Map[X, Y - 1] != null;
 			}
 			Tileset.CreateClosedDoors(ActualConnections);
 		}
@@ -177,7 +181,9 @@ namespace Final_Game.LevelGen
 		/// </summary>
 		public void CheckCleared()
 		{
-			Cleared = Game1.EManager.Enemies.Count < 1;
+				Cleared = Game1.EManager.Enemies.Count < 1
+					&& _parent != Game1.TutorialLevel;
+
 			//Firstclear added so room only adds open doors once.
 			if (Cleared && _firstClear)
 			{

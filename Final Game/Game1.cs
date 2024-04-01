@@ -28,13 +28,21 @@ namespace Final_Game
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
 
-		public static Room TutorialRoom { get; private set; }
-
 		#region Fields
 		/// <summary>
 		/// Level the player is currently on.
 		/// </summary>
 		public static Level TestLevel { get; private set; }
+
+		/// <summary>
+		/// The level in which the tutorial takes place
+		/// </summary>
+		public static Level TutorialLevel { get; private set; }
+
+		/// <summary>
+		/// The level the player is currently within
+		/// </summary>
+		public static Level CurrentLevel { get; private set; }
 
 		/// <summary>
 		/// Player Object
@@ -71,16 +79,16 @@ namespace Final_Game
 		/// </summary>
 		public static int WindowHeight = 1080;
 
-		// Cutscenes
-		private CutsceneManager _csManager;
-		#endregion
+        // Cutscenes
+        public static CutsceneManager CSManager { get; private set; }
+        #endregion
 
-		#region Properties
-		// Screen
-		/// <summary>
-		/// Rectangle respresenting the bounds of the screen, in pixels.
-		/// </summary>
-		public static Rectangle ScreenBounds =>
+        #region Properties
+        // Screen
+        /// <summary>
+        /// Rectangle respresenting the bounds of the screen, in pixels.
+        /// </summary>
+        public static Rectangle ScreenBounds =>
 				new Rectangle(0, 0, WindowWidth, WindowHeight);
 
 		/// <summary>
@@ -134,9 +142,9 @@ namespace Final_Game
 		public static PickupManager PManager { get; private set; }
 
 		public static Camera MainCamera { get; private set; }
-		#endregion
+        #endregion
 
-		public Game1()
+        public Game1()
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
@@ -154,7 +162,9 @@ namespace Final_Game
 
 			TestLevel = new Level(10, 10, 25);
 
-			//TutorialRoom = new Room(new Point(0, 0));
+			TutorialLevel = new Level(1, 1, 1);
+
+			CurrentLevel = TestLevel;
 
 			//Player = new Player(this, new Vector2(
 			//	TestLevel.CurrentRoom.Tileset.Width / 2,
@@ -195,7 +205,7 @@ namespace Final_Game
 			_ui = new UI(this, _spriteBatch);
 
 			// Create Cutscene Manager
-			_csManager = new CutsceneManager(this);
+			CSManager = new CutsceneManager(this);
 
 			// Hook Up Buttons
 			SubscribeToButtons();
@@ -222,8 +232,8 @@ namespace Final_Game
 
 					MainCamera.Update(gameTime);
 
-					if (_csManager.Scene == Cutscene.None)
-						TestLevel.CurrentRoom.Update(gameTime);
+					if (CSManager.Scene == Cutscene.None)
+						CurrentLevel.CurrentRoom.Update(gameTime);
 
 					EManager.Update(gameTime);
 
@@ -240,7 +250,7 @@ namespace Final_Game
 					break;
 
 				case GameState.Cutscene:
-					_csManager.Update(gameTime);
+					CSManager.Update(gameTime);
 
 					break;
 			}
@@ -270,7 +280,7 @@ namespace Final_Game
 			{
 				case GameState.Play:
 
-					TestLevel.CurrentRoom.Draw(_spriteBatch);
+					CurrentLevel.CurrentRoom.Draw(_spriteBatch);
 
 					Player.Draw(_spriteBatch);
 
@@ -281,7 +291,7 @@ namespace Final_Game
 					break;
 
 				case GameState.Cutscene:
-					_csManager.Draw(_spriteBatch);
+					CSManager.Draw(_spriteBatch);
 					break;
 			}
 
@@ -326,13 +336,12 @@ namespace Final_Game
 			// Reset Entites
 			Player.Reset();
 
-			//Reset level;
-			TestLevel = new Level(5, 5, 10);
+			EManager.Clear();
 		}
 
 		private void EnterGameOver()
 		{
-			_csManager.StartCutscene(Cutscene.GameOver);
+			CSManager.StartCutscene(Cutscene.GameOver);
 		}
 
 		#region Mouse Wrapper Methods
@@ -403,7 +412,7 @@ namespace Final_Game
 
 			_ui.PauseButtons[0].OnClicked += ResumeGame;
 			_ui.PauseButtons[1].OnClicked += ReturnToMainMenu;
-			_ui.PauseButtons[1].OnClicked += _csManager.EndCurrentScene;
+			_ui.PauseButtons[1].OnClicked += CSManager.EndCurrentScene;
 
 			_ui.GameOverButtons[0].OnClicked += ResetGame;
 			_ui.GameOverButtons[0].OnClicked += StartGame;
@@ -413,6 +422,13 @@ namespace Final_Game
 
 		private void StartGame()
 		{
+            // Make a new level
+            TestLevel = new Level(5, 5, 10);
+
+            CurrentLevel = TestLevel;
+
+			Player.MoveToRoomCenter(CurrentLevel.StartRoom);
+
 			State = GameState.Play;
 			Mouse.SetCursor(_gameplayCursor);
 		}
@@ -441,9 +457,11 @@ namespace Final_Game
 			State = GameState.Cutscene;
 			Mouse.SetCursor(_gameplayCursor);
 
-			_csManager.StartCutscene(Cutscene.Tutorial);
+			CSManager.StartCutscene(Cutscene.Tutorial);
 
-			Player.MoveToRoomCenter(TutorialRoom);
+			CurrentLevel = TutorialLevel;
+
+			Player.MoveToRoomCenter(TutorialLevel.StartRoom);
 		}
 
 		#endregion

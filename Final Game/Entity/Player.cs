@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
@@ -99,7 +100,7 @@ namespace Final_Game.Entity
 		private float hitStopTimeRemaining = 0f;
 		public bool canBeTriggered = true;
 		private Enemy lastContactedEnemy = null;
-		private Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
+		private Room CurrentRoom { get { return Game1.CurrentLevel.CurrentRoom; } }
 
 		#endregion
 
@@ -145,7 +146,7 @@ namespace Final_Game.Entity
 				new Point(Image.DestinationRect.Width - 6, Image.DestinationRect.Height - 7));
 
 			// Set movement vars
-			Speed = 40f;
+			Speed = 20f;
 			_walkSpeed = 10f;
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
@@ -178,53 +179,51 @@ namespace Final_Game.Entity
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
-			//Hitstop
-			if (hitStopTimeRemaining > 0)
+			if (hitStopTimeRemaining <= 0f ) 
 			{
-				hitStopTimeRemaining -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-				return;
+				UpdateCombo(gameTime);
+
+				if (_controllable) UpdateBulletTime(gameTime);
+
+				TickInvincibility(gameTime);
+
+				switch (State)
+				{
+					case PlayerState.Walking:
+
+						if (_controllable) MoveWithKeyboard(Game1.CurKB);
+						//Debug.WriteLine($"Current worldPos {WorldPosition}");
+						// Reset Combo if too much time has passed since prev hit.
+						break;
+
+					case PlayerState.Rolling:
+						ApplyFriction();
+
+						if (_controllable) HandleBraking();
+
+						// Transition to walking
+						if (Velocity.Length() < 1f)
+						{
+							State = PlayerState.Walking;
+
+							_numRedirects = _maxRedirects + 1;
+						}
+						break;
+				}
+
+				if (_controllable) HandleLaunch();
+
+				//ApplyScreenBoundRicochet();
+
+				CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
+
+				if (Game1.CSManager.Scene != Cutscene.Tutorial)
+					CheckEnemyCollisions();
+
+				CheckPickupCollisions();
+
+				Move(Velocity * BulletTimeMultiplier);
 			}
-
-			UpdateCombo(gameTime);
-
-			if (_controllable) UpdateBulletTime(gameTime);
-
-			TickInvincibility(gameTime);
-
-			switch (State)
-			{
-				case PlayerState.Walking:
-
-					if (_controllable) MoveWithKeyboard(Game1.CurKB);
-					//Debug.WriteLine($"Current worldPos {WorldPosition}");
-					break;
-
-				case PlayerState.Rolling:
-					ApplyFriction();
-
-					if (_controllable) HandleBraking();
-
-					// Transition to walking
-					if (Velocity.Length() < 1f)
-					{
-						State = PlayerState.Walking;
-
-						_numRedirects = _maxRedirects + 1;
-					}
-					break;
-			}
-
-			if (_controllable) HandleLaunch();
-
-			//ApplyScreenBoundRicochet();
-
-			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
-
-			CheckEnemyCollisions();
-
-			CheckPickupCollisions();
-
-			Move(Velocity * BulletTimeMultiplier);
 		}
 
 		public override void Draw(SpriteBatch sb)

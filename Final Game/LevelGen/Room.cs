@@ -190,7 +190,7 @@ namespace Final_Game.LevelGen
 				//30% chance to spawn health pickup
 				if (_random.NextDouble() <= 0.3)
 				{
-					PickupManager.CreateHealthPickup(Tileset.X, Tileset.Y);
+					Game1.PManager.CreateHealthPickup(Tileset.Rows, Tileset.Columns);
 				}
 			}
 		}

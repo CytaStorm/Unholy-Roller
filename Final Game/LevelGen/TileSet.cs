@@ -11,9 +11,34 @@ namespace Final_Game.LevelGen
 	public class Tileset : IGameObject
 	{
 		#region Fields
+		/// <summary>
+		/// Render dev boxes.
+		/// </summary>
 		public bool devRendering = true;
+
+		/// <summary>
+		/// Random used in-class.
+		/// </summary>
 		private static Random _random = new Random();
 
+		/// <summary>
+		/// Dictionary used to get surround tiles to a tile.
+		/// </summary>
+		private Dictionary<string, Point> _surroundingTileOffset = 
+			new Dictionary<string, Point>()
+			{
+				{ "N", new Point(-1, 1) },
+				{ "NE", new Point(-1, 1) },
+				{ "E", new Point(0, 1) },
+				{ "SE", new Point (1, 1) },
+				{ "S", new Point(1, 0) },
+				{ "SW", new Point(1, -1) },
+				{ "W", new Point(0, -1) },
+				{ "NW", new Point(-1, -1) },
+			};
+		#endregion
+
+		#region Properties
 		/// <summary>
 		/// Set of individual tiles comprising this tileset
 		/// </summary>
@@ -455,6 +480,35 @@ namespace Final_Game.LevelGen
 					pair.Key.Y * Game1.TileSize),
 					"");
 			return;
+		}
+
+		public Point FindClosestFloorTile(Point center, int distance)
+		{
+			//Check surrounding 8 tiles
+			Point current = center;
+			int direction = 0;	
+
+   			foreach (Point offset in _surroundingTileOffset.Values)
+   			{
+				
+   			}
+
+		}
+		
+		/// <summary>
+		/// Returns the greatest difference between X and Y coordinates
+		/// of 2 points, whichever one is greater.
+		/// </summary>
+		/// <param name="point1">First point to check.</param>
+		/// <param name="point2">Second point to check.</param>
+		/// <returns>The greatest difference between X and Y coordinates
+		/// of 2 points, whichever one is greater.</returns>
+		private int Chebyshev(Point point1, Point point2)
+		{
+			return Math.Max(
+				Math.Abs(point1.X - point2.X),
+				Math.Abs(point1.Y - point2.Y)
+				);
 		}
 
 	#endregion

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Final_Game.Entity;
+using Final_Game.LevelGen;
 
 namespace Final_Game
 {
@@ -76,7 +77,11 @@ namespace Final_Game
         public void CreateHealthPickup(int xPos, int yPos)
         {
             Point selectedTile = new Point(xPos / Game1.TileSize, yPos / Game1.TileSize);
-            if 
+            if (Game1.TestLevel.CurrentRoom.Tileset.Layout[selectedTile.X, selectedTile.Y].Type != LevelGen.TileType.Grass)
+            {
+                //Pick closest tile that is grass.
+                selectedTile = 
+            }
             Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(xPos, yPos)));
         }
 

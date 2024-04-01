@@ -80,9 +80,10 @@ namespace Final_Game
             if (Game1.TestLevel.CurrentRoom.Tileset.Layout[selectedTile.X, selectedTile.Y].Type != LevelGen.TileType.Grass)
             {
                 //Pick closest tile that is grass.
-                selectedTile = 
+                selectedTile = Game1.TestLevel.CurrentRoom.Tileset.FindRandomFloorTile();
             }
-            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(xPos, yPos)));
+            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
+                selectedTile.X * 60, selectedTile.Y * 60)));
         }
 
         public void DrawGizmos()

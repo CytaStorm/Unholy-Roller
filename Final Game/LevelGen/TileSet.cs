@@ -21,21 +21,6 @@ namespace Final_Game.LevelGen
 		/// </summary>
 		private static Random _random = new Random();
 
-		/// <summary>
-		/// Dictionary used to get surround tiles to a tile.
-		/// </summary>
-		private Dictionary<string, Point> _surroundingTileOffset = 
-			new Dictionary<string, Point>()
-			{
-				{ "N", new Point(-1, 1) },
-				{ "NE", new Point(-1, 1) },
-				{ "E", new Point(0, 1) },
-				{ "SE", new Point (1, 1) },
-				{ "S", new Point(1, 0) },
-				{ "SW", new Point(1, -1) },
-				{ "W", new Point(0, -1) },
-				{ "NW", new Point(-1, -1) },
-			};
 		#endregion
 
 		#region Properties
@@ -482,35 +467,38 @@ namespace Final_Game.LevelGen
 			return;
 		}
 
-		public Point FindClosestFloorTile(Point center, int distance)
-		{
-			//Check surrounding 8 tiles
-			Point current = center;
-			int direction = 0;	
-
-   			foreach (Point offset in _surroundingTileOffset.Values)
-   			{
-				
-   			}
-
-		}
-		
 		/// <summary>
-		/// Returns the greatest difference between X and Y coordinates
-		/// of 2 points, whichever one is greater.
+		/// Returns a random floor tile.
 		/// </summary>
-		/// <param name="point1">First point to check.</param>
-		/// <param name="point2">Second point to check.</param>
-		/// <returns>The greatest difference between X and Y coordinates
-		/// of 2 points, whichever one is greater.</returns>
-		private int Chebyshev(Point point1, Point point2)
+		/// <returns></returns>
+		public Point FindRandomFloorTile()
 		{
-			return Math.Max(
-				Math.Abs(point1.X - point2.X),
-				Math.Abs(point1.Y - point2.Y)
-				);
+			List<Point> floorTiles = new List<Point>();
+			for (int x = 0; x < Rows; x++)
+			{
+				for (int y = 0; y < Columns; y++)
+				{
+					IsTileGrass(floorTiles, x, y);
+				}
+			}
+			return floorTiles[_random.Next(floorTiles.Count)];
 		}
 
-	#endregion
+		/// <summary>
+		/// If the position on the map is a floor tile, add
+		/// it to the list.
+		/// </summary>
+		/// <param name="floorTiles">List to add floor tiles to.</param>
+		/// <param name="x">X position to check.</param>
+		/// <param name="y">Y positon to check.</param>
+		private void IsTileGrass(List<Point> floorTiles, int x, int y)
+		{
+			if (Layout[x, y].Type == TileType.Grass)
+			{
+				floorTiles.Add(new Point(x, y));
+			}
+		}
+
+		#endregion
 	}
 }

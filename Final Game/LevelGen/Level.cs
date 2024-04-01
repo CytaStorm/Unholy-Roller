@@ -12,7 +12,7 @@ namespace Final_Game.LevelGen
 		/// <summary>
 		/// All rooms that make up the level.
 		/// </summary>
-		public static Room[,] Map;
+		public Room[,] Map { get; private set; }
 
 		/// <summary>
 		/// List of all rooms.
@@ -72,7 +72,8 @@ namespace Final_Game.LevelGen
 					_random.Next(Map.GetLength(0)),
 					_random.Next(Map.GetLength(1)));
 			Map[StartPoint.X, StartPoint.Y] = new Room(
-				new Point(StartPoint.X, StartPoint.Y));
+				new Point(StartPoint.X, StartPoint.Y), 
+				this);
 
 			_rooms.Add(Map[StartPoint.X, StartPoint.Y]);
 			CurrentPoint = StartPoint;
@@ -158,7 +159,7 @@ namespace Final_Game.LevelGen
 				//Debug.WriteLine("New room " + newRoomPos);
 
 				//Expand
-				Map[newRoomPos.X, newRoomPos.Y] = new Room(newRoomPos);
+				Map[newRoomPos.X, newRoomPos.Y] = new Room(newRoomPos, this);
 				_rooms.Add(Map[newRoomPos.X, newRoomPos.Y]);
 				roomToExpand.UpdateAdjacencyPossibilities();
 				return;

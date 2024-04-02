@@ -322,7 +322,7 @@ namespace Final_Game.Entity
 					State == PlayerState.Rolling)
 				{
 					TriggerHitStop();
-					Game1.SManager.SoundEffects[0].Play();
+					Game1.SManager.PlayHitSound();
 					lastContactedEnemy = curEnemy;
 					continue;
 				}

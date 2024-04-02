@@ -125,7 +125,6 @@ namespace Final_Game.LevelGen
 				invalidEnemyObstacleCombo = EnsureNoOverlap(EnemyPos, ObstaclePos);
 				obstaclesFit = PositionsFit(ObstaclePos);
 				enemiesFit = PositionsFit(EnemyPos);
-				Debug.WriteLine(invalidEnemyObstacleCombo);
 			} while (!invalidEnemyObstacleCombo && obstaclesFit && enemiesFit);
 
 			//Add positions to Layout
@@ -147,7 +146,7 @@ namespace Final_Game.LevelGen
 					CreateObstacle(obstaclePos);
 				}
 			}
-			Debug.WriteLine("Here " + EnemyPos.Count);
+			//Debug.WriteLine("Here " + EnemyPos.Count);
 		}
 		#endregion
 

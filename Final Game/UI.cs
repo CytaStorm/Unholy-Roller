@@ -37,6 +37,9 @@ namespace Final_Game
 		private Texture2D _speedometerCrest;
 		private float _maxSpeedometerSpeed;
 
+		// Combo
+		private Texture2D _comboIcon;
+
 		// Shake Effect
 		private double _shakeDuration;
 		private double _shakeTimer;
@@ -87,6 +90,9 @@ namespace Final_Game
 
 			// Load Backgrounds
 			_blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
+
+			// Load Icons
+			_comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
 
 			// Load Health Images
 			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
@@ -203,7 +209,8 @@ namespace Final_Game
 
 					DrawPlayerSpeedometer();
 
-					DrawPlayerCombo();
+					if (Game1.Player.Combo > 0)
+						DrawPlayerCombo();
 
 					// Display Bullet Time multiplier
 					//_spriteBatch.DrawString(
@@ -232,12 +239,27 @@ namespace Final_Game
 		#region HUD Drawing Methods
 
 		private void DrawPlayerCombo()
-		{		
-			_spriteBatch.DrawString(
+		{
+			string curCombo = Game1.Player.Combo.ToString();
+			Vector2 comboDrawPos = new Vector2(100f, 400f);
+
+            _spriteBatch.DrawString(
 				TitleCaseArial,
-				Game1.Player.Combo.ToString(),
-				new Vector2(
-				100, 400),
+				curCombo,
+				comboDrawPos,
+				Color.White);
+
+			Vector2 comboStringDimensions = 
+				TitleCaseArial.MeasureString(curCombo);
+
+			// Draw Combo Icon after text
+			_spriteBatch.Draw(
+				_comboIcon,
+				new Rectangle(
+					(int)(comboDrawPos.X + comboStringDimensions.X),
+					400,
+					80,
+					80),
 				Color.White);
 			return;
 		}

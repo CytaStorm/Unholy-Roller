@@ -55,8 +55,8 @@ namespace Final_Game.Entity
         /// in world space
         /// </summary>
         public Vector2 CenterPosition => new Vector2(
-            WorldPosition.X + Image.DestinationRect.Width / 2f,
-            WorldPosition.Y + Image.DestinationRect.Height / 2f);
+            WorldPosition.X + Image.DestinationRect.Width / 2f * Game1.MainCamera.Zoom,
+            WorldPosition.Y + Image.DestinationRect.Height / 2f * Game1.MainCamera.Zoom);
 
         public Sprite Image { get; protected set; }
 

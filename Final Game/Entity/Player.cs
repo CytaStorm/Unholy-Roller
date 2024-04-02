@@ -134,7 +134,7 @@ namespace Final_Game.Entity
 				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
 				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
 
-			int numLaunchArrows = 2;
+			int numLaunchArrows = 4;
 			_launchArrowSpriteWidth = _launchArrowsTexture.Width / numLaunchArrows;
 
 			// Set position in world
@@ -617,21 +617,13 @@ namespace Final_Game.Entity
 			directionFromPlayerToMouse *= 120; // Radius
 	
 			Rectangle arrowSourceRect = new Rectangle();
-	
-			if (_numRedirects > _maxRedirects)
-			{
-				// Use Launch Arrow Source Rect
-				arrowSourceRect = new Rectangle(
-					_launchArrowSpriteWidth, 0,
-					_launchArrowSpriteWidth, _launchArrowSpriteWidth);
-			}
-			else
-			{
-				// Use Redirect Arrow Source Rect
-				arrowSourceRect = new Rectangle(
-					0, 0,
-					_launchArrowSpriteWidth, _launchArrowSpriteWidth);
-			}
+
+			// Get correct launch arrow image from spritesheet
+			int arrowNumber = MathHelper.Clamp(_numRedirects - 1, 0, 3);
+
+            arrowSourceRect = new Rectangle(
+				_launchArrowSpriteWidth * arrowNumber, 0,
+				_launchArrowSpriteWidth, _launchArrowSpriteWidth);
 	
 			// Draw aiming arrow
 			sb.Draw(
@@ -648,23 +640,23 @@ namespace Final_Game.Entity
 				0f
 				);
 	
-			// Display remaining redirects
-			if (_numRedirects <= _maxRedirects)
-			{
-				Vector2 redirectStringDimensions =
-					UI.MediumArial.MeasureString(_numRedirects.ToString());
+			//// Display remaining redirects
+			//if (_numRedirects <= _maxRedirects)
+			//{
+			//	Vector2 redirectStringDimensions =
+			//		UI.MediumArial.MeasureString(_numRedirects.ToString());
 	
-				Vector2 textPos = centerScreenPos + directionFromPlayerToMouse;
-				textPos = new Vector2(
-					textPos.X - redirectStringDimensions.X / 2,
-					textPos.Y - redirectStringDimensions.Y / 2);
+			//	Vector2 textPos = centerScreenPos + directionFromPlayerToMouse;
+			//	textPos = new Vector2(
+			//		textPos.X - redirectStringDimensions.X / 2,
+			//		textPos.Y - redirectStringDimensions.Y / 2);
 	
-				sb.DrawString(
-					UI.MediumArial,
-					_numRedirects.ToString(),
-					textPos,
-					Color.White);
-			}
+			//	sb.DrawString(
+			//		UI.MediumArial,
+			//		_numRedirects.ToString(),
+			//		textPos,
+			//		Color.White);
+			//}
 		}
 	
 	

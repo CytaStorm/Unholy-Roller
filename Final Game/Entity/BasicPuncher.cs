@@ -411,9 +411,14 @@ namespace Final_Game.Entity
 			{
 				// Get the center position of the pulled back fist
 				// in screen space
-				Vector2 windupScreenPos = 
-					this.CenterPosition - _attackDirection 
-					+ Game1.MainCamera.WorldToScreenOffset;
+
+				Vector2 correction = new Vector2(
+					Image.DestinationRect.Width / 2.5f,
+					Image.DestinationRect.Height / 2.5f);
+
+				Vector2 windupScreenPos =
+                    CenterPosition + correction - _attackDirection
+                    + Game1.MainCamera.WorldToScreenOffset;
 
 				// Shift position to top-left of glove image (for drawing)
 				windupScreenPos -= new Vector2(_gloveFrameWidth / 2, _gloveFrameWidth / 2);
@@ -424,12 +429,15 @@ namespace Final_Game.Entity
 						0, 0, 
 						_gloveFrameWidth, _gloveImages.SourceRect.Height);
 
-				// Draw glove
-				_gloveImages.Draw(
+                // Rotate fist so knuckles face away from player
+                float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
+
+                // Draw glove
+                _gloveImages.Draw(
 					sb, 
 					windupScreenPos, 
-					0f, 
-					Vector2.Zero);
+					dirAngle,
+                    _gloveImages.SourceRect.Center.ToVector2());
 			}
 
 			// Draw actively attacking

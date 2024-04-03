@@ -680,6 +680,10 @@ namespace Final_Game.Entity
 		/// </summary>
 		public void Reset()
 		{
+			// Set animation to first frame
+			_curRollFrame = 1;
+			_rollFrameTimeCounter = 0;
+
 			// Restore Health
 			CurHealth = MaxHealth;
 	

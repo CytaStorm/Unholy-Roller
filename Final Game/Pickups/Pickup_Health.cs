@@ -64,16 +64,6 @@ namespace Final_Game.Pickups
 			// Draw Pickup relative to the player
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
-			// Only draw pickup if it's on screen
-			Rectangle screenHit = new Rectangle(
-				(int)screenPos.X,
-				(int)screenPos.Y,
-				Image.DestinationRect.Width,
-				Image.DestinationRect.Height);
-
-			bool onScreen = screenHit.Intersects(Game1.ScreenBounds);
-			if (!onScreen) return;
-
 			Image.Draw(sb, screenPos, 0f, Vector2.Zero);
 		}
 

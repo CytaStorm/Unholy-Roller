@@ -184,16 +184,6 @@ namespace Final_Game.Entity
 			// Draw Enemy relative to the player
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
-			// Only draw enemy if they are on screen
-			Rectangle screenHit = new Rectangle(
-				(int)screenPos.X,
-				(int)screenPos.Y,
-				Image.DestinationRect.Width,
-				Image.DestinationRect.Height);
-
-			bool onScreen = screenHit.Intersects(Game1.ScreenBounds);
-			if (!onScreen) return;
-
 			if (IsKO)
 			{
 				Image.TintColor = Color.Blue;

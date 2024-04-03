@@ -775,7 +775,14 @@ namespace Final_Game.Entity
 
 		public override void TakeDamage(int amount)
 		{
-			// Take damage if not invincible
+
+			// Early Exit Conditions
+			if (ComboReward)
+			{
+				Combo = 0;
+				return;
+			}
+
 			if (InvTimer > 0 || CurHealth <= 0 || InfiniteHealth) return;
 				
 			CurHealth -= amount;

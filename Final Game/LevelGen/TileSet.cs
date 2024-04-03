@@ -11,14 +11,11 @@ namespace Final_Game.LevelGen
 	public class Tileset : IGameObject
 	{
 		#region Fields
-		/// <summary>
-		/// Render dev boxes.
-		/// </summary>
-		public bool devRendering = true;
 
 		/// <summary>
 		/// Random used in-class.
 		/// </summary>
+
 		private static Random _random = new Random();
 
 		#endregion
@@ -350,11 +347,11 @@ namespace Final_Game.LevelGen
 					Vector2 screenPos = 
 						curTile.WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
-					if (devRendering)
+					if (Game1.DebugOn)
 					{
 						if (curTile.IsDoor)
 						{
-							curTile.TileSprite.TintColor = Color.Pink;
+							curTile.TileSprite.TintColor = Color.Magenta;
 						}
 						if (curTile.IsEnemySpawner)
 						{

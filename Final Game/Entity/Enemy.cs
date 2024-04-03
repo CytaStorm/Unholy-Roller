@@ -131,8 +131,9 @@ namespace Final_Game.Entity
 		public override void TakeDamage(int damage)
 		{
 			// Take damage if not invincible
-			if (InvTimer <= 0 && !IsKO)
-			{
+			if (InvTimer > 0 || IsKO || InfiniteHealth) 
+				return;
+
 				CurHealth -= damage;
 
 				// Temporarily become invincible
@@ -146,7 +147,6 @@ namespace Final_Game.Entity
 					_koTimer = _koDuration;
 					CurHealth = 1;
 				}
-			}
 		}
 
 		#endregion 

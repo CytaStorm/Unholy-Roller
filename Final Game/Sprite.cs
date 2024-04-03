@@ -41,8 +41,20 @@ namespace Final_Game
 			{
 				scale *= Game1.MainCamera.Zoom;
 
-                spriteBatch.Draw(Texture,
-                Game1.MainCamera.GetPerspectivePosition(position),
+				Vector2 perspectivePos = Game1.MainCamera.GetPerspectivePosition(position);
+
+				// Only draw if on screen
+				Rectangle screenHit = new Rectangle(
+					(int)perspectivePos.X,
+					(int)perspectivePos.Y,
+					(int)(DestinationRect.Width * Game1.MainCamera.Zoom),
+					(int)(DestinationRect.Height * Game1.MainCamera.Zoom));
+
+				bool onScreen = screenHit.Intersects(Game1.ScreenBounds);
+				if (!onScreen) return;
+
+				spriteBatch.Draw(Texture,
+                perspectivePos,
                 SourceRect,
                 TintColor,
                 rotation,

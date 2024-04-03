@@ -17,6 +17,7 @@ namespace Final_Game
 
         // Properties
         public List<Enemy> Enemies { get; private set; }
+        public bool EnemiesInvincible { get; set; }
 
         // Events
         //public event EnemiesKilled OnLastEnemyKilled;
@@ -77,6 +78,8 @@ namespace Final_Game
                     if (Enemies.Count == 0) { }
                         //OnLastEnemyKilled();
                 }
+
+                Enemies[i].InfiniteHealth = EnemiesInvincible;
             }
 
             // Remove all enemies if all are currently KO-ed

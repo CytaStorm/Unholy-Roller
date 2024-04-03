@@ -775,7 +775,7 @@ namespace Final_Game.Entity
 		public override void TakeDamage(int amount)
 		{
 			// Take damage if not invincible
-			if (InvTimer > 0 || CurHealth <= 0) return;
+			if (InvTimer > 0 || CurHealth <= 0 || InfiniteHealth) return;
 				
 			CurHealth -= amount;
 

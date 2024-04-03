@@ -234,6 +234,18 @@ namespace Final_Game
 					DrawGameOverMenu();
 					break;
 			}
+
+			if (Game1.DebugOn)
+			{
+				_spriteBatch.DrawString(
+					MediumArial,
+					"Dev Cheats:\n" +
+					$"D4 - Toggle Debug: {Game1.DebugOn}\n" +
+					$"D5 - Infinite Health: {Game1.Player.InfiniteHealth}\n" +
+					$"D6 - Infinite E_Health: {Game1.EManager.EnemiesInvincible}",
+					new Vector2(50f, 500f),
+					Color.White);
+			}
 		}
 
 		#region HUD Drawing Methods

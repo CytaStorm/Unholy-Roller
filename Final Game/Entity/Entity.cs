@@ -42,6 +42,8 @@ namespace Final_Game.Entity
         public double InvDuration { get; protected set; }
         public double InvTimer { get; protected set; }
         public bool IsInvincible => InvTimer > 0;
+
+        public bool InfiniteHealth { get; set; }
         #endregion
 
         #region Collision Properties
@@ -209,7 +211,7 @@ namespace Final_Game.Entity
         public virtual void TakeDamage(int amount)
         {
             // Take damage if not invincible
-            if (InvTimer <= 0)
+            if (InvTimer <= 0 && !InfiniteHealth)
             {
                 CurHealth -= amount;
 

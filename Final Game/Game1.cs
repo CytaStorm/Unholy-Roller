@@ -142,6 +142,8 @@ namespace Final_Game
 		public static PickupManager PManager { get; private set; }
 
 		public static Camera MainCamera { get; private set; }
+
+		public static bool DebugOn { get; private set; }
         #endregion
 
         public Game1()
@@ -224,6 +226,8 @@ namespace Final_Game
 			CurMouse = Mouse.GetState();
 			CurKB = Keyboard.GetState();
 
+			HandleDevToggle();
+
 			// Update game
 			switch (State)
 			{
@@ -256,8 +260,6 @@ namespace Final_Game
 			}
 
 			_ui.Update(gameTime);
-
-			// MainCamera.Zoom = _ui._testSlider.CurValue;
 
 			// Store controller states
 			PrevMouse = CurMouse;
@@ -306,7 +308,8 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					//DrawDebug();
+
+					if (DebugOn) DrawDebug();
 
 					_ui.DrawMinimap();
 					break;
@@ -465,6 +468,26 @@ namespace Final_Game
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Allows devs to toggling different game values 
+		/// via key press.
+		/// FYI: Can only toggle values if in debug mode (DebugOn is true)
+		/// </summary>
+		private void HandleDevToggle()
+		{
+			// Toggle Debug Drawing
+            if (SingleKeyPress(Keys.D4)) DebugOn = !DebugOn;
+
+			if (!DebugOn) return;
+
+			// Toggle Infinite Player Health
+            if (SingleKeyPress(Keys.D5)) Player.InfiniteHealth = !Player.InfiniteHealth;
+
+			// Toggle Infinite Enemy Health
+			if (SingleKeyPress(Keys.D6))
+				EManager.EnemiesInvincible = !EManager.EnemiesInvincible;
+        }
 
 		private void DrawDebug()
 		{

@@ -79,6 +79,14 @@ namespace Final_Game.Entity
 		float _normalTimeMultiplier = 1f;
 		float _minTimeMultiplier = 0.3f;
 
+		// Animation
+		private double _rollFrameDuration = 1;
+		private double _rollFrameTimeCounter;
+		private int _curRollFrame = 1;
+		private int _numRollFrames;
+		private int _rollFrameWidth;
+		private float _directionToFace;
+
 		#endregion
 
 		#region Properties
@@ -113,12 +121,16 @@ namespace Final_Game.Entity
 		public Player(Game1 gm, Vector2 worldPosition)
 		{
 			// Set images
-			Texture2D playerSprite = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
+			Texture2D playerSpritesheet = 
+				gm.Content.Load<Texture2D>("Sprites/RollingBallSpritesheet2");
 			
 			// main sprite
-			Image = new Sprite(playerSprite,
+			Image = new Sprite(playerSpritesheet,
 				new Rectangle(0, 0, 120, 120),
 				new Rectangle(0, 0, Game1.TileSize, Game1.TileSize));
+
+			_numRollFrames = 7;
+			_rollFrameWidth = 120;
 			
 			// smiling sprite
 			_smileSprite = new Sprite(
@@ -227,19 +239,20 @@ namespace Final_Game.Entity
 			CheckPickupCollisions();
 
 			Move(Velocity * BulletTimeMultiplier);
-			
-			
-		}
+
+			UpdateRollAnimation(gameTime);
+        }
 
 		public override void Draw(SpriteBatch sb)
 		{
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 			// Draw player image
-			if (!IsSmiling)
-				Image.Draw(sb, screenPos, 0f, Vector2.Zero);
-			else
-				_smileSprite.Draw(sb, screenPos, 0f, Vector2.Zero);
+			Image.Draw(
+				sb, 
+				screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f, 
+				_directionToFace, 
+				new Vector2(_rollFrameWidth, _rollFrameWidth) / 2f);
 
 			// Draw player launch arrow
 			if (_controllable && 
@@ -700,6 +713,57 @@ namespace Final_Game.Entity
 				Combo = 0;
 			}
 			return;
+		}
+
+		private void UpdateRollAnimation(GameTime gameTime)
+		{
+			if (Velocity.LengthSquared() == 0)
+			{
+				_curRollFrame = 1;
+				return;
+			}
+
+			double baseDuration = 0.2;
+			_rollFrameDuration = 
+				baseDuration * 
+				Speed / (2 * Velocity.Length());
+
+			// Count up time until next frame
+			if (_rollFrameTimeCounter < _rollFrameDuration)
+			{
+				_rollFrameTimeCounter += 
+					gameTime.ElapsedGameTime.TotalSeconds *
+					BulletTimeMultiplier;
+			}
+			else
+			{
+				// Move to next frame and wrap
+				// around when end of animation is reached
+				if (_curRollFrame == _numRollFrames)
+					_curRollFrame = 1;
+				else
+					_curRollFrame++;
+
+				// Get correct frame
+
+				int rollFrameY = 0;
+				if (IsSmiling) rollFrameY = _rollFrameWidth;
+
+                Image.SourceRect = new Rectangle(
+                    _rollFrameWidth * (_curRollFrame - 1),
+                    rollFrameY,
+                    _rollFrameWidth,
+                    _rollFrameWidth);
+
+				// Face player toward their velocity
+                _directionToFace =
+                    MathF.Atan2(Velocity.Y, Velocity.X) + 3 * MathHelper.PiOver2;
+
+                // Reset time counter
+                _rollFrameTimeCounter -=
+					gameTime.ElapsedGameTime.TotalSeconds *
+					BulletTimeMultiplier;
+			}
 		}
 
 		public override void TakeDamage(int amount)

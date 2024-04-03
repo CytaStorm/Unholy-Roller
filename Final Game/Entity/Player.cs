@@ -79,6 +79,14 @@ namespace Final_Game.Entity
 		float _normalTimeMultiplier = 1f;
 		float _minTimeMultiplier = 0.3f;
 
+		// Animation
+		private double _rollFrameDuration = 1;
+		private double _rollFrameTimeCounter;
+		private int _curRollFrame = 1;
+		private int _numRollFrames;
+		private int _rollFrameWidth;
+		private float _directionToFace;
+
 		#endregion
 
 		#region Properties
@@ -113,12 +121,16 @@ namespace Final_Game.Entity
 		public Player(Game1 gm, Vector2 worldPosition)
 		{
 			// Set images
-			Texture2D playerSprite = gm.Content.Load<Texture2D>("Sprites/BasicBlueClean");
+			Texture2D playerSpritesheet = 
+				gm.Content.Load<Texture2D>("Sprites/RollingBallSpritesheet2");
 			
 			// main sprite
-			Image = new Sprite(playerSprite,
+			Image = new Sprite(playerSpritesheet,
 				new Rectangle(0, 0, 120, 120),
 				new Rectangle(0, 0, Game1.TileSize, Game1.TileSize));
+
+			_numRollFrames = 7;
+			_rollFrameWidth = 120;
 			
 			// smiling sprite
 			_smileSprite = new Sprite(
@@ -134,7 +146,7 @@ namespace Final_Game.Entity
 				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
 				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
 
-			int numLaunchArrows = 2;
+			int numLaunchArrows = 4;
 			_launchArrowSpriteWidth = _launchArrowsTexture.Width / numLaunchArrows;
 
 			// Set position in world
@@ -227,19 +239,20 @@ namespace Final_Game.Entity
 			CheckPickupCollisions();
 
 			Move(Velocity * BulletTimeMultiplier);
-			
-			
-		}
+
+			UpdateRollAnimation(gameTime);
+        }
 
 		public override void Draw(SpriteBatch sb)
 		{
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 			// Draw player image
-			if (!IsSmiling)
-				Image.Draw(sb, screenPos, 0f, Vector2.Zero);
-			else
-				_smileSprite.Draw(sb, screenPos, 0f, Vector2.Zero);
+			Image.Draw(
+				sb, 
+				screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f, 
+				_directionToFace, 
+				new Vector2(_rollFrameWidth, _rollFrameWidth) / 2f);
 
 			// Draw player launch arrow
 			if (_controllable && 
@@ -618,21 +631,13 @@ namespace Final_Game.Entity
 			directionFromPlayerToMouse *= 120; // Radius
 	
 			Rectangle arrowSourceRect = new Rectangle();
-	
-			if (_numRedirects > _maxRedirects)
-			{
-				// Use Launch Arrow Source Rect
-				arrowSourceRect = new Rectangle(
-					_launchArrowSpriteWidth, 0,
-					_launchArrowSpriteWidth, _launchArrowSpriteWidth);
-			}
-			else
-			{
-				// Use Redirect Arrow Source Rect
-				arrowSourceRect = new Rectangle(
-					0, 0,
-					_launchArrowSpriteWidth, _launchArrowSpriteWidth);
-			}
+
+			// Get correct launch arrow image from spritesheet
+			int arrowNumber = MathHelper.Clamp(_numRedirects - 1, 0, 3);
+
+            arrowSourceRect = new Rectangle(
+				_launchArrowSpriteWidth * arrowNumber, 0,
+				_launchArrowSpriteWidth, _launchArrowSpriteWidth);
 	
 			// Draw aiming arrow
 			sb.Draw(
@@ -649,23 +654,23 @@ namespace Final_Game.Entity
 				0f
 				);
 	
-			// Display remaining redirects
-			if (_numRedirects <= _maxRedirects)
-			{
-				Vector2 redirectStringDimensions =
-					UI.MediumArial.MeasureString(_numRedirects.ToString());
+			//// Display remaining redirects
+			//if (_numRedirects <= _maxRedirects)
+			//{
+			//	Vector2 redirectStringDimensions =
+			//		UI.MediumArial.MeasureString(_numRedirects.ToString());
 	
-				Vector2 textPos = centerScreenPos + directionFromPlayerToMouse;
-				textPos = new Vector2(
-					textPos.X - redirectStringDimensions.X / 2,
-					textPos.Y - redirectStringDimensions.Y / 2);
+			//	Vector2 textPos = centerScreenPos + directionFromPlayerToMouse;
+			//	textPos = new Vector2(
+			//		textPos.X - redirectStringDimensions.X / 2,
+			//		textPos.Y - redirectStringDimensions.Y / 2);
 	
-				sb.DrawString(
-					UI.MediumArial,
-					_numRedirects.ToString(),
-					textPos,
-					Color.White);
-			}
+			//	sb.DrawString(
+			//		UI.MediumArial,
+			//		_numRedirects.ToString(),
+			//		textPos,
+			//		Color.White);
+			//}
 		}
 	
 	
@@ -709,6 +714,57 @@ namespace Final_Game.Entity
 				Combo = 0;
 			}
 			return;
+		}
+
+		private void UpdateRollAnimation(GameTime gameTime)
+		{
+			if (Velocity.LengthSquared() == 0)
+			{
+				_curRollFrame = 1;
+				return;
+			}
+
+			double baseDuration = 0.2;
+			_rollFrameDuration = 
+				baseDuration * 
+				Speed / (2 * Velocity.Length());
+
+			// Count up time until next frame
+			if (_rollFrameTimeCounter < _rollFrameDuration)
+			{
+				_rollFrameTimeCounter += 
+					gameTime.ElapsedGameTime.TotalSeconds *
+					BulletTimeMultiplier;
+			}
+			else
+			{
+				// Move to next frame and wrap
+				// around when end of animation is reached
+				if (_curRollFrame == _numRollFrames)
+					_curRollFrame = 1;
+				else
+					_curRollFrame++;
+
+				// Get correct frame
+
+				int rollFrameY = 0;
+				if (IsSmiling) rollFrameY = _rollFrameWidth;
+
+                Image.SourceRect = new Rectangle(
+                    _rollFrameWidth * (_curRollFrame - 1),
+                    rollFrameY,
+                    _rollFrameWidth,
+                    _rollFrameWidth);
+
+				// Face player toward their velocity
+                _directionToFace =
+                    MathF.Atan2(Velocity.Y, Velocity.X) + 3 * MathHelper.PiOver2;
+
+                // Reset time counter
+                _rollFrameTimeCounter -=
+					gameTime.ElapsedGameTime.TotalSeconds *
+					BulletTimeMultiplier;
+			}
 		}
 
 		public override void TakeDamage(int amount)

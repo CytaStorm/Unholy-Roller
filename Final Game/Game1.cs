@@ -312,7 +312,7 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
-					DrawDebug();
+					//DrawDebug();
 
 					_ui.DrawMinimap();
 					break;

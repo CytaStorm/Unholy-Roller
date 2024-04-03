@@ -684,8 +684,13 @@ namespace Final_Game.Entity
 			_curRollFrame = 1;
 			_rollFrameTimeCounter = 0;
 
-			// Restore Health
-			CurHealth = MaxHealth;
+			// Reset sprite orientation
+            Image.SourceRect = new Rectangle(
+                    0, 0, _rollFrameWidth, _rollFrameWidth);
+			_directionToFace = 0f;
+
+            // Restore Health
+            CurHealth = MaxHealth;
 	
 			// Restore Redirects
 			_numRedirects = _maxRedirects + 1;
@@ -700,9 +705,6 @@ namespace Final_Game.Entity
 
 			// Reset combo
 			Combo = 0;
-
-			// Set player at the center of the current level
-			MoveToRoomCenter(CurrentRoom);
 		}
 	
 		private void UpdateCombo(GameTime gameTime)

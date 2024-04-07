@@ -48,9 +48,11 @@ namespace Final_Game.LevelGen
 		public int Height { get => Rows * Game1.TileSize; }
 
 		/// <summary>
-		/// The doors or bridge-points of this tileset
+		/// Key: Direction
+		/// Value: Door tile
 		/// </summary>
-		public List<Tile> Doors { get; private set; } = new List<Tile>();
+		public Dictionary<string, Tile> Doors { get ; private set; } =
+			new Dictionary<string, Tile>();
 
 		public List<Tile> Spawners { get; private set; } = new List<Tile>();
 
@@ -109,9 +111,10 @@ namespace Final_Game.LevelGen
 			bool enemiesFit = false;
 			do
 			{
-				EnemyPos = ConvertPositions(selectLine(allEnemyPos, ref EnemyPositionLayout));
-				ObstaclePos = ReadObstacles(selectLine(allObstaclePos, ref EnemyPositionLayout));
+				EnemyPos = ConvertPositions(selectLine(allEnemyPos));
+				ObstaclePos = ReadObstacles(selectLine(allObstaclePos));
 
+				//If one of them is empty, then there will be no overlap.
 				if (ObstaclePos.Count == 0 || EnemyPos.Count == 0)
 				{
 					//invalidEnemyObstacleCombo = false;
@@ -145,6 +148,7 @@ namespace Final_Game.LevelGen
 				CreateObstacle(obstaclePos);
 			}
 			//Debug.WriteLine("Here " + EnemyPos.Count);
+			return;
 		}
 		#endregion
 
@@ -176,9 +180,10 @@ namespace Final_Game.LevelGen
 			return result;
 		}
 
-		private string selectLine(string[] pool, ref int i)
+		private string selectLine(string[] pool)
 		{
 			string result;
+			int i;
 			do
 			{
 				i = _random.Next(pool.Length);
@@ -254,6 +259,7 @@ namespace Final_Game.LevelGen
 						TileType.ClosedDoor,
 						new Vector2((Columns - 1) / 2 * Game1.TileSize, 0),
 						"U");
+				Doors.Add("North", Layout[0, (Columns - 1) / 2]);
 			}
 			if (connections["South"])
 			{
@@ -262,6 +268,7 @@ namespace Final_Game.LevelGen
 						TileType.ClosedDoor,
 						new Vector2((Columns - 1) / 2 * Game1.TileSize, (Rows - 1) * Game1.TileSize),
 						"B");
+				Doors.Add("South", Layout[Rows - 1, (Columns - 1) / 2]);
 			}
 			if (connections["East"])
 			{
@@ -270,6 +277,7 @@ namespace Final_Game.LevelGen
 						TileType.ClosedDoor,
 						new Vector2((Columns - 1) * Game1.TileSize, (Rows - 1) / 2 * Game1.TileSize),
 						"R");
+				Doors.Add("East", Layout[(Rows - 1) / 2, Columns - 1]);
 			}
 			if (connections["West"])
 			{
@@ -278,6 +286,7 @@ namespace Final_Game.LevelGen
 						TileType.ClosedDoor,
 						new Vector2(0, (Rows - 1) / 2 * Game1.TileSize),
 						"L");
+				Doors.Add("West", Layout[(Rows - 1) / 2, 0]);
 			}
 		}
 
@@ -481,6 +490,25 @@ namespace Final_Game.LevelGen
 				(int)worldposition.Y / Game1.TileSize];
 			selectedTile.HasHealthPickup = false;
 		}
+
+		/// <summary>
+		/// Removes enemies near a door tile..
+		/// </summary>
+		/// <param name="tile">Door tile to remove enemies around.</param>
+		public void RemoveEnemiesNearDoor(Tile door)
+		{
+			foreach(Tile tile in Spawners)
+			{
+				//Remove spawners within 50 units of the door.
+				Vector2 distance = door.WorldPosition - tile.WorldPosition;
+				if (distance.Length() < 200)
+				{
+					Spawners.Remove(tile);
+					tile.IsEnemySpawner = false;	
+				}
+			}
+		}
+
 		#endregion
 	}
 }

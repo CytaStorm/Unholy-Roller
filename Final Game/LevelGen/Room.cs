@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Final_Game.LevelGen
 {
@@ -226,6 +227,36 @@ namespace Final_Game.LevelGen
 			selectedTile.HasHealthPickup = true;
 		}
 
+		/// <summary>
+		/// Removes enemy spawners within 5 tiles of doors.
+		/// </summary>
+		/// <param name="roomOffset">Offset of this room relative to 
+		/// the previous room.</param>
+		public void RemoveEnemiesNearDoor(Point roomOffset)
+		{
+			//player at bottom
+			switch (roomOffset)
+			{
+				//Player at bottom
+				case (-1, 0):
+					Tileset.RemoveEnemiesNearDoor(Tileset.Doors["South"]);
+					break;
+				//player at top
+				case (1, 0):
+					Tileset.RemoveEnemiesNearDoor(Tileset.Doors["North"]);
+					break;
+				//player at left
+				case (0, 1):
+					Tileset.RemoveEnemiesNearDoor(Tileset.Doors["West"]);
+					break;
+				//player at right
+				case (0, -1):
+					Tileset.RemoveEnemiesNearDoor(Tileset.Doors["East"]);
+					break;
+				default:
+					throw new Exception("you shouldn't be here!");
+			}
+		}
 		public void Update(GameTime gameTime)
 		{
 			CheckCleared();

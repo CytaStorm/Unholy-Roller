@@ -85,14 +85,15 @@ namespace Final_Game.LevelGen
 				ExpandLevel(_rooms);
 			}
 
-			//Create connections between rooms.
 			foreach (Room room in _rooms)
 			{
+				//Create connections between rooms.
 				room.CreateConnections();
 			}
 
 			//Determine Boss Room
 			DetermineBossRoom();
+
 
 			//PrintLevel();
 		}
@@ -221,6 +222,10 @@ namespace Final_Game.LevelGen
 		{
 			Game1.PManager.ClearPickups();
 			CurrentPoint += newRoomOffset;
+
+			//Remove enemies near player.
+			CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
+
 			if (!CurrentRoom.Cleared)
 			{
 				Game1.EManager.CreateRoomEnemies(CurrentRoom);

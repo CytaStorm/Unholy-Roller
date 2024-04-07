@@ -478,10 +478,8 @@ namespace Final_Game.LevelGen
 		{
 			Tile selectedTile = Layout[
 				(int)worldposition.X / Game1.TileSize,
-				(int)worldposition.Y / Game1.TileSize
-				];
+				(int)worldposition.Y / Game1.TileSize];
 			selectedTile.HasHealthPickup = false;
-
 		}
 		#endregion
 	}

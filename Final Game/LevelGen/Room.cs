@@ -194,19 +194,15 @@ namespace Final_Game.LevelGen
 				return;
 			}
 
-			//Firstclear added so room only adds open doors once.
+			//What to do on first clear of room.
 			if (_firstClear)
 			{
 				_firstClear = false;
 				//Method to create open doors
 				Tileset.CreateOpenDoors(ActualConnections);
-				return;
+				//30% chance to create health pickup.
+				if (_random.Next() <= 0.3f) CreateHealthPickup();
 			}
-			//if (_random.NextDouble() <= 0.3)
-			//{
-			//	CreateHealthPickup();
-			//}
-			CreateHealthPickup();
 			return;
 		}
 

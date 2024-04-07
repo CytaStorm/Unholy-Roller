@@ -56,6 +56,8 @@ namespace Final_Game
 		/// </summary>
 		private Texture2D _cursorTexture;
 
+		private Texture2D _noRedirectCursorTexture;
+
 		/// <summary>
 		/// UI controller object.
 		/// </summary>
@@ -65,6 +67,9 @@ namespace Final_Game
 		/// Mouse controller object for control of cursor in-game.
 		/// </summary>
 		private MouseCursor _gameplayCursor;
+
+		private MouseCursor _noRedirectCursor;
+
 		/// <summary>
 		/// Mouse controller object for control of cursor in menus.
 		/// </summary>
@@ -185,6 +190,7 @@ namespace Final_Game
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
+			_noRedirectCursorTexture = Content.Load<Texture2D>("Sprites/X_CursorSprite");
 
 			// Make Camera
 			MainCamera = new Camera(new Vector2(300, 300), 1f);
@@ -196,9 +202,14 @@ namespace Final_Game
 			EManager = new EnemyManager(this);
 			PManager = new PickupManager(this);
 
-			// Create custom cursor
+			// Create custom cursors
 			_gameplayCursor = MouseCursor.FromTexture2D(
 				_cursorTexture, _cursorTexture.Width / 2, _cursorTexture.Height / 2);
+
+			_noRedirectCursor = MouseCursor.FromTexture2D(
+				_noRedirectCursorTexture,
+				_noRedirectCursorTexture.Width / 2,
+				_noRedirectCursorTexture.Height / 2);
 
 			// Create default cursor
 			_menuCursor = MouseCursor.Arrow;
@@ -233,6 +244,12 @@ namespace Final_Game
 			{
 				case GameState.Play:
 					Player.Update(gameTime);
+
+					// Update cursor
+					if (Player.NumRedirects > 0)
+						Mouse.SetCursor(_gameplayCursor);
+					else 
+						Mouse.SetCursor(_noRedirectCursor);
 
 					MainCamera.Update(gameTime);
 
@@ -497,6 +514,8 @@ namespace Final_Game
 			EManager.DrawGizmos();
 
 			PManager.DrawGizmos();
-		}
-	}
+
+            _ui.DisplayRedirectsInCursor();
+        }
+    }
 }

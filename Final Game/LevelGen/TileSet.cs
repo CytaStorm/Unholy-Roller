@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Final_Game.Pickups;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -47,9 +48,11 @@ namespace Final_Game.LevelGen
 		public int Height { get => Rows * Game1.TileSize; }
 
 		/// <summary>
-		/// The doors or bridge-points of this tileset
+		/// Key: Direction
+		/// Value: Door tile
 		/// </summary>
-		public List<Tile> Doors { get; private set; } = new List<Tile>();
+		public Dictionary<string, Tile> Doors { get ; private set; } =
+			new Dictionary<string, Tile>();
 
 		public List<Tile> Spawners { get; private set; } = new List<Tile>();
 
@@ -108,9 +111,10 @@ namespace Final_Game.LevelGen
 			bool enemiesFit = false;
 			do
 			{
-				EnemyPos = ConvertPositions(selectLine(allEnemyPos, ref EnemyPositionLayout));
-				ObstaclePos = ReadObstacles(selectLine(allObstaclePos, ref EnemyPositionLayout));
+				EnemyPos = ConvertPositions(selectLine(allEnemyPos));
+				ObstaclePos = ReadObstacles(selectLine(allObstaclePos));
 
+				//If one of them is empty, then there will be no overlap.
 				if (ObstaclePos.Count == 0 || EnemyPos.Count == 0)
 				{
 					//invalidEnemyObstacleCombo = false;
@@ -125,25 +129,26 @@ namespace Final_Game.LevelGen
 			} while (!invalidEnemyObstacleCombo && obstaclesFit && enemiesFit);
 
 			//Add positions to Layout
-			if (EnemyPos != null)
-			{
-				// Set spawners
-				foreach (Point enemyPos in EnemyPos)
-				{
-					Layout[enemyPos.Y, enemyPos.X].IsEnemySpawner = true;
-					Spawners.Add(Layout[enemyPos.Y, enemyPos.X]);
-				}
-			}
+			
+   			// Set spawners
+   			foreach (Point enemyPos in EnemyPos)
+   			{
+   				Layout[enemyPos.Y, enemyPos.X].IsEnemySpawner = true;
+   				Spawners.Add(Layout[enemyPos.Y, enemyPos.X]);
+   			}
 
-			if (ObstaclePos != null)
+			// Set obstacles
+			foreach (KeyValuePair<Point, char> obstaclePos in ObstaclePos)
 			{
-				// Set obstacles
-				foreach (KeyValuePair<Point, char> obstaclePos in ObstaclePos)
+				//If no enemies, ignore spikes.
+				if (EnemyPos.Count == 0 && obstaclePos.Value == 's')
 				{
-					CreateObstacle(obstaclePos);
+					continue;
 				}
+				CreateObstacle(obstaclePos);
 			}
 			//Debug.WriteLine("Here " + EnemyPos.Count);
+			return;
 		}
 		#endregion
 
@@ -167,9 +172,7 @@ namespace Final_Game.LevelGen
 					orientation = orientation.Substring(0, orientation.Length - 1);
 				}
 			}
-
 			
-
 			result = TileMaker.SetTile(
 				(TileType)tileIdInt,
 				new Vector2(col * Game1.TileSize, row * Game1.TileSize),
@@ -177,9 +180,10 @@ namespace Final_Game.LevelGen
 			return result;
 		}
 
-		private string selectLine(string[] pool, ref int i)
+		private string selectLine(string[] pool)
 		{
 			string result;
+			int i;
 			do
 			{
 				i = _random.Next(pool.Length);
@@ -255,6 +259,7 @@ namespace Final_Game.LevelGen
 						TileType.ClosedDoor,
 						new Vector2((Columns - 1) / 2 * Game1.TileSize, 0),
 						"U");
+				Doors.Add("North", Layout[0, (Columns - 1) / 2]);
 			}
 			if (connections["South"])
 			{
@@ -263,6 +268,7 @@ namespace Final_Game.LevelGen
 						TileType.ClosedDoor,
 						new Vector2((Columns - 1) / 2 * Game1.TileSize, (Rows - 1) * Game1.TileSize),
 						"B");
+				Doors.Add("South", Layout[Rows - 1, (Columns - 1) / 2]);
 			}
 			if (connections["East"])
 			{
@@ -271,6 +277,7 @@ namespace Final_Game.LevelGen
 						TileType.ClosedDoor,
 						new Vector2((Columns - 1) * Game1.TileSize, (Rows - 1) / 2 * Game1.TileSize),
 						"R");
+				Doors.Add("East", Layout[(Rows - 1) / 2, Columns - 1]);
 			}
 			if (connections["West"])
 			{
@@ -279,6 +286,7 @@ namespace Final_Game.LevelGen
 						TileType.ClosedDoor,
 						new Vector2(0, (Rows - 1) / 2 * Game1.TileSize),
 						"L");
+				Doors.Add("West", Layout[(Rows - 1) / 2, 0]);
 			}
 		}
 
@@ -330,37 +338,27 @@ namespace Final_Game.LevelGen
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			// Draw all tiles
-			for (int row = 0; row < Layout.GetLength(0); row++)
+			foreach(Tile tile in Layout)
 			{
-				for (int col = 0; col < Layout.GetLength(1); col++)
+				Vector2 screenPos = 
+					tile.WorldPosition + Game1.MainCamera.WorldToScreenOffset;
+				if (Game1.DebugOn)
 				{
-					Tile curTile = Layout[row, col];
-
-					// Find screen position
-					//Vector2 screenPos =
-					//	new Vector2(
-					//		col * Game1.TileSize * Game1.MainCamera.Zoom,
-					//		row * Game1.TileSize * Game1.MainCamera.Zoom)
-					//	+ Game1.MainCamera.WorldToScreenOffset;
-					//	
-					Vector2 screenPos = 
-						curTile.WorldPosition + Game1.MainCamera.WorldToScreenOffset;
-
-					if (Game1.DebugOn)
+					if (tile.IsDoor)
 					{
-						if (curTile.IsDoor)
-						{
-							curTile.TileSprite.TintColor = Color.Magenta;
-						}
-						if (curTile.IsEnemySpawner)
-						{
-							curTile.TileSprite.TintColor = Color.IndianRed;
-						}
+						tile.TileSprite.TintColor = Color.Magenta;
 					}
-					curTile.Draw(spriteBatch, screenPos);
+					if (tile.IsEnemySpawner)
+					{
+						tile.TileSprite.TintColor = Color.IndianRed;
+					}
+				}
+				tile.Draw(spriteBatch, screenPos);
 
-					curTile.TileSprite.TintColor = Color.White;
+				tile.TileSprite.TintColor = Color.White;
+				if (tile.HasHealthPickup)
+				{
+					Game1.PManager.CreateHealthPickup(tile);	
 				}
 			}
 		}
@@ -370,7 +368,7 @@ namespace Final_Game.LevelGen
 		/// a list of Points. Each position is a delimited by '|'.
 		/// </summary>
 		/// <param name="allPositions">String array of positions.</param>
-		/// <returns></returns>
+		/// <returns>List of points, converted from string array of positions.</returns>
 		public List<Point> ConvertPositions(string allPositions)
 		{
 			//If allPositions is empty (no enemies/obstacles, return early
@@ -467,31 +465,50 @@ namespace Final_Game.LevelGen
 		/// Returns a random floor tile.
 		/// </summary>
 		/// <returns></returns>
-		public Point FindRandomFloorTile()
+		public Tile FindRandomFloorTile()
 		{
-			List<Point> floorTiles = new List<Point>();
-			for (int x = 0; x < Rows; x++)
+			List<Tile> possibleGrassTiles = new List<Tile>();
+			foreach (Tile tile in  Layout)
 			{
-				for (int y = 0; y < Columns; y++)
+				if (tile.Type == TileType.Grass)
 				{
-					IsTileGrass(floorTiles, x, y);
+					possibleGrassTiles.Add(tile);
 				}
 			}
-			return floorTiles[_random.Next(floorTiles.Count)];
+			return possibleGrassTiles[_random.Next(possibleGrassTiles.Count)];
 		}
 
 		/// <summary>
-		/// If the position on the map is a floor tile, add
-		/// it to the list.
+		/// Removes pickup flag at tile.
 		/// </summary>
-		/// <param name="floorTiles">List to add floor tiles to.</param>
-		/// <param name="x">X position to check.</param>
-		/// <param name="y">Y positon to check.</param>
-		private void IsTileGrass(List<Point> floorTiles, int x, int y)
+		/// <param name="worldposition">World position
+		/// of tile to remove pickup flag at.</param>
+		public void CollectedPickup(Vector2 worldposition)
 		{
-			if (Layout[x, y].Type == TileType.Grass)
+			Tile selectedTile = Layout[
+				(int)worldposition.X / Game1.TileSize,
+				(int)worldposition.Y / Game1.TileSize];
+			selectedTile.HasHealthPickup = false;
+		}
+
+		/// <summary>
+		/// Removes enemies near a door tile..
+		/// </summary>
+		/// <param name="tile">Door tile to remove enemies around.</param>
+		public void RemoveEnemiesNearDoor(Tile door)
+		{
+			for (int i = 0; i < Spawners.Count; i++)
 			{
-				floorTiles.Add(new Point(x, y));
+				Tile tile = Spawners[i];
+				//Remove spawners within 50 units of the door.
+				Vector2 distance = door.WorldPosition - tile.WorldPosition;
+				Debug.WriteLine(distance.Length());
+				if (distance.Length() < 500)
+				{
+					Debug.WriteLine("entered loop");
+					Spawners.Remove(tile);
+					tile.IsEnemySpawner = false;	
+				}
 			}
 		}
 

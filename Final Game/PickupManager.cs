@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Final_Game.Entity;
 using Final_Game.LevelGen;
+using System.Diagnostics;
 
 namespace Final_Game
 {
@@ -35,16 +36,15 @@ namespace Final_Game
         #region Method(s)
         public void Update(GameTime gameTime)
         {
-            // Remove Collected Pickups
-            for (int i = 0; i < Pickups.Count; i++)
-            {
-                if (!Pickups[i].Alive)
-                {
-                    Pickups.RemoveAt(i);
-
-                    i--;
-                }
-            }
+            //// Remove Collected Pickups
+            //for (int i = 0; i < Pickups.Count; i++)
+            //{
+            //    if (!Pickups[i].Alive)
+            //    {
+            //        Pickups.RemoveAt(i);
+            //        i--;
+            //    }
+            //}
         }
 
         public void Draw(SpriteBatch sb)
@@ -74,16 +74,29 @@ namespace Final_Game
             return;
         }
 
-        public void CreateHealthPickup(int xPos, int yPos)
+        /// <summary>
+        /// Creates a health pickup.
+        /// </summary>
+        /// <param name="tile">Tile to create health pickup at.</param>
+        public void CreateHealthPickup(Tile tile)
         {
-            Point selectedTile = new Point(xPos / Game1.TileSize, yPos / Game1.TileSize);
-            if (Game1.TestLevel.CurrentRoom.Tileset.Layout[selectedTile.X, selectedTile.Y].Type != LevelGen.TileType.Grass)
-            {
-                //Pick closest tile that is grass.
-                selectedTile = Game1.TestLevel.CurrentRoom.Tileset.FindRandomFloorTile();
-            }
-            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
-                selectedTile.X * 60, selectedTile.Y * 60)));
+            Debug.WriteLine("Created health pickup");
+			Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
+				tile.WorldPosition.X, tile.WorldPosition.Y)));
+		}
+
+        public void PlayerCollided(Entity.Entity entity)
+        {
+            Game1.CurrentLevel.CurrentRoom.Tileset.CollectedPickup(
+                entity.WorldPosition);
+            Pickups.Remove(entity);
+        }
+        /// <summary>
+        /// Clears all pickups in the room.
+        /// </summary>
+        public void ClearPickups()
+        {
+            Pickups.Clear();
         }
 
         public void DrawGizmos()

@@ -347,11 +347,23 @@ namespace Final_Game.Entity
 			return;
 		}
 
+		/// <summary>
+		/// Checks if pickups have been collided with.
+		/// </summary>
 		private void CheckPickupCollisions()
 		{
-			foreach(Entity p in Game1.PManager.Pickups)
+			for (int i = 0; i < Game1.PManager.Pickups.Count; i++)
 			{
-				CollisionChecker.CheckEntityCollision(this, p);
+				Entity currentPickup = Game1.PManager.Pickups[i];
+
+				//Clear pickup.
+				if (CollisionChecker.CheckEntityCollision(
+					this, currentPickup))
+				{
+					Game1.PManager.PlayerCollided(currentPickup);
+					//Decrement to correct for list shortening.
+					i--;
+				}
 			}
 			return;
 		}
@@ -404,6 +416,10 @@ namespace Final_Game.Entity
 	
 		#region Movement Helper Methods
 	
+		/// <summary>
+		/// Moves the player to the next room.
+		/// </summary>
+		/// <param name="tile">Door tile that the player touched.</param>
 		private void TransferRoom(Tile tile)
 		{
 			switch (tile.DoorOrientation)

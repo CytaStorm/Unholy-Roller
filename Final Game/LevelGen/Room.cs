@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Final_Game.LevelGen
 {
@@ -15,6 +16,7 @@ namespace Final_Game.LevelGen
 		private bool _firstClear = true;
 
 		private Level _parent;
+
 		/// <summary>
 		/// Random number generator.
 		/// </summary>
@@ -184,23 +186,77 @@ namespace Final_Game.LevelGen
 		/// </summary>
 		public void CheckCleared()
 		{
-				Cleared = Game1.EManager.Enemies.Count < 1
-					&& _parent != Game1.TutorialLevel;
+			Cleared = Game1.EManager.Enemies.Count < 1
+				&& _parent != Game1.TutorialLevel;
 
-			//Firstclear added so room only adds open doors once.
-			if (Cleared && _firstClear)
+			//Early return if not cleared.
+			if (!Cleared)
+			{
+				return;
+			}
+
+			//What to do on first clear of room.
+			if (_firstClear)
 			{
 				_firstClear = false;
 				//Method to create open doors
 				Tileset.CreateOpenDoors(ActualConnections);
-				//30% chance to spawn health pickup
-				if (_random.NextDouble() <= 0.3)
-				{
-					Game1.PManager.CreateHealthPickup(Tileset.Rows, Tileset.Columns);
-				}
+				//30% chance to create health pickup.
+				if (_random.Next() <= 0.3f) CreateHealthPickup();
 			}
+			return;
 		}
 
+		/// <summary>
+		/// Creates a health pickup at the center of room.
+		/// Otherwise creates a health pickup at random point in room.
+		/// </summary>
+		private void CreateHealthPickup()
+		{
+			//Selects middle tile
+			Tile selectedTile = Tileset.Layout[
+				Tileset.Rows / 2,
+				Tileset.Columns / 2];
+
+			if (selectedTile.Type != LevelGen.TileType.Grass)
+			{
+				//Select random tile.
+				selectedTile = Game1.TestLevel.CurrentRoom.Tileset.FindRandomFloorTile();
+			}
+
+			selectedTile.HasHealthPickup = true;
+		}
+
+		/// <summary>
+		/// Removes enemy spawners within 5 tiles of doors.
+		/// </summary>
+		/// <param name="roomOffset">Offset of this room relative to 
+		/// the previous room.</param>
+		public void RemoveEnemiesNearDoor(Point roomOffset)
+		{
+			//player at bottom
+			switch (roomOffset)
+			{
+				//Player at bottom
+				case (-1, 0):
+					Tileset.RemoveEnemiesNearDoor(Tileset.Doors["South"]);
+					break;
+				//player at top
+				case (1, 0):
+					Tileset.RemoveEnemiesNearDoor(Tileset.Doors["North"]);
+					break;
+				//player at left
+				case (0, 1):
+					Tileset.RemoveEnemiesNearDoor(Tileset.Doors["West"]);
+					break;
+				//player at right
+				case (0, -1):
+					Tileset.RemoveEnemiesNearDoor(Tileset.Doors["East"]);
+					break;
+				default:
+					throw new Exception("you shouldn't be here!");
+			}
+		}
 		public void Update(GameTime gameTime)
 		{
 			CheckCleared();

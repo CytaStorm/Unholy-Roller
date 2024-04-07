@@ -347,6 +347,9 @@ namespace Final_Game.Entity
 			return;
 		}
 
+		/// <summary>
+		/// Checks if pickups have been collided with.
+		/// </summary>
 		private void CheckPickupCollisions()
 		{
 			for (int i = 0; i < Game1.PManager.Pickups.Count; i++)

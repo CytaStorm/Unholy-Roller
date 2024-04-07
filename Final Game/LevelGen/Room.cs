@@ -188,19 +188,26 @@ namespace Final_Game.LevelGen
 			Cleared = Game1.EManager.Enemies.Count < 1
 				&& _parent != Game1.TutorialLevel;
 
+			//Early return if not cleared.
+			if (!Cleared)
+			{
+				return;
+			}
+
 			//Firstclear added so room only adds open doors once.
-			if (Cleared && _firstClear)
+			if (_firstClear)
 			{
 				_firstClear = false;
 				//Method to create open doors
 				Tileset.CreateOpenDoors(ActualConnections);
-				////30% chance to spawn health pickup
-				//if (_random.NextDouble() <= 0.3)
-				//{
-				//	CreateHealthPickup();
-				//}
-				CreateHealthPickup();
+				return;
 			}
+			//if (_random.NextDouble() <= 0.3)
+			//{
+			//	CreateHealthPickup();
+			//}
+			CreateHealthPickup();
+			return;
 		}
 
 		/// <summary>

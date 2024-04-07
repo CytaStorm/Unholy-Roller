@@ -168,9 +168,7 @@ namespace Final_Game.LevelGen
 					orientation = orientation.Substring(0, orientation.Length - 1);
 				}
 			}
-
 			
-
 			result = TileMaker.SetTile(
 				(TileType)tileIdInt,
 				new Vector2(col * Game1.TileSize, row * Game1.TileSize),
@@ -469,6 +467,21 @@ namespace Final_Game.LevelGen
 				}
 			}
 			return possibleGrassTiles[_random.Next(possibleGrassTiles.Count)];
+		}
+
+		/// <summary>
+		/// Removes pickup flag at tile.
+		/// </summary>
+		/// <param name="worldposition">World position
+		/// of tile to remove pickup flag at.</param>
+		public void CollectedPickup(Vector2 worldposition)
+		{
+			Tile selectedTile = Layout[
+				(int)worldposition.X / Game1.TileSize,
+				(int)worldposition.Y / Game1.TileSize
+				];
+			selectedTile.HasHealthPickup = false;
+
 		}
 		#endregion
 	}

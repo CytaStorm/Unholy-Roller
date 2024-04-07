@@ -349,11 +349,17 @@ namespace Final_Game.Entity
 
 		private void CheckPickupCollisions()
 		{
-			foreach(Entity p in Game1.PManager.Pickups)
+			for (int i = 0; i < Game1.PManager.Pickups.Count; i++)
 			{
+				Entity currentPickup = Game1.PManager.Pickups[i];
+
 				//Clear pickup.
-				if (CollisionChecker.CheckEntityCollision(this, p))
+				if (CollisionChecker.CheckEntityCollision(
+					this, currentPickup))
 				{
+					Game1.PManager.PlayerCollided(currentPickup);
+					//Decrement to correct for list shortening.
+					i--;
 				}
 			}
 			return;

@@ -85,8 +85,14 @@ namespace Final_Game
 				tile.WorldPosition.X, tile.WorldPosition.Y)));
 		}
 
+        public void PlayerCollided(Entity.Entity entity)
+        {
+            Game1.CurrentLevel.CurrentRoom.Tileset.CollectedPickup(
+                entity.WorldPosition);
+            Pickups.Remove(entity);
+        }
         /// <summary>
-        /// Cears all pickups in the room.
+        /// Clears all pickups in the room.
         /// </summary>
         public void ClearPickups()
         {

@@ -497,12 +497,15 @@ namespace Final_Game.LevelGen
 		/// <param name="tile">Door tile to remove enemies around.</param>
 		public void RemoveEnemiesNearDoor(Tile door)
 		{
-			foreach(Tile tile in Spawners)
+			for (int i = 0; i < Spawners.Count; i++)
 			{
+				Tile tile = Spawners[i];
 				//Remove spawners within 50 units of the door.
 				Vector2 distance = door.WorldPosition - tile.WorldPosition;
-				if (distance.Length() < 200)
+				Debug.WriteLine(distance.Length());
+				if (distance.Length() < 500)
 				{
+					Debug.WriteLine("entered loop");
 					Spawners.Remove(tile);
 					tile.IsEnemySpawner = false;	
 				}

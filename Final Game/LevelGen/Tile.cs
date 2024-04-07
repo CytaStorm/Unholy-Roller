@@ -19,6 +19,7 @@ namespace Final_Game.LevelGen
 		public bool IsDoor { get; set; }
 		public string DoorOrientation { get; set; }
 		public bool IsEnemySpawner { get; set; }
+		public bool HasHealthPickup { get; set; } = false;
 		public Rectangle Hitbox =>
 			new Rectangle(
 				(int)(WorldPosition.X),

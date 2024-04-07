@@ -170,6 +170,7 @@ namespace Final_Game
 			TutorialLevel = new Level(1, 1, 1);
 
 			CurrentLevel = TestLevel;
+			CurrentLevel.PrintLevel();
 
 			//Player = new Player(this, new Vector2(
 			//	TestLevel.CurrentRoom.Tileset.Width / 2,

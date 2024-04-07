@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Final_Game.Pickups;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -330,37 +331,27 @@ namespace Final_Game.LevelGen
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			// Draw all tiles
-			for (int row = 0; row < Layout.GetLength(0); row++)
+			foreach(Tile tile in Layout)
 			{
-				for (int col = 0; col < Layout.GetLength(1); col++)
+				Vector2 screenPos = 
+					tile.WorldPosition + Game1.MainCamera.WorldToScreenOffset;
+				if (Game1.DebugOn)
 				{
-					Tile curTile = Layout[row, col];
-
-					// Find screen position
-					//Vector2 screenPos =
-					//	new Vector2(
-					//		col * Game1.TileSize * Game1.MainCamera.Zoom,
-					//		row * Game1.TileSize * Game1.MainCamera.Zoom)
-					//	+ Game1.MainCamera.WorldToScreenOffset;
-					//	
-					Vector2 screenPos = 
-						curTile.WorldPosition + Game1.MainCamera.WorldToScreenOffset;
-
-					if (Game1.DebugOn)
+					if (tile.IsDoor)
 					{
-						if (curTile.IsDoor)
-						{
-							curTile.TileSprite.TintColor = Color.Magenta;
-						}
-						if (curTile.IsEnemySpawner)
-						{
-							curTile.TileSprite.TintColor = Color.IndianRed;
-						}
+						tile.TileSprite.TintColor = Color.Magenta;
 					}
-					curTile.Draw(spriteBatch, screenPos);
+					if (tile.IsEnemySpawner)
+					{
+						tile.TileSprite.TintColor = Color.IndianRed;
+					}
+				}
+				tile.Draw(spriteBatch, screenPos);
 
-					curTile.TileSprite.TintColor = Color.White;
+				tile.TileSprite.TintColor = Color.White;
+				if (tile.HasHealthPickup)
+				{
+					Game1.PManager.CreateHealthPickup(tile);	
 				}
 			}
 		}
@@ -370,7 +361,7 @@ namespace Final_Game.LevelGen
 		/// a list of Points. Each position is a delimited by '|'.
 		/// </summary>
 		/// <param name="allPositions">String array of positions.</param>
-		/// <returns></returns>
+		/// <returns>List of points, converted from string array of positions.</returns>
 		public List<Point> ConvertPositions(string allPositions)
 		{
 			//If allPositions is empty (no enemies/obstacles, return early
@@ -467,34 +458,18 @@ namespace Final_Game.LevelGen
 		/// Returns a random floor tile.
 		/// </summary>
 		/// <returns></returns>
-		public Point FindRandomFloorTile()
+		public Tile FindRandomFloorTile()
 		{
-			List<Point> floorTiles = new List<Point>();
-			for (int x = 0; x < Rows; x++)
+			List<Tile> possibleGrassTiles = new List<Tile>();
+			foreach (Tile tile in  Layout)
 			{
-				for (int y = 0; y < Columns; y++)
+				if (tile.Type == TileType.Grass)
 				{
-					IsTileGrass(floorTiles, x, y);
+					possibleGrassTiles.Add(tile);
 				}
 			}
-			return floorTiles[_random.Next(floorTiles.Count)];
+			return possibleGrassTiles[_random.Next(possibleGrassTiles.Count)];
 		}
-
-		/// <summary>
-		/// If the position on the map is a floor tile, add
-		/// it to the list.
-		/// </summary>
-		/// <param name="floorTiles">List to add floor tiles to.</param>
-		/// <param name="x">X position to check.</param>
-		/// <param name="y">Y positon to check.</param>
-		private void IsTileGrass(List<Point> floorTiles, int x, int y)
-		{
-			if (Layout[x, y].Type == TileType.Grass)
-			{
-				floorTiles.Add(new Point(x, y));
-			}
-		}
-
 		#endregion
 	}
 }

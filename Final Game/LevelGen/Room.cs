@@ -15,6 +15,7 @@ namespace Final_Game.LevelGen
 		private bool _firstClear = true;
 
 		private Level _parent;
+
 		/// <summary>
 		/// Random number generator.
 		/// </summary>
@@ -184,8 +185,8 @@ namespace Final_Game.LevelGen
 		/// </summary>
 		public void CheckCleared()
 		{
-				Cleared = Game1.EManager.Enemies.Count < 1
-					&& _parent != Game1.TutorialLevel;
+			Cleared = Game1.EManager.Enemies.Count < 1
+				&& _parent != Game1.TutorialLevel;
 
 			//Firstclear added so room only adds open doors once.
 			if (Cleared && _firstClear)
@@ -193,12 +194,33 @@ namespace Final_Game.LevelGen
 				_firstClear = false;
 				//Method to create open doors
 				Tileset.CreateOpenDoors(ActualConnections);
-				//30% chance to spawn health pickup
-				if (_random.NextDouble() <= 0.3)
-				{
-					Game1.PManager.CreateHealthPickup(Tileset.Rows, Tileset.Columns);
-				}
+				////30% chance to spawn health pickup
+				//if (_random.NextDouble() <= 0.3)
+				//{
+				//	CreateHealthPickup();
+				//}
+				CreateHealthPickup();
 			}
+		}
+
+		/// <summary>
+		/// Creates a health pickup at the center of room.
+		/// Otherwise creates a health pickup at random point in room.
+		/// </summary>
+		private void CreateHealthPickup()
+		{
+			//Selects middle tile
+			Tile selectedTile = Tileset.Layout[
+				Tileset.Rows / 2,
+				Tileset.Columns / 2];
+
+			if (selectedTile.Type != LevelGen.TileType.Grass)
+			{
+				//Select random tile.
+				selectedTile = Game1.TestLevel.CurrentRoom.Tileset.FindRandomFloorTile();
+			}
+
+			selectedTile.HasHealthPickup = true;
 		}
 
 		public void Update(GameTime gameTime)

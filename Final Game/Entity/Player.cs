@@ -351,7 +351,11 @@ namespace Final_Game.Entity
 		{
 			foreach(Entity p in Game1.PManager.Pickups)
 			{
-				CollisionChecker.CheckEntityCollision(this, p);
+				//Clear pickup.
+				if (CollisionChecker.CheckEntityCollision(this, p))
+				{
+					Game1.PManager.Pickups.Remove(p);
+				}
 			}
 			return;
 		}
@@ -404,6 +408,10 @@ namespace Final_Game.Entity
 	
 		#region Movement Helper Methods
 	
+		/// <summary>
+		/// Moves the player to the next room.
+		/// </summary>
+		/// <param name="tile">Door tile that the player touched.</param>
 		private void TransferRoom(Tile tile)
 		{
 			switch (tile.DoorOrientation)

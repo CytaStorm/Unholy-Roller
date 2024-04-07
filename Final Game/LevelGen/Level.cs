@@ -94,8 +94,7 @@ namespace Final_Game.LevelGen
 			//Determine Boss Room
 			DetermineBossRoom();
 
-			Debug.WriteLine($"Start room {StartPoint}");
-			PrintLevel();
+			//PrintLevel();
 		}
 		#endregion
 
@@ -214,22 +213,21 @@ namespace Final_Game.LevelGen
 		}
 
 		/// <summary>
-		/// 
+		/// Loads new room.
 		/// </summary>
-		/// <param name="newRoomOffset"></param>
+		/// <param name="newRoomOffset">Offset that
+		/// determines which room is loaded.</param>
 		public void LoadRoomUsingOffset(Point newRoomOffset)
 		{
+			Game1.PManager.ClearPickups();
 			CurrentPoint += newRoomOffset;
 			if (!CurrentRoom.Cleared)
 			{
 				Game1.EManager.CreateRoomEnemies(CurrentRoom);
 			}
-			//foreach(Tile tile in CurrentRoom.Tileset.Spawners)
-			//{
-			//	Debug.WriteLine(tile.WorldPosition);
-			//}
 		}
 
+		#region Debug methods
 		/// <summary>
 		/// Prints out Level Map to Debug.
 		/// </summary>
@@ -239,24 +237,37 @@ namespace Final_Game.LevelGen
 			{
 				for (int col = 0;  col < Map.GetLength(1); col++)
 				{
-					if (Map[row, col] != null)
-					{
-						if (Map[row, col].IsBossRoom)
-						{
-							Debug.Write("BOSS | ");
-							continue;
-						}
-						Debug.Write("ROOM | ");
-						continue;
-					}
-					Debug.Write("____ | ");
+					PrintRoom(row, col);
 				}
 				Debug.WriteLine("");
 			}
 
-			//Debug.WriteLine("--------------------------------------------------" +
-			//	"------------------------------------------------------");
+			Debug.WriteLine($"Start room {StartPoint}");
 		}
+
+		/// <summary>
+		/// Prints type of room.
+		/// </summary>
+		/// <param name="row">Room row in map.</param>
+		/// <param name="col">Romm col in map.</param>
+		private void PrintRoom(int row, int col)
+		{
+			if (Map[row, col] == null)
+			{
+				Debug.Write("____ | ");
+				return;
+			}
+
+			if (Map[row, col].IsBossRoom)
+			{
+				Debug.Write("BOSS | ");
+				return;
+			}
+
+			Debug.Write("ROOM | ");
+			return;
+		}
+		#endregion
 		#endregion
 
 	}

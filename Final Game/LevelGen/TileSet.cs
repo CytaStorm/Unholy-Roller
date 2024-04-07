@@ -126,23 +126,23 @@ namespace Final_Game.LevelGen
 			} while (!invalidEnemyObstacleCombo && obstaclesFit && enemiesFit);
 
 			//Add positions to Layout
-			if (EnemyPos != null)
-			{
-				// Set spawners
-				foreach (Point enemyPos in EnemyPos)
-				{
-					Layout[enemyPos.Y, enemyPos.X].IsEnemySpawner = true;
-					Spawners.Add(Layout[enemyPos.Y, enemyPos.X]);
-				}
-			}
+			
+   			// Set spawners
+   			foreach (Point enemyPos in EnemyPos)
+   			{
+   				Layout[enemyPos.Y, enemyPos.X].IsEnemySpawner = true;
+   				Spawners.Add(Layout[enemyPos.Y, enemyPos.X]);
+   			}
 
-			if (ObstaclePos != null)
+			// Set obstacles
+			foreach (KeyValuePair<Point, char> obstaclePos in ObstaclePos)
 			{
-				// Set obstacles
-				foreach (KeyValuePair<Point, char> obstaclePos in ObstaclePos)
+				//If no enemies, ignore spikes.
+				if (EnemyPos.Count == 0 && obstaclePos.Value == 's')
 				{
-					CreateObstacle(obstaclePos);
+					continue;
 				}
+				CreateObstacle(obstaclePos);
 			}
 			//Debug.WriteLine("Here " + EnemyPos.Count);
 		}

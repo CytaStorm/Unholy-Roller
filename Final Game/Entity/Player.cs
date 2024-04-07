@@ -354,7 +354,6 @@ namespace Final_Game.Entity
 				//Clear pickup.
 				if (CollisionChecker.CheckEntityCollision(this, p))
 				{
-					Game1.PManager.Pickups.Remove(p);
 				}
 			}
 			return;

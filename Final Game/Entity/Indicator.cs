@@ -15,21 +15,26 @@ namespace Final_Game.Entity
         
         private Vector2 WorldPos;
         private Vector2 screenPos;
+        private Vector2 playerScreenPos;
         private BossState attackType;
         private double timeVisible;
-        private Texture2D redCircle;
+        private int direction;
+     
 
-        public Indicator(Vector2 position, BossState attackType, Texture2D circle) {
+        public Indicator(Vector2 position, BossState attackType) {
             WorldPos = position;
             this.attackType = attackType;
             timeVisible = 1;
-            redCircle = circle;
+            playerScreenPos = new Vector2(Game1.Player.ScreenPosition.X, Game1.Player.ScreenPosition.Y);
             
         }
         public bool Update(GameTime gameTime)
         {
-            Vector2 distFromPlayer = WorldPos - Game1.Player.WorldPosition;
-            screenPos = Game1.Player.ScreenPosition + distFromPlayer;
+            
+               Vector2 distFromPlayer = WorldPos - Game1.Player.WorldPosition;
+               screenPos = Game1.Player.ScreenPosition + distFromPlayer;
+                
+            
             if (timeVisible > 0)
             {
                 timeVisible -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
@@ -40,6 +45,7 @@ namespace Final_Game.Entity
         }
         public void Draw()
         {
+            
 
             switch (attackType)
             {
@@ -49,8 +55,8 @@ namespace Final_Game.Entity
                     ShapeBatch.CircleOutline(screenPos + new Vector2(50,50), 50f, Color.Red);
                     ShapeBatch.Circle(screenPos + new Vector2(50, 50), (50.0f * (float)(1.1 - timeVisible)), Color.DarkRed);
                     break;
-
-                    break;
+                    
+                  
                     
             }
            

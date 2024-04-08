@@ -671,5 +671,35 @@ namespace Final_Game
 				}
 			}
 		}
+
+		public void DisplayRedirectsInCursor()
+		{
+            //string numRedirects = Game1.Player.NumRedirects.ToString();
+
+            //Vector2 stringDims = TitleCaseArial.MeasureString(numRedirects);
+
+            //_spriteBatch.DrawString(
+            //	TitleCaseArial,
+            //	numRedirects,
+            //	Game1.CurMouse.Position.ToVector2() - stringDims / 2,
+            //	Color.White);
+
+            float maxRadius = 60f;
+            if (Game1.Player.LaunchPrimed)
+			{
+				// Circular fill
+				ShapeBatch.Circle(
+					Game1.CurMouse.Position.ToVector2(),
+					maxRadius * ((float)Game1.Player.NumRedirects / Game1.Player.MaxRedirects),
+					Color.LightBlue * 0.6f);
+			}
+			else if (Game1.Player.NumRedirects == 0)
+			{
+                ShapeBatch.Circle(
+                    Game1.CurMouse.Position.ToVector2(),
+                    maxRadius,
+                    Color.Red * 0.8f);
+            }
+        }
 	}
 }

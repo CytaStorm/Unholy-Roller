@@ -34,15 +34,6 @@ namespace Final_Game.Entity
 		private int _launchArrowSpriteWidth;
 
 		/// <summary>
-		/// Amount of redirects the player has left to use.
-		/// </summary>
-		private int _numRedirects;
-		/// <summary>
-		/// Maxmium amount of redirects that play has.
-		/// </summary>
-		private int _maxRedirects;
-
-		/// <summary>
 		/// Speed of the player when walking.
 		/// </summary>
 		private float _walkSpeed;
@@ -110,9 +101,23 @@ namespace Final_Game.Entity
 		private Enemy lastContactedEnemy = null;
 		private Room CurrentRoom { get { return Game1.CurrentLevel.CurrentRoom; } }
 
-		#endregion
+        /// <summary>
+        /// Amount of redirects the player has left to use.
+        /// </summary>
+        public int NumRedirects { get; private set; }
 
-		public event EntityDamaged OnPlayerDamaged;
+        /// <summary>
+        /// The maxmium amount of redirects player can have
+        /// </summary>
+        public int MaxRedirects { get; private set; }
+
+        public bool LaunchPrimed { 
+			get => Game1.IsMouseButtonPressed(1) && NumRedirects > 0; 
+		}
+
+        #endregion
+
+        public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
 
@@ -171,8 +176,8 @@ namespace Final_Game.Entity
 			//Set combo
 			Combo = 0;
 			// Give launches
-			_maxRedirects = 3;
-			_numRedirects = _maxRedirects + 1;
+			MaxRedirects = 3;
+			NumRedirects = MaxRedirects + 1;
 
 			// Health
 			MaxHealth = 6;
@@ -222,7 +227,7 @@ namespace Final_Game.Entity
 					{
 						State = PlayerState.Walking;
 
-						_numRedirects = _maxRedirects + 1;
+						NumRedirects = MaxRedirects + 1;
 					}
 					break;
 			}
@@ -255,9 +260,7 @@ namespace Final_Game.Entity
 				new Vector2(_rollFrameWidth, _rollFrameWidth) / 2f);
 
 			// Draw player launch arrow
-			if (_controllable && 
-				_numRedirects > 0 && 
-				Game1.IsMouseButtonPressed(1))
+			if (_controllable && LaunchPrimed)
 			{
 				DrawLaunchArrow(sb, screenPos);
 			}
@@ -281,7 +284,7 @@ namespace Final_Game.Entity
 					//Debug.WriteLine("HIT OPEN DOOR");
 
 					TransferRoom(tile);
-					_numRedirects = _maxRedirects;
+					NumRedirects = MaxRedirects;
 					return;
 
 				case TileType.Wall:
@@ -384,9 +387,9 @@ namespace Final_Game.Entity
 				Accelerate(acc);
 
 				// Get an extra redirect
-				if (_numRedirects < _maxRedirects)
+				if (NumRedirects < MaxRedirects)
 				{
-					_numRedirects++; 
+					NumRedirects++; 
 				}
 				Combo++;
 				_comboResetDuration = 5f;
@@ -483,7 +486,7 @@ namespace Final_Game.Entity
 			}
 	
 			// Launch Player in direction of Mouse
-			if (_numRedirects > 0 && Game1.IsMouseLeftClicked())
+			if (NumRedirects > 0 && Game1.IsMouseLeftClicked())
 			{
 				// Get mouse Position
 				Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
@@ -525,7 +528,7 @@ namespace Final_Game.Entity
 				//    Velocity = distance;
 				//}
 	
-				_numRedirects--;
+				NumRedirects--;
 	
 				// Player is now rolling
 				State = PlayerState.Rolling;
@@ -599,7 +602,7 @@ namespace Final_Game.Entity
 	
 		private void UpdateBulletTime(GameTime gameTime)
 		{
-			if (Game1.IsMouseButtonPressed(1) && _numRedirects > 0 && !CurrentRoom.Cleared)
+			if (Game1.IsMouseButtonPressed(1) && NumRedirects > 0 && !CurrentRoom.Cleared)
 			{
 				// Transition from normal -> bullet time
 				_transitionTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;
@@ -649,7 +652,7 @@ namespace Final_Game.Entity
 			Rectangle arrowSourceRect = new Rectangle();
 
 			// Get correct launch arrow image from spritesheet
-			int arrowNumber = MathHelper.Clamp(_numRedirects - 1, 0, 3);
+			int arrowNumber = MathHelper.Clamp(NumRedirects - 1, 0, 3);
 
             arrowSourceRect = new Rectangle(
 				_launchArrowSpriteWidth * arrowNumber, 0,
@@ -710,7 +713,7 @@ namespace Final_Game.Entity
             CurHealth = MaxHealth;
 	
 			// Restore Redirects
-			_numRedirects = _maxRedirects + 1;
+			NumRedirects = MaxRedirects + 1;
 	
 			// Stop Moving
 			Velocity = Vector2.Zero;
@@ -784,8 +787,7 @@ namespace Final_Game.Entity
 
                 // Reset time counter
                 _rollFrameTimeCounter -=
-					gameTime.ElapsedGameTime.TotalSeconds *
-					BulletTimeMultiplier;
+					gameTime.ElapsedGameTime.TotalSeconds;
 			}
 		}
 

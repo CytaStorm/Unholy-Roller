@@ -17,6 +17,7 @@ namespace Final_Game.Entity
 		Idle,
 		Chase,
 		Attack,
+		KO
 	}
 
 	public abstract class Enemy : Entity
@@ -157,7 +158,7 @@ namespace Final_Game.Entity
 		{
 			if (IsKO)
 			{
-				ActionState = EnemyState.Idle;
+				ActionState = EnemyState.KO;
 				return;
 			}
 			if (playerDist < _aggroRange)
@@ -184,20 +185,7 @@ namespace Final_Game.Entity
 		#endregion
 
 		#region Drawing Helpers
-		protected virtual void DrawKoed(SpriteBatch sb, Vector2 screenPos)
-		{
-			//if (InvTimer >= .2 * InvDuration)
-			//{
-			//    // Flash a certain color
-			//}
 
-			Image.Draw(
-				sb, 
-				screenPos, 
-				MathHelper.PiOver2, 
-				Image.SourceRect.Center.ToVector2());
-			return;
-		}
 		public override void DrawGizmos()
 		{
 			// Visualize attack windup with a vertical progress bar

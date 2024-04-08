@@ -31,6 +31,8 @@ namespace Final_Game.Entity
         private IndicatorManager indicators;
         private Texture2D circle;
         private Game1 gm;
+        private double _pinThrowWindUp;
+        private bool aboutToThrow;
         // Constructors
         public PinMech(Game1 gm, Vector2 position)
             : base(gm, position)
@@ -48,8 +50,8 @@ namespace Final_Game.Entity
                 new Rectangle(
                     (int)position.X,
                     (int)position.Y,
-                    (int)(Game1.TileSize * 3.0f),
-                    (int)(Game1.TileSize * 3.0f *
+                    (int)(Game1.TileSize * 1.5f),
+                    (int)(Game1.TileSize * 1.5f *
                     140 / 120)));
 
             // Position
@@ -59,8 +61,8 @@ namespace Final_Game.Entity
             Hitbox = new Rectangle(
                 (int)WorldPosition.X + Image.DestinationRect.Width / 2 - 50,
                 (int)WorldPosition.Y + Image.DestinationRect.Height - 100,
-                200,
-                200);
+                100,
+                100);
 
             // Default Speed
             Speed = 5f;
@@ -87,7 +89,8 @@ namespace Final_Game.Entity
             pinBombsDelay = 0;
             _gloveSpriteSheet = gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
             indicators = new IndicatorManager(gm);
-
+            _pinThrowWindUp = 1;
+            aboutToThrow = false;
             // Set type
             Type = EntityType.Enemy;
 
@@ -143,16 +146,18 @@ namespace Final_Game.Entity
                         }
                         else
                         {
-                            Game1.IManager.Add(new Indicator(Game1.Player.WorldPosition, BossActionState)); 
-                            Game1.IManager.Add(new Indicator(new Vector2(rng.Next(originX + Game1.TileSize, originX + roomWidth - Game1.TileSize), rng.Next(originY + Game1.TileSize, originY + roomWidth - Game1.TileSize)), BossActionState));
+                            Game1.IManager.Add(new Indicator(Game1.Player.WorldPosition, BossActionState, 0)); 
+                            Game1.IManager.Add(new Indicator(new Vector2(rng.Next(originX + Game1.TileSize, originX + roomWidth - Game1.TileSize), rng.Next(originY + Game1.TileSize, originY + roomWidth - Game1.TileSize)), BossActionState, 0));
                             pinBombsDelay = 0.2;
                         }
                     }
                     break;
                 case BossState.PinThrow:
                     Velocity = Vector2.Zero;
-                    Game1.EManager.Enemies.Add(new PinAttack(1,0,new Vector2(WorldPosition.X ,WorldPosition.Y),gm));
-                    _attackCooldownTimer = 2;
+                    Game1.IManager.Add(new Indicator(WorldPosition, BossActionState, 1));
+                    _pinThrowWindUp = 1;
+                    aboutToThrow = true;
+                    _attackCooldownTimer = 3;
                     
                     break;
                 case BossState.HandSwipe:
@@ -213,7 +218,16 @@ namespace Final_Game.Entity
             // Update animations
 
             UpdateWalkAnimation(gameTime);
-
+            if(aboutToThrow && _pinThrowWindUp < 0)
+            {
+                Game1.EManager.Enemies.Add(new PinAttack(0, 1, new Vector2(WorldPosition.X, WorldPosition.Y), gm));
+                aboutToThrow = false;
+                
+            }
+            else if (aboutToThrow)
+            {
+                _pinThrowWindUp -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+            }
             
             return;
         }

@@ -33,7 +33,7 @@ namespace Final_Game
             Enemies = new List<Enemy>();
 
             // Create test enemies
-            PinMech testEnemy = new PinMech(gm, new Vector2(500f, 500f));
+            PinMech testEnemy = new PinMech(gm, new Vector2(Game1.TutorialRoom.Center.X - 100, Game1.TutorialRoom.Center.Y -100));
             Enemies.Add(testEnemy);
 
 

@@ -29,25 +29,30 @@ namespace Final_Game.Entity
             texture = gm.Content.Load<Texture2D>("Sprites/BasicEnemy");
             this.Xdirection = Xdirection;
             this.Ydirection = Ydirection;
-            speed = 10f;
+            speed = 7.5f;
             Vector2 distFromPlayer = position - Game1.Player.WorldPosition;
             ScreenPos = Game1.Player.ScreenPosition + distFromPlayer;
             timeLeft = 1.5;
             CurHealth = 100;
-                Hitbox = new Rectangle((int)position.X, (int)position.Y - 100, 100, 800);
+               
             attacked = false;
             Image = new Sprite(
                 texture,
                 new Rectangle(
                     0, 0,
-                    120, 720),
+                    120, 140),
                 new Rectangle(
                     (int)position.X,
                     (int)position.Y,
                     (int)(Game1.TileSize * 1.5f),
-                    (int)(Game1.TileSize * 1.5f * 720/120)));
+                    (int)(Game1.TileSize * 1.5f * 140/120)));
             _attackForce = 5f;
             _attackRange = Game1.TileSize;
+            Hitbox = new Rectangle(
+    (int)WorldPosition.X + Image.DestinationRect.Width / 2 - 50 - (350 * Math.Abs(Ydirection)),
+    (int)WorldPosition.Y + Image.DestinationRect.Height - 100 - (350 * Math.Abs(Xdirection)),
+    100 + (700 * Math.Abs(Ydirection)),
+    100 + (700 * Math.Abs(Xdirection)));
         }
         public override void Update(GameTime gameTime)
         {
@@ -75,9 +80,11 @@ namespace Final_Game.Entity
         }
         public override void Draw(SpriteBatch sb)
         {
+            Vector2 distFromPlayer = WorldPosition - Game1.Player.WorldPosition;
+            ScreenPos = Game1.Player.ScreenPosition + distFromPlayer;
             if (!attacked)
             {
-                sb.Draw(texture, ScreenPos, Color.White);
+                Image.Draw(sb, ScreenPos);
             }
         }
         protected override void EndAttack(bool w) { }

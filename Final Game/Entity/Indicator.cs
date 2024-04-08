@@ -21,11 +21,11 @@ namespace Final_Game.Entity
         private int direction;
      
 
-        public Indicator(Vector2 position, BossState attackType) {
+        public Indicator(Vector2 position, BossState attackType, int direction) {
             WorldPos = position;
             this.attackType = attackType;
             timeVisible = 1;
-            playerScreenPos = new Vector2(Game1.Player.ScreenPosition.X, Game1.Player.ScreenPosition.Y);
+            this.direction = direction;
             
         }
         public bool Update(GameTime gameTime)
@@ -45,7 +45,8 @@ namespace Final_Game.Entity
         }
         public void Draw()
         {
-            
+            Vector2 distFromPlayer = WorldPos - Game1.Player.WorldPosition;
+            screenPos = Game1.Player.ScreenPosition + distFromPlayer;
 
             switch (attackType)
             {
@@ -55,9 +56,13 @@ namespace Final_Game.Entity
                     ShapeBatch.CircleOutline(screenPos + new Vector2(50,50), 50f, Color.Red);
                     ShapeBatch.Circle(screenPos + new Vector2(50, 50), (50.0f * (float)(1.1 - timeVisible)), Color.DarkRed);
                     break;
-                    
-                  
-                    
+                case BossState.PinThrow:
+                    ShapeBatch.Line(screenPos + new Vector2(350 + Game1.TileSize * 1.5f, 50), 750f, (90 * direction), 10,Color.Red);
+                    ShapeBatch.Line(screenPos - new Vector2(275, -50), 750f, (90 * direction), 10,Color.Red);
+                    break;
+
+
+
             }
            
         }

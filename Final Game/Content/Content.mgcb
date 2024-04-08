@@ -221,6 +221,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/BasicEnemy.png
 
+#begin Sprites/BasicEnemySpritesheet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/BasicEnemySpritesheet.png
+
 #begin Sprites/BlueBallSpritesheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -305,6 +317,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/HealthPin.png
 
+#begin Sprites/KO_StarsSpritesheet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/KO_StarsSpritesheet.png
+
 #begin Sprites/LaunchArrowSpritesheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -328,6 +352,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/OpenDoorAtlas.png
+
+#begin Sprites/PinPunch2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/PinPunch2.png
 
 #begin Sprites/PinPunchSpritesheet.png
 /importer:TextureImporter
@@ -436,6 +472,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/WallSheet.png
+
+#begin Sprites/X_CursorSprite.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/X_CursorSprite.png
 
 #begin TitleCaseArial.spritefont
 /importer:FontDescriptionImporter

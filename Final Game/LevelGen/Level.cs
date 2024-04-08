@@ -185,15 +185,16 @@ namespace Final_Game.LevelGen
 			List<Room> roomsWithOneConnection = new List<Room>();
 			foreach(Room room in _rooms)
 			{
-				if (room.NumberOfConnections == 1 && room != StartRoom)
+				if (room.NumberOfConnections == 1 && room.MapPosition != StartPoint)
 				{
 					roomsWithOneConnection.Add(room);
 				}
 			}
 			
 			//If no rooms have only 1 connection, then loop through all rooms.
-			if (_rooms.Count == 0) 
+			if (roomsWithOneConnection.Count == 0) 
 			{
+				//Debug.WriteLine("no 1 connection rooms");
 				roomsWithOneConnection = _rooms;	
 			}
 

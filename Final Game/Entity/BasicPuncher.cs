@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -11,13 +12,18 @@ namespace Final_Game.Entity
 {
 	public class BasicPuncher : Enemy
 	{
+		// Fields
+		private Sprite _knockoutStars;
+		private double _koStarAnimDuration;
+		private double _koStarAnimTimeCounter;
+
 		// Constructors
 		public BasicPuncher(Game1 gm, Vector2 position) 
 			: base(gm, position)
 		{
 			// Set Enemy Image
 			Texture2D puncherSpritesheet = 
-				gm.Content.Load<Texture2D>("Sprites/BasicEnemy");
+				gm.Content.Load<Texture2D>("Sprites/BasicEnemySpritesheet");
 
 			Image = new Sprite(
 				puncherSpritesheet,
@@ -56,16 +62,16 @@ namespace Final_Game.Entity
 			_attackDurationTimer = 0.0;
 			_attackRadius = Game1.TileSize;
 			_attackRange = Game1.TileSize;
-			_attackWindupDuration = 0.25;
+			_attackWindupDuration = 0.5;
 			_attackWindupTimer = _attackWindupDuration;
 
 			_attackCooldown = 0.8;
 			_attackCooldownTimer = 0.0;
 
 			Texture2D gloveSpritesheet = 
-				gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
+				gm.Content.Load<Texture2D>("Sprites/PinPunch2");
 
-			_gloveFrameWidth = gloveSpritesheet.Width / 3;
+			_gloveFrameWidth = gloveSpritesheet.Width / 5;
 			_gloveImages = new Sprite(
 				gloveSpritesheet,
 				new Rectangle(
@@ -86,6 +92,22 @@ namespace Final_Game.Entity
 
 			// Animation
 			_walkAnimSecondsPerFrame = 0.12;
+
+			// Extra aesthetics
+			Texture2D _koStarSpritesheet = 
+				gm.Content.Load<Texture2D>("Sprites/KO_StarsSpritesheet");
+            _knockoutStars = new Sprite(
+				_koStarSpritesheet,
+				new Rectangle(
+					0, 0,
+					_koStarSpritesheet.Bounds.Width / 4,
+					_koStarSpritesheet.Bounds.Height),
+				new Rectangle(
+					0, 0,
+					(int)(Game1.TileSize * 1.5), 
+					(int)(Game1.TileSize * 1.5)));
+
+			_koStarAnimDuration = 0.5;
 			return;
 		}
 
@@ -107,6 +129,10 @@ namespace Final_Game.Entity
 
 			switch (ActionState)
 			{
+				case EnemyState.KO:
+                    UpdateKOAnimation(gameTime);
+                    break;
+
 				case EnemyState.Idle:
 					Velocity = Vector2.Zero;
 					break;
@@ -174,6 +200,7 @@ namespace Final_Game.Entity
 
 			// Update animations
 			
+			UpdateEnemySprite();
 			UpdateWalkAnimation(gameTime);
 
 			return;
@@ -184,44 +211,55 @@ namespace Final_Game.Entity
 			// Draw Enemy relative to the player
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
-			if (IsKO)
-			{
-				Image.TintColor = Color.Blue;
-			}
-			else if (_hitPlayer)
-			{
-				Image.TintColor = Color.Red;
-				_hitPlayer = false;
-			}
-			else
-			{
-				Image.TintColor = Color.White;
-			}
-
-			//Image.Draw(spriteBatch, screenPos);
-
 			switch (ActionState)
 			{
+				case EnemyState.KO:
+
+					Vector2 drawPos =
+						screenPos +
+						new Vector2(Image.DestinationRect.Width, 0f);
+
+                    Image.Draw(
+                        spriteBatch,
+                        drawPos,
+                        MathHelper.PiOver2,
+                        Vector2.Zero);
+
+					Vector2 starDrawPos =
+						screenPos -
+						new Vector2(0f, _knockoutStars.DestinationRect.Height / 2);
+
+                    _knockoutStars.Draw(
+						spriteBatch,
+						starDrawPos,
+						0f,
+						Vector2.Zero);
+                    break;
+
 				case EnemyState.Idle:
-					if (IsKO)
-					{
-						DrawKoed(spriteBatch, screenPos);
-						break;
-					}
-					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+
+					Image.Draw(
+						spriteBatch, 
+						screenPos, 
+						0f, 
+						Vector2.Zero);
 					break;
 
 				case EnemyState.Chase:
-					DrawWalking(spriteBatch, screenPos);
+					if (Velocity.LengthSquared() > 0)
+						DrawWalking(spriteBatch, screenPos);
+					else
+						Image.Draw(
+							spriteBatch,
+							screenPos,
+							0f,
+							Vector2.Zero);
 					break;
 
 				case EnemyState.Attack:
-					if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0.0)
-					{
-						Image.TintColor = Color.Orange;
-					}
 
 					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+
 					DrawAttacking(spriteBatch, screenPos);
 					break;
 			}
@@ -356,6 +394,85 @@ namespace Final_Game.Entity
 
 			return;
 		}
+		private void UpdateEnemySprite()
+		{
+			// Reset Image Color
+			Image.TintColor = Color.White;
+
+            if (IsKO)
+			{
+				Image.SourceRect = new Rectangle(
+					Image.SourceRect.Width * 4,
+					Image.SourceRect.Y,
+					Image.SourceRect.Width,
+					Image.SourceRect.Height);
+
+                Image.TintColor = Color.CornflowerBlue;
+				return;
+			}
+
+            if (IsInvincible)
+			{
+				Image.TintColor *= 0.8f;
+
+				Image.SourceRect = new Rectangle(
+                    Image.SourceRect.Width * 4,
+					Image.SourceRect.Y,
+					Image.SourceRect.Width,
+					Image.SourceRect.Height);
+				return;
+			}
+
+			if (_attackDurationTimer <= 0)
+			{
+				int numChargeSprites = 3;
+				int spriteNum = (int)
+					((_attackWindupDuration - _attackWindupTimer) /
+					(_attackWindupDuration / numChargeSprites));
+
+				if (_attackWindupTimer < _attackWindupDuration)
+					Image.TintColor = Color.Orange;
+
+				Image.SourceRect = new Rectangle(
+					Image.SourceRect.Width * spriteNum,
+					Image.SourceRect.Y,
+					Image.SourceRect.Width,
+					Image.SourceRect.Height);
+			}
+			else
+			{
+				Image.SourceRect = new Rectangle(
+					Image.SourceRect.Width * 3,
+					Image.SourceRect.Y,
+					Image.SourceRect.Width,
+					Image.SourceRect.Height);
+			}
+		}
+		private void UpdateKOAnimation(GameTime gameTime)
+		{
+			int numKoStars = 4;
+
+			// Current frame is (passedTime / (seconds per frame))
+			int curFrame =
+				(int)(_koStarAnimTimeCounter /
+				(_koStarAnimDuration / (numKoStars - 1)));
+
+			// Get corresponding image
+			_knockoutStars.SourceRect = new Rectangle(
+				_knockoutStars.SourceRect.Width * curFrame,
+				0,
+				_knockoutStars.SourceRect.Width,
+				_knockoutStars.SourceRect.Height);
+
+			// Move animation forward
+			_koStarAnimTimeCounter += 
+				gameTime.ElapsedGameTime.TotalSeconds *
+				Player.BulletTimeMultiplier;
+
+			// Reset animation once it reaches or exceeds its duration
+			if (_koStarAnimTimeCounter >= _koStarAnimDuration)
+				_koStarAnimTimeCounter -= _koStarAnimDuration;
+		}
 
 		private void DrawWalking(SpriteBatch sb, Vector2 screenPos)
 		{
@@ -395,10 +512,12 @@ namespace Final_Game.Entity
 
 		private void DrawAttacking(SpriteBatch sb, Vector2 screenPos)
 		{
-
-			// Draw Attack Windup
-			if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0d)
+            
+            // Draw Attack Windup
+            if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0d)
 			{
+				_gloveImages.TintColor = Color.White;
+
 				// Get the center position of the pulled back fist
 				// in screen space
 
@@ -422,6 +541,10 @@ namespace Final_Game.Entity
                 // Rotate fist so knuckles face away from player
                 float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
 
+				// Glove changes colors right before attacking
+				if (_attackWindupTimer < _attackWindupDuration * .3)
+					_gloveImages.TintColor = Color.Red;
+
                 // Draw glove
                 _gloveImages.Draw(
 					sb, 
@@ -436,7 +559,7 @@ namespace Final_Game.Entity
 				// Get position of the extended fist
 				// in screen space
 
-				Vector2 attackScreenPos = CenterPosition + _attackDirection * 3f
+				Vector2 attackScreenPos = CenterPosition + _attackDirection * 5f
                     + Game1.MainCamera.WorldToScreenOffset;
 
 				// Rotate fist so knuckles face player
@@ -444,7 +567,7 @@ namespace Final_Game.Entity
 
 				// Get proper glove image
 				_gloveImages.SourceRect = new Rectangle(
-                    _gloveFrameWidth * 2,
+                    _gloveFrameWidth * 4,
                     0,
                     _gloveFrameWidth,
                     _gloveFrameWidth);
@@ -460,5 +583,6 @@ namespace Final_Game.Entity
 		}
 
 		#endregion
+
 	}
 }

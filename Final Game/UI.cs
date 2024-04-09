@@ -548,7 +548,6 @@ namespace Final_Game
 			// Loop until text has been fully wrapped
 			for (int i = numChars - 1; i < (int)numOverflows * numChars; i += numChars)
 			{
-				
 				// Loop backward until found a space
 				int spaceIndex = i;
 				while(spaceIndex > 0 && text[spaceIndex] != ' ')
@@ -562,14 +561,12 @@ namespace Final_Game
 					Debug.WriteLine($"Failed to wrap text: {text}");
 					return result;
 				}
-				else
+
+				// Replace space with a newline
+				result = result.Substring(0, spaceIndex) + "\n";
+				if (text.Length > result.Length)
 				{
-					// Replace space with a newline
-					result = result.Substring(0, spaceIndex) + "\n";
-					if (text.Length > result.Length)
-					{
-						result += text.Substring(result.Length, text.Length - result.Length);
-					}
+					result += text.Substring(result.Length, text.Length - result.Length);
 				}
 
 				// Start wrapping from index after newline character
@@ -614,25 +611,20 @@ namespace Final_Game
 		private void PlayerWasDamaged(int amount)
 		{
 			// Respond if damage was actually dealt to player
-			if (amount <= 0)
+			// and player is not dead.
+			if (amount <= 0 || Game1.Player.CurHealth <= 0)
 				return;
 
-			if (Game1.Player.CurHealth > 0)
-			{
-				// Vibrate health UI
-				// Vibration magnitude increases as health decreases
-				float shakeMaxMag = _maxShakeMagnitude;
-				if (Game1.Player.CurHealth > 0)
-				{
-					shakeMaxMag =
-						_maxShakeMagnitude * 
-						(1 - (float)Game1.Player.CurHealth / Game1.Player.MaxHealth) *
-						_maxShakeMultiplier;
-				}
+			// Vibrate health UI
+			// Vibration magnitude increases as health decreases
+   			float shakeMaxMag =
+   				_maxShakeMagnitude *
+   				(1 - (float)Game1.Player.CurHealth / Game1.Player.MaxHealth) *
+   				_maxShakeMultiplier;
 
-				_maxShakeOffset = new Vector2(shakeMaxMag, shakeMaxMag);
-				_shakeTimer = _shakeDuration;
-			}
+			_maxShakeOffset = new Vector2(shakeMaxMag, shakeMaxMag);
+			_shakeTimer = _shakeDuration;
+			return;
 		}
 
 		#endregion
@@ -655,6 +647,11 @@ namespace Final_Game
 			return;
 		}
 
+		/// <summary>
+		/// Draws room in the minimap.
+		/// </summary>
+		/// <param name="y">Row of the tileset that the room is on.</param>
+		/// <param name="x">Column of the tileset that the room is on.</param>
 		private void DrawRoomOnMiniMap(int y, int x)
 		{
 			Room curRoom = Game1.CurrentLevel.Map[y, x];
@@ -721,6 +718,7 @@ namespace Final_Game
                     maxRadius,
                     Color.Red * 0.8f);
             }
+			return;
         }
 	}
 }

@@ -250,9 +250,9 @@ namespace Final_Game.LevelGen
 		/// </summary>
 		/// <param name="connections">ActualConnections dictionary that specifies 
 		/// which cardinal directions have a door.</param>
-		public void CreateClosedDoors(Dictionary<string, bool> connections)
+		public void CreateClosedDoors(Room[] connections)
 		{
-			if (connections["North"])
+			if (connections[(int)Directions.North] != null)
 			{
 				Layout[0, (Columns - 1) / 2] =
 					TileMaker.SetTile(
@@ -261,7 +261,7 @@ namespace Final_Game.LevelGen
 						"U");
 				Doors.Add("North", Layout[0, (Columns - 1) / 2]);
 			}
-			if (connections["South"])
+			if (connections[(int)Directions.South] != null)
 			{
 				Layout[Rows - 1, (Columns - 1) / 2] =
 					TileMaker.SetTile(
@@ -270,7 +270,7 @@ namespace Final_Game.LevelGen
 						"B");
 				Doors.Add("South", Layout[Rows - 1, (Columns - 1) / 2]);
 			}
-			if (connections["East"])
+			if (connections[(int)Directions.East] != null)
 			{
 				Layout[(Rows - 1) / 2, Columns - 1] =
 					TileMaker.SetTile(
@@ -279,7 +279,7 @@ namespace Final_Game.LevelGen
 						"R");
 				Doors.Add("East", Layout[(Rows - 1) / 2, Columns - 1]);
 			}
-			if (connections["West"])
+			if (connections[(int)Directions.West] != null)
 			{
 				Layout[(Rows - 1) / 2, 0] =
 					TileMaker.SetTile(
@@ -293,9 +293,9 @@ namespace Final_Game.LevelGen
 		/// <summary>
 		/// Creates open doors based on existing closed doors.
 		/// </summary>
-		public void CreateOpenDoors(Dictionary<string, bool> connections)
+		public void CreateOpenDoors(Room[] connections)
 		{
-			if (connections["North"])
+			if (connections[(int)Directions.North] != null)
 			{
 				Layout[0, (Columns - 1) / 2] =
 					TileMaker.SetTile(
@@ -303,7 +303,7 @@ namespace Final_Game.LevelGen
 						new Vector2((Columns - 1) / 2 * Game1.TileSize, 0),
 						"U");
 			}
-			if (connections["South"])
+			if (connections[(int)Directions.South] != null)
 			{
 				Layout[Rows - 1, (Columns - 1) / 2] =
 					TileMaker.SetTile(
@@ -311,7 +311,7 @@ namespace Final_Game.LevelGen
 						new Vector2((Columns - 1) / 2 * Game1.TileSize, (Rows - 1) * Game1.TileSize),
 						"B");
 			}
-			if (connections["East"])
+			if (connections[(int)Directions.East] != null)
 			{
 				Layout[(Rows - 1) / 2, Columns - 1] =
 					TileMaker.SetTile(
@@ -319,7 +319,7 @@ namespace Final_Game.LevelGen
 						new Vector2((Columns - 1) * Game1.TileSize, (Rows - 1) / 2 * Game1.TileSize),
 						"R");
 			}
-			if (connections["West"])
+			if (connections[(int)Directions.West] != null)
 			{
 				Layout[(Rows - 1) / 2, 0] =
 					TileMaker.SetTile(
@@ -502,10 +502,10 @@ namespace Final_Game.LevelGen
 				Tile tile = Spawners[i];
 				//Remove spawners within 50 units of the door.
 				Vector2 distance = door.WorldPosition - tile.WorldPosition;
-				Debug.WriteLine(distance.Length());
+				//Debug.WriteLine(distance.Length());
 				if (distance.Length() < 500)
 				{
-					Debug.WriteLine("entered loop");
+					//Debug.WriteLine("entered loop");
 					Spawners.Remove(tile);
 					tile.IsEnemySpawner = false;	
 				}

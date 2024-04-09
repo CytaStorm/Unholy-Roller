@@ -1,11 +1,20 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Mime;
 
 namespace Final_Game.LevelGen
 {
+	public enum Directions
+	{
+		North,
+		South,
+		East,
+		West
+	}
+
 	public class Level
 	{
 		#region Fields
@@ -90,6 +99,8 @@ namespace Final_Game.LevelGen
 				//Create connections between rooms.
 				room.CreateConnections();
 			}
+			StartRoom.Discovered = true;
+			StartRoom.Entered = true;
 
 			//Determine Boss Room
 			DetermineBossRoom();
@@ -128,22 +139,22 @@ namespace Final_Game.LevelGen
 			roomToExpand.UpdateAdjacencyPossibilities();
 
 			//Check room openings
-			if (roomToExpand.PossibleConnections["North"])
+			if (roomToExpand.PossibleConnections[(int)Directions.North])
 			{
 				//Debug.WriteLine("North");
 				possibleExpansions.Add(new Point(-1, 0));
 			}
-			if (roomToExpand.PossibleConnections["South"])
+			if (roomToExpand.PossibleConnections[(int)Directions.South])
 			{
 				//Debug.WriteLine("South");
 				possibleExpansions.Add(new Point(1, 0));
 			}
-			if (roomToExpand.PossibleConnections["East"])
+			if (roomToExpand.PossibleConnections[(int)Directions.East])
 			{
 				//Debug.WriteLine("East");
 				possibleExpansions.Add(new Point(0, 1));
 			}
-			if (roomToExpand.PossibleConnections["West"])
+			if (roomToExpand.PossibleConnections[(int)Directions.West])
 			{
 				//Debug.WriteLine("West");
 				possibleExpansions.Add(new Point(0, -1));
@@ -226,6 +237,18 @@ namespace Final_Game.LevelGen
 
 			//Remove enemies near player.
 			CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
+			
+			//Update minimap
+			CurrentRoom.Entered = true;
+			CurrentRoom.Discovered = true;
+
+			for (int i = 0; i < 4; i++)
+			{
+				if (CurrentRoom.ActualConnections[i] != null)
+				{
+					CurrentRoom.ActualConnections[i].Discovered = true;
+				}
+			}
 
 			if (!CurrentRoom.Cleared)
 			{

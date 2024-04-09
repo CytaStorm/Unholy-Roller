@@ -649,27 +649,48 @@ namespace Final_Game
 			{
 				for (int x = 0; x < Game1.CurrentLevel.Map.GetLength(1); x++)
 				{
-					Room curRoom = Game1.CurrentLevel.Map[y, x];
-
-					if (curRoom != null)
-					{
-						Rectangle roomBounds = new Rectangle(
-							_minimapPos.X + x * _defaultRoomSize,
-							_minimapPos.Y + y * _defaultRoomSize,
-							_defaultRoomSize,
-							_defaultRoomSize);
-
-						Color boxColor = Color.Black;
-						if (curRoom == Game1.TestLevel.CurrentRoom)
-							boxColor = Color.White;
-						else if (curRoom.IsBossRoom)
-							boxColor = Color.Gold;
-
-						// Draw box representing room
-						ShapeBatch.Box(roomBounds, boxColor * 0.6f);
-					}
+					DrawRoomOnMiniMap(y, x);
 				}
 			}
+			return;
+		}
+
+		private void DrawRoomOnMiniMap(int y, int x)
+		{
+			Room curRoom = Game1.CurrentLevel.Map[y, x];
+
+			if (curRoom == null)
+			{
+				return;
+			}
+
+			if (curRoom.Discovered)
+			{
+				Rectangle roomBounds = new Rectangle(
+					_minimapPos.X + x * _defaultRoomSize + 4,
+					_minimapPos.Y + y * _defaultRoomSize + 4,
+					_defaultRoomSize - 8,
+					_defaultRoomSize - 8);
+				Rectangle border = new Rectangle(
+					_minimapPos.X + x * _defaultRoomSize,
+					_minimapPos.Y + y * _defaultRoomSize,
+					_defaultRoomSize,
+					_defaultRoomSize);
+
+				Color boxColor = Color.Black;
+				if (curRoom.Entered)
+					boxColor = Color.Gray;
+				if (curRoom == Game1.TestLevel.CurrentRoom)
+					boxColor = Color.White;
+				else if (curRoom.IsBossRoom)
+					boxColor = Color.Gold;
+
+				//Draw border
+				ShapeBatch.Box(border, Color.Black);
+				// Draw box representing room
+				ShapeBatch.Box(roomBounds, boxColor * 0.6f);
+			}
+			return;
 		}
 
 		public void DisplayRedirectsInCursor()

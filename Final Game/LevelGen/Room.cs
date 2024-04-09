@@ -81,11 +81,11 @@ namespace Final_Game.LevelGen
 		/// Does the room have a possible connection 
 		/// on its North/South/East/West side?
 		/// </summary>
-		public Dictionary<string, bool> PossibleConnections { get; private set; }
+		public bool[] PossibleConnections { get; private set; } = new bool[4];
 		/// <summary>
 		/// To which rooms the room is actually connected to.
 		/// </summary>
-		public Dictionary<string, bool> ActualConnections { get; private set; }
+		public Room[] ActualConnections { get; private set; } = new Room[4];
 		/// <summary>
 		/// How many connections the room has.
 		/// </summary>
@@ -93,17 +93,22 @@ namespace Final_Game.LevelGen
 			get
 			{
 				int numberOfConnections = 0;
-				foreach (bool connection in ActualConnections.Values)
+				foreach (Room room in ActualConnections)
 				{
-					if (connection)
-					{
-						numberOfConnections++;
-					}
+					numberOfConnections++;
 				}
 				return numberOfConnections;
 			}
 		}
 
+		/// <summary>
+		/// Has the player discovered this room yet?
+		/// </summary>
+		public bool Discovered { get; set; } = false;
+		/// <summary>
+		/// Has the player entered this room yet?
+		/// </summary>
+		public bool Entered { get; set; } = false;
 		/// <summary>
 		/// Is this room the boss room?
 		/// </summary>
@@ -122,20 +127,6 @@ namespace Final_Game.LevelGen
 
 			//Set up room data.
 			MapPosition = mapPosition;
-			PossibleConnections = new Dictionary<string, bool>()
-			{
-				{ "North", X != 0 && _parent.Map[X - 1, Y] == null},
-				{ "South", X != _parent.Map.GetLength(0) - 1 && _parent.Map[X + 1, Y] == null},
-				{ "East", Y != _parent.Map.GetLength(1) - 1 && _parent.Map[X, Y + 1] == null},
-				{ "West",  Y != 0 && _parent.Map[X, Y - 1] == null}
-			};
-			ActualConnections = new Dictionary<string, bool>()
-			{
-				{ "North", false },
-				{ "South", false },
-				{ "East", false },
-				{ "West", false }
-			};
 
 			//Create the tileset.
 			Tileset = new Tileset();
@@ -148,10 +139,14 @@ namespace Final_Game.LevelGen
 		/// </summary>
 		public void UpdateAdjacencyPossibilities()
 		{
-			PossibleConnections["North"] = X != 0 && _parent.Map[X - 1, Y] == null;
-			PossibleConnections["South"] = X != _parent.Map.GetLength(0) - 1 && _parent.Map[X + 1, Y] == null;
-			PossibleConnections["East"] = Y != _parent.Map.GetLength(1) - 1 && _parent.Map[X, Y + 1] == null;
-			PossibleConnections["West"] = Y != 0 && _parent.Map[X, Y - 1] == null;
+			PossibleConnections[(int)Directions.North] = 
+				X != 0 && _parent.Map[X - 1, Y] == null;
+			PossibleConnections[(int)Directions.South] =
+				X != _parent.Map.GetLength(0) - 1 && _parent.Map[X + 1, Y] == null;
+			PossibleConnections[(int)Directions.East] =
+				Y != _parent.Map.GetLength(1) - 1 && _parent.Map[X, Y + 1] == null;
+			PossibleConnections[(int)Directions.West] =
+				Y != 0 && _parent.Map[X, Y - 1] == null;
 		}
 
 		/// <summary>
@@ -162,21 +157,21 @@ namespace Final_Game.LevelGen
 		{
 			//These if statements are here to protect against checking
 			//out of bounds rooms on the map.
-			if (X != 0)
+			if (X != 0 && _parent.Map[X - 1, Y] != null)
 			{
-				ActualConnections["North"] = _parent.Map[X - 1, Y] != null;
+				ActualConnections[(int)Directions.North] = _parent.Map[X - 1, Y];
 			}
-			if (X != _parent.Map.GetLength(0) - 1)
+			if (X != _parent.Map.GetLength(0) - 1 && _parent.Map[X + 1, Y] != null)
 			{
-				ActualConnections["South"] = _parent.Map[X + 1, Y] != null;
+				ActualConnections[(int)Directions.South] = _parent.Map[X + 1, Y];
 			}
-			if (Y != _parent.Map.GetLength (1) - 1)
+			if (Y != _parent.Map.GetLength (1) - 1 && _parent.Map[X, Y + 1] != null)
 			{
-				ActualConnections["East"] = _parent.Map[X, Y + 1] != null;
+				ActualConnections[(int)Directions.East] = _parent.Map[X, Y + 1];
 			}
-			if (Y != 0) 
+			if (Y != 0 && _parent.Map[X, Y - 1] != null) 
 			{
-				ActualConnections["West"] = _parent.Map[X, Y - 1] != null;
+				ActualConnections[(int)Directions.West] = _parent.Map[X, Y - 1];
 			}
 			Tileset.CreateClosedDoors(ActualConnections);
 		}

@@ -80,7 +80,7 @@ namespace Final_Game
         /// <param name="tile">Tile to create health pickup at.</param>
         public void CreateHealthPickup(Tile tile)
         {
-            Debug.WriteLine("Created health pickup");
+            //Debug.WriteLine("Created health pickup");
 			Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
 				tile.WorldPosition.X, tile.WorldPosition.Y)));
 		}

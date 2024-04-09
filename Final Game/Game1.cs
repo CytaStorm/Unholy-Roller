@@ -1,5 +1,6 @@
 ﻿using Final_Game.Entity;
 using Final_Game.LevelGen;
+using Final_Game.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;

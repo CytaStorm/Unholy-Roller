@@ -1,4 +1,5 @@
 using Final_Game.LevelGen;
+using Final_Game.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -15,7 +16,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Final_Game.Entity
 {
-	public enum PlayerState
+    public enum PlayerState
 	{
 		Rolling,
 		Walking

@@ -10,7 +10,7 @@ using Final_Game.Entity;
 using Final_Game.LevelGen;
 using System.Diagnostics;
 
-namespace Final_Game
+namespace Final_Game.Managers
 {
     public class PickupManager
     {
@@ -81,9 +81,9 @@ namespace Final_Game
         public void CreateHealthPickup(Tile tile)
         {
             //Debug.WriteLine("Created health pickup");
-			Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
-				tile.WorldPosition.X, tile.WorldPosition.Y)));
-		}
+            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
+                tile.WorldPosition.X, tile.WorldPosition.Y)));
+        }
 
         public void PlayerCollided(Entity.Entity entity)
         {
@@ -101,7 +101,7 @@ namespace Final_Game
 
         public void DrawGizmos()
         {
-            foreach(Entity.Entity p in Pickups)
+            foreach (Entity.Entity p in Pickups)
             {
                 p.DrawGizmos();
             }

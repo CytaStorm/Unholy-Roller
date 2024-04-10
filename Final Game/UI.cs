@@ -61,6 +61,9 @@ namespace Final_Game
 		private Point _minimapPos;
 		#endregion
 
+		// Button Cursor
+		private Texture2D _buttonCursor;
+
 		#region Properties
 		// Button Containers
 		public Button[] MenuButtons { get; private set; }
@@ -124,6 +127,8 @@ namespace Final_Game
 			_maxShakeMultiplier = 3f;
 			_maxShakeOffset = new Vector2(_maxShakeMagnitude, _maxShakeMagnitude);
 			_shakeDuration = 0.5;
+
+			_buttonCursor = _gm.Content.Load<Texture2D>("PinheadButtonCursor");
 
 			CreateButtons();
 
@@ -394,7 +399,19 @@ namespace Final_Game
 			foreach (Button b in MenuButtons)
 			{
 				b.Draw(_spriteBatch);
-			}
+
+                if (b.ContainsCursor)
+                {
+                    _spriteBatch.Draw(
+                        _buttonCursor,
+                        new Rectangle(
+							new Point(
+								b.Bounds.Left - 120, 
+								b.Bounds.Center.Y - 60), 
+							new Point(120, 120)),
+                        Color.White);
+                }
+            }
 			return;
 		}
 
@@ -458,9 +475,15 @@ namespace Final_Game
 		private void CreateButtons()
 		{
 			Texture2D emptyButton = _gm.Content.Load<Texture2D>("EmptyButton");
+			Texture2D handPress = _gm.Content.Load<Texture2D>("HighButtonIdea");
+			Texture2D handHigh = _gm.Content.Load<Texture2D>("HandHighlight");
 
-			// Make menu buttons
-			Rectangle buttonBounds = new Rectangle(
+			Texture2D LHandPress = _gm.Content.Load<Texture2D>("LoseHandPress");
+			Texture2D LHandHigh = _gm.Content.Load<Texture2D>("LoseHandHighlight");
+
+
+            // Make menu buttons
+            Rectangle buttonBounds = new Rectangle(
 				Game1.WindowWidth / 2 - emptyButton.Bounds.Width / 2,
 				400,
 				emptyButton.Bounds.Width,
@@ -468,20 +491,21 @@ namespace Final_Game
 
 			MenuButtons = new Button[3];
 			MenuButtons[0] = new Button(buttonBounds, 
-				_gm.Content.Load<Texture2D>("CoolButtonStatic"), 
-				_gm.Content.Load<Texture2D>("CoolButtonHover"), 
-				_gm.Content.Load<Texture2D>("CoolButtonPressed"));
-			MenuButtons[0].TintColor = Color.White;
-			//MenuButtons[0].SetText("Play", _titleCaseArial);
+				null, 
+				handHigh, 
+				handHigh);
+			MenuButtons[0].StaticTint = Color.White;
+			MenuButtons[0].PressTint = Color.Green;
+			MenuButtons[0].SetText("Play", TitleCaseArial);
 			buttonBounds.Y += emptyButton.Height;
 
-			MenuButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+			MenuButtons[1] = new Button(buttonBounds, null, null, null);
 			MenuButtons[1].TextColor = Color.Coral;
 			MenuButtons[1].SetText("Tutorial", TitleCaseArial);
 
 			buttonBounds.Y += emptyButton.Height;
-			MenuButtons[2] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
-			MenuButtons[2].TintColor = Color.Orange;
+			MenuButtons[2] = new Button(buttonBounds, null, null, null);
+			//MenuButtons[2].TintColor = Color.Orange;
 			MenuButtons[2].TextColor = Color.Purple;
 			MenuButtons[2].SetText("Quit", TitleCaseArial);
 
@@ -490,8 +514,8 @@ namespace Final_Game
 
 			PauseButtons = new Button[2];
 			PauseButtons[0] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
-			PauseButtons[0].TintColor = Color.Blue;
 			PauseButtons[0].SetText("Resume", TitleCaseArial);
+			PauseButtons[0].TextColor = Color.Black;
 			buttonBounds.Y += emptyButton.Height;
 
 			PauseButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
@@ -503,7 +527,7 @@ namespace Final_Game
 
 			buttonBounds.Y = Game1.ScreenCenter.ToPoint().Y + 100;
 			GameOverButtons[0] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
-			GameOverButtons[0].TintColor = Color.Black;
+			GameOverButtons[0].StaticTint = Color.Black;
 			GameOverButtons[0].TextColor = Color.Orange;
 			GameOverButtons[0].SetText("Retry", TitleCaseArial);
 

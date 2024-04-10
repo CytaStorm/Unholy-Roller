@@ -24,16 +24,31 @@ namespace Final_Game
 		private Texture2D _pressedImage;
 
 		private Texture2D _curImage;
-
-		private Rectangle _bounds;
+		private Color _curImageTint;
 
 		private string _text;
 		private SpriteFont _font;
 		#endregion
 
 		#region Properties
+		public Point Position => Bounds.Location;
+		public Rectangle Bounds { get; set; }
+
 		public Color TextColor { get; set; } = Color.White;
-		public Color TintColor { get; set; } = Color.White;
+		public Color StaticTint { get; set; } = Color.White;
+		public Color HoverTint { get; set; } = Color.White;
+		public Color PressTint { get; set; } = Color.White;
+
+		public bool IsBeingPressed =>
+			ContainsCursor &&
+			Game1.IsMouseButtonPressed(1);
+
+		public bool IsHoveredOver =>
+			ContainsCursor &&
+			Game1.IsMouseButtonReleased(1);
+
+		public bool ContainsCursor => 
+			Bounds.Contains(Game1.CurMouse.Position);
 		#endregion
 
 		// Constructors
@@ -47,7 +62,7 @@ namespace Final_Game
 			this._hoverImage = hoverImage;
 			this._pressedImage = pressedImage;
 
-			this._bounds = bounds;
+			this.Bounds = bounds;
 
 			_curImage = _staticImage;
 		}
@@ -57,8 +72,10 @@ namespace Final_Game
 		{
 			_curImage = _staticImage;
 
-			// Check if underMouse
-			if (_bounds.Contains(Game1.CurMouse.Position))
+			_curImageTint = StaticTint;
+
+			// Check if under Mouse
+			if (Bounds.Contains(Game1.CurMouse.Position))
 			{   
 				if (Game1.IsMouseLeftClicked())
 				{
@@ -69,10 +86,12 @@ namespace Final_Game
 				if (Game1.IsMouseButtonPressed(1))
 				{
 					_curImage = _pressedImage;
+					_curImageTint = PressTint;
 				}
 				else if (Game1.IsMouseButtonReleased(1))
 				{
 					_curImage = _hoverImage;
+					_curImageTint = HoverTint;
 				}
 			}
 		}
@@ -80,10 +99,14 @@ namespace Final_Game
 		public void Draw(SpriteBatch sb)
 		{
 			// Draw current button image
-			sb.Draw(
-				_curImage,
-				_bounds,
-				TintColor);
+			if (_curImage != null)
+			{
+                sb.Draw(
+                    _curImage,
+                    Bounds,
+                    _curImageTint);
+            }
+				
 
 			// Draw text if it exists
 			if (!string.IsNullOrEmpty(_text) && _font != null)
@@ -92,15 +115,21 @@ namespace Final_Game
 
 				// Center text in button
 				Vector2 textPos = new Vector2(
-					_bounds.X + _bounds.Width / 2 - textDimensions.X / 2,
-					_bounds.Y + _bounds.Height / 2 - textDimensions.Y / 2);
+					Bounds.X + Bounds.Width / 2 - textDimensions.X / 2,
+					Bounds.Y + Bounds.Height / 2 - textDimensions.Y / 2);
 
-				// Draw text
-				sb.DrawString(
+				// Multiply text color by image tint
+                Color combination = 
+					new Color(TextColor.ToVector3() * _curImageTint.ToVector3());
+
+                // Draw text
+                sb.DrawString(
 					_font,
 					_text,
 					textPos,
-					TextColor);
+					combination);
+
+				
 			}
 		}
 

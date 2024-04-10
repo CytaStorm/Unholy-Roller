@@ -1,10 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Final_Game.LevelGen;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -276,9 +278,11 @@ namespace Final_Game.Entity
 			return;
 		}
 
-		#region Attack Methods
+        #region Attack Methods
 
-		protected override void TargetPlayer()
+     
+
+        protected override void TargetPlayer()
 		{
 			// Get direction from self to player
 			Point eMinusP = Game1.Player.Hitbox.Center - Hitbox.Center;
@@ -290,8 +294,17 @@ namespace Final_Game.Entity
 
 			Vector2 positionAfterMoving = WorldPosition + directionToPlayer;
 
-			// Stop if get too close to another enemy
-			bool shouldStop = false;
+            if (CheckTilemapCollisionAhead( this , directionToPlayer, Game1.CurrentLevel.CurrentRoom.Tileset))
+            {
+
+                Vector2 newDirection = new Vector2(directionToPlayer.Y, -directionToPlayer.X);
+                newDirection.Normalize();
+                newDirection *= Speed;
+                positionAfterMoving = WorldPosition + newDirection;
+            }
+           
+            // Stop if get too close to another enemy
+            bool shouldStop = false;
 			float minDistanceFromEnemies = Game1.TileSize * 3;
 			foreach (Enemy e in Game1.EManager.Enemies)
 			{
@@ -314,7 +327,34 @@ namespace Final_Game.Entity
 			return;
 		}
 
-		protected override void Attack()
+        public static bool CheckTilemapCollisionAhead( Entity e, Vector2 direction, Tileset tileset)
+        {
+            
+            Vector2 nextPosition = e.WorldPosition + direction * e.Speed;
+            
+            Rectangle predictedHitbox = new Rectangle( (int)nextPosition.X, (int)nextPosition.Y,e.Hitbox.Width, e.Hitbox.Height);         
+			
+            for (int row = 0; row < tileset.Layout.GetLength(0); row++)
+            {
+                for (int col = 0; col < tileset.Layout.GetLength(1); col++)
+                {
+                    Tile tile = tileset.Layout[row, col];
+                    if (tile.CollisionOn && predictedHitbox.Intersects(tile.Hitbox))
+                    {                       
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+
+        protected override void CheckForObstacles(Vector2 direction)
+        {
+			
+        }
+      
+        protected override void Attack()
 		{
 			Vector2 directionToPlayer = _attackDirection;
 
@@ -582,7 +622,8 @@ namespace Final_Game.Entity
 			return;
 		}
 
-		#endregion
+        #endregion
 
-	}
+       
+    }
 }

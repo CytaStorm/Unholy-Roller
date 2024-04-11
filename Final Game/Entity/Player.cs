@@ -120,6 +120,8 @@ namespace Final_Game.Entity
         public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
+		// Constructors
+		public Room CurrentRoom { get { return Game1.TestLevel.CurrentRoom; } }
 
 		#region Constructor(s)
 

@@ -11,21 +11,14 @@ namespace Final_Game.Managers
     public class SoundManager
     {
         #region Fields
-        public List<SoundEffect> PinDamageSoundEffects = new List<SoundEffect>();
-        public List<SoundEffect> PinKnockSoundEffects = new List<SoundEffect>();
+        public static List<SoundEffect> PinDamageSoundEffects = new List<SoundEffect>();
+        public static List<SoundEffect> PinKnockSoundEffects = new List<SoundEffect>();
 
-        private Random _random = new Random();
-        #endregion
-
-        #region Constructor(s)
-        public SoundManager(ContentManager cm)
-        {
-            LoadSoundFiles(cm);
-        }
+        private static Random _random = new Random();
         #endregion
 
         #region Methods
-        private void LoadSoundFiles(ContentManager cm)
+        public static void LoadSoundFiles(ContentManager cm)
         {
             PinDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pool_break-105353"));
             PinDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/punchthump"));
@@ -40,13 +33,13 @@ namespace Final_Game.Managers
             PinKnockSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pinKnock6"));
         }
 
-        public void PlayHitSound()
+        public static void PlayHitSound()
         {
             PinDamageSoundEffects[0].Play();
             PinDamageSoundEffects[1].Play();
         }
 
-        public void PlayKnockSound()
+        public static void PlayKnockSound()
         {
             PinKnockSoundEffects[_random.Next(PinKnockSoundEffects.Count)].Play(0.1f, 0, 0);
         }

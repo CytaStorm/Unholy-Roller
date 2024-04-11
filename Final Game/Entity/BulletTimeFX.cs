@@ -8,42 +8,35 @@ using System.Threading.Tasks;
 
 namespace Final_Game.Entity
 {
-    internal class BulletTimeFX : Entity
-    {
-        #region Properties
-        public double EffectLife { get; set; }
-        public Vector2 Position { get; set; }
-        #endregion
+	internal class BulletTimeFX : Entity
+	{
+		#region Constructors
+		public BulletTimeFX(Sprite sprite, SpriteBatch sb, Color tint)
+		{
+			Image = sprite;
+			Image.TintColor = tint;
+		}
+		#endregion
 
-        #region Constructors
-        public BulletTimeFX(Sprite sprite, float effectLife, SpriteBatch sb)
-        {
-            Image = sprite;
-            EffectLife = effectLife;
-        }
-        #endregion
+		#region Methods
+		/// <summary>
+		/// Update every frame.
+		/// </summary>
+		/// <param name="gt">Gametime.</param>
+		public override void Update(GameTime gt)
+		{
+		}
 
-        #region Methods
-        public override void Update(GameTime gt)
-        {
-            if (EffectLife > 0)
-            {
-                EffectLife -= gt.ElapsedGameTime.TotalSeconds;
-            }
-
-        }
-
-        public override void Draw(SpriteBatch sb)
-        {
-            // Draw player image
+		/// <summary>
+		/// Draws the effect.
+		/// </summary>
+		/// <param name="sb"></param>
+		public override void Draw(SpriteBatch sb)
+		{
+			// Draw sprite fx
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 			Image.Draw(sb, screenPos, 0f, Vector2.Zero);
-        }
-
-        public void EndEffect()
-        {
-            EffectLife = 0;
-        }
-        #endregion
-    }
+		}
+		#endregion
+	}
 }

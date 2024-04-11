@@ -339,7 +339,7 @@ namespace Final_Game.Entity
 					State == PlayerState.Rolling)
 				{
 					TriggerHitStop();
-					Game1.SManager.PlayHitSound();
+					Managers.SoundManager.PlayHitSound();
 					lastContactedEnemy = curEnemy;
 					continue;
 				}

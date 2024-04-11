@@ -150,6 +150,8 @@ namespace Final_Game
 		//Sound Manager 
 		public static SoundManager SManager { get; private set; }
 
+		public static SpeedFXManager FXManager { get; private set; }
+
 		public static Camera MainCamera { get; private set; }
 
 		public static bool DebugOn { get; private set; }
@@ -207,8 +209,12 @@ namespace Final_Game
 			EManager = new EnemyManager(this);
 			PManager = new PickupManager(this);
 
-			//Create Sound Manager
-			SManager = new SoundManager(Content);
+			//Create FX Manager
+			FXManager = new SpeedFXManager(1f);
+
+			//Setup sound manager.
+			SoundManager.LoadSoundFiles(Content);
+
 
 			// Create custom cursors
 			_gameplayCursor = MouseCursor.FromTexture2D(

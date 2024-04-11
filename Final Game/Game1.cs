@@ -274,6 +274,8 @@ namespace Final_Game
 
 					PManager.Update(gameTime);
 
+					FXManager.Update(_spriteBatch, gameTime);
+
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
 

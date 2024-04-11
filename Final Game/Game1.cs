@@ -75,6 +75,7 @@ namespace Final_Game
 		private CutsceneManager _csManager;
 
 		
+		
 		#endregion
 
 		#region Properties
@@ -96,10 +97,11 @@ namespace Final_Game
 		/// Current state of the mouse.
 		/// </summary>
 		public static MouseState CurMouse { get; private set; }
-		/// <summary>
-		/// Previous state of the mouse.
-		/// </summary>
-		public static MouseState PrevMouse { get; private set; }
+		
+        /// <summary>
+        /// Previous state of the mouse.
+        /// </summary>
+        public static MouseState PrevMouse { get; private set; }
 		public static bool MouseIsOnScreen =>
 		  ScreenBounds.Contains(CurMouse.Position);
 
@@ -188,7 +190,7 @@ namespace Final_Game
 
 			// Create default cursor
 			_menuCursor = MouseCursor.Arrow;
-
+            
 			// Create UI Manager
 			_ui = new UI(this, _spriteBatch);
 

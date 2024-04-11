@@ -53,5 +53,20 @@ namespace Final_Game
 				SpriteEffects.None, 
 				0);
 		}
-	}
+        public void Draw(SpriteBatch spriteBatch, Vector2 position, Color tint)
+        {
+            float scale = (float)DestinationRect.Width / SourceRect.Width;
+
+            spriteBatch.Draw(Texture,
+                position,
+                SourceRect,
+                tint,
+                0f,
+                Vector2.Zero,
+                scale,
+                SpriteEffects.None,
+                0);
+        }
+
+    }
 }

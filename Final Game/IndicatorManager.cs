@@ -26,6 +26,7 @@ namespace Final_Game
             {
                 if (Indicators[i].Update(gameTime))
                 {
+                    
                     Indicators.RemoveAt(i);
                 }
             }

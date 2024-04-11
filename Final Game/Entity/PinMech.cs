@@ -22,7 +22,7 @@ namespace Final_Game.Entity
     }
     public class PinMech : Enemy
     {
-        private double overHeatTimer;
+        
         private BossState BossActionState;
         private int pinBombsChanceModifier;
         private double pinBombsDuration;
@@ -33,6 +33,11 @@ namespace Final_Game.Entity
         private Game1 gm;
         private double _pinThrowWindUp;
         private bool aboutToThrow;
+       private int savedYdirection;
+       private int savedXdirection;
+        private double overheatTimer;
+        private string debugState;
+        private double stunTimer;
         // Constructors
         public PinMech(Game1 gm, Vector2 position)
             : base(gm, position)
@@ -72,6 +77,7 @@ namespace Final_Game.Entity
             CurHealth = MaxHealth;
             InvDuration = 0.5;
             InvTimer = InvDuration;
+            debugState = "idle";
 
             // Attacking
             _attackForce = 15f;
@@ -81,29 +87,32 @@ namespace Final_Game.Entity
             _attackRange = Game1.TileSize;
             _attackWindupDuration = 0.25;
             _attackWindupTimer = _attackWindupDuration;
-
+            overheatTimer = 0.0;
             _attackCooldown = 1;
             _attackCooldownTimer = 0.0;
-            pinBombsDuration = 1000;
+            pinBombsDuration = 10;
             pinBombsDurationTimer = pinBombsDuration;
             pinBombsDelay = 0;
             _gloveSpriteSheet = gm.Content.Load<Texture2D>("Sprites/PinPunchSpritesheet");
             indicators = new IndicatorManager(gm);
             _pinThrowWindUp = 1;
             aboutToThrow = false;
+            stunTimer = 0.0;
             // Set type
             Type = EntityType.Enemy;
-
+            
             // Set state
             _chaseRange = Game1.TileSize * 5;
             _aggroRange = Game1.TileSize * 3;
 
             ActionState = EnemyState.Idle;
-
+            savedYdirection = 0;
+            savedXdirection = 0;
             // Animation
             _gloveFrameWidth = _gloveSpriteSheet.Width / 3;
             _walkAnimSecondsPerFrame = 0.12;
-            pinBombsChanceModifier = 100;
+            pinBombsChanceModifier = 0;
+            BossActionState = BossState.Idle;
             return;
         }
 
@@ -123,8 +132,10 @@ namespace Final_Game.Entity
             int roomHeight = Game1.Player.CurrentRoom.Tileset.Height;
             int originX = Game1.Player.CurrentRoom.Origin.X;
             int originY = Game1.Player.CurrentRoom.Origin.Y;
-            DetermineState(playerDist);
 
+                DetermineState(playerDist);
+
+            stunTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
             Game1.IManager.Update(gameTime);
 
             switch (BossActionState)
@@ -132,12 +143,18 @@ namespace Final_Game.Entity
                 case BossState.Idle:
                     Velocity = Vector2.Zero;
                     _attackCooldownTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+                    debugState = "Idle";
                     break;
-
+                case BossState.Overheated:
+                    Velocity = Vector2.Zero;
+                    debugState = "Overheat";
+                    overheatTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+                    break;
                 case BossState.PinBombs:
                     Velocity = Vector2.Zero;
-                    pinBombsChanceModifier = 100;
-                    if(pinBombsDurationTimer > 0)
+                    debugState = "PinBombs";
+                    pinBombsDurationTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+                    if (pinBombsDurationTimer > 0)
                     {
                         pinBombsDurationTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
                         if(pinBombsDelay > 0)
@@ -153,8 +170,34 @@ namespace Final_Game.Entity
                     }
                     break;
                 case BossState.PinThrow:
+                    debugState = "Pinthrow";
                     Velocity = Vector2.Zero;
-                    Game1.IManager.Add(new Indicator(WorldPosition, BossActionState, 1));
+                    if (Math.Abs(distanceFromPlayer.X) > Math.Abs(distanceFromPlayer.Y))
+                    {
+                        if (distanceFromPlayer.X < 0)
+                        {
+                            savedXdirection = 1;
+                            Game1.IManager.Add(new Indicator(WorldPosition, BossActionState, 2));
+                        }
+                        else
+                        {
+                            savedXdirection = -1;
+                            Game1.IManager.Add(new Indicator(WorldPosition, BossActionState, 0));
+                        }
+                    }
+                    else
+                    {
+                        if (distanceFromPlayer.Y > 0)
+                        {
+                            savedYdirection = -1;
+                            Game1.IManager.Add(new Indicator(WorldPosition, BossActionState, 3));
+                        }
+                        else
+                        {
+                            savedYdirection = 1;
+                            Game1.IManager.Add(new Indicator(WorldPosition, BossActionState, 1));
+                        }
+                    }
                     _pinThrowWindUp = 1;
                     aboutToThrow = true;
                     _attackCooldownTimer = 3;
@@ -162,7 +205,7 @@ namespace Final_Game.Entity
                     break;
                 case BossState.HandSwipe:
                     Velocity = Vector2.Zero;
-
+                    debugState = "HandSwipe";
                     // Apply attack cooldown
                     if (_attackCooldownTimer > 0)
                     {
@@ -220,9 +263,10 @@ namespace Final_Game.Entity
             UpdateWalkAnimation(gameTime);
             if(aboutToThrow && _pinThrowWindUp < 0)
             {
-                Game1.EManager.Enemies.Add(new PinAttack(0, 1, new Vector2(WorldPosition.X, WorldPosition.Y), gm));
+                Game1.EManager.Enemies.Add(new PinAttack(savedXdirection, savedYdirection, new Vector2(WorldPosition.X, WorldPosition.Y), gm));
                 aboutToThrow = false;
-                
+                savedXdirection = 0;
+                savedYdirection = 0;
             }
             else if (aboutToThrow)
             {
@@ -284,6 +328,14 @@ namespace Final_Game.Entity
                     }
                     Image.Draw(spriteBatch, screenPos);
                     break;
+                case BossState.Overheated:
+                    if (IsKO)
+                    {
+                        DrawKoed(spriteBatch, screenPos);
+                        break;
+                    }
+                    Image.Draw(spriteBatch, screenPos, Color.Orange);
+                    break;
                 case BossState.PinThrow:
                     if (IsKO)
                     {
@@ -307,11 +359,11 @@ namespace Final_Game.Entity
             //spriteBatch.DrawString(Game1.ARIAL32, $"Hp: {CurHealth}", screenPos, Color.White);
 
             // Display attack delay
-            //spriteBatch.DrawString(
-            //    Game1.ARIAL32,
-            //    $"ATK_D: {_attackDelayTimer:0.00}",
-            //    screenPos,
-            //    Color.White);
+           /* spriteBatch.DrawString(
+                gm.ARIAL32,
+                $"Current State " + debugState,
+                screenPos,
+               Color.White);*/
             return;
         }
 
@@ -411,48 +463,87 @@ namespace Final_Game.Entity
         }
         protected override void DetermineState(float playerDist)
         {
-            /* Random rng = new Random();
-             if (pinBombsDurationTimer > 0 || BossActionState != BossState.PinBombs)
-             {
-                 if (_attackCooldownTimer <= 0)
-                 {
-                     if (playerDist < _aggroRange)
-                     {
-                         BossActionState = BossState.HandSwipe;
-                         return;
-                     }
-                     else
-                     {
-
-                         if (rng.Next(1, 101) < pinBombsChanceModifier)
-                         {
-                             BossActionState = BossState.PinThrow;
-                             pinBombsChanceModifier = 0;
-                         }
-                         else
-                         {
-                             BossActionState = BossState.PinBombs;
-                         }
-                         EndAttack(true);
-                         return;
-                     }
-                 }
-             }
-             else
-             {
-                 BossActionState = BossState.PinBombs;
-                 return;
-             }*/
-            if (_attackCooldownTimer > 0)
+            Random rng = new Random();
+            if (BossActionState == BossState.Overheated)
             {
-                BossActionState = BossState.Idle;
+                if (overheatTimer > 0)
+                {
+                    BossActionState = BossState.Overheated;
+                    
+                }
+                else
+                {
+                   BossActionState = BossState.Idle;
+                }
+            }
+            else if (BossActionState != BossState.PinBombs)
+            {
+                if (_attackCooldownTimer <= 0 && stunTimer <= 0)
+                {
+                    if (playerDist < _aggroRange)
+                    {
+                        BossActionState = BossState.HandSwipe;
+                        return;
+                    }
+                    else
+                    {
+
+                        if (rng.Next(1, 101) > pinBombsChanceModifier)
+                        {
+                            BossActionState = BossState.PinThrow;
+                            pinBombsChanceModifier += 5;
+                        }
+                        else
+                        {
+                            pinBombsDurationTimer = 10;
+                            BossActionState = BossState.PinBombs;
+                            pinBombsChanceModifier = 0;
+                        }
+                        EndAttack(true);
+                        return;
+                    }
+                }
+                else
+                {
+                    BossActionState = BossState.Idle;
+                    return;
+                }
             }
             else
             {
-                BossActionState = BossState.PinThrow;
+                if (pinBombsDurationTimer <= 0)
+                {
+                    BossActionState = BossState.Overheated;
+                    overheatTimer = 10;
+                    pinBombsDurationTimer = 10;
+
+                }
+                else
+                {
+                    BossActionState = BossState.PinBombs;
+                }
+
+                return;
             }
+
             return;
         }
+        public override void TakeDamage(int damage)
+		{
+			// Take damage if not invincible
+			if (InvTimer <= 0 && BossActionState == BossState.Overheated)
+			{
+				CurHealth -= damage;
+
+				// Temporarily become invincible
+				InvTimer = InvDuration;
+
+                // Handle low health
+                BossActionState = BossState.Idle;
+                overheatTimer = 0;
+                stunTimer = 1;
+			}
+		}
 
         #endregion
 

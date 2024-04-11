@@ -29,7 +29,7 @@ namespace Final_Game.Entity
             texture = gm.Content.Load<Texture2D>("Sprites/BasicEnemy");
             this.Xdirection = Xdirection;
             this.Ydirection = Ydirection;
-            speed = 7.5f;
+            speed = -7.5f;
             Vector2 distFromPlayer = position - Game1.Player.WorldPosition;
             ScreenPos = Game1.Player.ScreenPosition + distFromPlayer;
             timeLeft = 1.5;
@@ -48,6 +48,7 @@ namespace Final_Game.Entity
                     (int)(Game1.TileSize * 1.5f * 140/120)));
             _attackForce = 5f;
             _attackRange = Game1.TileSize;
+            Type = EntityType.Enemy;
             Hitbox = new Rectangle(
     (int)WorldPosition.X + Image.DestinationRect.Width / 2 - 50 - (350 * Math.Abs(Ydirection)),
     (int)WorldPosition.Y + Image.DestinationRect.Height - 100 - (350 * Math.Abs(Xdirection)),
@@ -65,6 +66,7 @@ namespace Final_Game.Entity
             {
                 Hitbox = new Rectangle(0, 0, 0, 0);
                 attacked = true;
+                CurHealth= 0;
             }
             _attackDirection = Game1.Player.CenterPosition - CenterPosition;
 

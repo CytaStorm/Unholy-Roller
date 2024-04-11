@@ -86,7 +86,13 @@ namespace Final_Game.Entity
             ScreenPos = Game1.Player.ScreenPosition + distFromPlayer;
             if (!attacked)
             {
-                Image.Draw(sb, ScreenPos);
+                if (Ydirection != 0) {
+                    Image.Draw(sb, ScreenPos, 0f, Vector2.Zero );
+                }
+                else
+                {
+                    Image.Draw(sb, ScreenPos, (float)Math.PI / 2, Vector2.Zero);
+                }
             }
         }
         protected override void EndAttack(bool w) { }

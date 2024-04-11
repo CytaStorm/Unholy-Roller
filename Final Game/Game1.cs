@@ -12,10 +12,10 @@ using System.Runtime.CompilerServices;
 
 namespace Final_Game
 {
-    /// <summary>
-    /// Which state the game is in.
-    /// </summary>
-    public enum GameState
+	/// <summary>
+	/// Which state the game is in.
+	/// </summary>
+	public enum GameState
 	{
 		Menu,
 		Play,
@@ -85,16 +85,16 @@ namespace Final_Game
 		/// </summary>
 		public static int WindowHeight = 1080;
 
-        // Cutscenes
-        public static CutsceneManager CSManager { get; private set; }
-        #endregion
+		// Cutscenes
+		public static CutsceneManager CSManager { get; private set; }
+		#endregion
 
-        #region Properties
-        // Screen
-        /// <summary>
-        /// Rectangle respresenting the bounds of the screen, in pixels.
-        /// </summary>
-        public static Rectangle ScreenBounds =>
+		#region Properties
+		// Screen
+		/// <summary>
+		/// Rectangle respresenting the bounds of the screen, in pixels.
+		/// </summary>
+		public static Rectangle ScreenBounds =>
 				new Rectangle(0, 0, WindowWidth, WindowHeight);
 
 		/// <summary>
@@ -155,9 +155,9 @@ namespace Final_Game
 		public static Camera MainCamera { get; private set; }
 
 		public static bool DebugOn { get; private set; }
-        #endregion
+		#endregion
 
-        public Game1()
+		public Game1()
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
@@ -187,7 +187,7 @@ namespace Final_Game
 
 			// Set default game state
 			State = GameState.Menu;
-      
+	  
 			//Load in first level content.
 			//TestLevel.LoadRoomUsingOffset(new Point(0, 0));
 			base.Initialize();
@@ -316,6 +316,8 @@ namespace Final_Game
 				case GameState.Play:
 
 					CurrentLevel.CurrentRoom.Draw(_spriteBatch);
+
+					FXManager.Draw(_spriteBatch);
 
 					Player.Draw(_spriteBatch);
 
@@ -458,10 +460,10 @@ namespace Final_Game
 
 		private void StartGame()
 		{
-            // Make a new level
-            TestLevel = new Level(5, 5, 10);
+			// Make a new level
+			TestLevel = new Level(5, 5, 10);
 
-            CurrentLevel = TestLevel;
+			CurrentLevel = TestLevel;
 
 			Player.MoveToRoomCenter(CurrentLevel.StartRoom);
 
@@ -510,17 +512,17 @@ namespace Final_Game
 		private void HandleDevToggle()
 		{
 			// Toggle Debug Drawing
-            if (SingleKeyPress(Keys.D4)) DebugOn = !DebugOn;
+			if (SingleKeyPress(Keys.D4)) DebugOn = !DebugOn;
 
 			if (!DebugOn) return;
 
 			// Toggle Infinite Player Health
-            if (SingleKeyPress(Keys.D5)) Player.InfiniteHealth = !Player.InfiniteHealth;
+			if (SingleKeyPress(Keys.D5)) Player.InfiniteHealth = !Player.InfiniteHealth;
 
 			// Toggle Infinite Enemy Health
 			if (SingleKeyPress(Keys.D6))
 				EManager.EnemiesInvincible = !EManager.EnemiesInvincible;
-        }
+		}
 
 		private void DrawDebug()
 		{
@@ -531,7 +533,7 @@ namespace Final_Game
 
 			PManager.DrawGizmos();
 
-            _ui.DisplayRedirectsInCursor();
-        }
-    }
+			_ui.DisplayRedirectsInCursor();
+		}
+	}
 }

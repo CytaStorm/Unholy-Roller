@@ -11,10 +11,11 @@ namespace Final_Game.Entity
 	internal class BulletTimeFX : Entity
 	{
 		#region Constructors
-		public BulletTimeFX(Sprite sprite, SpriteBatch sb, Color tint)
+		public BulletTimeFX(Sprite sprite, SpriteBatch sb, Color tint, Vector2 worldPos)
 		{
 			Image = sprite;
 			Image.TintColor = tint;
+			WorldPosition = worldPos;
 		}
 		#endregion
 

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Final_Game.Managers
 	public class SpeedFXManager
 	{
 		#region Fields
-		private Queue<BulletTimeFX> FXinstances = new Queue<BulletTimeFX>();
+		private List<BulletTimeFX> FXinstances = new List<BulletTimeFX>();
 		private double _curFXTimer;
 		private double _curDestructionTimer;
 		#endregion             	
@@ -36,11 +37,13 @@ namespace Final_Game.Managers
 			//create bullet fx based on timer
 			if (Player.BulletTimeMultiplier < 1)
 			{
+				Debug.WriteLine("pooopooo");
 				TickTimer(gameTime, _curFXTimer);
 				if (_curFXTimer < 0)
 				{
 					_curFXTimer = FXTimer;
-					FXinstances.Enqueue(new BulletTimeFX(Game1.Player.Image, sb, Color.White));
+					FXinstances.Add(new BulletTimeFX(
+						Game1.Player.Image, sb, Color.White, Game1.Player.WorldPosition));
 				}
 				return;
 			}
@@ -52,13 +55,11 @@ namespace Final_Game.Managers
 				TickTimer(gameTime, _curDestructionTimer);	
 				if (_curDestructionTimer < 0)
 				{
-					FXinstances.Dequeue();
+					FXinstances.RemoveAt(0);
 					_curDestructionTimer = 0.5f;
 				}
 			}
 		}
-
-			
 
 		private void TickTimer(GameTime gameTime, double timer)
 		{
@@ -66,6 +67,14 @@ namespace Final_Game.Managers
             {
 				_curFXTimer -= gameTime.ElapsedGameTime.TotalSeconds;
             }
+		}
+
+		public void Draw(SpriteBatch sb)
+		{
+			foreach (BulletTimeFX fx in FXinstances)
+			{
+				fx.Draw(sb);
+			}
 		}
 		#endregion
 	}

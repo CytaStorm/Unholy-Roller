@@ -50,10 +50,10 @@ namespace Final_Game.Entity
             _attackRange = Game1.TileSize;
             Type = EntityType.Enemy;
             Hitbox = new Rectangle(
-    (int)WorldPosition.X + Image.DestinationRect.Width / 2 - 50 - (350 * Math.Abs(Ydirection)),
-    (int)WorldPosition.Y + Image.DestinationRect.Height - 100 - (350 * Math.Abs(Xdirection)),
-    100 + (700 * Math.Abs(Ydirection)),
-    100 + (700 * Math.Abs(Xdirection)));
+            (int)WorldPosition.X + Image.DestinationRect.Width / 2 - 50 - (350 * Math.Abs(Ydirection)),
+            (int)WorldPosition.Y + Image.DestinationRect.Height - 100 - (350 * Math.Abs(Xdirection)),
+            100 + (700 * Math.Abs(Ydirection)),
+            100 + (700 * Math.Abs(Xdirection)));
         }
         public override void Update(GameTime gameTime)
         {
@@ -75,10 +75,6 @@ namespace Final_Game.Entity
             _attackDirection *= _attackRange;
 
             Attack();
-
-            
-                
-
         }
         public override void Draw(SpriteBatch sb)
         {
@@ -87,11 +83,11 @@ namespace Final_Game.Entity
             if (!attacked)
             {
                 if (Ydirection != 0) {
-                    Image.Draw(sb, ScreenPos, 0f, Vector2.Zero );
+                    Image.Draw(sb, ScreenPos, (float)Math.PI / 2, Vector2.Zero );
                 }
                 else
                 {
-                    Image.Draw(sb, ScreenPos, (float)Math.PI / 2, Vector2.Zero);
+                    Image.Draw(sb, ScreenPos, 0f, Vector2.Zero);
                 }
             }
         }

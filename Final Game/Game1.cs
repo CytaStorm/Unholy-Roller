@@ -175,7 +175,7 @@ namespace Final_Game
 		{
 			tilemaker = new TileMaker(Content);
 
-			TestLevel = new Level(10, 10, 25);
+			TestLevel = new Level(1, 1, 1);
 
 			TutorialLevel = new Level(1, 1, 1);
 
@@ -277,7 +277,7 @@ namespace Final_Game
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
 
-                    Pathfinding = new Pathfinder(CurrentLevel.CurrentRoom.Tileset.Layout);
+					Pathfinding = new Pathfinder(CurrentLevel.CurrentRoom.Tileset.Layout, TileSize) ;
 
                     break;
 

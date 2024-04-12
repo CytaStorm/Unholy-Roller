@@ -136,14 +136,17 @@ namespace Final_Game.Entity
                     break;
 
                 case EnemyState.Idle:
+                    Debug.WriteLine("standing");
                     Velocity = Vector2.Zero;
                     break;
 
                 case EnemyState.Chase:
+                    Debug.WriteLine("chasing");
                     TargetPlayer();
                     break;
 
                 case EnemyState.Attack:
+                    Debug.WriteLine("attacking");
                     Velocity = Vector2.Zero;
 
                     // Apply attack cooldown
@@ -259,7 +262,6 @@ namespace Final_Game.Entity
                     break;
 
                 case EnemyState.Attack:
-
                     Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
 
                     DrawAttacking(spriteBatch, screenPos);
@@ -284,75 +286,55 @@ namespace Final_Game.Entity
 
         protected override void TargetPlayer()
         {
-            // Get direction from self to player
-            Point eMinusP = Game1.Player.Hitbox.Center - Hitbox.Center;
-            Vector2 directionToPlayer = new Vector2(eMinusP.X, eMinusP.Y);
+            Vector2 playerPosition = Game1.Player.CenterPosition;
+            Vector2 enemyPosition = CenterPosition;
 
-            // Aim enemy toward player at their speed
-            directionToPlayer.Normalize();
-            directionToPlayer *= Speed;
+            List<Vector2> path = Game1.Pathfinding.FindPath(enemyPosition, playerPosition);
+            path[0] = enemyPosition;
 
-            Vector2 positionAfterMoving = WorldPosition + directionToPlayer;
+            Debug.WriteLine("Enemy position: " + enemyPosition + ", Player position: " + playerPosition);     
+            Debug.WriteLine("Path: " + string.Join(" -> ", path.Select(p => p.ToString())));
 
-            if (CheckTilemapCollisionAhead(this, directionToPlayer, Game1.CurrentLevel.CurrentRoom.Tileset))
+            if (path != null && path.Count > 1)
             {
 
-                Vector2 newDirection = new Vector2(directionToPlayer.Y, -directionToPlayer.X);
-                newDirection.Normalize();
-                newDirection *= Speed;
-                positionAfterMoving = WorldPosition + newDirection;
-            }
+                Vector2 nextStep = path[1];
+                Vector2 direction = nextStep - enemyPosition;
 
-            // Stop if get too close to another enemy
-            bool shouldStop = false;
-            float minDistanceFromEnemies = Game1.TileSize * 3;
-            foreach (Enemy e in Game1.EManager.Enemies)
-            {
-                Vector2 distFromEnemyAfterMoving = (e.WorldPosition - positionAfterMoving);
-                if (e != this &&
-                    distFromEnemyAfterMoving.LengthSquared() <= minDistanceFromEnemies * minDistanceFromEnemies)
+                float distanceToNextStep = direction.Length();
+
+                float closeEnoughDistance = 3f; 
+                if (distanceToNextStep > closeEnoughDistance)
                 {
-                    shouldStop = true;
-                    break;
+                    direction.Normalize();
+                    Velocity = direction * Speed;
                 }
-            }
-
-            if (shouldStop)
-            {
-                Velocity = Vector2.Zero;
-                return;
-            }
-
-            Velocity = directionToPlayer;
-            return;
-        }
-
-        public static bool CheckTilemapCollisionAhead(Entity e, Vector2 direction, Tileset tileset)
-        {
-
-            Vector2 nextPosition = e.WorldPosition + direction * e.Speed;
-
-            Rectangle predictedHitbox = new Rectangle((int)nextPosition.X, (int)nextPosition.Y, e.Hitbox.Width, e.Hitbox.Height);
-
-            for (int row = 0; row < tileset.Layout.GetLength(0); row++)
-            {
-                for (int col = 0; col < tileset.Layout.GetLength(1); col++)
+                else
                 {
-                    Tile tile = tileset.Layout[row, col];
-                    if (tile.CollisionOn && predictedHitbox.Intersects(tile.Hitbox))
+                    
+                    WorldPosition = nextStep; 
+                                         
+                    if (path.Count > 2)
                     {
-                        return true;
+                        Vector2 newDirection = path[2] - WorldPosition;
+                        newDirection.Normalize();
+                        Velocity = newDirection * Speed;
+                    }
+                    else
+                    {                      
+                        Velocity = Vector2.Zero;
                     }
                 }
             }
-            return false;
+            else
+            {
+                Velocity = Vector2.Zero;
+            }
+
+            Debug.WriteLine("Velocity: " + Velocity);
         }
 
 
-        protected override void CheckForObstacles(Vector2 direction)
-        {
-
-        }
 
         protected override void Attack()
         {

@@ -232,50 +232,56 @@ namespace Final_Game.LevelGen
 		/// <param name="newRoomOffset">Offset that
 		/// determines which room is loaded.</param>
 		public void LoadRoomUsingOffset(Point newRoomOffset)
-		{
-			//Update minimap
-			CurrentRoom.Entered = true;
-			CurrentRoom.Discovered = true;
-			Debug.WriteLine(CurrentPoint);
+        {
+            //Update minimap
+            CurrentRoom.Entered = true;
+            CurrentRoom.Discovered = true;
+            Debug.WriteLine(CurrentPoint);
 
-			for (int i = 0; i < 4; i++)
-			{
-				if (CurrentRoom.ActualConnections[i] != null)
-				{
-					CurrentRoom.ActualConnections[i].Discovered = true;
-				}
-			}
+            //Return early if no acutal offset.
+            if (newRoomOffset == new Point(0, 0))
+            {
+				UpdateRoomConnectionData();
+                return;
+            }
 
-			//Return early if no acutal offset.
-			if (newRoomOffset == new Point(0, 0))
-			{
-				return;				
-			}
+            Game1.PManager.ClearPickups();
+            CurrentPoint += newRoomOffset;
 
-			Game1.PManager.ClearPickups();
-			CurrentPoint += newRoomOffset;
-			Debug.WriteLine(CurrentPoint);
+            //Remove enemies near player.
+            CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
 
-			//Remove enemies near player.
-			CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
-			
-			
+            //Update minimap
+            UpdateRoomConnectionData();
+            //Create enemies
+            if (!CurrentRoom.Cleared)
+            {
+                Game1.EManager.CreateRoomEnemies(CurrentRoom);
+                SoundManager.ChangeBGM(0);
+            }
 
-			//Create enemies
-			if (!CurrentRoom.Cleared)
-			{
-				Game1.EManager.CreateRoomEnemies(CurrentRoom);
-				SoundManager.ChangeBGM(0);
-			}
+            //Change song
+        }
 
-			//Change song
-		}
-
-		#region Debug methods
 		/// <summary>
-		/// Prints out Level Map to Debug.
+		/// Updates data about discovered and entered rooms.
 		/// </summary>
-		public void PrintLevel()
+        private void UpdateRoomConnectionData()
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (CurrentRoom.ActualConnections[i] != null)
+                {
+                    CurrentRoom.ActualConnections[i].Discovered = true;
+                }
+            }
+        }
+
+        #region Debug methods
+        /// <summary>
+        /// Prints out Level Map to Debug.
+        /// </summary>
+        public void PrintLevel()
 		{
 			for (int row = 0; row < Map.GetLength(0); row++)
 			{

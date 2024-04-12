@@ -175,12 +175,7 @@ namespace Final_Game
 		{
 			tilemaker = new TileMaker(Content);
 
-			TestLevel = new Level(10, 10, 25);
-
 			TutorialLevel = new Level(1, 1, 1);
-
-			CurrentLevel = TestLevel;
-			CurrentLevel.PrintLevel();
 
 			//Ensures that first room goes through room loading 
 
@@ -247,8 +242,6 @@ namespace Final_Game
 			Player.OnPlayerDeath += EnterGameOver;
 
 			SoundManager.PlayBGM();
-
-			//CurrentLevel.LoadRoomUsingOffset(new Point(0, 0));
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -262,12 +255,11 @@ namespace Final_Game
 
 			HandleDevToggle();
 
+
 			// Update game
 			switch (State)
 			{
 				case GameState.Play:
-					Debug.WriteLine(CurrentLevel.CurrentPoint);
-					Debug.WriteLine(CurrentLevel.StartPoint);
 					Player.Update(gameTime);
 
 					// Update cursor
@@ -478,8 +470,10 @@ namespace Final_Game
 			CurrentLevel = TestLevel;
 
 			Player.MoveToRoomCenter(CurrentLevel.StartRoom);
+			TestLevel.LoadRoomUsingOffset(new Point(0, 0));
 
 			State = GameState.Play;
+			_ui.LoadMinimap();
 			Mouse.SetCursor(_gameplayCursor);
 		}
 

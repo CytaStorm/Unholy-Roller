@@ -75,65 +75,57 @@ namespace Final_Game
 
 		// Constructors
 		public UI(Game1 gm, SpriteBatch sb)
-		{
-			_gm = gm;
-			_spriteBatch = sb;
+        {
+            _gm = gm;
+            _spriteBatch = sb;
 
-			// Minimap
-			_defaultRoomSize = 20;
-			_minimapScale = 0.1f;
-			_minimapPos = new Point(
-				Game1.ScreenBounds.Right - Game1.CurrentLevel.Map.GetLength(0) 
-				* _defaultRoomSize - 150,
-				50);
+            // Load Backgrounds
+            _blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
+
+            // Load Icons
+            _comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
+
+            // Load Health Images
+            _blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
+            _brokenBallSpriteWidth = 360;
+
+            // Setup Player Speedometer
+            _speedometerPin = _gm.Content.Load<Texture2D>("SpeedometerPin");
+            _speedometerCrest = _gm.Content.Load<Texture2D>("SpeedometerCrest");
+            _maxSpeedometerSpeed = 60f;
+
+            // Gameover Assets
+            Texture2D deadBallTexture = _gm.Content.Load<Texture2D>("Sprites/DeadBall");
+            _deadBall = new Sprite(
+                deadBallTexture,
+                deadBallTexture.Bounds,
+                new Rectangle(
+                    0, 0,
+                    deadBallTexture.Width * 3 / 4, deadBallTexture.Width * 3 / 4));
+            _deadBall.ObeyCamera = false;
+            _maxHoverOffset = 50f;
+            _hoverDuration = 2;
+
+            // Load Fonts
+            TitleCaseArial = _gm.Content.Load<SpriteFont>("TitleCaseArial");
+            MediumArial = _gm.Content.Load<SpriteFont>("MediumArial");
+
+            // Setup effects
+            _maxShakeMagnitude = 15f;
+            _maxShakeMultiplier = 3f;
+            _maxShakeOffset = new Vector2(_maxShakeMagnitude, _maxShakeMagnitude);
+            _shakeDuration = 0.5;
+
+            CreateButtons();
+
+            CreateSliders();
+
+            SubscribeToEntities();
+        }
 
 
-			// Load Backgrounds
-			_blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
-
-			// Load Icons
-			_comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
-
-			// Load Health Images
-			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
-			_brokenBallSpriteWidth = 360;
-
-			// Setup Player Speedometer
-			_speedometerPin = _gm.Content.Load<Texture2D>("SpeedometerPin");
-			_speedometerCrest = _gm.Content.Load<Texture2D>("SpeedometerCrest");
-			_maxSpeedometerSpeed = 60f;
-
-			// Gameover Assets
-			Texture2D deadBallTexture = _gm.Content.Load<Texture2D>("Sprites/DeadBall");
-			_deadBall = new Sprite(
-				deadBallTexture,
-				deadBallTexture.Bounds,
-				new Rectangle(
-					0, 0, 
-					deadBallTexture.Width * 3 / 4, deadBallTexture.Width * 3 / 4));
-			_deadBall.ObeyCamera = false;
-			_maxHoverOffset = 50f;
-			_hoverDuration = 2;
-
-			// Load Fonts
-			TitleCaseArial = _gm.Content.Load<SpriteFont>("TitleCaseArial");
-			MediumArial = _gm.Content.Load<SpriteFont>("MediumArial");
-
-			// Setup effects
-			_maxShakeMagnitude = 15f;
-			_maxShakeMultiplier = 3f;
-			_maxShakeOffset = new Vector2(_maxShakeMagnitude, _maxShakeMagnitude);
-			_shakeDuration = 0.5;
-
-			CreateButtons();
-
-			CreateSliders();
-
-			SubscribeToEntities();
-		}
-
-		// Methods
-		public void Update(GameTime gameTime)
+        // Methods
+        public void Update(GameTime gameTime)
 		{
 			switch (_gm.State)
 			{
@@ -627,7 +619,22 @@ namespace Final_Game
 			return;
 		}
 
-		#endregion
+        #endregion
+
+        #region Minimap Methods
+        /// <summary>
+        /// Loads minimap.
+        /// </summary>
+        public void LoadMinimap()
+        {
+            // Minimap
+            _defaultRoomSize = 20;
+            _minimapScale = 0.1f;
+            _minimapPos = new Point(
+                Game1.ScreenBounds.Right - Game1.CurrentLevel.Map.GetLength(0)
+                * _defaultRoomSize - 150,
+                50);
+        }
 
 		/// <summary>
 		/// Draws a simplified representation of the map,
@@ -689,6 +696,7 @@ namespace Final_Game
 			}
 			return;
 		}
+		#endregion
 
 		public void DisplayRedirectsInCursor()
 		{

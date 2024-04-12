@@ -210,7 +210,7 @@ namespace Final_Game
 			PManager = new PickupManager(this);
 
 			//Create FX Manager
-			FXManager = new SpeedFXManager(1f);
+			//FXManager = new SpeedFXManager(1f);
 
 			//Setup sound manager.
 			SoundManager.LoadSoundFiles(Content);

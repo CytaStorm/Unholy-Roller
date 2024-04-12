@@ -12,214 +12,214 @@ using System.Threading.Tasks;
 
 namespace Final_Game.Entity
 {
-	public class BasicPuncher : Enemy
-	{
-		// Fields
-		private Sprite _knockoutStars;
-		private double _koStarAnimDuration;
-		private double _koStarAnimTimeCounter;
+    public class BasicPuncher : Enemy
+    {
+        // Fields
+        private Sprite _knockoutStars;
+        private double _koStarAnimDuration;
+        private double _koStarAnimTimeCounter;
 
-		// Constructors
-		public BasicPuncher(Game1 gm, Vector2 position) 
-			: base(gm, position)
-		{
-			// Set Enemy Image
-			Texture2D puncherSpritesheet = 
-				gm.Content.Load<Texture2D>("Sprites/BasicEnemySpritesheet");
+        // Constructors
+        public BasicPuncher(Game1 gm, Vector2 position)
+            : base(gm, position)
+        {
+            // Set Enemy Image
+            Texture2D puncherSpritesheet =
+                gm.Content.Load<Texture2D>("Sprites/BasicEnemySpritesheet");
 
-			Image = new Sprite(
-				puncherSpritesheet,
-				new Rectangle(
-					0, 0,
-					120, 140),
-				new Rectangle(
-					(int)position.X,
-					(int)position.Y,
-					(int)(Game1.TileSize * 1.5f),
-					(int)(Game1.TileSize * 1.5f *
-					140 / 120)));
+            Image = new Sprite(
+                puncherSpritesheet,
+                new Rectangle(
+                    0, 0,
+                    120, 140),
+                new Rectangle(
+                    (int)position.X,
+                    (int)position.Y,
+                    (int)(Game1.TileSize * 1.5f),
+                    (int)(Game1.TileSize * 1.5f *
+                    140 / 120)));
 
-			// Position
-			WorldPosition = position;
+            // Position
+            WorldPosition = position;
 
-			// Hitbox
-			Hitbox = new Rectangle(
-				(int)WorldPosition.X + Image.DestinationRect.Width / 2 - 50,
-				(int)WorldPosition.Y + Image.DestinationRect.Height - 100,
-				100,
-				100);
+            // Hitbox
+            Hitbox = new Rectangle(
+                (int)WorldPosition.X + Image.DestinationRect.Width / 2 - 50,
+                (int)WorldPosition.Y + Image.DestinationRect.Height - 100,
+                100,
+                100);
 
-			// Default Speed
-			Speed = 5f;
+            // Default Speed
+            Speed = 5f;
 
-			// Set Vitality
-			MaxHealth = 3;
-			CurHealth = MaxHealth;
-			InvDuration = 0.5;
-			InvTimer = InvDuration;
+            // Set Vitality
+            MaxHealth = 3;
+            CurHealth = MaxHealth;
+            InvDuration = 0.5;
+            InvTimer = InvDuration;
 
-			// Attacking
-			_attackForce = 15f;
-			_attackDuration = 0.2;
-			_attackDurationTimer = 0.0;
-			_attackRadius = Game1.TileSize;
-			_attackRange = Game1.TileSize;
-			_attackWindupDuration = 0.5;
-			_attackWindupTimer = _attackWindupDuration;
+            // Attacking
+            _attackForce = 15f;
+            _attackDuration = 0.2;
+            _attackDurationTimer = 0.0;
+            _attackRadius = Game1.TileSize;
+            _attackRange = Game1.TileSize;
+            _attackWindupDuration = 0.5;
+            _attackWindupTimer = _attackWindupDuration;
 
-			_attackCooldown = 0.8;
-			_attackCooldownTimer = 0.0;
+            _attackCooldown = 0.8;
+            _attackCooldownTimer = 0.0;
 
-			Texture2D gloveSpritesheet = 
-				gm.Content.Load<Texture2D>("Sprites/PinPunch2");
+            Texture2D gloveSpritesheet =
+                gm.Content.Load<Texture2D>("Sprites/PinPunch2");
 
-			_gloveFrameWidth = gloveSpritesheet.Width / 5;
-			_gloveImages = new Sprite(
-				gloveSpritesheet,
-				new Rectangle(
-					0, 0,
-					_gloveFrameWidth, gloveSpritesheet.Height),
-				new Rectangle(
-					0, 0, 
-					(int)_attackRadius, (int)_attackRadius));
+            _gloveFrameWidth = gloveSpritesheet.Width / 5;
+            _gloveImages = new Sprite(
+                gloveSpritesheet,
+                new Rectangle(
+                    0, 0,
+                    _gloveFrameWidth, gloveSpritesheet.Height),
+                new Rectangle(
+                    0, 0,
+                    (int)_attackRadius, (int)_attackRadius));
 
-			// Set type
-			Type = EntityType.Enemy;
+            // Set type
+            Type = EntityType.Enemy;
 
-			// Set state
-			_chaseRange = Game1.TileSize * 5;
-			_aggroRange = Game1.TileSize * 3;
+            // Set state
+            _chaseRange = Game1.TileSize * 5;
+            _aggroRange = Game1.TileSize * 3;
 
-			ActionState = EnemyState.Chase;
+            ActionState = EnemyState.Chase;
 
-			// Animation
-			_walkAnimSecondsPerFrame = 0.12;
+            // Animation
+            _walkAnimSecondsPerFrame = 0.12;
 
-			// Extra aesthetics
-			Texture2D _koStarSpritesheet = 
-				gm.Content.Load<Texture2D>("Sprites/KO_StarsSpritesheet");
+            // Extra aesthetics
+            Texture2D _koStarSpritesheet =
+                gm.Content.Load<Texture2D>("Sprites/KO_StarsSpritesheet");
             _knockoutStars = new Sprite(
-				_koStarSpritesheet,
-				new Rectangle(
-					0, 0,
-					_koStarSpritesheet.Bounds.Width / 4,
-					_koStarSpritesheet.Bounds.Height),
-				new Rectangle(
-					0, 0,
-					(int)(Game1.TileSize * 1.5), 
-					(int)(Game1.TileSize * 1.5)));
+                _koStarSpritesheet,
+                new Rectangle(
+                    0, 0,
+                    _koStarSpritesheet.Bounds.Width / 4,
+                    _koStarSpritesheet.Bounds.Height),
+                new Rectangle(
+                    0, 0,
+                    (int)(Game1.TileSize * 1.5),
+                    (int)(Game1.TileSize * 1.5)));
 
-			_koStarAnimDuration = 0.5;
-			return;
-		}
+            _koStarAnimDuration = 0.5;
+            return;
+        }
 
-		// Methods
+        // Methods
 
-		public override void Update(GameTime gameTime)
-		{
-			TickInvincibility(gameTime);
+        public override void Update(GameTime gameTime)
+        {
+            TickInvincibility(gameTime);
 
-			TickKnockout(gameTime);
+            TickKnockout(gameTime);
 
 
-			//CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
+            //CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
 
-			Vector2 distanceFromPlayer = Game1.Player.CenterPosition - CenterPosition;
-			float playerDist = distanceFromPlayer.Length();
+            Vector2 distanceFromPlayer = Game1.Player.CenterPosition - CenterPosition;
+            float playerDist = distanceFromPlayer.Length();
 
-			DetermineState(playerDist);
+            DetermineState(playerDist);
 
-			switch (ActionState)
-			{
-				case EnemyState.KO:
+            switch (ActionState)
+            {
+                case EnemyState.KO:
                     UpdateKOAnimation(gameTime);
                     break;
 
-				case EnemyState.Idle:
-					Velocity = Vector2.Zero;
-					break;
+                case EnemyState.Idle:
+                    Velocity = Vector2.Zero;
+                    break;
 
-				case EnemyState.Chase:
-					TargetPlayer();
-					break;
+                case EnemyState.Chase:
+                    TargetPlayer();
+                    break;
 
-				case EnemyState.Attack:
-					Velocity = Vector2.Zero;
+                case EnemyState.Attack:
+                    Velocity = Vector2.Zero;
 
-					// Apply attack cooldown
-					if (_attackCooldownTimer > 0)
-					{
-						_attackCooldownTimer -=
-							gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
-					}
-					else
-					{
-						// Choose a direction to attack in
-						if (!_attackDirChosen)
-						{
-							// Get direction from self to player
-							_attackDirection = Game1.Player.CenterPosition - CenterPosition;
+                    // Apply attack cooldown
+                    if (_attackCooldownTimer > 0)
+                    {
+                        _attackCooldownTimer -=
+                            gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+                    }
+                    else
+                    {
+                        // Choose a direction to attack in
+                        if (!_attackDirChosen)
+                        {
+                            // Get direction from self to player
+                            _attackDirection = Game1.Player.CenterPosition - CenterPosition;
 
-							// Apply attack range
-							_attackDirection.Normalize();
-							_attackDirection *= _attackRange;
+                            // Apply attack range
+                            _attackDirection.Normalize();
+                            _attackDirection *= _attackRange;
 
-							_attackDirChosen = true;
-						}
+                            _attackDirChosen = true;
+                        }
 
-						// Charge attack
-						_attackWindupTimer -=
-							gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+                        // Charge attack
+                        _attackWindupTimer -=
+                            gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 
-						// If not currently attacking or winding up
-						// Use attack 
-						if (_attackDurationTimer <= 0 && _attackWindupTimer <= 0)
-							_attackDurationTimer = _attackDuration;
+                        // If not currently attacking or winding up
+                        // Use attack 
+                        if (_attackDurationTimer <= 0 && _attackWindupTimer <= 0)
+                            _attackDurationTimer = _attackDuration;
 
-						// Currently Attacking
-						if (_attackDurationTimer > 0)
-						{
-							Attack();
-							_attackDurationTimer -=
-								gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
+                        // Currently Attacking
+                        if (_attackDurationTimer > 0)
+                        {
+                            Attack();
+                            _attackDurationTimer -=
+                                gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 
-							if (_attackDurationTimer <= 0)
-							{
-								EndAttack(false);
-							}
-						}
-					}
-					break;
-			}
+                            if (_attackDurationTimer <= 0)
+                            {
+                                EndAttack(false);
+                            }
+                        }
+                    }
+                    break;
+            }
 
-			CollisionOn = !IsKO;
+            CollisionOn = !IsKO;
 
-			CheckEnemyCollisions();
+            CheckEnemyCollisions();
 
-			CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.Tileset);
+            CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.Tileset);
 
-			Move(Velocity * Player.BulletTimeMultiplier);
+            Move(Velocity * Player.BulletTimeMultiplier);
 
-			// Update animations
-			
-			UpdateEnemySprite();
-			UpdateWalkAnimation(gameTime);
+            // Update animations
 
-			return;
-		}
+            UpdateEnemySprite();
+            UpdateWalkAnimation(gameTime);
 
-		public override void Draw(SpriteBatch spriteBatch)
-		{
-			// Draw Enemy relative to the player
-			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
+            return;
+        }
 
-			switch (ActionState)
-			{
-				case EnemyState.KO:
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            // Draw Enemy relative to the player
+            Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
-					Vector2 drawPos =
-						screenPos +
-						new Vector2(Image.DestinationRect.Width, 0f);
+            switch (ActionState)
+            {
+                case EnemyState.KO:
+
+                    Vector2 drawPos =
+                        screenPos +
+                        new Vector2(Image.DestinationRect.Width, 0f);
 
                     Image.Draw(
                         spriteBatch,
@@ -227,134 +227,120 @@ namespace Final_Game.Entity
                         MathHelper.PiOver2,
                         Vector2.Zero);
 
-					Vector2 starDrawPos =
-						screenPos -
-						new Vector2(0f, _knockoutStars.DestinationRect.Height / 2);
+                    Vector2 starDrawPos =
+                        screenPos -
+                        new Vector2(0f, _knockoutStars.DestinationRect.Height / 2);
 
                     _knockoutStars.Draw(
-						spriteBatch,
-						starDrawPos,
-						0f,
-						Vector2.Zero);
+                        spriteBatch,
+                        starDrawPos,
+                        0f,
+                        Vector2.Zero);
                     break;
 
-				case EnemyState.Idle:
+                case EnemyState.Idle:
 
-					Image.Draw(
-						spriteBatch, 
-						screenPos, 
-						0f, 
-						Vector2.Zero);
-					break;
+                    Image.Draw(
+                        spriteBatch,
+                        screenPos,
+                        0f,
+                        Vector2.Zero);
+                    break;
 
-				case EnemyState.Chase:
-					if (Velocity.LengthSquared() > 0)
-						DrawWalking(spriteBatch, screenPos);
-					else
-						Image.Draw(
-							spriteBatch,
-							screenPos,
-							0f,
-							Vector2.Zero);
-					break;
+                case EnemyState.Chase:
+                    if (Velocity.LengthSquared() > 0)
+                        DrawWalking(spriteBatch, screenPos);
+                    else
+                        Image.Draw(
+                            spriteBatch,
+                            screenPos,
+                            0f,
+                            Vector2.Zero);
+                    break;
 
-				case EnemyState.Attack:
+                case EnemyState.Attack:
 
-					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+                    Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
 
-					DrawAttacking(spriteBatch, screenPos);
-					break;
-			}
+                    DrawAttacking(spriteBatch, screenPos);
+                    break;
+            }
 
-			// Display current health
-			//spriteBatch.DrawString(Game1.ARIAL32, $"Hp: {CurHealth}", screenPos, Color.White);
+            // Display current health
+            //spriteBatch.DrawString(Game1.ARIAL32, $"Hp: {CurHealth}", screenPos, Color.White);
 
-			// Display attack delay
-			//spriteBatch.DrawString(
-			//    Game1.ARIAL32,
-			//    $"ATK_D: {_attackDelayTimer:0.00}",
-			//    screenPos,
-			//    Color.White);
-			return;
-		}
+            // Display attack delay
+            //spriteBatch.DrawString(
+            //    Game1.ARIAL32,
+            //    $"ATK_D: {_attackDelayTimer:0.00}",
+            //    screenPos,
+            //    Color.White);
+            return;
+        }
 
         #region Attack Methods
 
-     
+
 
         protected override void TargetPlayer()
-		{
-			// Get direction from self to player
-			Point eMinusP = Game1.Player.Hitbox.Center - Hitbox.Center;
-			Vector2 directionToPlayer = new Vector2(eMinusP.X, eMinusP.Y);
+        {
+            // Get direction from self to player
+            Point eMinusP = Game1.Player.Hitbox.Center - Hitbox.Center;
+            Vector2 directionToPlayer = new Vector2(eMinusP.X, eMinusP.Y);
 
-			// Aim enemy toward player at their speed
-			directionToPlayer.Normalize();
-			directionToPlayer *= Speed;
+            // Aim enemy toward player at their speed
+            directionToPlayer.Normalize();
+            directionToPlayer *= Speed;
 
-			Vector2 positionAfterMoving = WorldPosition + directionToPlayer;
+            Vector2 positionAfterMoving = WorldPosition + directionToPlayer;
 
-            Vector2 playerPosition = Game1.Player.CenterPosition;
-            Vector2 enemyPosition = CenterPosition;
-
-            List<Point> path = Game1.Pathfinding.FindPath(
-                new Point((int)enemyPosition.X, (int)enemyPosition.Y),
-                new Point((int)playerPosition.X, (int)playerPosition.Y));
-
-            if (path != null && path.Count > 1) 
+            if (CheckTilemapCollisionAhead(this, directionToPlayer, Game1.CurrentLevel.CurrentRoom.Tileset))
             {
-                
-                Vector2 nextStep = new Vector2(path[1].X, path[1].Y);
 
-              
-                Vector2 direction = nextStep - enemyPosition;
-                direction.Normalize();
-
-                Velocity = direction * Speed;
-            }
-            else
-            {
-                Velocity = Vector2.Zero;
+                Vector2 newDirection = new Vector2(directionToPlayer.Y, -directionToPlayer.X);
+                newDirection.Normalize();
+                newDirection *= Speed;
+                positionAfterMoving = WorldPosition + newDirection;
             }
 
             // Stop if get too close to another enemy
             bool shouldStop = false;
-			float minDistanceFromEnemies = Game1.TileSize * 3;
-			foreach (Enemy e in Game1.EManager.Enemies)
-			{
-				Vector2 distFromEnemyAfterMoving = (e.WorldPosition - positionAfterMoving);
-				if (e != this &&
-					distFromEnemyAfterMoving.LengthSquared() <= minDistanceFromEnemies * minDistanceFromEnemies)
-				{
-					shouldStop = true;
-					break;
-				}
-			}
+            float minDistanceFromEnemies = Game1.TileSize * 3;
+            foreach (Enemy e in Game1.EManager.Enemies)
+            {
+                Vector2 distFromEnemyAfterMoving = (e.WorldPosition - positionAfterMoving);
+                if (e != this &&
+                    distFromEnemyAfterMoving.LengthSquared() <= minDistanceFromEnemies * minDistanceFromEnemies)
+                {
+                    shouldStop = true;
+                    break;
+                }
+            }
 
-			if (shouldStop)
-			{
-				Velocity = Vector2.Zero;
-				return;
-			}
+            if (shouldStop)
+            {
+                Velocity = Vector2.Zero;
+                return;
+            }
 
-			Velocity = directionToPlayer;
-			return;
-		}
+            Velocity = directionToPlayer;
+            return;
+        }
 
-        public static bool CheckTilemapCollisionAhead( Entity e, Vector2 direction, Tileset tileset)
+        public static bool CheckTilemapCollisionAhead(Entity e, Vector2 direction, Tileset tileset)
         {
-            
+
             Vector2 nextPosition = e.WorldPosition + direction * e.Speed;
-            
-            Rectangle predictedHitbox = new Rectangle( (int)nextPosition.X, (int)nextPosition.Y,e.Hitbox.Width, e.Hitbox.Height);         
-			
+
+            Rectangle predictedHitbox = new Rectangle((int)nextPosition.X, (int)nextPosition.Y, e.Hitbox.Width, e.Hitbox.Height);
+
             for (int row = 0; row < tileset.Layout.GetLength(0); row++)
             {
                 for (int col = 0; col < tileset.Layout.GetLength(1); col++)
                 {
                     Tile tile = tileset.Layout[row, col];
                     if (tile.CollisionOn && predictedHitbox.Intersects(tile.Hitbox))
-                    {                       
+                    {
                         return true;
                     }
                 }
@@ -365,279 +351,279 @@ namespace Final_Game.Entity
 
         protected override void CheckForObstacles(Vector2 direction)
         {
-			
+
         }
-      
+
         protected override void Attack()
-		{
-			Vector2 directionToPlayer = _attackDirection;
+        {
+            Vector2 directionToPlayer = _attackDirection;
 
-			// Cast the damage box
-			Rectangle damageBox = new Rectangle(
-				(int)(CenterPosition.X + directionToPlayer.X - _attackRadius / 2),
-				(int)(CenterPosition.Y + directionToPlayer.Y - _attackRadius / 2),
-				(int)_attackRadius,
-				(int)_attackRadius);
+            // Cast the damage box
+            Rectangle damageBox = new Rectangle(
+                (int)(CenterPosition.X + directionToPlayer.X - _attackRadius / 2),
+                (int)(CenterPosition.Y + directionToPlayer.Y - _attackRadius / 2),
+                (int)_attackRadius,
+                (int)_attackRadius);
 
-			// Store damage box
-			_attackHitbox = damageBox;
+            // Store damage box
+            _attackHitbox = damageBox;
 
-			// Check if player is in damage box
-			bool hitPlayerDir = damageBox.Intersects(Game1.Player.Hitbox);
-			//CollisionChecker.CheckEntityCollision(damageBox, Game1.Player);
+            // Check if player is in damage box
+            bool hitPlayerDir = damageBox.Intersects(Game1.Player.Hitbox);
+            //CollisionChecker.CheckEntityCollision(damageBox, Game1.Player);
 
-			if (hitPlayerDir)
-			{
-				directionToPlayer.Normalize();
-				directionToPlayer *= _attackForce;
+            if (hitPlayerDir)
+            {
+                directionToPlayer.Normalize();
+                directionToPlayer *= _attackForce;
 
-				Game1.Player.TakeDamage(1);
+                Game1.Player.TakeDamage(1);
 
-				// Keep player from ricocheting endlessly
-				// while in attack area
-				if (!_attackLandedOnce)
-				{
-					Game1.Player.Ricochet(directionToPlayer);
-					_attackLandedOnce = true;
-				}
-			}
+                // Keep player from ricocheting endlessly
+                // while in attack area
+                if (!_attackLandedOnce)
+                {
+                    Game1.Player.Ricochet(directionToPlayer);
+                    _attackLandedOnce = true;
+                }
+            }
 
-			return;
-		}
+            return;
+        }
 
-		protected override void EndAttack(bool stoppedEarly)
-		{
-			// Reset windup
-			_attackWindupTimer = _attackWindupDuration;
+        protected override void EndAttack(bool stoppedEarly)
+        {
+            // Reset windup
+            _attackWindupTimer = _attackWindupDuration;
 
-			if (stoppedEarly)
-				_attackCooldown = 0;
-			else
-				_attackCooldownTimer = _attackCooldown;
+            if (stoppedEarly)
+                _attackCooldown = 0;
+            else
+                _attackCooldownTimer = _attackCooldown;
 
-			// Enemy is not attacking
-			_attackDurationTimer = 0;
+            // Enemy is not attacking
+            _attackDurationTimer = 0;
 
-			// No new attack has happened
-			_attackLandedOnce = false;
-			_attackDirChosen = false;
+            // No new attack has happened
+            _attackLandedOnce = false;
+            _attackDirChosen = false;
 
-			return;
-		}
+            return;
+        }
 
-		#endregion
+        #endregion
 
-		#region Drawing Helper Methods
+        #region Drawing Helper Methods
 
-		private void UpdateWalkAnimation(GameTime gameTime)
-		{
-			// Add to the time counter (need TOTALSECONDS here)
-			_walkAnimTimeCounter += gameTime.ElapsedGameTime.TotalSeconds 
-				* Player.BulletTimeMultiplier;
+        private void UpdateWalkAnimation(GameTime gameTime)
+        {
+            // Add to the time counter (need TOTALSECONDS here)
+            _walkAnimTimeCounter += gameTime.ElapsedGameTime.TotalSeconds
+                * Player.BulletTimeMultiplier;
 
-			// Has enough time gone by to actually flip frames?
-			if (_walkAnimTimeCounter >= _walkAnimSecondsPerFrame)
-			{
-				// Update the frame and wrap
-				_walkAnimCurrentFrame++;
-				if (_walkAnimCurrentFrame > 4) _walkAnimCurrentFrame = 1;
+            // Has enough time gone by to actually flip frames?
+            if (_walkAnimTimeCounter >= _walkAnimSecondsPerFrame)
+            {
+                // Update the frame and wrap
+                _walkAnimCurrentFrame++;
+                if (_walkAnimCurrentFrame > 4) _walkAnimCurrentFrame = 1;
 
-				// Remove one "frame" worth of time
-				_walkAnimTimeCounter -= _walkAnimSecondsPerFrame;
-			}
+                // Remove one "frame" worth of time
+                _walkAnimTimeCounter -= _walkAnimSecondsPerFrame;
+            }
 
-			return;
-		}
-		private void UpdateEnemySprite()
-		{
-			// Reset Image Color
-			Image.TintColor = Color.White;
+            return;
+        }
+        private void UpdateEnemySprite()
+        {
+            // Reset Image Color
+            Image.TintColor = Color.White;
 
             if (IsKO)
-			{
-				Image.SourceRect = new Rectangle(
-					Image.SourceRect.Width * 4,
-					Image.SourceRect.Y,
-					Image.SourceRect.Width,
-					Image.SourceRect.Height);
+            {
+                Image.SourceRect = new Rectangle(
+                    Image.SourceRect.Width * 4,
+                    Image.SourceRect.Y,
+                    Image.SourceRect.Width,
+                    Image.SourceRect.Height);
 
                 Image.TintColor = Color.CornflowerBlue;
-				return;
-			}
+                return;
+            }
 
             if (IsInvincible)
-			{
-				Image.TintColor *= 0.8f;
+            {
+                Image.TintColor *= 0.8f;
 
-				Image.SourceRect = new Rectangle(
+                Image.SourceRect = new Rectangle(
                     Image.SourceRect.Width * 4,
-					Image.SourceRect.Y,
-					Image.SourceRect.Width,
-					Image.SourceRect.Height);
-				return;
-			}
+                    Image.SourceRect.Y,
+                    Image.SourceRect.Width,
+                    Image.SourceRect.Height);
+                return;
+            }
 
-			if (_attackDurationTimer <= 0)
-			{
-				int numChargeSprites = 3;
-				int spriteNum = (int)
-					((_attackWindupDuration - _attackWindupTimer) /
-					(_attackWindupDuration / numChargeSprites));
+            if (_attackDurationTimer <= 0)
+            {
+                int numChargeSprites = 3;
+                int spriteNum = (int)
+                    ((_attackWindupDuration - _attackWindupTimer) /
+                    (_attackWindupDuration / numChargeSprites));
 
-				if (_attackWindupTimer < _attackWindupDuration)
-					Image.TintColor = Color.Orange;
+                if (_attackWindupTimer < _attackWindupDuration)
+                    Image.TintColor = Color.Orange;
 
-				Image.SourceRect = new Rectangle(
-					Image.SourceRect.Width * spriteNum,
-					Image.SourceRect.Y,
-					Image.SourceRect.Width,
-					Image.SourceRect.Height);
-			}
-			else
-			{
-				Image.SourceRect = new Rectangle(
-					Image.SourceRect.Width * 3,
-					Image.SourceRect.Y,
-					Image.SourceRect.Width,
-					Image.SourceRect.Height);
-			}
-		}
-		private void UpdateKOAnimation(GameTime gameTime)
-		{
-			int numKoStars = 4;
+                Image.SourceRect = new Rectangle(
+                    Image.SourceRect.Width * spriteNum,
+                    Image.SourceRect.Y,
+                    Image.SourceRect.Width,
+                    Image.SourceRect.Height);
+            }
+            else
+            {
+                Image.SourceRect = new Rectangle(
+                    Image.SourceRect.Width * 3,
+                    Image.SourceRect.Y,
+                    Image.SourceRect.Width,
+                    Image.SourceRect.Height);
+            }
+        }
+        private void UpdateKOAnimation(GameTime gameTime)
+        {
+            int numKoStars = 4;
 
-			// Current frame is (passedTime / (seconds per frame))
-			int curFrame =
-				(int)(_koStarAnimTimeCounter /
-				(_koStarAnimDuration / (numKoStars - 1)));
+            // Current frame is (passedTime / (seconds per frame))
+            int curFrame =
+                (int)(_koStarAnimTimeCounter /
+                (_koStarAnimDuration / (numKoStars - 1)));
 
-			// Get corresponding image
-			_knockoutStars.SourceRect = new Rectangle(
-				_knockoutStars.SourceRect.Width * curFrame,
-				0,
-				_knockoutStars.SourceRect.Width,
-				_knockoutStars.SourceRect.Height);
+            // Get corresponding image
+            _knockoutStars.SourceRect = new Rectangle(
+                _knockoutStars.SourceRect.Width * curFrame,
+                0,
+                _knockoutStars.SourceRect.Width,
+                _knockoutStars.SourceRect.Height);
 
-			// Move animation forward
-			_koStarAnimTimeCounter += 
-				gameTime.ElapsedGameTime.TotalSeconds *
-				Player.BulletTimeMultiplier;
+            // Move animation forward
+            _koStarAnimTimeCounter +=
+                gameTime.ElapsedGameTime.TotalSeconds *
+                Player.BulletTimeMultiplier;
 
-			// Reset animation once it reaches or exceeds its duration
-			if (_koStarAnimTimeCounter >= _koStarAnimDuration)
-				_koStarAnimTimeCounter -= _koStarAnimDuration;
-		}
+            // Reset animation once it reaches or exceeds its duration
+            if (_koStarAnimTimeCounter >= _koStarAnimDuration)
+                _koStarAnimTimeCounter -= _koStarAnimDuration;
+        }
 
-		private void DrawWalking(SpriteBatch sb, Vector2 screenPos)
-		{
+        private void DrawWalking(SpriteBatch sb, Vector2 screenPos)
+        {
 
-			switch (_walkAnimCurrentFrame)
-			{
-				case 1:
-					Vector2 origin = new Vector2(
-								Image.SourceRect.X,
-								Image.SourceRect.Center.Y - 15);
+            switch (_walkAnimCurrentFrame)
+            {
+                case 1:
+                    Vector2 origin = new Vector2(
+                                Image.SourceRect.X,
+                                Image.SourceRect.Center.Y - 15);
 
 
-					Image.Draw(sb, screenPos, MathF.PI / 6, origin);
-					break;
+                    Image.Draw(sb, screenPos, MathF.PI / 6, origin);
+                    break;
 
-				case 2:
-					Image.Draw(sb, screenPos, 0f, Vector2.Zero);
-					break;
+                case 2:
+                    Image.Draw(sb, screenPos, 0f, Vector2.Zero);
+                    break;
 
-				case 3:
-						
+                case 3:
+
                     Image.Draw(
-						sb, 
-						screenPos, 
-						-MathF.PI / 6,
+                        sb,
+                        screenPos,
+                        -MathF.PI / 6,
                         new Vector2(
                             Image.SourceRect.Center.X,
                             Image.SourceRect.Y));
-					break;
+                    break;
 
-				case 4:
-					Image.Draw(sb, screenPos, 0f, Vector2.Zero);
-					break;
-			}
-			return;
-		}
+                case 4:
+                    Image.Draw(sb, screenPos, 0f, Vector2.Zero);
+                    break;
+            }
+            return;
+        }
 
-		private void DrawAttacking(SpriteBatch sb, Vector2 screenPos)
-		{
-            
+        private void DrawAttacking(SpriteBatch sb, Vector2 screenPos)
+        {
+
             // Draw Attack Windup
             if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0d)
-			{
-				_gloveImages.TintColor = Color.White;
+            {
+                _gloveImages.TintColor = Color.White;
 
-				// Get the center position of the pulled back fist
-				// in screen space
+                // Get the center position of the pulled back fist
+                // in screen space
 
-				Vector2 correction = new Vector2(
-					Image.DestinationRect.Width / 2.5f,
-					Image.DestinationRect.Height / 2.5f);
+                Vector2 correction = new Vector2(
+                    Image.DestinationRect.Width / 2.5f,
+                    Image.DestinationRect.Height / 2.5f);
 
-				Vector2 windupScreenPos =
+                Vector2 windupScreenPos =
                     CenterPosition + correction - _attackDirection
                     + Game1.MainCamera.WorldToScreenOffset;
 
-				// Shift position to top-left of glove image (for drawing)
-				windupScreenPos -= new Vector2(_gloveFrameWidth / 2, _gloveFrameWidth / 2);
+                // Shift position to top-left of glove image (for drawing)
+                windupScreenPos -= new Vector2(_gloveFrameWidth / 2, _gloveFrameWidth / 2);
 
                 // Select the correct glove image
-                _gloveImages.SourceRect = 
-					new Rectangle(
-						0, 0, 
-						_gloveFrameWidth, _gloveImages.SourceRect.Height);
+                _gloveImages.SourceRect =
+                    new Rectangle(
+                        0, 0,
+                        _gloveFrameWidth, _gloveImages.SourceRect.Height);
 
                 // Rotate fist so knuckles face away from player
                 float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
 
-				// Glove changes colors right before attacking
-				if (_attackWindupTimer < _attackWindupDuration * .3)
-					_gloveImages.TintColor = Color.Red;
+                // Glove changes colors right before attacking
+                if (_attackWindupTimer < _attackWindupDuration * .3)
+                    _gloveImages.TintColor = Color.Red;
 
                 // Draw glove
                 _gloveImages.Draw(
-					sb, 
-					windupScreenPos, 
-					dirAngle,
+                    sb,
+                    windupScreenPos,
+                    dirAngle,
                     _gloveImages.SourceRect.Center.ToVector2());
-			}
+            }
 
-			// Draw actively attacking
-			if (_attackDurationTimer > 0)
-			{
-				// Get position of the extended fist
-				// in screen space
+            // Draw actively attacking
+            if (_attackDurationTimer > 0)
+            {
+                // Get position of the extended fist
+                // in screen space
 
-				Vector2 attackScreenPos = CenterPosition + _attackDirection * 5f
+                Vector2 attackScreenPos = CenterPosition + _attackDirection * 5f
                     + Game1.MainCamera.WorldToScreenOffset;
 
-				// Rotate fist so knuckles face player
-				float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
+                // Rotate fist so knuckles face player
+                float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
 
-				// Get proper glove image
-				_gloveImages.SourceRect = new Rectangle(
+                // Get proper glove image
+                _gloveImages.SourceRect = new Rectangle(
                     _gloveFrameWidth * 4,
                     0,
                     _gloveFrameWidth,
                     _gloveFrameWidth);
 
-				// Draw glove
-				_gloveImages.Draw(
-					sb,
-					attackScreenPos,
-					dirAngle,
-					_gloveImages.SourceRect.Center.ToVector2());
-			}
-			return;
-		}
+                // Draw glove
+                _gloveImages.Draw(
+                    sb,
+                    attackScreenPos,
+                    dirAngle,
+                    _gloveImages.SourceRect.Center.ToVector2());
+            }
+            return;
+        }
 
         #endregion
 
-       
+
     }
 }

@@ -21,7 +21,6 @@ namespace Final_Game.Entity
         private int direction;
         private Rectangle HitBox;
      
-
         public Indicator(Vector2 position, BossState attackType, int direction) {
             WorldPos = position;
             this.attackType = attackType;
@@ -33,8 +32,8 @@ namespace Final_Game.Entity
         public bool Update(GameTime gameTime)
         {
             
-               Vector2 distFromPlayer = WorldPos - Game1.Player.WorldPosition;
-               screenPos = Game1.Player.ScreenPosition + distFromPlayer;
+            Vector2 distFromPlayer = WorldPos - Game1.Player.WorldPosition;
+            screenPos = Game1.Player.ScreenPosition + distFromPlayer;
                 
             
             if (timeVisible > 0)
@@ -52,27 +51,57 @@ namespace Final_Game.Entity
         }
         public void Draw()
         {
-            Vector2 distFromPlayer = WorldPos - Game1.Player.WorldPosition;
-            screenPos = Game1.Player.ScreenPosition + distFromPlayer;
+            screenPos = Game1.MainCamera.GetPerspectivePosition(
+                    WorldPos + Game1.MainCamera.WorldToScreenOffset);
 
             switch (attackType)
             {
                
                 
                 case BossState.PinBombs:
-                    ShapeBatch.CircleOutline(screenPos + new Vector2(50,50), 50f, Color.Red);
-                    ShapeBatch.Circle(screenPos + new Vector2(50, 50), (50.0f * (float)(1.1 - timeVisible)), Color.DarkRed);
+                    float baseRadius = 50f * Game1.MainCamera.Zoom;
+                    ShapeBatch.CircleOutline(
+                        screenPos + new Vector2(50,50), 
+                        baseRadius, 
+                        Color.Red);
+                    ShapeBatch.Circle(
+                        screenPos + new Vector2(50, 50), 
+                        (baseRadius * (float)(1.1 - timeVisible)), 
+                        Color.DarkRed);
                     break;
                 case BossState.PinThrow:
                     if (direction % 2 == 1)
                     {
-                        ShapeBatch.Line(screenPos + new Vector2(475, 50), 750f, (float)(Math.PI / 2) * direction, 10, Color.Red);
-                        ShapeBatch.Line(screenPos - new Vector2(325, -50), 750f, (float)(Math.PI / 2) * direction, 10, Color.Red);
+                        ShapeBatch.Line(
+                            screenPos + new Vector2(475, 50) * Game1.MainCamera.Zoom, 
+                            750f, 
+                            (float)(Math.PI / 2) * direction, 
+                            10, 
+                            Color.Red);
+                        ShapeBatch.Line(
+                            screenPos - new Vector2(325, -50) * Game1.MainCamera.Zoom, 
+                            750f, 
+                            (float)(Math.PI / 2) * direction, 
+                            10, 
+                            Color.Red);
                     }
                     else
                     {
-                        ShapeBatch.Line(screenPos + new Vector2(50 , 350 + Game1.TileSize * 1.5f), 750f, (float)(Math.PI / 2) * direction, 10, Color.Red);
-                        ShapeBatch.Line(screenPos - new Vector2(-50 , 275), 750f, (float)(Math.PI / 2) * direction, 10, Color.Red);
+                        float baseLength = 750f * Game1.MainCamera.Zoom;
+                        ShapeBatch.Line(
+                            screenPos + new Vector2(50 , 350 + Game1.TileSize * 1.5f)
+                            * Game1.MainCamera.Zoom, 
+                            baseLength, 
+                            (float)(Math.PI / 2) * direction, 
+                            10, 
+                            Color.Red);
+                        ShapeBatch.Line(
+                            screenPos - new Vector2(-50 , 275)
+                            * Game1.MainCamera.Zoom, 
+                            baseLength, 
+                            (float)(Math.PI / 2) * direction, 
+                            10, 
+                            Color.Red);
                     }
                     break;
 

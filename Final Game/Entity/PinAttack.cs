@@ -46,7 +46,7 @@ namespace Final_Game.Entity
                     (int)position.Y,
                     (int)(Game1.TileSize * 1.5f),
                     (int)(Game1.TileSize * 1.5f * 140/120)));
-            _attackForce = 5f;
+            _attackForce = 15f;
             _attackRange = Game1.TileSize;
             Type = EntityType.Enemy;
             Hitbox = new Rectangle(
@@ -92,12 +92,12 @@ namespace Final_Game.Entity
         protected override void EndAttack(bool w) { }
         protected override void Attack() {
             Vector2 directionToPlayer = _attackDirection;
-
+            directionToPlayer *= _attackForce;
             // Cast the damage box
-            
+
 
             // Store damage box
-            
+
 
             // Check if player is in damage box
             bool hitPlayerDir = Hitbox.Intersects(Game1.Player.Hitbox);

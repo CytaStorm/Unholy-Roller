@@ -1,4 +1,4 @@
-﻿using Final_Game.Entity;
+using Final_Game.Entity;
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -33,8 +33,15 @@ namespace Final_Game
             Enemies = new List<Enemy>();
 
             // Create test enemies
-            PinMech testEnemy = new PinMech(gm, new Vector2(Game1.TutorialRoom.Center.X - 100, Game1.TutorialRoom.Center.Y -100));
-            Enemies.Add(testEnemy);
+
+
+
+             //PinMech testEnemy = new PinMech(gm, new Vector2(750f, 750f));
+             //Enemies.Add(testEnemy);
+             //BasicPuncher testEnemy2 = new BasicPuncher(gm, new Vector2(500f, 200f));
+             //Enemies.Add(testEnemy2);
+             //BasicPuncher testEnemy3 = new BasicPuncher(gm, new Vector2(300f, 800f));
+             //Enemies.Add(testEnemy3);
 
 
         }
@@ -51,6 +58,10 @@ namespace Final_Game
             }
         }
 
+        public void SpawnBoss(Room r)
+        {
+            Enemies.Add(new PinMech(gm, new Vector2(r.Center.X, r.Center.Y)));
+        }
         public void Update(GameTime gameTime)
         {
             _koedEnemies = 0;

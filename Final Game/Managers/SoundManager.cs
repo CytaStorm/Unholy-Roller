@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,14 +17,17 @@ namespace Final_Game.Managers
         public static List<SoundEffect> PlayerDamageSoundEffects = new List<SoundEffect>();
 
         private static Random _random = new Random();
+
+        public static List<Song> AllSongs = new List<Song>();
+        public static Song curSong;
         #endregion
 
         #region Methods
         public static void LoadSoundFiles(ContentManager cm)
         {
+            //Player deal damage sound effects
             PinDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pool_break-105353"));
             PinDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/punchthump"));
-
 
             //Pin knock sound effects
             PinKnockSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pinKnock1"));
@@ -37,6 +41,12 @@ namespace Final_Game.Managers
             PlayerDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pinPunch"));
             PlayerDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/playerdeath"));
 
+            //Setup music
+            AllSongs.Add(cm.Load<Song>("Music/Battle_Music"));
+            AllSongs.Add(cm.Load<Song>("Music/Unholy_Ambience"));
+            curSong = AllSongs[1];
+
+            MediaPlayer.IsRepeating = true;
         }
 
         public static void PlayHitSound()
@@ -57,6 +67,25 @@ namespace Final_Game.Managers
         public static void PlayDeathSound()
         {
             PlayerDamageSoundEffects[1].Play();
+        }
+
+        public static void PlayBGM()
+        {
+            MediaPlayer.Volume = 0.6f;
+            MediaPlayer.Play(curSong);
+        }
+
+        /// <summary>
+        /// Changes song
+        /// </summary>
+        /// <param name="song">Index of song to play. 0 = battle, 1 = ambience</param>
+        public static void ChangeBGM(int song)
+        {
+            //Don't change is song is same
+            if (curSong == AllSongs[song]) return;
+
+            curSong = AllSongs[song];
+            PlayBGM();
         }
         #endregion
     }

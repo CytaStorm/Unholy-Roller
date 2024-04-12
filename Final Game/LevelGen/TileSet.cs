@@ -512,6 +512,14 @@ namespace Final_Game.LevelGen
 			}
 		}
 
+		/// <summary>
+		/// Removes all enemies in room.
+		/// </summary>
+		public void ClearEnemies()
+		{
+			Spawners.Clear();
+		}
+
 		#endregion
 	}
 }

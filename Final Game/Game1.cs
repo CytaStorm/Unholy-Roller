@@ -182,6 +182,8 @@ namespace Final_Game
 			CurrentLevel = TestLevel;
 			CurrentLevel.PrintLevel();
 
+			//Ensures that first room goes through room loading 
+
 			//Player = new Player(this, new Vector2(
 			//	TestLevel.CurrentRoom.Tileset.Width / 2,
 			//	800));
@@ -217,7 +219,6 @@ namespace Final_Game
 			//Setup sound manager.
 			SoundManager.LoadSoundFiles(Content);
 
-
 			// Create custom cursors
 			_gameplayCursor = MouseCursor.FromTexture2D(
 				_cursorTexture, _cursorTexture.Width / 2, _cursorTexture.Height / 2);
@@ -245,6 +246,9 @@ namespace Final_Game
 			// Make any other subscriptions
 			Player.OnPlayerDeath += EnterGameOver;
 
+			SoundManager.PlayBGM();
+
+			CurrentLevel.LoadRoomUsingOffset(new Point(0, 0));
 		}
 
 		protected override void Update(GameTime gameTime)

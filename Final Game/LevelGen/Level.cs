@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Final_Game.Managers;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -232,12 +233,6 @@ namespace Final_Game.LevelGen
 		/// determines which room is loaded.</param>
 		public void LoadRoomUsingOffset(Point newRoomOffset)
 		{
-			Game1.PManager.ClearPickups();
-			CurrentPoint += newRoomOffset;
-
-			//Remove enemies near player.
-			CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
-			
 			//Update minimap
 			CurrentRoom.Entered = true;
 			CurrentRoom.Discovered = true;
@@ -246,14 +241,33 @@ namespace Final_Game.LevelGen
 			{
 				if (CurrentRoom.ActualConnections[i] != null)
 				{
+					Debug.WriteLine("poo poo" + i);
 					CurrentRoom.ActualConnections[i].Discovered = true;
 				}
 			}
 
+			//Return early if no acutal offset.
+			if (newRoomOffset == new Point(0, 0))
+			{
+				return;				
+			}
+
+			Game1.PManager.ClearPickups();
+			CurrentPoint += newRoomOffset;
+
+			//Remove enemies near player.
+			CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
+			
+			
+
+			//Create enemies
 			if (!CurrentRoom.Cleared)
 			{
 				Game1.EManager.CreateRoomEnemies(CurrentRoom);
+				SoundManager.ChangeBGM(0);
 			}
+
+			//Change song
 		}
 
 		#region Debug methods

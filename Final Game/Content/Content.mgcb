@@ -104,6 +104,18 @@
 /processorParam:TextureFormat=Compressed
 /build:MediumArial.spritefont
 
+#begin Music/Battle_Music.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Battle_Music.wav
+
+#begin Music/Unholy_Ambience.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Unholy_Ambience.wav
+
 #begin RedCircle.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -131,29 +143,11 @@
 /processorParam:Quality=Best
 /build:Sound Effects/pinKnock1.wav
 
-#begin Sound Effects/pinKnock1.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/pinKnock1.wav
-
 #begin Sound Effects/pinKnock2.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sound Effects/pinKnock2.wav
-
-#begin Sound Effects/pinKnock2.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/pinKnock2.wav
-
-#begin Sound Effects/pinKnock3.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/pinKnock3.wav
 
 #begin Sound Effects/pinKnock3.wav
 /importer:WavImporter
@@ -167,18 +161,6 @@
 /processorParam:Quality=Best
 /build:Sound Effects/pinKnock4.wav
 
-#begin Sound Effects/pinKnock4.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/pinKnock4.wav
-
-#begin Sound Effects/pinKnock5.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/pinKnock5.wav
-
 #begin Sound Effects/pinKnock5.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -190,18 +172,6 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sound Effects/pinKnock6.wav
-
-#begin Sound Effects/pinKnock6.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/pinKnock6.wav
-
-#begin Sound Effects/pinPunch.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/pinPunch.wav
 
 #begin Sound Effects/pinPunch.wav
 /importer:WavImporter
@@ -220,18 +190,6 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sound Effects/pool_break-105353.wav
-
-#begin Sound Effects/pool_break-105353.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/pool_break-105353.wav
-
-#begin Sound Effects/punchthump.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/punchthump.wav
 
 #begin Sound Effects/punchthump.wav
 /importer:WavImporter

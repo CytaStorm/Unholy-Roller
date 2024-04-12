@@ -26,7 +26,7 @@ namespace Final_Game
 
 	public class Game1 : Game
 	{
-		private GraphicsDeviceManager _graphics;
+		public GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
 
 		#region Fields
@@ -108,10 +108,11 @@ namespace Final_Game
 		/// Current state of the mouse.
 		/// </summary>
 		public static MouseState CurMouse { get; private set; }
-		/// <summary>
-		/// Previous state of the mouse.
-		/// </summary>
-		public static MouseState PrevMouse { get; private set; }
+		
+        /// <summary>
+        /// Previous state of the mouse.
+        /// </summary>
+        public static MouseState PrevMouse { get; private set; }
 		public static bool MouseIsOnScreen =>
 		  ScreenBounds.Contains(CurMouse.Position);
 
@@ -155,9 +156,10 @@ namespace Final_Game
 		public static Camera MainCamera { get; private set; }
 
 		public static bool DebugOn { get; private set; }
-		#endregion
-
-		public Game1()
+		//Attack Indicator Manager for the Boss
+        public static IndicatorManager IManager { get; private set; }
+        #endregion
+        public Game1()
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
@@ -227,12 +229,15 @@ namespace Final_Game
 
 			// Create default cursor
 			_menuCursor = MouseCursor.Arrow;
-
+            
 			// Create UI Manager
 			_ui = new UI(this, _spriteBatch);
 
 			// Create Cutscene Manager
 			CSManager = new CutsceneManager(this);
+
+			//Indicator
+			IManager = new IndicatorManager(this);
 
 			// Hook Up Buttons
 			SubscribeToButtons();
@@ -274,7 +279,7 @@ namespace Final_Game
 
 					PManager.Update(gameTime);
 
-					FXManager.Update(_spriteBatch, gameTime);
+					//FXManager.Update(_spriteBatch, gameTime);
 
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
@@ -309,21 +314,22 @@ namespace Final_Game
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			_spriteBatch.Begin();
+            
 
-			// Draw game
-			switch (State)
+            // Draw game
+            switch (State)
 			{
 				case GameState.Play:
 
 					CurrentLevel.CurrentRoom.Draw(_spriteBatch);
 
-					FXManager.Draw(_spriteBatch);
+					//FXManager.Draw(_spriteBatch);
 
 					Player.Draw(_spriteBatch);
 
-					EManager.Draw(_spriteBatch);
+                    EManager.Draw(_spriteBatch);
 
-					PManager.Draw(_spriteBatch);
+                    PManager.Draw(_spriteBatch);
 
 					break;
 
@@ -333,8 +339,8 @@ namespace Final_Game
 			}
 
 			_ui.Draw(gameTime);
-
-			_spriteBatch.End();
+            
+            _spriteBatch.End();
 
 			// Draw simplified shapes
 
@@ -345,8 +351,8 @@ namespace Final_Game
 				case GameState.Play:
 
 					if (DebugOn) DrawDebug();
-
-					_ui.DrawMinimap();
+                    IManager.Draw();
+                    _ui.DrawMinimap();
 					break;
 			}
 

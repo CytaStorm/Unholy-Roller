@@ -104,6 +104,18 @@
 /processorParam:TextureFormat=Compressed
 /build:MediumArial.spritefont
 
+#begin RedCircle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:RedCircle.png
+
 #begin Room Layouts/enemyLayouts.txt
 /copy:Room Layouts/enemyLayouts.txt
 
@@ -154,18 +166,6 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sound Effects/pool_break-105353.wav
-
-#begin Sound Effects/pool_break-105353.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/pool_break-105353.wav
-
-#begin Sound Effects/punchthump.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound Effects/punchthump.wav
 
 #begin Sound Effects/punchthump.wav
 /importer:WavImporter
@@ -244,6 +244,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/BlueBallSpritesheet.png
+
+#begin Sprites/Boss.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Boss.png
 
 #begin Sprites/ClosedDoorAtlas.png
 /importer:TextureImporter

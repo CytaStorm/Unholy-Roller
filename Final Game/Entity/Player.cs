@@ -21,7 +21,7 @@ namespace Final_Game.Entity
 		Rolling,
 		Walking
 	}
-	public class Player : Entity, ICloneable
+	public class Player : Entity
 	{
 		#region Fields
 		/// <summary>
@@ -102,7 +102,7 @@ namespace Final_Game.Entity
 		private float hitStopTimeRemaining = 0f;
 		public bool canBeTriggered = true;
 		private Enemy lastContactedEnemy = null;
-		private Room CurrentRoom { get { return Game1.CurrentLevel.CurrentRoom; } }
+		public Room CurrentRoom { get { return Game1.CurrentLevel.CurrentRoom; } }
 
         /// <summary>
         /// Amount of redirects the player has left to use.
@@ -123,6 +123,8 @@ namespace Final_Game.Entity
         public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
+		// Constructors
+		
 
 		#region Constructor(s)
 

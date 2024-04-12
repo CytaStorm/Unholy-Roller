@@ -234,7 +234,11 @@ namespace Final_Game.Entity
 			base.DrawGizmos();
 		}
 
-		#endregion
+        #endregion
+        protected virtual void CheckForObstacles(Vector2 direction) 
+		{
+			
+		}
 
-	}
+    }
 }

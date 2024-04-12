@@ -36,7 +36,7 @@ namespace Final_Game.Entity
 		{
 			// Draw sprite fx
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
-			Image.Draw(sb, screenPos, , Vector2.Zero);
+			Image.Draw(sb, screenPos, 0f, Vector2.Zero);
 		}
 		#endregion
 	}

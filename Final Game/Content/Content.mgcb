@@ -119,6 +119,18 @@
 /processorParam:TextureFormat=Color
 /build:PlayBackground5.png
 
+#begin RedCircle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:RedCircle.png
+
 #begin Room Layouts/enemyLayouts.txt
 /copy:Room Layouts/enemyLayouts.txt
 
@@ -223,6 +235,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/BlueBallSpritesheet.png
+
+#begin Sprites/Boss.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Boss.png
+
+#begin Sprites/BrokenBlueSpritesheet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/BrokenBlueSpritesheet.png
 
 #begin Sprites/ClosedDoorAtlas.png
 /importer:TextureImporter
@@ -481,7 +517,7 @@
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:TitleCaseArial.spritefont;TitleCaseCarterOne.spritefont
+/build:TitleCaseArial.spritefont
 
 #begin UI Images/BasicSliderBar.png
 /importer:TextureImporter

@@ -34,8 +34,8 @@ namespace Final_Game
             Enemies = new List<Enemy>();
 
             // Create test enemies
-             PinMech testEnemy = new PinMech(gm, new Vector2(750f, 750f));
-             Enemies.Add(testEnemy);
+           //  PinMech testEnemy = new PinMech(gm, new Vector2(750f, 750f));
+            // Enemies.Add(testEnemy);
              //BasicPuncher testEnemy2 = new BasicPuncher(gm, new Vector2(500f, 200f));
              //Enemies.Add(testEnemy2);
              //BasicPuncher testEnemy3 = new BasicPuncher(gm, new Vector2(300f, 800f));
@@ -53,6 +53,10 @@ namespace Final_Game
                 // Spawn on spawn tile
                 Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
             }
+        }
+        public void SpawnBoss(Room r)
+        {
+            Enemies.Add(new PinMech(gm, new Vector2(r.Center.X - 50, r.Center.Y - 50)));
         }
 
         public void Update(GameTime gameTime)
@@ -79,7 +83,7 @@ namespace Final_Game
                         //OnLastEnemyKilled();
                 }
 
-                Enemies[i].InfiniteHealth = EnemiesInvincible;
+                //Enemies[i].InfiniteHealth = EnemiesInvincible;
             }
 
             // Remove all enemies if all are currently KO-ed

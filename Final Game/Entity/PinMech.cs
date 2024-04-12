@@ -72,7 +72,7 @@ namespace Final_Game.Entity
 			Speed = 5f;
 
 			// Set Vitality
-			MaxHealth = 3;
+			MaxHealth = 15;
 			CurHealth = MaxHealth;
 			InvDuration = 0.5;
 			InvTimer = InvDuration;
@@ -526,17 +526,23 @@ namespace Final_Game.Entity
 			// Take damage if not invincible
 			if (InvTimer <= 0 && BossActionState == BossState.Overheated)
 			{
-				CurHealth -= damage;
+				CurHealth -= damage * 3;
 
 				// Temporarily become invincible
-				InvTimer = InvDuration;
+				
 
 				// Handle low health
 				BossActionState = BossState.Idle;
 				overheatTimer = 0;
 				stunTimer = 1;
 			}
-		}
+			else
+			{
+				CurHealth -= damage;
+			}
+            InvTimer = InvDuration;
+
+        }
 
 		#endregion
 

@@ -20,6 +20,8 @@ namespace Final_Game
 		#region Fields
 		// Backgrounds
 		private Texture2D _titleBackground;
+		private Texture2D _pauseBackground;
+		private Texture2D _gameOverBackground;
 
 		// Management
 		private Game1 _gm;
@@ -97,6 +99,8 @@ namespace Final_Game
 			// Load Backgrounds
 			_blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
 			_titleBackground = _gm.Content.Load<Texture2D>("TitleBackground");
+			_pauseBackground = _gm.Content.Load<Texture2D>("PauseBackground");
+			_gameOverBackground = _gm.Content.Load<Texture2D>("DeathBackground");
 
 			// Load Icons
 			_comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
@@ -106,8 +110,8 @@ namespace Final_Game
 			_brokenBallSpriteWidth = 360;
 
 			// Setup Player Speedometer
-			_speedometerPin = _gm.Content.Load<Texture2D>("SpeedometerPin");
-			_speedometerCrest = _gm.Content.Load<Texture2D>("SpeedometerCrest");
+			_speedometerPin = _gm.Content.Load<Texture2D>("UI Images/SpeedometerPin");
+			_speedometerCrest = _gm.Content.Load<Texture2D>("UI Images/SpeedometerCrest");
 			_maxSpeedometerSpeed = 60f;
 
 			// Gameover Assets
@@ -132,7 +136,7 @@ namespace Final_Game
 			_maxShakeOffset = new Vector2(_maxShakeMagnitude, _maxShakeMagnitude);
 			_shakeDuration = 0.5;
 
-			_buttonCursor = _gm.Content.Load<Texture2D>("PinheadButtonCursor");
+			_buttonCursor = _gm.Content.Load<Texture2D>("UI Images/PinheadButtonCursor");
 
 			CreateButtons();
 
@@ -426,6 +430,12 @@ namespace Final_Game
 
 		private void DrawPauseMenu()
 		{
+			// Draw Background
+			_spriteBatch.Draw(
+				_pauseBackground,
+				Game1.ScreenBounds,
+				Color.White);
+
 			// Draw Heading
 			string pauseHeadingText = "Paused";
 			Vector2 pauseHeadingDimensions = TitleCaseArial.MeasureString(pauseHeadingText);
@@ -442,40 +452,70 @@ namespace Final_Game
 			foreach (Button b in PauseButtons)
 			{
 				b.Draw(_spriteBatch);
-			}
+
+                if (b.ContainsCursor)
+                {
+                    _spriteBatch.Draw(
+                        _buttonCursor,
+                        new Rectangle(
+                            new Point(
+                                b.Bounds.Left - 120,
+                                b.Bounds.Center.Y - 60),
+                            new Point(120, 120)),
+                        Color.White);
+                }
+            }
 			return;
 		}
 
 		private void DrawGameOverMenu()
 		{
-			// Draw Game Over Heading
-			string gameOverText = "You Died :P";
-
-			Vector2 textPos =
-				new Vector2(
-				GetCenteredTextPos(gameOverText, TitleCaseArial, Game1.ScreenCenter).X,
-				100f);
-
-			_spriteBatch.DrawString(
-				TitleCaseArial,
-				gameOverText,
-				textPos,
-				Color.Black);
+            // Draw Background
+            _spriteBatch.Draw(
+                _gameOverBackground,
+                Game1.ScreenBounds,
+                Color.White);
 
 			// Draw dead ball
 			Vector2 drawPos = new Vector2(
 				Game1.ScreenCenter.X - _deadBall.DestinationRect.Width / 2,
-				Game1.ScreenCenter.Y - _deadBall.DestinationRect.Height / 2 - 150);
+				Game1.ScreenCenter.Y - _deadBall.DestinationRect.Height / 2 - 125);
 
 			drawPos = new Vector2(drawPos.X, drawPos.Y + _hoverOffset);
 
 			_deadBall.Draw(_spriteBatch, drawPos, 0f, Vector2.Zero);
 
-			// Draw game over buttons
-			foreach (Button b in GameOverButtons)
+            // Draw Game Over Heading
+            string gameOverText = "You Died :P";
+
+            Vector2 textPos =
+                new Vector2(
+                GetCenteredTextPos(gameOverText, TitleCaseArial, Game1.ScreenCenter).X,
+                100f);
+
+            _spriteBatch.DrawString(
+                TitleCaseArial,
+                gameOverText,
+                textPos,
+                Color.Black);
+
+            // Draw game over buttons
+            foreach (Button b in GameOverButtons)
 			{
 				b.Draw(_spriteBatch);
-			}
+
+                if (b.ContainsCursor)
+                {
+                    _spriteBatch.Draw(
+                        _buttonCursor,
+                        new Rectangle(
+                            new Point(
+                                b.Bounds.Left - 120,
+                                b.Bounds.Center.Y - 60),
+                            new Point(120, 120)),
+                        Color.White);
+                }
+            }
 		}
 
 		#endregion
@@ -483,8 +523,8 @@ namespace Final_Game
 		#region Component Creation Methods
 		private void CreateButtons()
 		{
-			Texture2D emptyButton = _gm.Content.Load<Texture2D>("EmptyButton");
-
+			Texture2D emptyButton = _gm.Content.Load<Texture2D>("UI Images/EmptyButton");
+			
             // Make menu buttons
             Rectangle buttonBounds = new Rectangle(
 				1300,
@@ -542,13 +582,30 @@ namespace Final_Game
 
 			// Resume
 			PauseButtons = new Button[2];
-			PauseButtons[0] = new Button(buttonBounds, null, null, null);
+
+			wordDims = TitleCaseArial.MeasureString("Resume");
+
+			PauseButtons[0] = new Button(
+				new Rectangle(
+					(int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
+					500,
+					(int)wordDims.X + widthBuffer,
+					(int)wordDims.Y + widthBuffer),
+				null, null, null);
 			PauseButtons[0].SetText("Resume", TitleCaseArial);
 			PauseButtons[0].TextColor = Color.White;
 			buttonBounds.Y += emptyButton.Height;
 
-			// Main Menu
-			PauseButtons[1] = new Button(buttonBounds, null, null, null);
+            // Main Menu
+            wordDims = TitleCaseArial.MeasureString("Main Menu");
+
+            PauseButtons[1] = new Button(
+                new Rectangle(
+                    (int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
+					PauseButtons[0].Bounds.Bottom,
+                    (int)wordDims.X + widthBuffer,
+                    (int)wordDims.Y + widthBuffer), 
+				null, null, null);
 			PauseButtons[1].TextColor = Color.Coral;
 			PauseButtons[1].SetText("Main Menu", TitleCaseArial);
 
@@ -556,22 +613,36 @@ namespace Final_Game
 			GameOverButtons = new Button[2];
 
 			// Retry
-			buttonBounds.Y = Game1.ScreenCenter.ToPoint().Y + 100;
-			GameOverButtons[0] = new Button(buttonBounds, null, null, null);
-			GameOverButtons[0].TextColor = Color.Orange;
+			wordDims = TitleCaseArial.MeasureString("Retry");
+
+			GameOverButtons[0] = new Button(
+				new Rectangle(
+					(int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
+					700,
+					(int)wordDims.X + widthBuffer,
+					(int)wordDims.Y + 20),
+				null, null, null);
+			GameOverButtons[0].TextColor = Color.Blue;
 			GameOverButtons[0].SetText("Retry", TitleCaseArial);
 
 			// Main Menu
-			buttonBounds.Y += emptyButton.Height;
-			GameOverButtons[1] = new Button(buttonBounds, null, null, null);
-			GameOverButtons[1].TextColor = Color.Coral;
+			wordDims = TitleCaseArial.MeasureString("Main Menu");
+
+			GameOverButtons[1] = new Button(
+				new Rectangle(
+					(int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
+					GameOverButtons[0].Bounds.Bottom,
+					(int)wordDims.X + widthBuffer,
+					(int)wordDims.Y + 20),
+				null, null, null);
+			GameOverButtons[1].TextColor = Color.White;
 			GameOverButtons[1].SetText("Main Menu", TitleCaseArial);
 			return;
 		}
 		private void CreateSliders()
 		{
-			Texture2D sliderBarImage = _gm.Content.Load<Texture2D>("BasicSliderBar");
-			Texture2D sliderKnobImage = _gm.Content.Load<Texture2D>("BasicSliderKnob");
+			Texture2D sliderBarImage = _gm.Content.Load<Texture2D>("UI Images/BasicSliderBar");
+			Texture2D sliderKnobImage = _gm.Content.Load<Texture2D>("UI Images/BasicSliderKnob");
 			_testSlider = new Slider(new Point(50, 200), sliderBarImage, sliderKnobImage);
 			return;
 		}

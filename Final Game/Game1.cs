@@ -248,7 +248,7 @@ namespace Final_Game
 
 			SoundManager.PlayBGM();
 
-			CurrentLevel.LoadRoomUsingOffset(new Point(0, 0));
+			//CurrentLevel.LoadRoomUsingOffset(new Point(0, 0));
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -266,6 +266,8 @@ namespace Final_Game
 			switch (State)
 			{
 				case GameState.Play:
+					Debug.WriteLine(CurrentLevel.CurrentPoint);
+					Debug.WriteLine(CurrentLevel.StartPoint);
 					Player.Update(gameTime);
 
 					// Update cursor

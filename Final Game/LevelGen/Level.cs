@@ -236,12 +236,12 @@ namespace Final_Game.LevelGen
 			//Update minimap
 			CurrentRoom.Entered = true;
 			CurrentRoom.Discovered = true;
+			Debug.WriteLine(CurrentPoint);
 
 			for (int i = 0; i < 4; i++)
 			{
 				if (CurrentRoom.ActualConnections[i] != null)
 				{
-					Debug.WriteLine("poo poo" + i);
 					CurrentRoom.ActualConnections[i].Discovered = true;
 				}
 			}
@@ -254,6 +254,7 @@ namespace Final_Game.LevelGen
 
 			Game1.PManager.ClearPickups();
 			CurrentPoint += newRoomOffset;
+			Debug.WriteLine(CurrentPoint);
 
 			//Remove enemies near player.
 			CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);

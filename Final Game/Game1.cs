@@ -86,6 +86,10 @@ namespace Final_Game
 
         // Cutscenes
         public static CutsceneManager CSManager { get; private set; }
+
+		// Play Background
+		private Texture2D _playBackground;
+
         #endregion
 
         #region Properties
@@ -198,6 +202,8 @@ namespace Final_Game
 			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 			_noRedirectCursorTexture = Content.Load<Texture2D>("Sprites/X_CursorSprite");
 
+			_playBackground = Content.Load<Texture2D>("PlayBackground4");
+
 			// Make Camera
 			MainCamera = new Camera(new Vector2(300, 300), 1f);
 
@@ -301,7 +307,7 @@ namespace Final_Game
 			// Only Draw Game if Game Window has focus
 			if (!this.IsActive) return;
 
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(Color.Black);
 
 			_spriteBatch.Begin();
             
@@ -310,6 +316,12 @@ namespace Final_Game
             switch (State)
 			{
 				case GameState.Play:
+
+					// Draw Background
+					_spriteBatch.Draw(
+						_playBackground,
+						ScreenBounds,
+						Color.White);
 
 					CurrentLevel.CurrentRoom.Draw(_spriteBatch);
 

@@ -18,6 +18,9 @@ namespace Final_Game
 	public class UI
 	{
 		#region Fields
+		// Backgrounds
+		private Texture2D _titleBackground;
+
 		// Management
 		private Game1 _gm;
 		private SpriteBatch _spriteBatch;
@@ -93,6 +96,7 @@ namespace Final_Game
 
 			// Load Backgrounds
 			_blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
+			_titleBackground = _gm.Content.Load<Texture2D>("TitleBackground");
 
 			// Load Icons
 			_comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
@@ -151,7 +155,7 @@ namespace Final_Game
 					}
 
 					// Update demo slider
-					_testSlider.Update(gameTime);
+					//_testSlider.Update(gameTime);
 					break;
 
 				case GameState.Pause:
@@ -199,14 +203,14 @@ namespace Final_Game
 					DrawMainMenu();
 
 					// Draw demo slider
-					_testSlider.Draw(_spriteBatch);
+					//_testSlider.Draw(_spriteBatch);
 
 					// Draw slider value
-					_spriteBatch.DrawString(
-						TitleCaseArial,
-						$"{_testSlider.CurValue:0.000}",
-						new Vector2(50f, 50f),
-						Color.White);
+					//_spriteBatch.DrawString(
+					//	TitleCaseArial,
+					//	$"{_testSlider.CurValue:0.000}",
+					//	new Vector2(50f, 50f),
+					//	Color.White);
 					break;
 
 				case GameState.Play:
@@ -383,35 +387,40 @@ namespace Final_Game
 		#region Menu Drawing Methods
 		private void DrawMainMenu()
 		{
-			// Draw Title
-			string titleText = "UnHoly Roller";
-			Vector2 titleMeasure = TitleCaseArial.MeasureString(titleText);
-
-			_spriteBatch.DrawString(
-				TitleCaseArial,
-				titleText,
-				new Vector2(
-					Game1.ScreenCenter.X - titleMeasure.X / 2f,
-					150f),
+			_spriteBatch.Draw(
+				_titleBackground,
+				Game1.ScreenBounds,
 				Color.White);
+
+			// Draw Title
+			//string titleText = "UnHoly Roller";
+			//Vector2 titleMeasure = TitleCaseArial.MeasureString(titleText);
+
+			//_spriteBatch.DrawString(
+			//	TitleCaseArial,
+			//	titleText,
+			//	new Vector2(
+			//		Game1.ScreenCenter.X - titleMeasure.X / 2f,
+			//		150f),
+			//	Color.White);
 
 			// Draw Menu Buttons
 			foreach (Button b in MenuButtons)
 			{
 				b.Draw(_spriteBatch);
 
-                if (b.ContainsCursor)
-                {
-                    _spriteBatch.Draw(
-                        _buttonCursor,
-                        new Rectangle(
+				if (b.ContainsCursor)
+				{
+					_spriteBatch.Draw(
+						_buttonCursor,
+						new Rectangle(
 							new Point(
-								b.Bounds.Left - 120, 
-								b.Bounds.Center.Y - 60), 
+								b.Bounds.Left - 120,
+								b.Bounds.Center.Y - 60),
 							new Point(120, 120)),
-                        Color.White);
-                }
-            }
+						Color.White);
+				}
+			}
 			return;
 		}
 
@@ -475,64 +484,86 @@ namespace Final_Game
 		private void CreateButtons()
 		{
 			Texture2D emptyButton = _gm.Content.Load<Texture2D>("EmptyButton");
-			Texture2D handPress = _gm.Content.Load<Texture2D>("HighButtonIdea");
-			Texture2D handHigh = _gm.Content.Load<Texture2D>("HandHighlight");
-
-			Texture2D LHandPress = _gm.Content.Load<Texture2D>("LoseHandPress");
-			Texture2D LHandHigh = _gm.Content.Load<Texture2D>("LoseHandHighlight");
-
 
             // Make menu buttons
             Rectangle buttonBounds = new Rectangle(
-				Game1.WindowWidth / 2 - emptyButton.Bounds.Width / 2,
+				1300,
 				400,
 				emptyButton.Bounds.Width,
 				emptyButton.Bounds.Height);
-
 			MenuButtons = new Button[3];
-			MenuButtons[0] = new Button(buttonBounds, 
-				null, 
-				handHigh, 
-				handHigh);
-			MenuButtons[0].StaticTint = Color.White;
-			MenuButtons[0].PressTint = Color.Green;
+
+			// Play
+
+			Vector2 wordDims = TitleCaseArial.MeasureString("Play");
+			int widthBuffer = 60;
+
+			MenuButtons[0] = new Button(
+				new Rectangle(
+					1300, 
+					400, 
+					(int)wordDims.X + widthBuffer, 
+					(int)wordDims.Y + widthBuffer), 
+				null, null, emptyButton);
+			MenuButtons[0].PressTint = Color.Blue * 0.3f;
 			MenuButtons[0].SetText("Play", TitleCaseArial);
-			buttonBounds.Y += emptyButton.Height;
+			MenuButtons[0].TextColor = Color.Black;
 
-			MenuButtons[1] = new Button(buttonBounds, null, null, null);
-			MenuButtons[1].TextColor = Color.Coral;
-			MenuButtons[1].SetText("Tutorial", TitleCaseArial);
+			// Tutorial
+			wordDims = TitleCaseArial.MeasureString("Tutorial");
+			MenuButtons[1] = new Button(
+				new Rectangle(
+					1400,
+					MenuButtons[0].Bounds.Bottom, 
+					(int)wordDims.X + widthBuffer, 
+					(int)wordDims.Y + widthBuffer),
+				null, null, emptyButton);
+            MenuButtons[1].PressTint = Color.Blue * 0.3f;
+            MenuButtons[1].SetText("Tutorial", TitleCaseArial);
+            MenuButtons[1].TextColor = Color.Black;
 
-			buttonBounds.Y += emptyButton.Height;
-			MenuButtons[2] = new Button(buttonBounds, null, null, null);
-			//MenuButtons[2].TintColor = Color.Orange;
-			MenuButtons[2].TextColor = Color.Purple;
-			MenuButtons[2].SetText("Quit", TitleCaseArial);
+			// Quit
+			wordDims = TitleCaseArial.MeasureString("Quit");
+			MenuButtons[2] = new Button(
+				new Rectangle(
+					1500,
+                    MenuButtons[1].Bounds.Bottom,
+					(int)wordDims.X + widthBuffer, 
+					(int)wordDims.Y + widthBuffer),
+				null, null, emptyButton);
+            MenuButtons[2].PressTint = Color.Blue * 0.3f;
+            MenuButtons[2].SetText("Quit", TitleCaseArial);
+            MenuButtons[2].TextColor = Color.Black;
 
 			// Make pause buttons
-			buttonBounds.Y = 400;
+			buttonBounds.Location = new Point(
+				Game1.WindowWidth / 2 - buttonBounds.Width / 2,
+				400);
 
+			// Resume
 			PauseButtons = new Button[2];
-			PauseButtons[0] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+			PauseButtons[0] = new Button(buttonBounds, null, null, null);
 			PauseButtons[0].SetText("Resume", TitleCaseArial);
-			PauseButtons[0].TextColor = Color.Black;
+			PauseButtons[0].TextColor = Color.White;
 			buttonBounds.Y += emptyButton.Height;
 
-			PauseButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+			// Main Menu
+			PauseButtons[1] = new Button(buttonBounds, null, null, null);
 			PauseButtons[1].TextColor = Color.Coral;
 			PauseButtons[1].SetText("Main Menu", TitleCaseArial);
 
 			// Make Game Over Buttons
 			GameOverButtons = new Button[2];
 
+			// Retry
 			buttonBounds.Y = Game1.ScreenCenter.ToPoint().Y + 100;
-			GameOverButtons[0] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
-			GameOverButtons[0].StaticTint = Color.Black;
+			GameOverButtons[0] = new Button(buttonBounds, null, null, null);
 			GameOverButtons[0].TextColor = Color.Orange;
 			GameOverButtons[0].SetText("Retry", TitleCaseArial);
 
+			// Main Menu
 			buttonBounds.Y += emptyButton.Height;
-			GameOverButtons[1] = new Button(buttonBounds, emptyButton, emptyButton, emptyButton);
+			GameOverButtons[1] = new Button(buttonBounds, null, null, null);
 			GameOverButtons[1].TextColor = Color.Coral;
 			GameOverButtons[1].SetText("Main Menu", TitleCaseArial);
 			return;

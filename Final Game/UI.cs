@@ -76,7 +76,7 @@ namespace Final_Game
 		public Button[] GameOverButtons { get; private set; }
 
 		// Fonts
-		public static SpriteFont TitleCaseArial { get; private set; }
+		public static SpriteFont TitleCaseCarter { get; private set; }
 		public static SpriteFont MediumArial { get; private set; }
 
 		#endregion
@@ -127,7 +127,7 @@ namespace Final_Game
 			_hoverDuration = 2;
 
 			// Load Fonts
-			TitleCaseArial = _gm.Content.Load<SpriteFont>("TitleCaseArial");
+			TitleCaseCarter = _gm.Content.Load<SpriteFont>("TitleCaseArial");
 			MediumArial = _gm.Content.Load<SpriteFont>("MediumArial");
 
 			// Setup effects
@@ -269,13 +269,13 @@ namespace Final_Game
 			Vector2 comboDrawPos = new Vector2(100f, 400f);
 
             _spriteBatch.DrawString(
-				TitleCaseArial,
+				TitleCaseCarter,
 				curCombo,
 				comboDrawPos,
 				Color.White);
 
 			Vector2 comboStringDimensions = 
-				TitleCaseArial.MeasureString(curCombo);
+				TitleCaseCarter.MeasureString(curCombo);
 
 			// Draw Combo Icon after text
 			_spriteBatch.Draw(
@@ -438,10 +438,10 @@ namespace Final_Game
 
 			// Draw Heading
 			string pauseHeadingText = "Paused";
-			Vector2 pauseHeadingDimensions = TitleCaseArial.MeasureString(pauseHeadingText);
+			Vector2 pauseHeadingDimensions = TitleCaseCarter.MeasureString(pauseHeadingText);
 
 			_spriteBatch.DrawString(
-				TitleCaseArial,
+				TitleCaseCarter,
 				pauseHeadingText,
 				new Vector2(
 					Game1.ScreenCenter.X - pauseHeadingDimensions.X / 2,
@@ -490,11 +490,11 @@ namespace Final_Game
 
             Vector2 textPos =
                 new Vector2(
-                GetCenteredTextPos(gameOverText, TitleCaseArial, Game1.ScreenCenter).X,
+                GetCenteredTextPos(gameOverText, TitleCaseCarter, Game1.ScreenCenter).X,
                 100f);
 
             _spriteBatch.DrawString(
-                TitleCaseArial,
+                TitleCaseCarter,
                 gameOverText,
                 textPos,
                 Color.Black);
@@ -535,7 +535,7 @@ namespace Final_Game
 
 			// Play
 
-			Vector2 wordDims = TitleCaseArial.MeasureString("Play");
+			Vector2 wordDims = TitleCaseCarter.MeasureString("Play");
 			int widthBuffer = 60;
 
 			MenuButtons[0] = new Button(
@@ -546,11 +546,11 @@ namespace Final_Game
 					(int)wordDims.Y + widthBuffer), 
 				null, null, emptyButton);
 			MenuButtons[0].PressTint = Color.Blue * 0.3f;
-			MenuButtons[0].SetText("Play", TitleCaseArial);
+			MenuButtons[0].SetText("Play", TitleCaseCarter);
 			MenuButtons[0].TextColor = Color.Black;
 
 			// Tutorial
-			wordDims = TitleCaseArial.MeasureString("Tutorial");
+			wordDims = TitleCaseCarter.MeasureString("Tutorial");
 			MenuButtons[1] = new Button(
 				new Rectangle(
 					1400,
@@ -559,11 +559,11 @@ namespace Final_Game
 					(int)wordDims.Y + widthBuffer),
 				null, null, emptyButton);
             MenuButtons[1].PressTint = Color.Blue * 0.3f;
-            MenuButtons[1].SetText("Tutorial", TitleCaseArial);
+            MenuButtons[1].SetText("Tutorial", TitleCaseCarter);
             MenuButtons[1].TextColor = Color.Black;
 
 			// Quit
-			wordDims = TitleCaseArial.MeasureString("Quit");
+			wordDims = TitleCaseCarter.MeasureString("Quit");
 			MenuButtons[2] = new Button(
 				new Rectangle(
 					1500,
@@ -572,7 +572,7 @@ namespace Final_Game
 					(int)wordDims.Y + widthBuffer),
 				null, null, emptyButton);
             MenuButtons[2].PressTint = Color.Blue * 0.3f;
-            MenuButtons[2].SetText("Quit", TitleCaseArial);
+            MenuButtons[2].SetText("Quit", TitleCaseCarter);
             MenuButtons[2].TextColor = Color.Black;
 
 			// Make pause buttons
@@ -583,7 +583,7 @@ namespace Final_Game
 			// Resume
 			PauseButtons = new Button[2];
 
-			wordDims = TitleCaseArial.MeasureString("Resume");
+			wordDims = TitleCaseCarter.MeasureString("Resume");
 
 			PauseButtons[0] = new Button(
 				new Rectangle(
@@ -592,12 +592,12 @@ namespace Final_Game
 					(int)wordDims.X + widthBuffer,
 					(int)wordDims.Y + widthBuffer),
 				null, null, null);
-			PauseButtons[0].SetText("Resume", TitleCaseArial);
+			PauseButtons[0].SetText("Resume", TitleCaseCarter);
 			PauseButtons[0].TextColor = Color.White;
 			buttonBounds.Y += emptyButton.Height;
 
             // Main Menu
-            wordDims = TitleCaseArial.MeasureString("Main Menu");
+            wordDims = TitleCaseCarter.MeasureString("Main Menu");
 
             PauseButtons[1] = new Button(
                 new Rectangle(
@@ -607,13 +607,13 @@ namespace Final_Game
                     (int)wordDims.Y + widthBuffer), 
 				null, null, null);
 			PauseButtons[1].TextColor = Color.Coral;
-			PauseButtons[1].SetText("Main Menu", TitleCaseArial);
+			PauseButtons[1].SetText("Main Menu", TitleCaseCarter);
 
 			// Make Game Over Buttons
 			GameOverButtons = new Button[2];
 
 			// Retry
-			wordDims = TitleCaseArial.MeasureString("Retry");
+			wordDims = TitleCaseCarter.MeasureString("Retry");
 
 			GameOverButtons[0] = new Button(
 				new Rectangle(
@@ -623,10 +623,10 @@ namespace Final_Game
 					(int)wordDims.Y + 20),
 				null, null, null);
 			GameOverButtons[0].TextColor = Color.Blue;
-			GameOverButtons[0].SetText("Retry", TitleCaseArial);
+			GameOverButtons[0].SetText("Retry", TitleCaseCarter);
 
 			// Main Menu
-			wordDims = TitleCaseArial.MeasureString("Main Menu");
+			wordDims = TitleCaseCarter.MeasureString("Main Menu");
 
 			GameOverButtons[1] = new Button(
 				new Rectangle(
@@ -636,7 +636,7 @@ namespace Final_Game
 					(int)wordDims.Y + 20),
 				null, null, null);
 			GameOverButtons[1].TextColor = Color.White;
-			GameOverButtons[1].SetText("Main Menu", TitleCaseArial);
+			GameOverButtons[1].SetText("Main Menu", TitleCaseCarter);
 			return;
 		}
 		private void CreateSliders()

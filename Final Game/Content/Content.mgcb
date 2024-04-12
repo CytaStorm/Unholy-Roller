@@ -25,6 +25,9 @@
 /processorParam:TextureFormat=Color
 /build:BlankPanel.png
 
+#begin CarterOne-Regular.ttf
+/copy:CarterOne-Regular.ttf
+
 #begin DeathBackground.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -478,7 +481,7 @@
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:TitleCaseArial.spritefont
+/build:TitleCaseArial.spritefont;TitleCaseCarterOne.spritefont
 
 #begin UI Images/BasicSliderBar.png
 /importer:TextureImporter

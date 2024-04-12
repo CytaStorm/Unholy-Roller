@@ -37,7 +37,6 @@ namespace Final_Game.Managers
 			//create bullet fx based on timer
 			if (Player.BulletTimeMultiplier < 1)
 			{
-				Debug.WriteLine("pooopooo");
 				TickTimer(gameTime, _curFXTimer);
 				if (_curFXTimer < 0)
 				{
@@ -47,7 +46,8 @@ namespace Final_Game.Managers
 				}
 				return;
 			}
-			
+
+			Debug.WriteLine("Destroying particles");
 			//exit bullet time,
 			//start destroying the fx trail every 0.5s
 			if (FXinstances.Count > 0)

@@ -21,7 +21,7 @@ namespace Final_Game.Entity
 		Rolling,
 		Walking
 	}
-	public class Player : Entity
+	public class Player : Entity, ICloneable
 	{
 		#region Fields
 		/// <summary>
@@ -78,6 +78,8 @@ namespace Final_Game.Entity
 		private int _numRollFrames;
 		private int _rollFrameWidth;
 		private float _directionToFace;
+
+		private Game1 _gm;
 
 		#endregion
 
@@ -191,6 +193,9 @@ namespace Final_Game.Entity
 			//Set Health
 			MaxHealth = 6;
 			CurHealth = MaxHealth;
+
+			//Cloning
+			_gm = gm;
 		}
 		#endregion
 		
@@ -789,6 +794,15 @@ namespace Final_Game.Entity
 		public void TriggerHitStop()
 		{
 			hitStopTimeRemaining = hitStopDuration;
+		}
+
+		/// <summary>
+		/// Returns a clone of the player.
+		/// </summary>
+		/// <returns>Clone of the player.</returns>
+		public Player Clone()
+		{
+			return new Player(_gm, this.WorldPosition);
 		}
 	}
 	#endregion

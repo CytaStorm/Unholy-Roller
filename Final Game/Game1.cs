@@ -86,6 +86,9 @@ namespace Final_Game
 
         // Cutscenes
         public static CutsceneManager CSManager { get; private set; }
+
+		//Pathfinder
+        public static Pathfinder Pathfinding { get; private set; }
         #endregion
 
         #region Properties
@@ -274,7 +277,9 @@ namespace Final_Game
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
 
-					break;
+                    Pathfinding = new Pathfinder(CurrentLevel.CurrentRoom.Tileset.Layout);
+
+                    break;
 
 				case GameState.Pause:
 					if (SingleKeyPress(Keys.Escape))

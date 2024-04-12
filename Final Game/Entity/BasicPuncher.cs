@@ -294,15 +294,29 @@ namespace Final_Game.Entity
 
 			Vector2 positionAfterMoving = WorldPosition + directionToPlayer;
 
-            if (CheckTilemapCollisionAhead( this , directionToPlayer, Game1.CurrentLevel.CurrentRoom.Tileset))
-            {
+            Vector2 playerPosition = Game1.Player.CenterPosition;
+            Vector2 enemyPosition = CenterPosition;
 
-                Vector2 newDirection = new Vector2(directionToPlayer.Y, -directionToPlayer.X);
-                newDirection.Normalize();
-                newDirection *= Speed;
-                positionAfterMoving = WorldPosition + newDirection;
+            List<Point> path = Game1.Pathfinding.FindPath(
+                new Point((int)enemyPosition.X, (int)enemyPosition.Y),
+                new Point((int)playerPosition.X, (int)playerPosition.Y));
+
+            if (path != null && path.Count > 1) 
+            {
+                
+                Vector2 nextStep = new Vector2(path[1].X, path[1].Y);
+
+              
+                Vector2 direction = nextStep - enemyPosition;
+                direction.Normalize();
+
+                Velocity = direction * Speed;
             }
-           
+            else
+            {
+                Velocity = Vector2.Zero;
+            }
+
             // Stop if get too close to another enemy
             bool shouldStop = false;
 			float minDistanceFromEnemies = Game1.TileSize * 3;

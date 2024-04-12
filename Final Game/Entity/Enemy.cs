@@ -144,7 +144,7 @@ namespace Final_Game.Entity
 				if (CurHealth <= 0)
 				{
 					// Enemy is temporarily knocked out
-					Game1.SManager.PlayKnockSound();
+					Managers.SoundManager.PlayKnockSound();
 					_koTimer = _koDuration;
 					CurHealth = 1;
 				}

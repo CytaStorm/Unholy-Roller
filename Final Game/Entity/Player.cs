@@ -1,4 +1,5 @@
 using Final_Game.LevelGen;
+using Final_Game.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -15,7 +16,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Final_Game.Entity
 {
-	public enum PlayerState
+    public enum PlayerState
 	{
 		Rolling,
 		Walking
@@ -77,6 +78,8 @@ namespace Final_Game.Entity
 		private int _numRollFrames;
 		private int _rollFrameWidth;
 		private float _directionToFace;
+
+		private Game1 _gm;
 
 		#endregion
 
@@ -192,6 +195,9 @@ namespace Final_Game.Entity
 			//Set Health
 			MaxHealth = 6;
 			CurHealth = MaxHealth;
+
+			//Cloning
+			_gm = gm;
 		}
 		#endregion
 		
@@ -340,7 +346,7 @@ namespace Final_Game.Entity
 					State == PlayerState.Rolling)
 				{
 					TriggerHitStop();
-					Game1.SManager.PlayHitSound();
+					Managers.SoundManager.PlayHitSound();
 					lastContactedEnemy = curEnemy;
 					continue;
 				}
@@ -482,11 +488,6 @@ namespace Final_Game.Entity
 	
 		private void HandleLaunch()
 		{
-			if (Game1.IsMouseButtonPressed(1))
-			{
-				// Todo: Slow time
-			}
-	
 			// Launch Player in direction of Mouse
 			if (NumRedirects > 0 && Game1.IsMouseLeftClicked())
 			{
@@ -514,21 +515,6 @@ namespace Final_Game.Entity
 					distance *= Velocity.Length();
 					Velocity = distance;
 				}
-	
-				// Launch Player at max speed
-				// Redirect Player at cur speed
-				//if (_numRedirects > _maxRedirects)
-				//{
-				//    // Launch player at default speed
-				//    distance *= _speed;
-				//    Velocity = distance;
-				//}
-				//else
-				//{
-				//    // Launch player at current speed
-				//    distance *= Velocity.Length();
-				//    Velocity = distance;
-				//}
 	
 				NumRedirects--;
 	
@@ -674,24 +660,6 @@ namespace Final_Game.Entity
 				SpriteEffects.None,
 				0f
 				);
-	
-			//// Display remaining redirects
-			//if (_numRedirects <= _maxRedirects)
-			//{
-			//	Vector2 redirectStringDimensions =
-			//		UI.MediumArial.MeasureString(_numRedirects.ToString());
-	
-			//	Vector2 textPos = centerScreenPos + directionFromPlayerToMouse;
-			//	textPos = new Vector2(
-			//		textPos.X - redirectStringDimensions.X / 2,
-			//		textPos.Y - redirectStringDimensions.Y / 2);
-	
-			//	sb.DrawString(
-			//		UI.MediumArial,
-			//		_numRedirects.ToString(),
-			//		textPos,
-			//		Color.White);
-			//}
 		}
 	
 	
@@ -828,6 +796,15 @@ namespace Final_Game.Entity
 		public void TriggerHitStop()
 		{
 			hitStopTimeRemaining = hitStopDuration;
+		}
+
+		/// <summary>
+		/// Returns a clone of the player.
+		/// </summary>
+		/// <returns>Clone of the player.</returns>
+		public Player Clone()
+		{
+			return new Player(_gm, this.WorldPosition);
 		}
 	}
 	#endregion

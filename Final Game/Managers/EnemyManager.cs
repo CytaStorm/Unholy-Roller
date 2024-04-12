@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Final_Game
+namespace Final_Game.Managers
 {
 	public class EnemyManager
     {

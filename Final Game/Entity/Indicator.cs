@@ -27,7 +27,7 @@ namespace Final_Game.Entity
             this.attackType = attackType;
             timeVisible = 1;
             this.direction = direction;
-            HitBox = new Rectangle((int)position.X + 50, (int)position.Y + 50, 50,50);
+            HitBox = new Rectangle((int)position.X, (int)position.Y, 50,50);
             
         }
         public bool Update(GameTime gameTime)
@@ -46,7 +46,6 @@ namespace Final_Game.Entity
             if (HitBox.Intersects(Game1.Player.Hitbox))
             {
                 Game1.Player.TakeDamage(1);
-                Game1.Player.Ricochet(new Vector2(10,10));
             }
             return true;
             
@@ -61,8 +60,8 @@ namespace Final_Game.Entity
                
                 
                 case BossState.PinBombs:
-                    ShapeBatch.CircleOutline(screenPos + new Vector2(100,100), 50f, Color.Red);
-                    ShapeBatch.Circle(screenPos + new Vector2(100, 100), (50.0f * (float)(1.1 - timeVisible)), Color.DarkRed);
+                    ShapeBatch.CircleOutline(screenPos + new Vector2(50,50), 50f, Color.Red);
+                    ShapeBatch.Circle(screenPos + new Vector2(50, 50), (50.0f * (float)(1.1 - timeVisible)), Color.DarkRed);
                     break;
                 case BossState.PinThrow:
                     if (direction % 2 == 1)

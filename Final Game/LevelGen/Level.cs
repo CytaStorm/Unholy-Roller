@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-using System.Net.Mime;
-using System.Text.Json.Serialization;
-
 namespace Final_Game.LevelGen
 {
 	public class Level
@@ -182,19 +179,7 @@ namespace Final_Game.LevelGen
 				}
 			}
 			farthestRoom.IsBossRoom = true;
-
-
-			for(int i = 0; i < farthestRoom.Tileset.Layout.GetLength(0); i++)
-			{
-				for(int j = 0; j < farthestRoom.Tileset.Layout.GetLength(1); j++)
-				{
-					if (!farthestRoom.Tileset.Layout[i, j].Type.Equals(TileType.Wall)){
-						farthestRoom.Tileset.Layout[i, j] = TileMaker.SetTile(TileType.Grass, farthestRoom.Tileset.Layout[i, j].WorldPosition);
-					}
-				}
-			}
-			BossPoint = farthestRoom.MapPosition;
-	}
+		}
 
 		/// <summary>
 		/// 
@@ -203,32 +188,13 @@ namespace Final_Game.LevelGen
 		public void LoadRoomUsingOffset(Point newRoomOffset)
 		{
 			CurrentPoint += newRoomOffset;
-
-
-
-			//Remove enemies near player.
-			CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
-			
-			//Update minimap
-			CurrentRoom.Entered = true;
-			CurrentRoom.Discovered = true;
-
-			for (int i = 0; i < 4; i++)
-			{
-				if (CurrentRoom.ActualConnections[i] != null)
-				{
-					CurrentRoom.ActualConnections[i].Discovered = true;
-				}
-			}
-
-			if (!CurrentRoom.Cleared && !CurrentRoom.IsBossRoom)
+			if (!CurrentRoom.Cleared)
 			{
 				Game1.EManager.CreateRoomEnemies(CurrentRoom);
 			}
-			else if( CurrentRoom.IsBossRoom)
+			foreach(Tile tile in CurrentRoom.Tileset.Spawners)
 			{
-				Game1.EManager.SpawnBoss(CurrentRoom);
-
+				Debug.WriteLine(tile.WorldPosition);
 			}
 		}
 

@@ -13,6 +13,7 @@ namespace Final_Game.Managers
         #region Fields
         public static List<SoundEffect> PinDamageSoundEffects = new List<SoundEffect>();
         public static List<SoundEffect> PinKnockSoundEffects = new List<SoundEffect>();
+        public static List<SoundEffect> PlayerDamageSoundEffects = new List<SoundEffect>();
 
         private static Random _random = new Random();
         #endregion
@@ -31,6 +32,11 @@ namespace Final_Game.Managers
             PinKnockSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pinKnock4"));
             PinKnockSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pinKnock5"));
             PinKnockSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pinKnock6"));
+
+            //Take damage sound
+            PlayerDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pinPunch"));
+            PlayerDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/playerdeath"));
+
         }
 
         public static void PlayHitSound()
@@ -42,6 +48,15 @@ namespace Final_Game.Managers
         public static void PlayKnockSound()
         {
             PinKnockSoundEffects[_random.Next(PinKnockSoundEffects.Count)].Play(0.1f, 0, 0);
+        }
+
+        public static void PlayTakeDamageSound()
+        {
+            PlayerDamageSoundEffects[0].Play();
+        }
+        public static void PlayDeathSound()
+        {
+            PlayerDamageSoundEffects[1].Play();
         }
         #endregion
     }

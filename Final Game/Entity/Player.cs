@@ -788,8 +788,11 @@ namespace Final_Game.Entity
 
 				BulletTimeMultiplier = _minTimeMultiplier;
 
+				SoundManager.PlayDeathSound();
 				OnPlayerDeath();
 			}
+
+			SoundManager.PlayTakeDamageSound();
 			return;
 		}
 

@@ -324,9 +324,9 @@ namespace Final_Game
 
 					CurrentLevel.CurrentRoom.Draw(_spriteBatch);
 
-					FXManager.Draw(_spriteBatch);
-
 					Player.Draw(_spriteBatch);
+
+					FXManager.Draw(_spriteBatch);
 
                     EManager.Draw(_spriteBatch);
 

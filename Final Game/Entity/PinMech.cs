@@ -23,7 +23,9 @@ namespace Final_Game.Entity
 	}
 	public class PinMech : Enemy
 	{
-		
+
+		public event EntityDying OnBossDeath;
+
 		private BossState BossActionState;
 		private int pinBombsChanceModifier;
 		private double pinBombsDuration;
@@ -93,6 +95,8 @@ namespace Final_Game.Entity
 			pinBombsDuration = 10;
 			pinBombsDurationTimer = pinBombsDuration;
 			pinBombsDelay = 0;
+
+			// Create glove sprites
 			Texture2D gloveSpritesheet =
 				gm.Content.Load<Texture2D>("Sprites/PinPunch2");
 
@@ -105,10 +109,11 @@ namespace Final_Game.Entity
 				new Rectangle(
 					0, 0,
 					(int)_attackRadius, (int)_attackRadius));
-			indicators = new IndicatorManager(gm);
+
 			_pinThrowWindUp = 1;
 			aboutToThrow = false;
 			stunTimer = 0.0;
+
 			// Set type
 			Type = EntityType.Enemy;
 			
@@ -119,17 +124,19 @@ namespace Final_Game.Entity
 			ActionState = EnemyState.Idle;
 			savedYdirection = 0;
 			savedXdirection = 0;
+
 			// Animation
-			
 			_walkAnimSecondsPerFrame = 0.12;
 			pinBombsChanceModifier = 0;
 			BossActionState = BossState.Idle;
-			return;
+
+			// Prep Post Mortem
+			OnBossDeath += Game1.IManager.Clear;
 		}
 
-		// Methods
+        // Methods
 
-		public override void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
 		{
 			TickInvincibility(gameTime);
 
@@ -147,7 +154,6 @@ namespace Final_Game.Entity
 				DetermineState(playerDist);
 
 			stunTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
-			Game1.IManager.Update(gameTime);
 
 			switch (BossActionState)
 			{
@@ -525,22 +531,30 @@ namespace Final_Game.Entity
 		public override void TakeDamage(int damage)
 		{
 			// Take damage if not invincible
-			if (InvTimer <= 0 && BossActionState == BossState.Overheated)
-			{
-				CurHealth -= damage * 3;
+			if (IsInvincible) return;
 
-				// Temporarily become invincible
-				
+			int damageToReceive = damage;
+
+			if (BossActionState == BossState.Overheated)
+			{
+				damageToReceive *= 3;
 
 				// Handle low health
 				BossActionState = BossState.Idle;
 				overheatTimer = 0;
 				stunTimer = 1;
 			}
-			else
+			
+			// Take damage
+			CurHealth -= damageToReceive;
+
+			if (CurHealth <= 0)
 			{
-				CurHealth -= damage;
+				OnBossDeath();
+				return;
 			}
+
+			// Become temporarily invincible
             InvTimer = InvDuration;
 
         }

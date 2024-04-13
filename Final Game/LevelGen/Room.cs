@@ -197,7 +197,7 @@ namespace Final_Game.LevelGen
 				//Method to create open doors
 				Tileset.CreateOpenDoors(ActualConnections);
 				//30% chance to create health pickup.
-				if (_random.Next() <= 0.3f) CreateHealthPickup();
+				if (_random.NextSingle() <= 0.3f) CreateHealthPickup();
 			}
 			return;
 		}

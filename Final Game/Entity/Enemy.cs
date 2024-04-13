@@ -235,10 +235,6 @@ namespace Final_Game.Entity
 		}
 
         #endregion
-        protected virtual void CheckForObstacles(Vector2 direction) 
-		{
-			
-		}
 
     }
 }

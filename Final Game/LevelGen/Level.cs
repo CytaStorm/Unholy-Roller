@@ -259,13 +259,12 @@ namespace Final_Game.LevelGen
 				}
 			}
 
-			if (!CurrentRoom.Cleared && !CurrentRoom.IsBossRoom)
+			if (!CurrentRoom.Cleared)
 			{
-				Game1.EManager.CreateRoomEnemies(CurrentRoom);
-			}
-			else if (CurrentRoom.IsBossRoom)
-			{
-				Game1.EManager.SpawnBoss(CurrentRoom);
+				if (CurrentRoom.IsBossRoom)
+					Game1.EManager.SpawnBoss(CurrentRoom);
+				else
+					Game1.EManager.CreateRoomEnemies(CurrentRoom);
 			}
 			
 		}

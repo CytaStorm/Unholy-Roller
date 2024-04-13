@@ -347,12 +347,6 @@ namespace Final_Game.Entity
             }
             return false;
         }
-
-
-        protected override void CheckForObstacles(Vector2 direction)
-        {
-			
-        }
       
         protected override void Attack()
 		{

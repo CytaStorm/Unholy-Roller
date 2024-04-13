@@ -283,6 +283,8 @@ namespace Final_Game
 
 					EManager.Update(gameTime);
 
+					IManager.Update(gameTime);
+
 					PManager.Update(gameTime);
 
 					FXManager.Update(gameTime);

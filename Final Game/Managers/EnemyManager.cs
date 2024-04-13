@@ -37,8 +37,13 @@ namespace Final_Game.Managers
             Enemies = new List<Enemy>();
 
             // Create test enemies
+<<<<<<< HEAD
              //PinMech testEnemy = new PinMech(gm, new Vector2(750f, 750f));
              //Enemies.Add(testEnemy);
+=======
+           //  PinMech testEnemy = new PinMech(gm, new Vector2(750f, 750f));
+            // Enemies.Add(testEnemy);
+>>>>>>> main
              //BasicPuncher testEnemy2 = new BasicPuncher(gm, new Vector2(500f, 200f));
              //Enemies.Add(testEnemy2);
              //BasicPuncher testEnemy3 = new BasicPuncher(gm, new Vector2(300f, 800f));
@@ -57,6 +62,10 @@ namespace Final_Game.Managers
                 Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
             }
         }
+        public void SpawnBoss(Room r)
+        {
+            Enemies.Add(new PinMech(gm, new Vector2(r.Center.X - 50, r.Center.Y - 50)));
+        }
 
         public void Update(GameTime gameTime)
         {
@@ -70,6 +79,7 @@ namespace Final_Game.Managers
                 if (Enemies[i].IsKO)
                 {
                     _koedEnemies++;
+<<<<<<< HEAD
                 }
 
 				Enemies[i].InfiniteHealth = EnemiesInvincible;
@@ -81,6 +91,21 @@ namespace Final_Game.Managers
 				// Remove dead enemies
 				Enemies.RemoveAt(i);
 				i--;
+=======
+                }
+
+                // Remove dead enemies
+                if (!Enemies[i].Alive)
+                {
+                    Enemies.RemoveAt(i);
+                    i--;
+
+                    if (Enemies.Count == 0) { }
+                        //OnLastEnemyKilled();
+                }
+
+                //Enemies[i].InfiniteHealth = EnemiesInvincible;
+>>>>>>> main
             }
 
             // Remove all enemies if all are currently KO-ed

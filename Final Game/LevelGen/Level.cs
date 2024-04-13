@@ -223,6 +223,15 @@ namespace Final_Game.LevelGen
 				}
 			}
 			farthestRoom.IsBossRoom = true;
+			for (int i = 1; i < farthestRoom.Tileset.Layout.GetLength(0) - 1; i++)
+			{
+                for (int j = 1; j < farthestRoom.Tileset.Layout.GetLength(1)-1; j++)
+				{
+					farthestRoom.Tileset.Layout[i, j] = TileMaker.SetTile(TileType.Grass, farthestRoom.Tileset.Layout[i, j].WorldPosition);
+				}
+
+            }
+
 			BossPoint = farthestRoom.MapPosition;
 		}
 
@@ -268,6 +277,21 @@ namespace Final_Game.LevelGen
 			return;
         }
 
+<<<<<<< HEAD
+=======
+			if (!CurrentRoom.Cleared && !CurrentRoom.IsBossRoom)
+			{
+				Game1.EManager.CreateRoomEnemies(CurrentRoom);
+			}
+			else if (CurrentRoom.IsBossRoom)
+			{
+				Game1.EManager.SpawnBoss(CurrentRoom);
+			}
+			
+		}
+
+		#region Debug methods
+>>>>>>> main
 		/// <summary>
 		/// Updates data about discovered and entered rooms.
 		/// </summary>

@@ -36,7 +36,7 @@ namespace Final_Game.Entity
         /// <summary>
         /// Gets whether entity's health is greater than zero
         /// </summary>
-        public bool Alive => CurHealth > 0;
+        public virtual bool Alive => CurHealth > 0;
         public int MaxHealth { get; protected set; }
         public int CurHealth { get; protected set; }
         public double InvDuration { get; protected set; }

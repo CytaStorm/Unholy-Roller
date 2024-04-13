@@ -23,7 +23,7 @@ namespace Final_Game.Entity
 	public abstract class Enemy : Entity
 	{
 		#region Fields
-		private double _koDuration = 3;
+		private double _koDuration = 5;
 		private double _koTimer;
 
 		protected float _attackForce;

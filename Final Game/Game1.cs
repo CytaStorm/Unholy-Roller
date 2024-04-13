@@ -31,6 +31,9 @@ namespace Final_Game
 		private SpriteBatch _spriteBatch;
 
 		#region Fields
+
+		private Texture2D _playBackground;
+
 		/// <summary>
 		/// Level the player is currently on.
 		/// </summary>
@@ -202,6 +205,8 @@ namespace Final_Game
 			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 			_noRedirectCursorTexture = Content.Load<Texture2D>("Sprites/X_CursorSprite");
 
+			_playBackground = Content.Load<Texture2D>("PlayBackground4");
+
 			// Make Camera
 			MainCamera = new Camera(new Vector2(300, 300), 1f);
 
@@ -321,6 +326,12 @@ namespace Final_Game
             switch (State)
 			{
 				case GameState.Play:
+
+					// Draw Background
+					_spriteBatch.Draw(
+						_playBackground,
+						ScreenBounds,
+						Color.White);
 
 					CurrentLevel.CurrentRoom.Draw(_spriteBatch);
 

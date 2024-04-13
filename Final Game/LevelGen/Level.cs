@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Final_Game.Managers;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -240,40 +241,79 @@ namespace Final_Game.LevelGen
 		/// <param name="newRoomOffset">Offset that
 		/// determines which room is loaded.</param>
 		public void LoadRoomUsingOffset(Point newRoomOffset)
-		{
-			Game1.PManager.ClearPickups();
-			CurrentPoint += newRoomOffset;
+        {
+            //Update minimap
+            CurrentRoom.Entered = true;
+            CurrentRoom.Discovered = true;
+            Debug.WriteLine(CurrentPoint);
 
-			//Remove enemies near player.
-			CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
-			
-			//Update minimap
-			CurrentRoom.Entered = true;
-			CurrentRoom.Discovered = true;
+            //Return early if no acutal offset.
+            if (newRoomOffset == new Point(0, 0))
+            {
+				UpdateRoomConnectionData();
+                return;
+            }
 
-			for (int i = 0; i < 4; i++)
+            Game1.PManager.ClearPickups();
+            CurrentPoint += newRoomOffset;
+
+            //Remove enemies near player.
+            CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
+
+            //Update minimap
+            UpdateRoomConnectionData();
+
+            //Create enemies
+			//Normal room
+			if (!CurrentRoom.Cleared && !CurrentRoom.IsBossRoom)
 			{
-				if (CurrentRoom.ActualConnections[i] != null)
+				//Create enemies
+				Game1.EManager.CreateRoomEnemies(CurrentRoom);
+				//If no enemies created, set music to passive music
+				if (Game1.EManager.Enemies.Count == 0)
 				{
-					CurrentRoom.ActualConnections[i].Discovered = true;
+					SoundManager.ChangeBGM(1);
+					return;
 				}
+				//Otherwise, play battle music.
+				SoundManager.ChangeBGM(0);
+				return;
+			}
+			//Boss room
+			else if (CurrentRoom.IsBossRoom)
+			{
+				Game1.EManager.SpawnBoss(CurrentRoom);
+				SoundManager.ChangeBGM(0);
+				return;
 			}
 
-			if (!CurrentRoom.Cleared)
-			{
-				if (CurrentRoom.IsBossRoom)
-					Game1.EManager.SpawnBoss(CurrentRoom);
-				else
-					Game1.EManager.CreateRoomEnemies(CurrentRoom);
-			}
+			//Passive room
+			SoundManager.ChangeBGM(1);
+			return;
 			
 		}
+		#endregion
 
 		#region Debug methods
 		/// <summary>
-		/// Prints out Level Map to Debug.
+		/// Updates data about discovered and entered rooms.
 		/// </summary>
-		public void PrintLevel()
+		private void UpdateRoomConnectionData()
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (CurrentRoom.ActualConnections[i] != null)
+                {
+                    CurrentRoom.ActualConnections[i].Discovered = true;
+                }
+            }
+        }
+
+        #region Debug methods
+        /// <summary>
+        /// Prints out Level Map to Debug.
+        /// </summary>
+        public void PrintLevel()
 		{
 			for (int row = 0; row < Map.GetLength(0); row++)
 			{

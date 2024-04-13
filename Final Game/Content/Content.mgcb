@@ -47,6 +47,18 @@
 /processorParam:TextureFormat=Compressed
 /build:MediumArial.spritefont
 
+#begin Music/Battle_Music.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Battle_Music.wav
+
+#begin Music/Unholy_Ambience.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Unholy_Ambience.wav
+
 #begin PauseBackground.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -176,6 +188,18 @@
 /processorParam:Quality=Best
 /build:Sound Effects/pinKnock6.wav
 
+#begin Sound Effects/pinPunch.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sound Effects/pinPunch.wav
+
+#begin Sound Effects/playerdeath.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sound Effects/playerdeath.wav
+
 #begin Sound Effects/pool_break-105353.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -247,6 +271,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Boss.png
+
+#begin Sprites/bossarmattack.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/bossarmattack.png
 
 #begin Sprites/BrokenBlueSpritesheet.png
 /importer:TextureImporter

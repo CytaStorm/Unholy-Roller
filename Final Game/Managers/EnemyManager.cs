@@ -9,18 +9,21 @@ namespace Final_Game.Managers
 {
 	public class EnemyManager
     {
-        // Fields
-        private Texture2D _dummyImage;
+		#region Fields
+		private Texture2D _dummyImage;
         private Texture2D _gloveImage;
         private Game1 gm;
         private int _koedEnemies;
+		#endregion
 
-        // Properties
-        public List<Enemy> Enemies { get; private set; }
+		#region Properties
+		public List<Enemy> Enemies { get; private set; }
         public bool EnemiesInvincible { get; set; }
+        #endregion
 
         // Events
-        //public event EnemiesKilled OnLastEnemyKilled;
+        public delegate void EnemiesKilled();
+        public event EnemiesKilled OnLastEnemyKilled;
 
         // Constructors
 
@@ -34,8 +37,6 @@ namespace Final_Game.Managers
             Enemies = new List<Enemy>();
 
             // Create test enemies
-           //  PinMech testEnemy = new PinMech(gm, new Vector2(750f, 750f));
-            // Enemies.Add(testEnemy);
              //BasicPuncher testEnemy2 = new BasicPuncher(gm, new Vector2(500f, 200f));
              //Enemies.Add(testEnemy2);
              //BasicPuncher testEnemy3 = new BasicPuncher(gm, new Vector2(300f, 800f));
@@ -73,24 +74,22 @@ namespace Final_Game.Managers
                     _koedEnemies++;
                 }
 
-                // Remove dead enemies
-                if (!Enemies[i].Alive)
-                {
-                    Enemies.RemoveAt(i);
-                    i--;
-
-                    if (Enemies.Count == 0) { }
-                        //OnLastEnemyKilled();
-                }
-
-                //Enemies[i].InfiniteHealth = EnemiesInvincible;
-            }
+				Enemies[i].InfiniteHealth = EnemiesInvincible;
+				if (Enemies[i].Alive)
+				{
+                    continue;
+				}
+				// Remove dead enemies
+				Enemies.RemoveAt(i);
+				i--;
+             }
 
             // Remove all enemies if all are currently KO-ed
             if (Enemies.Count > 0 && _koedEnemies == Enemies.Count)
             {
                 Enemies.Clear();
 
+                OnLastEnemyKilled();
                 //OnLastEnemyKilled();
             }
         }

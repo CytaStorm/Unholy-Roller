@@ -1,4 +1,3 @@
-
 ﻿using Final_Game.Entity;
 using Final_Game.LevelGen;
 using Final_Game.Managers;
@@ -31,9 +30,6 @@ namespace Final_Game
 		private SpriteBatch _spriteBatch;
 
 		#region Fields
-
-		private Texture2D _playBackground;
-
 		/// <summary>
 		/// Level the player is currently on.
 		/// </summary>
@@ -179,12 +175,9 @@ namespace Final_Game
 		{
 			tilemaker = new TileMaker(Content);
 
-			TestLevel = new Level(10, 10, 25);
-
 			TutorialLevel = new Level(1, 1, 1);
 
-			CurrentLevel = TestLevel;
-			CurrentLevel.PrintLevel();
+			//Ensures that first room goes through room loading 
 
 			//Player = new Player(this, new Vector2(
 			//	TestLevel.CurrentRoom.Tileset.Width / 2,
@@ -205,8 +198,6 @@ namespace Final_Game
 			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 			_noRedirectCursorTexture = Content.Load<Texture2D>("Sprites/X_CursorSprite");
 
-			_playBackground = Content.Load<Texture2D>("PlayBackground4");
-
 			// Make Camera
 			MainCamera = new Camera(new Vector2(300, 300), 1f);
 
@@ -222,7 +213,6 @@ namespace Final_Game
 
 			//Setup sound manager.
 			SoundManager.LoadSoundFiles(Content);
-
 
 			// Create custom cursors
 			_gameplayCursor = MouseCursor.FromTexture2D(
@@ -250,7 +240,9 @@ namespace Final_Game
 
 			// Make any other subscriptions
 			Player.OnPlayerDeath += EnterGameOver;
+			EManager.OnLastEnemyKilled += SoundManager.PlayOutOfCombatSong;
 
+			SoundManager.PlayBGM();
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -263,6 +255,7 @@ namespace Final_Game
 			CurKB = Keyboard.GetState();
 
 			HandleDevToggle();
+
 
 			// Update game
 			switch (State)
@@ -329,13 +322,9 @@ namespace Final_Game
 			{
 				case GameState.Play:
 
-					// Draw Background
-					_spriteBatch.Draw(
-						_playBackground,
-						ScreenBounds,
-						Color.White);
-
 					CurrentLevel.CurrentRoom.Draw(_spriteBatch);
+
+					//FXManager.Draw(_spriteBatch);
 
 					Player.Draw(_spriteBatch);
 
@@ -486,8 +475,10 @@ namespace Final_Game
 			CurrentLevel = TestLevel;
 
 			Player.MoveToRoomCenter(CurrentLevel.StartRoom);
+			TestLevel.LoadRoomUsingOffset(new Point(0, 0));
 
 			State = GameState.Play;
+			_ui.LoadMinimap();
 			Mouse.SetCursor(_gameplayCursor);
 		}
 

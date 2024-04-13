@@ -248,6 +248,9 @@ namespace Final_Game.LevelGen
 				case (0, -1):
 					Tileset.RemoveEnemiesNearDoor(Tileset.Doors["East"]);
 					break;
+				case (0, 0):
+					Tileset.ClearEnemies();
+					break;
 				default:
 					throw new Exception("you shouldn't be here!");
 			}

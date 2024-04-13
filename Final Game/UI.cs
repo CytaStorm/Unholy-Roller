@@ -83,18 +83,9 @@ namespace Final_Game
 
 		// Constructors
 		public UI(Game1 gm, SpriteBatch sb)
-		{
-			_gm = gm;
-			_spriteBatch = sb;
-
-			// Minimap
-			_defaultRoomSize = 20;
-			_minimapScale = 0.1f;
-			_minimapPos = new Point(
-				Game1.ScreenBounds.Right - Game1.CurrentLevel.Map.GetLength(0) 
-				* _defaultRoomSize - 150,
-				50);
-
+        {
+            _gm = gm;
+            _spriteBatch = sb;
 
 			// Load Backgrounds
 			_blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
@@ -753,7 +744,22 @@ namespace Final_Game
 			return;
 		}
 
-		#endregion
+        #endregion
+
+        #region Minimap Methods
+        /// <summary>
+        /// Loads minimap.
+        /// </summary>
+        public void LoadMinimap()
+        {
+            // Minimap
+            _defaultRoomSize = 20;
+            _minimapScale = 0.1f;
+            _minimapPos = new Point(
+                Game1.ScreenBounds.Right - Game1.CurrentLevel.Map.GetLength(0)
+                * _defaultRoomSize - 150,
+                50);
+        }
 
 		/// <summary>
 		/// Draws a simplified representation of the map,
@@ -815,6 +821,7 @@ namespace Final_Game
 			}
 			return;
 		}
+		#endregion
 
 		public void DisplayRedirectsInCursor()
 		{

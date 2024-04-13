@@ -383,7 +383,9 @@ namespace Final_Game
 			// Reset Entites
 			Player.Reset();
 
+			Debug.WriteLine("reset");
 			EManager.Clear();
+			SoundManager.PlayOutOfCombatSong();
 		}
 
 		private void EnterGameOver()

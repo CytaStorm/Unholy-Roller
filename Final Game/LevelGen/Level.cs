@@ -264,25 +264,26 @@ namespace Final_Game.LevelGen
             UpdateRoomConnectionData();
 
             //Create enemies
-			//Normal room
-			if (!CurrentRoom.Cleared && !CurrentRoom.IsBossRoom)
+			if (!CurrentRoom.Cleared)
 			{
-				//Create enemies
+				if (CurrentRoom.IsBossRoom)
+				{
+                    Game1.EManager.SpawnBoss(CurrentRoom);
+                    SoundManager.ChangeBGM(0);
+					return;
+                }
+
+				//Create normal enemies
 				Game1.EManager.CreateRoomEnemies(CurrentRoom);
+
 				//If no enemies created, set music to passive music
 				if (Game1.EManager.Enemies.Count == 0)
 				{
 					SoundManager.ChangeBGM(1);
 					return;
 				}
+
 				//Otherwise, play battle music.
-				SoundManager.ChangeBGM(0);
-				return;
-			}
-			//Boss room
-			else if (CurrentRoom.IsBossRoom)
-			{
-				Game1.EManager.SpawnBoss(CurrentRoom);
 				SoundManager.ChangeBGM(0);
 				return;
 			}

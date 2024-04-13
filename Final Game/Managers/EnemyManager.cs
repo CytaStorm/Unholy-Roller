@@ -88,7 +88,6 @@ namespace Final_Game.Managers
             if (Enemies.Count > 0 && _koedEnemies == Enemies.Count)
             {
                 Enemies.Clear();
-                Game1.IManager.Clear();
 
                 OnLastEnemyKilled();
                 //OnLastEnemyKilled();

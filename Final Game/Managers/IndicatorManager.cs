@@ -22,11 +22,10 @@ namespace Final_Game
         }
         public void Update(GameTime gameTime)
         {
-            for(int i = 0; i< Indicators.Count; i++)
+            for(int i = 0; i < Indicators.Count; i++)
             {
                 if (Indicators[i].Update(gameTime))
                 {
-                    
                     Indicators.RemoveAt(i);
                 }
             }

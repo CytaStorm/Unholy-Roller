@@ -9,7 +9,7 @@ using System.Transactions;
 
 namespace Final_Game.Entity
 {
-	internal class TrailParticle : Entity
+	public class TrailParticle : Entity
 	{
         #region Fields
         private double _lifeTime;

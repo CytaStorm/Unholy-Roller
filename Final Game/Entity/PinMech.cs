@@ -131,7 +131,7 @@ namespace Final_Game.Entity
 			_attackForce = 15f;
 			_attackDuration = 0.2;
 			_attackDurationTimer = 0.0;
-			_attackRadius = Game1.TileSize;
+			_attackRadius = Game1.TileSize * 2f;
 			_attackRange = Game1.TileSize;
 			_attackWindupDuration = 0.25;
 			_attackWindupTimer = _attackWindupDuration;
@@ -679,10 +679,12 @@ namespace Final_Game.Entity
 				if (_attackDirection.X < 0)
 				{
 					Debug.WriteLine("Player to the left");
+					_regularArmRight.Draw(sb, screenPos + _rightArmOffset, 0f, Vector2.Zero);
 				}
 				else
 				{
 					Debug.WriteLine("Player to the right");
+					_regularArmLeft.Draw(sb, screenPos, 0f, Vector2.Zero);
 				}
 				// Draw glove
 				_gloveImages.Draw(
@@ -720,10 +722,12 @@ namespace Final_Game.Entity
 			if (_attackDirection.X < 0)
 			{
 				Debug.WriteLine("Player to the left");
+				_regularArmRight.Draw(sb, screenPos + _rightArmOffset, 0f, Vector2.Zero);
 			}
 			else
 			{
 				Debug.WriteLine("Player to the right");
+				_regularArmLeft.Draw(sb, screenPos, 0f, Vector2.Zero);
 			}
 
 			// Draw glove

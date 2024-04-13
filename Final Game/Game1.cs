@@ -267,6 +267,12 @@ namespace Final_Game
 			// Update game
 			switch (State)
 			{
+				case GameState.Menu:
+					if (SingleKeyPress(Keys.D0))
+						Player.ToggleLeftHandMouse();
+
+					break;
+
 				case GameState.Play:
 					Player.Update(gameTime);
 
@@ -404,12 +410,37 @@ namespace Final_Game
 		}
 
 		#region Mouse Wrapper Methods
-		public static bool IsMouseLeftClicked()
+		public static bool IsMouseButtonClicked(int buttonNum)
 		{
+
+			ButtonState pressedInCurFrame = ButtonState.Released;
+			ButtonState releasedInPrevFrame = ButtonState.Released;
+
+			switch (buttonNum)
+			{
+				case 1:
+					pressedInCurFrame = CurMouse.LeftButton;
+					releasedInPrevFrame = PrevMouse.LeftButton;
+					break;
+
+				case 2:
+                    pressedInCurFrame = CurMouse.RightButton;
+                    releasedInPrevFrame = PrevMouse.RightButton;
+                    break;
+
+				case 3:
+                    pressedInCurFrame = CurMouse.MiddleButton;
+                    releasedInPrevFrame = PrevMouse.MiddleButton;
+                    break;
+
+				default:
+					return false;
+			}
+
 			return
 				MouseIsOnScreen &&
-				CurMouse.LeftButton == ButtonState.Released &&
-				PrevMouse.LeftButton == ButtonState.Pressed;
+				pressedInCurFrame == ButtonState.Released &&
+				releasedInPrevFrame == ButtonState.Pressed;
 		}
 
 		public static bool IsMouseButtonPressed(int buttonNum)

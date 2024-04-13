@@ -391,6 +391,21 @@ namespace Final_Game
 				Game1.ScreenBounds,
 				Color.White);
 
+			string mouseSetting = "";
+			if (Game1.Player.LaunchButton == 1)
+			{
+				mouseSetting = "Right-Handed";
+			}
+			else
+				mouseSetting = "Left-Handed";
+
+
+			_spriteBatch.DrawString(
+				MediumArial,
+				$"Mouse Setting:\n{mouseSetting}",
+				new Vector2(1600, 950),
+				Color.Black);
+
 			// Draw Title
 			//string titleText = "UnHoly Roller";
 			//Vector2 titleMeasure = TitleCaseArial.MeasureString(titleText);

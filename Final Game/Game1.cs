@@ -325,7 +325,7 @@ namespace Final_Game
 			// Only Draw Game if Game Window has focus
 			if (!this.IsActive) return;
 
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(Color.Black);
 
 			_spriteBatch.Begin();
             

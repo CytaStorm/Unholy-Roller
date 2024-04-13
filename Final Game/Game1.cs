@@ -91,6 +91,10 @@ namespace Final_Game
 		// Backgrounds
 		private Texture2D _playBackground;
 
+		// Cheats
+		public Point MapDims { get; private set; } = new Point(3, 3);
+		public int NumRoomsInMap { get; private set; } = 5;
+
 		#endregion
 
 		#region Properties
@@ -513,7 +517,7 @@ namespace Final_Game
 		private void StartGame()
 		{
 			// Make a new level
-			TestLevel = new Level(5, 5, 10);
+			TestLevel = new Level(MapDims.X, MapDims.Y, NumRoomsInMap);
 
 			CurrentLevel = TestLevel;
 
@@ -576,6 +580,33 @@ namespace Final_Game
 			// Toggle Infinite Enemy Health
 			if (SingleKeyPress(Keys.D6))
 				EManager.EnemiesInvincible = !EManager.EnemiesInvincible;
+
+
+			if (State == GameState.Menu)
+			{
+				// Change Map Dimensions
+				if (SingleKeyPress(Keys.Up))
+				{
+					MapDims = new Point(
+						MapDims.X + 1,
+						MapDims.Y + 1);
+				}
+				if (SingleKeyPress(Keys.Down) && MapDims.X > 1)
+				{
+					MapDims = new Point(
+						MapDims.X - 1,
+						MapDims.Y - 1);
+				}
+
+				if (SingleKeyPress(Keys.Right))
+				{
+					NumRoomsInMap++;
+				}
+				if (SingleKeyPress(Keys.Left) && NumRoomsInMap > 1)
+				{
+					NumRoomsInMap--;
+				}
+			}
 		}
 
 		private void DrawDebug()

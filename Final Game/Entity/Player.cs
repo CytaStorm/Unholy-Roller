@@ -123,9 +123,6 @@ namespace Final_Game.Entity
         public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
-		// Constructors
-		
-
 		#region Constructor(s)
 
 		public Player(Game1 gm, Vector2 worldPosition)
@@ -339,21 +336,7 @@ namespace Final_Game.Entity
 			{
 				Enemy curEnemy = Game1.EManager.Enemies[i];
 
-				//Test if Hitstop needs to be applied.
-				canBeTriggered = lastContactedEnemy != curEnemy;
-				if (CollisionChecker.CheckEntityCollision(this, curEnemy) &&
-					canBeTriggered &&
-					State == PlayerState.Rolling)
-				{
-					TriggerHitStop();
-					Managers.SoundManager.PlayHitSound();
-					lastContactedEnemy = curEnemy;
-					continue;
-				}
-
-				//Otherwise, hitstop doesn't need to be applied
-				//and will be available to apply to the next enemy.
-				canBeTriggered = true;
+				CollisionChecker.CheckEntityCollision(this, curEnemy);
 			}
 			return;
 		}
@@ -388,8 +371,10 @@ namespace Final_Game.Entity
 
 			if (State == PlayerState.Rolling)
 			{
-				// Speed up
-				Vector2 acc = Velocity;
+                Managers.SoundManager.PlayHitSound();
+
+                // Speed up
+                Vector2 acc = Velocity;
 				acc.Normalize();
 				acc *= 0.25f;
 				Accelerate(acc);
@@ -399,8 +384,14 @@ namespace Final_Game.Entity
 				{
 					NumRedirects++; 
 				}
+
+				// Increase Combo
 				Combo++;
 				_comboResetDuration = 5f;
+
+				TriggerHitStop();
+
+				// Deal damage to enemy
 				hitEnemy.TakeDamage(Damage);
 				return;
 			}

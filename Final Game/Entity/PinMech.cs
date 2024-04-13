@@ -77,7 +77,7 @@ namespace Final_Game.Entity
 			// Set Vitality
 			MaxHealth = 15;
 			CurHealth = MaxHealth;
-			InvDuration = 0.5;
+			InvDuration = 0.7;
 			InvTimer = InvDuration;
 			debugState = "idle";
 

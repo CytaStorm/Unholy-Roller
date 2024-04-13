@@ -813,7 +813,7 @@ namespace Final_Game
 				Color boxColor = Color.Black;
 				if (curRoom.Entered)
 					boxColor = Color.Gray;
-				if (curRoom == Game1.TestLevel.CurrentRoom)
+				if (curRoom == Game1.CurrentLevel.CurrentRoom)
 					boxColor = Color.White;
 				else if (curRoom.IsBossRoom)
 					boxColor = Color.Gold;

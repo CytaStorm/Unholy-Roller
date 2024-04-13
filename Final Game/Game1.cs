@@ -1,5 +1,7 @@
+
 ﻿using Final_Game.Entity;
 using Final_Game.LevelGen;
+using Final_Game.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,10 +13,10 @@ using System.Runtime.CompilerServices;
 
 namespace Final_Game
 {
-    /// <summary>
-    /// Which state the game is in.
-    /// </summary>
-    public enum GameState
+	/// <summary>
+	/// Which state the game is in.
+	/// </summary>
+	public enum GameState
 	{
 		Menu,
 		Play,
@@ -84,20 +86,16 @@ namespace Final_Game
 		/// </summary>
 		public static int WindowHeight = 1080;
 
-        // Cutscenes
-        public static CutsceneManager CSManager { get; private set; }
+		// Cutscenes
+		public static CutsceneManager CSManager { get; private set; }
+		#endregion
 
-		// Play Background
-		private Texture2D _playBackground;
-
-        #endregion
-
-        #region Properties
-        // Screen
-        /// <summary>
-        /// Rectangle respresenting the bounds of the screen, in pixels.
-        /// </summary>
-        public static Rectangle ScreenBounds =>
+		#region Properties
+		// Screen
+		/// <summary>
+		/// Rectangle respresenting the bounds of the screen, in pixels.
+		/// </summary>
+		public static Rectangle ScreenBounds =>
 				new Rectangle(0, 0, WindowWidth, WindowHeight);
 
 		/// <summary>
@@ -154,6 +152,8 @@ namespace Final_Game
 		//Sound Manager 
 		public static SoundManager SManager { get; private set; }
 
+		public static ParticleTrailManager FXManager { get; private set; }
+
 		public static Camera MainCamera { get; private set; }
 
 		public static bool DebugOn { get; private set; }
@@ -190,7 +190,7 @@ namespace Final_Game
 
 			// Set default game state
 			State = GameState.Menu;
-      
+	  
 			//Load in first level content.
 			//TestLevel.LoadRoomUsingOffset(new Point(0, 0));
 			base.Initialize();
@@ -202,8 +202,6 @@ namespace Final_Game
 			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 			_noRedirectCursorTexture = Content.Load<Texture2D>("Sprites/X_CursorSprite");
 
-			_playBackground = Content.Load<Texture2D>("PlayBackground4");
-
 			// Make Camera
 			MainCamera = new Camera(new Vector2(300, 300), 1f);
 
@@ -214,8 +212,12 @@ namespace Final_Game
 			EManager = new EnemyManager(this);
 			PManager = new PickupManager(this);
 
-			//Create Sound Manager
-			SManager = new SoundManager(Content);
+			//Create FX Manager
+			FXManager = new ParticleTrailManager(0.3f);
+
+			//Setup sound manager.
+			SoundManager.LoadSoundFiles(Content);
+
 
 			// Create custom cursors
 			_gameplayCursor = MouseCursor.FromTexture2D(
@@ -235,6 +237,7 @@ namespace Final_Game
 			// Create Cutscene Manager
 			CSManager = new CutsceneManager(this);
 
+			//Indicator
 			IManager = new IndicatorManager(this);
 
 			// Hook Up Buttons
@@ -277,6 +280,8 @@ namespace Final_Game
 
 					PManager.Update(gameTime);
 
+					FXManager.Update(gameTime);
+
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
 
@@ -307,7 +312,7 @@ namespace Final_Game
 			// Only Draw Game if Game Window has focus
 			if (!this.IsActive) return;
 
-			GraphicsDevice.Clear(Color.Black);
+			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			_spriteBatch.Begin();
             
@@ -317,13 +322,9 @@ namespace Final_Game
 			{
 				case GameState.Play:
 
-					// Draw Background
-					_spriteBatch.Draw(
-						_playBackground,
-						ScreenBounds,
-						Color.White);
-
 					CurrentLevel.CurrentRoom.Draw(_spriteBatch);
+
+					FXManager.Draw(_spriteBatch);
 
 					Player.Draw(_spriteBatch);
 
@@ -466,10 +467,10 @@ namespace Final_Game
 
 		private void StartGame()
 		{
-            // Make a new level
-            TestLevel = new Level(5, 5, 10);
+			// Make a new level
+			TestLevel = new Level(5, 5, 10);
 
-            CurrentLevel = TestLevel;
+			CurrentLevel = TestLevel;
 
 			Player.MoveToRoomCenter(CurrentLevel.StartRoom);
 
@@ -518,17 +519,17 @@ namespace Final_Game
 		private void HandleDevToggle()
 		{
 			// Toggle Debug Drawing
-            if (SingleKeyPress(Keys.D4)) DebugOn = !DebugOn;
+			if (SingleKeyPress(Keys.D4)) DebugOn = !DebugOn;
 
 			if (!DebugOn) return;
 
 			// Toggle Infinite Player Health
-            if (SingleKeyPress(Keys.D5)) Player.InfiniteHealth = !Player.InfiniteHealth;
+			if (SingleKeyPress(Keys.D5)) Player.InfiniteHealth = !Player.InfiniteHealth;
 
 			// Toggle Infinite Enemy Health
 			if (SingleKeyPress(Keys.D6))
 				EManager.EnemiesInvincible = !EManager.EnemiesInvincible;
-        }
+		}
 
 		private void DrawDebug()
 		{
@@ -539,7 +540,7 @@ namespace Final_Game
 
 			PManager.DrawGizmos();
 
-            _ui.DisplayRedirectsInCursor();
-        }
-    }
+			_ui.DisplayRedirectsInCursor();
+		}
+	}
 }

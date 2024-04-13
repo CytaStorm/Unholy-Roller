@@ -8,10 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 using System.Security.Cryptography;
+using Final_Game.Managers;
 
 namespace Final_Game.Entity
 {
-	public enum BossState
+    public enum BossState
 	{
 		PinThrow,
 		PinBombs,

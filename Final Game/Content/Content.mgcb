@@ -260,7 +260,7 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/BlueBallSpritesheet.png
 
-#begin Sprites/Boss.png
+#begin Sprites/boss.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -270,7 +270,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/Boss.png
+/build:Sprites/boss.png
 
 #begin Sprites/bossarmattack.png
 /importer:TextureImporter
@@ -283,6 +283,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/bossarmattack.png
+
+#begin Sprites/bossregulararm.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/bossregulararm.png
 
 #begin Sprites/BrokenBlueSpritesheet.png
 /importer:TextureImporter

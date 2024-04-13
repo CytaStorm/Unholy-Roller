@@ -87,55 +87,6 @@ namespace Final_Game
             _gm = gm;
             _spriteBatch = sb;
 
-            // Load Backgrounds
-            _blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
-
-            // Load Icons
-            _comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
-
-            // Load Health Images
-            _blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
-            _brokenBallSpriteWidth = 360;
-
-            // Setup Player Speedometer
-            _speedometerPin = _gm.Content.Load<Texture2D>("SpeedometerPin");
-            _speedometerCrest = _gm.Content.Load<Texture2D>("SpeedometerCrest");
-            _maxSpeedometerSpeed = 60f;
-
-            // Gameover Assets
-            Texture2D deadBallTexture = _gm.Content.Load<Texture2D>("Sprites/DeadBall");
-            _deadBall = new Sprite(
-                deadBallTexture,
-                deadBallTexture.Bounds,
-                new Rectangle(
-                    0, 0,
-                    deadBallTexture.Width * 3 / 4, deadBallTexture.Width * 3 / 4));
-            _deadBall.ObeyCamera = false;
-            _maxHoverOffset = 50f;
-            _hoverDuration = 2;
-
-            // Load Fonts
-            TitleCaseArial = _gm.Content.Load<SpriteFont>("TitleCaseArial");
-            MediumArial = _gm.Content.Load<SpriteFont>("MediumArial");
-
-            // Setup effects
-            _maxShakeMagnitude = 15f;
-            _maxShakeMultiplier = 3f;
-            _maxShakeOffset = new Vector2(_maxShakeMagnitude, _maxShakeMagnitude);
-            _shakeDuration = 0.5;
-
-            CreateButtons();
-
-            CreateSliders();
-
-            SubscribeToEntities();
-        }
-
-
-<<<<<<< HEAD
-        // Methods
-        public void Update(GameTime gameTime)
-=======
 			// Load Backgrounds
 			_blankPanel = _gm.Content.Load<Texture2D>("BlankPanel");
 			_titleBackground = _gm.Content.Load<Texture2D>("TitleBackground");
@@ -187,7 +138,6 @@ namespace Final_Game
 
 		// Methods
 		public void Update(GameTime gameTime)
->>>>>>> main
 		{
 			switch (_gm.State)
 			{

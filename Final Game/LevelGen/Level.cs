@@ -262,40 +262,32 @@ namespace Final_Game.LevelGen
 
             //Update minimap
             UpdateRoomConnectionData();
-            //Create enemies
-            if (!CurrentRoom.Cleared)
-            {
-                Game1.EManager.CreateRoomEnemies(CurrentRoom);
-				if (Game1.EManager.Enemies.Count > 0)
-				{
-					SoundManager.ChangeBGM(0);
-					return;
-				}
-				SoundManager.ChangeBGM(1);
-				return;
-            }
-			return;
-        }
 
-<<<<<<< HEAD
-=======
+            //Create enemies
 			if (!CurrentRoom.Cleared && !CurrentRoom.IsBossRoom)
 			{
 				Game1.EManager.CreateRoomEnemies(CurrentRoom);
+				SoundManager.ChangeBGM(0);
+				return;
 			}
 			else if (CurrentRoom.IsBossRoom)
 			{
 				Game1.EManager.SpawnBoss(CurrentRoom);
+				SoundManager.ChangeBGM(0);
+				return;
 			}
+
+			SoundManager.ChangeBGM(1);
+			return;
 			
 		}
+		#endregion
 
 		#region Debug methods
->>>>>>> main
 		/// <summary>
 		/// Updates data about discovered and entered rooms.
 		/// </summary>
-        private void UpdateRoomConnectionData()
+		private void UpdateRoomConnectionData()
         {
             for (int i = 0; i < 4; i++)
             {

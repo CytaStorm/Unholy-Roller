@@ -257,10 +257,15 @@ namespace Final_Game.LevelGen
             if (!CurrentRoom.Cleared)
             {
                 Game1.EManager.CreateRoomEnemies(CurrentRoom);
-                SoundManager.ChangeBGM(0);
+				if (Game1.EManager.Enemies.Count > 0)
+				{
+					SoundManager.ChangeBGM(0);
+					return;
+				}
+				SoundManager.ChangeBGM(1);
+				return;
             }
-
-            //Change song
+			return;
         }
 
 		/// <summary>

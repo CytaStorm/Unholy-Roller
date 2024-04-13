@@ -9,18 +9,21 @@ namespace Final_Game.Managers
 {
 	public class EnemyManager
     {
-        // Fields
-        private Texture2D _dummyImage;
+		#region Fields
+		private Texture2D _dummyImage;
         private Texture2D _gloveImage;
         private Game1 gm;
         private int _koedEnemies;
+		#endregion
 
-        // Properties
-        public List<Enemy> Enemies { get; private set; }
+		#region Properties
+		public List<Enemy> Enemies { get; private set; }
         public bool EnemiesInvincible { get; set; }
+        #endregion
 
         // Events
-        //public event EnemiesKilled OnLastEnemyKilled;
+        public delegate void EnemiesKilled();
+        public event EnemiesKilled OnLastEnemyKilled;
 
         // Constructors
 
@@ -69,17 +72,15 @@ namespace Final_Game.Managers
                     _koedEnemies++;
                 }
 
-                // Remove dead enemies
-                if (!Enemies[i].Alive)
-                {
-                    Enemies.RemoveAt(i);
-                    i--;
+				Enemies[i].InfiniteHealth = EnemiesInvincible;
+				if (Enemies[i].Alive)
+				{
+                    continue;
+				}
 
-                    if (Enemies.Count == 0) { }
-                        //OnLastEnemyKilled();
-                }
-
-                Enemies[i].InfiniteHealth = EnemiesInvincible;
+				// Remove dead enemies
+				Enemies.RemoveAt(i);
+				i--;
             }
 
             // Remove all enemies if all are currently KO-ed
@@ -88,6 +89,7 @@ namespace Final_Game.Managers
                 Enemies.Clear();
                 Game1.IManager.Clear();
 
+                OnLastEnemyKilled();
                 //OnLastEnemyKilled();
             }
         }

@@ -240,6 +240,7 @@ namespace Final_Game
 
 			// Make any other subscriptions
 			Player.OnPlayerDeath += EnterGameOver;
+			EManager.OnLastEnemyKilled += SoundManager.PlayOutOfCombatSong;
 
 			SoundManager.PlayBGM();
 		}

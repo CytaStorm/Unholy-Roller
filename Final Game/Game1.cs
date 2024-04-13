@@ -151,7 +151,7 @@ namespace Final_Game
 		//Sound Manager 
 		public static SoundManager SManager { get; private set; }
 
-		public static TrailParticle FXManager { get; private set; }
+		public static ParticleTrailManager FXManager { get; private set; }
 
 		public static Camera MainCamera { get; private set; }
 
@@ -209,7 +209,7 @@ namespace Final_Game
 			PManager = new PickupManager(this);
 
 			//Create FX Manager
-			//FXManager = new SpeedFXManager(1f);
+			FXManager = new ParticleTrailManager(0.3f);
 
 			//Setup sound manager.
 			SoundManager.LoadSoundFiles(Content);
@@ -280,7 +280,7 @@ namespace Final_Game
 
 					PManager.Update(gameTime);
 
-					//FXManager.Update(gameTime);
+					FXManager.Update(gameTime);
 
 					if (SingleKeyPress(Keys.Escape))
 						PauseGame(true);
@@ -328,7 +328,7 @@ namespace Final_Game
 
 					Player.Draw(_spriteBatch);
 
-					//FXManager.Draw(_spriteBatch);
+					FXManager.Draw(_spriteBatch);
 
                     EManager.Draw(_spriteBatch);
 

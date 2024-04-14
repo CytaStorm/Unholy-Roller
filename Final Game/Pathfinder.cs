@@ -12,12 +12,12 @@ namespace Final_Game
     public class Pathfinder
     {
         private Tile[,] layout;
-        private int tileSize; // 假设有一个字段来存储每个格子的大小
+        private int tileSize; 
 
         public Pathfinder(Tile[,] layout, int tileSize)
         {
             this.layout = layout;
-            this.tileSize = tileSize; // 添加 tileSize 作为参数
+            this.tileSize = tileSize;
         }
 
         private bool IsWalkable(Point point)
@@ -31,9 +31,7 @@ namespace Final_Game
 
         private List<Point> GetNeighbors(Point point)
         {
-            var neighbors = new List<Point>();
-
-            
+            var neighbors = new List<Point>();            
             var potentialNeighbors = new Point[]
             {
             new Point(point.X + 1, point.Y),
@@ -129,12 +127,12 @@ namespace Final_Game
 
             path.Reverse();
 
-            float maxStepDistance = 20.0f;
+            float maxStepDistance = 80.0f;
             List<Vector2> smoothPath = SmoothPath(path, maxStepDistance);
 
             if (smoothPath.Count > 1)
             {
-                /*
+                
                 if (currentWorldPosition.X < smoothPath[smoothPath.Count - 1].X)
                  {
                      for (int i = 0; i < smoothPath.Count; i++)
@@ -170,7 +168,7 @@ namespace Final_Game
                              }
                          }
                      }
-                  */
+                  
              
                     for (int i = 0; i < smoothPath.Count; i++)
                     {

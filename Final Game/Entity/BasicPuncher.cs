@@ -303,7 +303,7 @@ namespace Final_Game.Entity
 
                 float distanceToNextStep = direction.Length();
 
-                float closeEnoughDistance = 3f; 
+                float closeEnoughDistance = 0.2f; 
                 if (distanceToNextStep > closeEnoughDistance)
                 {
                     direction.Normalize();

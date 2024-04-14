@@ -79,6 +79,10 @@ namespace Final_Game.Entity
 		private int _rollFrameWidth;
 		private float _directionToFace;
 
+		// Keybinds
+		public int LaunchButton { get; set; } = 1;
+		public int BrakeButton { get; set; } = 2;
+
 		private Game1 _gm;
 
 		#endregion
@@ -115,16 +119,13 @@ namespace Final_Game.Entity
         public int MaxRedirects { get; private set; }
 
         public bool LaunchPrimed { 
-			get => Game1.IsMouseButtonPressed(1) && NumRedirects > 0; 
+			get => Game1.IsMouseButtonPressed(LaunchButton) && NumRedirects > 0; 
 		}
 
         #endregion
 
         public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
-
-		// Constructors
-		
 
 		#region Constructor(s)
 
@@ -339,21 +340,7 @@ namespace Final_Game.Entity
 			{
 				Enemy curEnemy = Game1.EManager.Enemies[i];
 
-				//Test if Hitstop needs to be applied.
-				canBeTriggered = lastContactedEnemy != curEnemy;
-				if (CollisionChecker.CheckEntityCollision(this, curEnemy) &&
-					canBeTriggered &&
-					State == PlayerState.Rolling)
-				{
-					TriggerHitStop();
-					Managers.SoundManager.PlayHitSound();
-					lastContactedEnemy = curEnemy;
-					continue;
-				}
-
-				//Otherwise, hitstop doesn't need to be applied
-				//and will be available to apply to the next enemy.
-				canBeTriggered = true;
+				CollisionChecker.CheckEntityCollision(this, curEnemy);
 			}
 			return;
 		}
@@ -388,8 +375,10 @@ namespace Final_Game.Entity
 
 			if (State == PlayerState.Rolling)
 			{
-				// Speed up
-				Vector2 acc = Velocity;
+                Managers.SoundManager.PlayHitSound();
+
+                // Speed up
+                Vector2 acc = Velocity;
 				acc.Normalize();
 				acc *= 0.25f;
 				Accelerate(acc);
@@ -399,8 +388,14 @@ namespace Final_Game.Entity
 				{
 					NumRedirects++; 
 				}
+
+				// Increase Combo
 				Combo++;
 				_comboResetDuration = 5f;
+
+				TriggerHitStop();
+
+				// Deal damage to enemy
 				hitEnemy.TakeDamage(Damage);
 				return;
 			}
@@ -459,22 +454,26 @@ namespace Final_Game.Entity
 			Velocity = Vector2.Zero;
 	
 			// Move up
-			if (kb.IsKeyDown(Keys.W))
+			if (kb.IsKeyDown(Keys.W) ||
+				kb.IsKeyDown(Keys.Up))
 			{
 				Velocity = new Vector2(Velocity.X, Velocity.Y - _walkSpeed);
 			}
 			// Move down
-			if (kb.IsKeyDown(Keys.S))
+			if (kb.IsKeyDown(Keys.S) ||
+                kb.IsKeyDown(Keys.Down))
 			{
 				Velocity = new Vector2(Velocity.X, Velocity.Y + _walkSpeed);
 			}
 			// Move left
-			if (kb.IsKeyDown(Keys.A))
+			if (kb.IsKeyDown(Keys.A) ||
+                kb.IsKeyDown(Keys.Left))
 			{
 				Velocity = new Vector2(Velocity.X - _walkSpeed, Velocity.Y);
 			}
 			// Move right
-			if (kb.IsKeyDown(Keys.D))
+			if (kb.IsKeyDown(Keys.D) ||
+                kb.IsKeyDown(Keys.Right))
 			{
 				Velocity = new Vector2(Velocity.X + _walkSpeed, Velocity.Y);
 			}
@@ -489,7 +488,7 @@ namespace Final_Game.Entity
 		private void HandleLaunch()
 		{
 			// Launch Player in direction of Mouse
-			if (NumRedirects > 0 && Game1.IsMouseLeftClicked())
+			if (NumRedirects > 0 && Game1.IsMouseButtonClicked(LaunchButton))
 			{
 				// Get mouse Position
 				Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
@@ -527,7 +526,7 @@ namespace Final_Game.Entity
 		{
 			float lowestBrakableSpeed = 0.1f * 0.1f;
 	
-			if (Game1.IsMouseButtonPressed(2) && 
+			if (Game1.IsMouseButtonPressed(BrakeButton) && 
 				Velocity.LengthSquared() >= lowestBrakableSpeed)
 			{
 				Vector2 deceleration = -Velocity;
@@ -796,9 +795,16 @@ namespace Final_Game.Entity
 			return;
 		}
 
-		public void TriggerHitStop()
+		private void TriggerHitStop()
 		{
 			hitStopTimeRemaining = hitStopDuration;
+		}
+
+		public void ToggleLeftHandMouse()
+		{
+			int temp = LaunchButton;
+			LaunchButton = BrakeButton;
+			BrakeButton = temp;
 		}
 
 		/// <summary>

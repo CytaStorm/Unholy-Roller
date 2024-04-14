@@ -77,18 +77,18 @@ namespace Final_Game
 			// Check if under Mouse
 			if (Bounds.Contains(Game1.CurMouse.Position))
 			{   
-				if (Game1.IsMouseLeftClicked())
+				if (Game1.IsMouseButtonClicked(Game1.Player.LaunchButton))
 				{
 					// Do something
 					if (OnClicked != null) OnClicked();
 				}
 
-				if (Game1.IsMouseButtonPressed(1))
+				if (Game1.IsMouseButtonPressed(Game1.Player.LaunchButton))
 				{
 					_curImage = _pressedImage;
 					_curImageTint = PressTint;
 				}
-				else if (Game1.IsMouseButtonReleased(1))
+				else if (Game1.IsMouseButtonReleased(Game1.Player.LaunchButton))
 				{
 					_curImage = _hoverImage;
 					_curImageTint = HoverTint;

@@ -1,9 +1,12 @@
 ﻿using Final_Game;
 using Final_Game.Entity;
 using Final_Game.LevelGen;
+using Final_Game.Managers;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -163,6 +166,7 @@ namespace Final_Game
 					break;
 
 				case GameState.GameOver:
+					MediaPlayer.Stop();
 
 					// Oscillate dead bowling ball
 					if (hoverUp)
@@ -246,7 +250,9 @@ namespace Final_Game
 					"Dev Cheats:\n" +
 					$"D4 - Toggle Debug: {Game1.DebugOn}\n" +
 					$"D5 - Infinite Health: {Game1.Player.InfiniteHealth}\n" +
-					$"D6 - Infinite E_Health: {Game1.EManager.EnemiesInvincible}",
+					$"D6 - Infinite E_Health: {Game1.EManager.EnemiesInvincible}\n" +
+					$"Up/Down Change Next Map Dims: {_gm.MapDims}\n" +
+					$"Left/Right Change Next Map Num Rooms: {_gm.NumRoomsInMap}",
 					new Vector2(50f, 500f),
 					Color.White);
 			}
@@ -386,6 +392,21 @@ namespace Final_Game
 				_titleBackground,
 				Game1.ScreenBounds,
 				Color.White);
+
+			string mouseSetting = "";
+			if (Game1.Player.LaunchButton == 1)
+			{
+				mouseSetting = "Right-Handed";
+			}
+			else
+				mouseSetting = "Left-Handed";
+
+
+			_spriteBatch.DrawString(
+				MediumArial,
+				$"Mouse Setting:\n{mouseSetting}",
+				new Vector2(1600, 950),
+				Color.Black);
 
 			// Draw Title
 			//string titleText = "UnHoly Roller";
@@ -809,7 +830,7 @@ namespace Final_Game
 				Color boxColor = Color.Black;
 				if (curRoom.Entered)
 					boxColor = Color.Gray;
-				if (curRoom == Game1.TestLevel.CurrentRoom)
+				if (curRoom == Game1.CurrentLevel.CurrentRoom)
 					boxColor = Color.White;
 				else if (curRoom.IsBossRoom)
 					boxColor = Color.Gold;

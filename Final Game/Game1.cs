@@ -87,6 +87,14 @@ namespace Final_Game
 
 		// Cutscenes
 		public static CutsceneManager CSManager { get; private set; }
+
+		// Backgrounds
+		private Texture2D _playBackground;
+
+		// Cheats
+		public Point MapDims { get; private set; } = new Point(3, 3);
+		public int NumRoomsInMap { get; private set; } = 5;
+
 		#endregion
 
 		#region Properties
@@ -198,6 +206,9 @@ namespace Final_Game
 			_cursorTexture = Content.Load<Texture2D>("Sprites/CursorSprite");
 			_noRedirectCursorTexture = Content.Load<Texture2D>("Sprites/X_CursorSprite");
 
+			// Load Backgrounds
+			_playBackground = Content.Load<Texture2D>("PlayBackground4");
+
 			// Make Camera
 			MainCamera = new Camera(new Vector2(300, 300), 1f);
 
@@ -260,6 +271,12 @@ namespace Final_Game
 			// Update game
 			switch (State)
 			{
+				case GameState.Menu:
+					if (SingleKeyPress(Keys.D0))
+						Player.ToggleLeftHandMouse();
+
+					break;
+
 				case GameState.Play:
 					Player.Update(gameTime);
 
@@ -312,7 +329,7 @@ namespace Final_Game
 			// Only Draw Game if Game Window has focus
 			if (!this.IsActive) return;
 
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(Color.Black);
 
 			_spriteBatch.Begin();
 			
@@ -322,9 +339,12 @@ namespace Final_Game
 			{
 				case GameState.Play:
 
+					_spriteBatch.Draw(
+						_playBackground,
+						ScreenBounds,
+						Color.White);
+					
 					CurrentLevel.CurrentRoom.Draw(_spriteBatch);
-
-					//FXManager.Draw(_spriteBatch);
 
 					Player.Draw(_spriteBatch);
 
@@ -383,7 +403,9 @@ namespace Final_Game
 			// Reset Entites
 			Player.Reset();
 
+			Debug.WriteLine("reset");
 			EManager.Clear();
+			SoundManager.PlayOutOfCombatSong();
 		}
 
 		private void EnterGameOver()
@@ -392,12 +414,37 @@ namespace Final_Game
 		}
 
 		#region Mouse Wrapper Methods
-		public static bool IsMouseLeftClicked()
+		public static bool IsMouseButtonClicked(int buttonNum)
 		{
+
+			ButtonState pressedInCurFrame = ButtonState.Released;
+			ButtonState releasedInPrevFrame = ButtonState.Released;
+
+			switch (buttonNum)
+			{
+				case 1:
+					pressedInCurFrame = CurMouse.LeftButton;
+					releasedInPrevFrame = PrevMouse.LeftButton;
+					break;
+
+				case 2:
+                    pressedInCurFrame = CurMouse.RightButton;
+                    releasedInPrevFrame = PrevMouse.RightButton;
+                    break;
+
+				case 3:
+                    pressedInCurFrame = CurMouse.MiddleButton;
+                    releasedInPrevFrame = PrevMouse.MiddleButton;
+                    break;
+
+				default:
+					return false;
+			}
+
 			return
 				MouseIsOnScreen &&
-				CurMouse.LeftButton == ButtonState.Released &&
-				PrevMouse.LeftButton == ButtonState.Pressed;
+				pressedInCurFrame == ButtonState.Released &&
+				releasedInPrevFrame == ButtonState.Pressed;
 		}
 
 		public static bool IsMouseButtonPressed(int buttonNum)
@@ -470,7 +517,7 @@ namespace Final_Game
 		private void StartGame()
 		{
 			// Make a new level
-			TestLevel = new Level(2, 2, 4);
+			TestLevel = new Level(MapDims.X, MapDims.Y, NumRoomsInMap);
 
 			CurrentLevel = TestLevel;
 
@@ -533,6 +580,33 @@ namespace Final_Game
 			// Toggle Infinite Enemy Health
 			if (SingleKeyPress(Keys.D6))
 				EManager.EnemiesInvincible = !EManager.EnemiesInvincible;
+
+
+			if (State == GameState.Menu)
+			{
+				// Change Map Dimensions
+				if (SingleKeyPress(Keys.Up))
+				{
+					MapDims = new Point(
+						MapDims.X + 1,
+						MapDims.Y + 1);
+				}
+				if (SingleKeyPress(Keys.Down) && MapDims.X > 1)
+				{
+					MapDims = new Point(
+						MapDims.X - 1,
+						MapDims.Y - 1);
+				}
+
+				if (SingleKeyPress(Keys.Right))
+				{
+					NumRoomsInMap++;
+				}
+				if (SingleKeyPress(Keys.Left) && NumRoomsInMap > 1)
+				{
+					NumRoomsInMap--;
+				}
+			}
 		}
 
 		private void DrawDebug()

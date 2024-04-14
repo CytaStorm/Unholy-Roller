@@ -155,11 +155,8 @@ namespace Final_Game.Managers
             switch (Scene)
             {
                 case Cutscene.Tutorial:
-                    Game1.TutorialLevel.CurrentRoom.Draw(sb);
-
-                    Game1.Player.Draw(sb);
-
                     DrawTutorialCutscene(sb);
+
                     break;
 
                 case Cutscene.GameOver:
@@ -255,6 +252,8 @@ namespace Final_Game.Managers
         {
             Game1.Player.Update(gameTime);
 
+            Game1.FXManager.Update(gameTime);
+
             Game1.MainCamera.Update(gameTime);
 
             Game1.TutorialLevel.CurrentRoom.Update(gameTime);
@@ -347,6 +346,12 @@ namespace Final_Game.Managers
         }
         private void DrawTutorialCutscene(SpriteBatch sb)
         {
+            Game1.TutorialLevel.CurrentRoom.Draw(sb);
+
+            Game1.Player.Draw(sb);
+
+            Game1.FXManager.Draw(sb);
+
             string tempText = _curText.Substring(0, _writeLength);
 
             // Choose where text should be drawn

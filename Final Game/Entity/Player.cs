@@ -40,6 +40,11 @@ namespace Final_Game.Entity
 		private float _walkSpeed;
 
 		/// <summary>
+		/// Speed of the player to reload redirects
+		/// </summary>
+		private float _reloadRedirectsSpeed;
+
+		/// <summary>
 		/// The speed at which the player loses speed
 		/// when holding Mouse2.
 		/// </summary>
@@ -175,6 +180,7 @@ namespace Final_Game.Entity
 			_frictionMagnitude = 0.01f;
 			_transitionToWalkingSpeed = 1f;
 			_smileSpeed = 48f;
+			_reloadRedirectsSpeed = 5f;
 
 			// Set default state
 			State = PlayerState.Walking;
@@ -231,8 +237,16 @@ namespace Final_Game.Entity
 
 					if (_controllable) HandleBraking();
 
-					// Transition to walking
-					if (Velocity.Length() < 1f)
+					float playerSpeed = Velocity.Length();
+
+					// Quick reload redirects
+					if (playerSpeed < _reloadRedirectsSpeed)
+					{
+						NumRedirects = MaxRedirects;
+					}
+
+                    // Transition to walking
+                    if (playerSpeed < 1f)
 					{
 						State = PlayerState.Walking;
 
@@ -283,8 +297,6 @@ namespace Final_Game.Entity
 				case TileType.Spike:
 
 					TakeDamage(2);
-
-					Image.TintColor = Color.LightGoldenrodYellow;
 					break;
 
 				case TileType.OpenDoor:
@@ -303,6 +315,7 @@ namespace Final_Game.Entity
 			// Place self on part of tile that was hit
 			PlaceOnHitEdge(tile, colDir);
 
+
 			if (State == PlayerState.Rolling)
 			{
 				//Move(-Velocity);
@@ -313,8 +326,6 @@ namespace Final_Game.Entity
 			{
 				Move(-Velocity * BulletTimeMultiplier);
 			}
-
-			base.OnHitTile(tile, colDir);
 		}
 
 		public override void OnHitEntity(Entity entity, CollisionDirection colDir)
@@ -815,7 +826,7 @@ namespace Final_Game.Entity
 		{
 			return new Player(_gm, this.WorldPosition);
 		}
-	}
+    }
 	#endregion
 }
 

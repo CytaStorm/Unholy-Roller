@@ -197,7 +197,7 @@ namespace Final_Game.Entity
 			int originX = Game1.Player.CurrentRoom.Origin.X;
 			int originY = Game1.Player.CurrentRoom.Origin.Y;
 
-				DetermineState(playerDist);
+			DetermineState(playerDist);
 
 			stunTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 

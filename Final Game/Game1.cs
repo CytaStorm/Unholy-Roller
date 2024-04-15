@@ -92,8 +92,8 @@ namespace Final_Game
 		private Texture2D _playBackground;
 
 		// Cheats
-		public Point MapDims { get; private set; } = new Point(3, 3);
-		public int NumRoomsInMap { get; private set; } = 5;
+		public Point MapDims { get; private set; } = new Point(1, 2);
+		public int NumRoomsInMap { get; private set; } = 2;
 
 		#endregion
 

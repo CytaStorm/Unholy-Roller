@@ -642,68 +642,94 @@ namespace Final_Game.Entity
 
 		private void DrawAttacking(SpriteBatch sb, Vector2 screenPos)
 		{
-
-			// Draw Attack Windup
-			if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0d)
+			//This helps draw the non attacking arm.
+			Vector2 attackDirectionOffset;
+			bool playerOnLeft;
+			//Determine Left/Right
+			//Player is to the left
+			if (_attackDirection.X < 0)
 			{
-				_gloveImages.TintColor = Color.White;
-
-				// Get the center position of the pulled back fist
-				// in screen space
-
-				Vector2 correction = new Vector2(
-					Image.DestinationRect.Width / 2.5f,
-					Image.DestinationRect.Height / 2.5f);
-
-				Vector2 windupScreenPos =
-					CenterPosition + correction - _attackDirection
-					+ Game1.MainCamera.WorldToScreenOffset;
-
-				// Shift position to top-left of glove image (for drawing)
-				windupScreenPos -= new Vector2(_gloveFrameWidth / 2, _gloveFrameWidth / 2);
-
-				// Select the correct glove image
-				_gloveImages.SourceRect =
-					new Rectangle(
-						0, 0,
-						_gloveFrameWidth, _gloveImages.SourceRect.Height);
-
-				// Rotate fist so knuckles face away from player
-				float windupDirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
-
-				// Glove changes colors right before attacking
-				if (_attackWindupTimer < _attackWindupDuration * .3)
-					_gloveImages.TintColor = Color.Red;
-
-				//Player is to the left
-				if (_attackDirection.X < 0)
-				{
-					Debug.WriteLine("Player to the left");
-					_regularArmRight.Draw(sb, screenPos + _rightArmOffset, 0f, Vector2.Zero);
-				}
-				else
-				{
-					Debug.WriteLine("Player to the right");
-					_regularArmLeft.Draw(sb, screenPos, 0f, Vector2.Zero);
-				}
-				// Draw glove
-				_gloveImages.Draw(
-					sb,
-					windupScreenPos,
-					//0f,
-					windupDirAngle,
-					_gloveImages.SourceRect.Center.ToVector2());
+				attackDirectionOffset = new Vector2(0, 0);
+				playerOnLeft = true;
+			}
+			else
+			{
+				attackDirectionOffset = _rightArmOffset;
+				playerOnLeft = true;
 			}
 
-			// Draw actively attacking
+			// Draw Attack Windup
+			DrawSwingWindup(sb, screenPos, attackDirectionOffset, playerOnLeft);
+
+			// Get position of the extended fist
+			// in screen space
+
+			DrawSwingActive(sb, screenPos, attackDirectionOffset, playerOnLeft);
+			
+			return;
+		}
+
+		/// <summary>
+		/// Draws the winding up arms of the boss's arms.
+		/// </summary>
+		/// <param name="sb">SpriteBatch</param>
+		/// <param name="screenPos">Position of enemy relative to player.</param>
+		private void DrawSwingWindup(SpriteBatch sb, Vector2 screenPos,
+			Vector2 attackDirectionOffset, bool playerOnLeft)
+		{
+			if (_attackWindupTimer >= _attackWindupDuration || _attackDurationTimer > 0d)
+			{
+				return;
+			}
+			_gloveImages.TintColor = Color.White;
+
+			// Get the center position of the pulled back fist
+			// in screen space
+
+			Vector2 correction = new Vector2(
+				Image.DestinationRect.Width / 2.5f,
+				Image.DestinationRect.Height / 2.5f);
+
+			Vector2 windupScreenPos =
+				CenterPosition + correction - _attackDirection
+				+ Game1.MainCamera.WorldToScreenOffset;
+
+			// Shift position to top-left of glove image (for drawing)
+			windupScreenPos -= new Vector2(_gloveFrameWidth / 2, _gloveFrameWidth / 2);
+
+			// Select the correct glove image
+			_gloveImages.SourceRect =
+				new Rectangle(
+					0, 0,
+					_gloveFrameWidth, _gloveImages.SourceRect.Height);
+
+			// Rotate fist so knuckles face away from player
+			float windupDirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
+
+			// Glove changes colors right before attacking
+			if (_attackWindupTimer < _attackWindupDuration * .3)
+				_gloveImages.TintColor = Color.Red;
+
+			_regularArmRight.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			_gloveImages.Draw(
+				sb,
+				windupScreenPos,
+				//0f,
+				windupDirAngle,
+				_gloveImages.SourceRect.Center.ToVector2());
+		}
+
+		private void DrawSwingActive(SpriteBatch sb, Vector2 screenPos,
+			Vector2 attackDirectionOffset, bool playerOnLeft)
+		{
+
 			// Filter out attack not active
 			if (_attackDurationTimer <= 0)
 			{
 				return;
 			}
-			// Get position of the extended fist
-			// in screen space
 
+			// Draw actively attacking
 			Vector2 attackScreenPos = CenterPosition + _attackDirection * 5f
 				+ Game1.MainCamera.WorldToScreenOffset;
 
@@ -717,18 +743,7 @@ namespace Final_Game.Entity
 				_gloveFrameWidth,
 				_gloveFrameWidth);
 
-
-			//Player is to the left
-			if (_attackDirection.X < 0)
-			{
-				Debug.WriteLine("Player to the left");
-				_regularArmRight.Draw(sb, screenPos + _rightArmOffset, 0f, Vector2.Zero);
-			}
-			else
-			{
-				Debug.WriteLine("Player to the right");
-				_regularArmLeft.Draw(sb, screenPos, 0f, Vector2.Zero);
-			}
+			_regularArmRight.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
 
 			// Draw glove
 			_gloveImages.Draw(
@@ -737,7 +752,6 @@ namespace Final_Game.Entity
 				//0f,
 				dirAngle,
 				_gloveImages.SourceRect.Center.ToVector2());
-			return;
 		}
 
 		#endregion

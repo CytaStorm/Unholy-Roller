@@ -644,45 +644,45 @@ namespace Final_Game.Entity
 		{
 			//This helps draw the non attacking arm.
 			Vector2 attackDirectionOffset;
-			bool playerOnLeft;
+			SpriteEffects flipFX;
 			//Determine Left/Right
 			//Player is to the left
 			if (_attackDirection.X < 0)
 			{
 				attackDirectionOffset = new Vector2(0, 0);
-				playerOnLeft = true;
+				flipFX = SpriteEffects.FlipVertically;
 			}
 			else
 			{
 				attackDirectionOffset = _rightArmOffset;
-				playerOnLeft = true;
+				flipFX = SpriteEffects.None;
 			}
 
-			// Draw Attack Windup
-			DrawSwingWindup(sb, screenPos, attackDirectionOffset, playerOnLeft);
+			_gloveImages.TintColor = Color.White;
 
-			// Get position of the extended fist
-			// in screen space
+			if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0d)
+			{
+				DrawSwingWindup(sb, screenPos, attackDirectionOffset, flipFX);
+			}
 
-			DrawSwingActive(sb, screenPos, attackDirectionOffset, playerOnLeft);
+			if (_attackDurationTimer > 0)
+			{
+				DrawSwingActive(sb, screenPos, attackDirectionOffset, flipFX);
+			}
 			
 			return;
 		}
 
 		/// <summary>
-		/// Draws the winding up arms of the boss's arms.
+		/// Draws the winding up fist.
 		/// </summary>
-		/// <param name="sb">SpriteBatch</param>
-		/// <param name="screenPos">Position of enemy relative to player.</param>
+		/// <param name="sb">Spritebatch for drawing.</param>
+		/// <param name="screenPos">Position of boss relative to player.</param>
+		/// <param name="attackDirectionOffset">Offset used for drawing not swinging arm.</param>
+		/// <param name="flipFX">SpriteFX for flip, use SpriteEffects.None if no flip needed.</param>
 		private void DrawSwingWindup(SpriteBatch sb, Vector2 screenPos,
-			Vector2 attackDirectionOffset, bool playerOnLeft)
+			Vector2 attackDirectionOffset, SpriteEffects flipFX)
 		{
-			if (_attackWindupTimer >= _attackWindupDuration || _attackDurationTimer > 0d)
-			{
-				return;
-			}
-			_gloveImages.TintColor = Color.White;
-
 			// Get the center position of the pulled back fist
 			// in screen space
 
@@ -716,19 +716,22 @@ namespace Final_Game.Entity
 				windupScreenPos,
 				//0f,
 				windupDirAngle,
-				_gloveImages.SourceRect.Center.ToVector2());
+				_gloveImages.SourceRect.Center.ToVector2(),
+				flipFX);
 		}
 
+		/// <summary>
+		/// Draws active swinging attack.
+		/// </summary>
+		/// <param name="sb">Spritebatch for drawing.</param>
+		/// <param name="screenPos">Position of boss relative to player.</param>
+		/// <param name="attackDirectionOffset">Offset used for drawing not swinging arm.</param>
+		/// <param name="flipFX">SpriteFX for flip, use SpriteEffects.None if no flip needed.</param>
 		private void DrawSwingActive(SpriteBatch sb, Vector2 screenPos,
-			Vector2 attackDirectionOffset, bool playerOnLeft)
+			Vector2 attackDirectionOffset, SpriteEffects flipFX)
 		{
 
 			// Filter out attack not active
-			if (_attackDurationTimer <= 0)
-			{
-				return;
-			}
-
 			// Draw actively attacking
 			Vector2 attackScreenPos = CenterPosition + _attackDirection * 5f
 				+ Game1.MainCamera.WorldToScreenOffset;
@@ -752,8 +755,8 @@ namespace Final_Game.Entity
 				//0f,
 				dirAngle,
 				_gloveImages.SourceRect.Center.ToVector2());
+			
 		}
-
 		#endregion
 	}
 

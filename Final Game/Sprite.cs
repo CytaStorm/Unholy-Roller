@@ -35,7 +35,12 @@ namespace Final_Game
 
 		public void Draw(SpriteBatch spriteBatch, Vector2 position, float rotation, Vector2 origin)
 		{
-			float scale = (float) DestinationRect.Width / SourceRect.Width;
+			Draw(spriteBatch, position, rotation, origin, SpriteEffects.None);
+		}
+
+		public void Draw(SpriteBatch spriteBatch, Vector2 position, float rotation, Vector2 origin, SpriteEffects spFx)
+		{
+			float scale = (float)DestinationRect.Width / SourceRect.Width;
 
 			if (ObeyCamera)
 			{
@@ -54,30 +59,28 @@ namespace Final_Game
 				if (!onScreen) return;
 
 				spriteBatch.Draw(Texture,
-                perspectivePos,
-                SourceRect,
-                TintColor,
-                rotation,
-                origin,
-                scale,
-                SpriteEffects.None,
-                0);
-
-            }
-			else
-			{
-				spriteBatch.Draw(Texture,
-					position,
-					SourceRect,
-					TintColor,
-					0f,
-					Vector2.Zero,
-					scale,
-					SpriteEffects.None,
-					0);
+				perspectivePos,
+				SourceRect,
+				TintColor,
+				rotation,
+				origin,
+				scale,
+				spFx,
+				0);
+				return;
 			}
+
+			//Doesn't obey camera.
+			spriteBatch.Draw(Texture,
+				position,
+				SourceRect,
+				TintColor,
+				0f,
+				Vector2.Zero,
+				scale,
+				spFx,
+				0);
+			return;
 		}
-
-
     }
 }

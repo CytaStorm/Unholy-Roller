@@ -187,6 +187,8 @@ namespace Final_Game.Managers
 
                     _curText = _walkInstructions;
 
+                    gm.CreateTutorialLevel();
+
                     Scene = Cutscene.Tutorial;
 
                     PhaseNum = 1;
@@ -221,7 +223,14 @@ namespace Final_Game.Managers
                         _curText = _redirectInstructions;
                     }
                     else if (PhaseNum == 3) _curText = _brakeInstructions;
-                    else if (PhaseNum == 4) _curText = _tutorialEndMessage;
+                    else if (PhaseNum == 4)
+                    {
+                        _curText = "";
+
+                        Game1.CurrentLevel.CurrentRoom.Tileset.CreateOpenDoors(
+                            Game1.CurrentLevel.CurrentRoom.ActualConnections);
+                    }
+                    
 
                     _writeLength = 0;
                     _incrementCharTimeCounter = 0;
@@ -250,13 +259,20 @@ namespace Final_Game.Managers
 
         private void RunTutorialCutscene(GameTime gameTime)
         {
+            // Simulate the Play State
             Game1.Player.Update(gameTime);
+
+            Game1.EManager.Update(gameTime);
 
             Game1.FXManager.Update(gameTime);
 
             Game1.MainCamera.Update(gameTime);
 
             Game1.TutorialLevel.CurrentRoom.Update(gameTime);
+
+            gm.UIManager.UpdateSpeedometerShake(gameTime);
+
+            gm.UpdatePlayCursor();
 
             switch (PhaseNum)
             {
@@ -342,6 +358,10 @@ namespace Final_Game.Managers
 
                     break;
 
+                case 5:
+                    
+                    break;
+
             }
         }
         private void DrawTutorialCutscene(SpriteBatch sb)
@@ -351,6 +371,11 @@ namespace Final_Game.Managers
             Game1.Player.Draw(sb);
 
             Game1.FXManager.Draw(sb);
+
+            Game1.EManager.Draw(sb);
+
+            gm.UIManager.DrawPlayerHealth();
+            gm.UIManager.DrawPlayerSpeedometer();
 
             string tempText = _curText.Substring(0, _writeLength);
 
@@ -403,7 +428,7 @@ namespace Final_Game.Managers
         }
         private void DrawGameOverCutscene(SpriteBatch sb)
         {
-            Game1.TestLevel.CurrentRoom.Draw(sb);
+            Game1.CurrentLevel.CurrentRoom.Draw(sb);
 
             Game1.Player.Draw(sb);
 

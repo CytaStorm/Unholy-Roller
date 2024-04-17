@@ -14,11 +14,6 @@ namespace Final_Game.Entity
 {
 	public class BasicPuncher : Enemy
 	{
-		// Fields
-		private Sprite _knockoutStars;
-		private double _koStarAnimDuration;
-		private double _koStarAnimTimeCounter;
-
 		// Constructors
 		public BasicPuncher(Game1 gm, Vector2 position) 
 			: base(gm, position)
@@ -196,7 +191,7 @@ namespace Final_Game.Entity
 
 			CheckEnemyCollisions();
 
-			CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.Tileset);
+			CollisionChecker.CheckTilemapCollision(this, Game1.CurrentLevel.CurrentRoom.Tileset);
 
 			Move(Velocity * Player.BulletTimeMultiplier);
 

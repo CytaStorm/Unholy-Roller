@@ -60,11 +60,6 @@ namespace Final_Game
 		private Texture2D _noRedirectCursorTexture;
 
 		/// <summary>
-		/// UI controller object.
-		/// </summary>
-		private UI _ui;
-
-		/// <summary>
 		/// Mouse controller object for control of cursor in-game.
 		/// </summary>
 		private MouseCursor _gameplayCursor;
@@ -159,9 +154,15 @@ namespace Final_Game
 		//Sound Manager 
 		public static SoundManager SManager { get; private set; }
 
+		// Particle Manager
 		public static ParticleTrailManager FXManager { get; private set; }
 
-		public static Camera MainCamera { get; private set; }
+        /// <summary>
+        /// UI controller object.
+        /// </summary>
+        public UI UIManager { get; private set; }
+
+        public static Camera MainCamera { get; private set; }
 
 		public static bool DebugOn { get; private set; }
 		//Attack Indicator Manager for the Boss
@@ -183,7 +184,7 @@ namespace Final_Game
 		{
 			tilemaker = new TileMaker(Content);
 
-			TutorialLevel = new Level(1, 1, 1);
+			CreateTutorialLevel();
 
 			//Ensures that first room goes through room loading 
 
@@ -238,7 +239,7 @@ namespace Final_Game
 			_menuCursor = MouseCursor.Arrow;
             
 			// Create UI Manager
-			_ui = new UI(this, _spriteBatch);
+			UIManager = new UI(this, _spriteBatch);
 
 			// Create Cutscene Manager
 			CSManager = new CutsceneManager(this);
@@ -280,16 +281,11 @@ namespace Final_Game
 				case GameState.Play:
 					Player.Update(gameTime);
 
-					// Update cursor
-					if (Player.NumRedirects > 0)
-						Mouse.SetCursor(_gameplayCursor);
-					else 
-						Mouse.SetCursor(_noRedirectCursor);
+					UpdatePlayCursor();
 
 					MainCamera.Update(gameTime);
 
-					if (CSManager.Scene == Cutscene.None)
-						CurrentLevel.CurrentRoom.Update(gameTime);
+					CurrentLevel.CurrentRoom.Update(gameTime);
 
 					EManager.Update(gameTime);
 
@@ -315,7 +311,7 @@ namespace Final_Game
 					break;
 			}
 
-			_ui.Update(gameTime);
+			UIManager.Update(gameTime);
 
 			// Store controller states
 			PrevMouse = CurMouse;
@@ -361,7 +357,7 @@ namespace Final_Game
 					break;
 			}
 
-			_ui.Draw(gameTime);
+			UIManager.Draw();
             
             _spriteBatch.End();
 
@@ -375,7 +371,7 @@ namespace Final_Game
 
 					if (DebugOn) DrawDebug();
                     IManager.Draw();
-                    _ui.DrawMinimap();
+                    UIManager.DrawMinimap();
 					break;
 			}
 
@@ -500,17 +496,17 @@ namespace Final_Game
 
 		public void SubscribeToButtons()
 		{
-			_ui.MenuButtons[0].OnClicked += StartGame;
-			_ui.MenuButtons[1].OnClicked += StartTutorial;
-			_ui.MenuButtons[2].OnClicked += ExitGame;
+			UIManager.MenuButtons[0].OnClicked += StartGame;
+			UIManager.MenuButtons[1].OnClicked += StartTutorial;
+			UIManager.MenuButtons[2].OnClicked += ExitGame;
 
-			_ui.PauseButtons[0].OnClicked += ResumeGame;
-			_ui.PauseButtons[1].OnClicked += ReturnToMainMenu;
-			_ui.PauseButtons[1].OnClicked += CSManager.EndCurrentScene;
+			UIManager.PauseButtons[0].OnClicked += ResumeGame;
+			UIManager.PauseButtons[1].OnClicked += ReturnToMainMenu;
+			UIManager.PauseButtons[1].OnClicked += CSManager.EndCurrentScene;
 
-			_ui.GameOverButtons[0].OnClicked += ResetGame;
-			_ui.GameOverButtons[0].OnClicked += StartGame;
-			_ui.GameOverButtons[1].OnClicked += ReturnToMainMenu;
+			UIManager.GameOverButtons[0].OnClicked += ResetGame;
+			UIManager.GameOverButtons[0].OnClicked += StartGame;
+			UIManager.GameOverButtons[1].OnClicked += ReturnToMainMenu;
 
 		}
 
@@ -525,7 +521,7 @@ namespace Final_Game
 			TestLevel.LoadRoomUsingOffset(new Point(0, 0));
 
 			State = GameState.Play;
-			_ui.LoadMinimap();
+			UIManager.LoadMinimap();
 			Mouse.SetCursor(_gameplayCursor);
 		}
 
@@ -618,7 +614,39 @@ namespace Final_Game
 
 			PManager.DrawGizmos();
 
-			_ui.DisplayRedirectsInCursor();
+			UIManager.DisplayRedirectsInCursor();
 		}
+
+		public void CreateTutorialLevel()
+		{
+            bool[,] tutorialRooms = new bool[,]
+            {
+                { true, true },
+                { false, false }
+            };
+
+            string[,] obsData = new string[tutorialRooms.GetLength(0), tutorialRooms.GetLength(1)];
+            
+			string[,] enemySpawnData = new string[tutorialRooms.GetLength(0), tutorialRooms.GetLength(1)];
+            enemySpawnData[0, 1] = "2,5|6,3|9,7|3,9";
+
+            TutorialLevel = new Level(
+                tutorialRooms,
+                new Point(0, 0),
+                obsData,
+                enemySpawnData);
+        }
+
+		/// <summary>
+		/// Updates cursor appearance based on how many
+		/// redirects the player has
+		/// </summary>
+		public void UpdatePlayCursor()
+		{
+            if (Player.NumRedirects > 0)
+                Mouse.SetCursor(_gameplayCursor);
+            else
+                Mouse.SetCursor(_noRedirectCursor);
+        }
 	}
 }

@@ -52,7 +52,11 @@ namespace Final_Game.Entity
 		protected double _walkAnimSecondsPerFrame;
 		protected int _walkAnimCurrentFrame;
 
-		protected bool _hitPlayer;
+        protected Sprite _knockoutStars;
+        protected double _koStarAnimDuration;
+        protected double _koStarAnimTimeCounter;
+
+        protected bool _hitPlayer;
 
 		#endregion
 
@@ -67,6 +71,8 @@ namespace Final_Game.Entity
 		public Enemy(Game1 gm, Vector2 position) 
 		{
 			WorldPosition = position;
+
+			Type = EntityType.Enemy;
 		}
 
 		// Methods
@@ -184,6 +190,7 @@ namespace Final_Game.Entity
 
 		protected abstract void EndAttack(bool stoppedEarly);
 		#endregion
+
 
 		#region Drawing Helpers
 

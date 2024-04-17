@@ -6,6 +6,7 @@ using System.Diagnostics;
 
 namespace Final_Game.LevelGen
 {
+
 	public class Room : IGameObject
 	{
 
@@ -131,6 +132,20 @@ namespace Final_Game.LevelGen
 			//Create the tileset.
 			Tileset = new Tileset();
 		}
+
+		public Room(
+			Point mapPosition, 
+			Level parent, 
+			string obstacleData, 
+			string enemySpawnData)
+		{
+			this._parent = parent;
+
+			MapPosition = mapPosition;
+
+			Tileset = new Tileset(obstacleData, enemySpawnData);
+		}
+
 		#endregion
 
 		#region Method(s)

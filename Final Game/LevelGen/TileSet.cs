@@ -150,6 +150,85 @@ namespace Final_Game.LevelGen
 			//Debug.WriteLine("Here " + EnemyPos.Count);
 			return;
 		}
+
+		public Tileset(string obstacleData, string enemySpawnData)
+		{
+            //Read in floor data from file, and select layout.
+            string allFloors = File.ReadAllText("../../../Content/Room Layouts/roomLayouts.txt");
+            string[] possibleFloors = allFloors.Split('|');
+            RoomFloorLayout = _random.Next(possibleFloors.Length);
+            string selectedFloor = possibleFloors[RoomFloorLayout];
+            string[] floorRows = selectedFloor.Split('\n');
+            //foreach(string str in floorRows)
+            //{
+            //	Debug.WriteLine(str + "poo poo");
+            //}
+
+            //X
+            int height = floorRows.Length - 1;
+            //Y
+            int width = floorRows[0].Split(' ').Length;
+            Layout = new Tile[height, width];
+
+            //Parse room floor.
+            for (int row = 0; row < height; row++)
+            {
+                string[] rowData = floorRows[row].Split(' ');
+                for (int col = 0; col < width; col++)
+                {
+                    Layout[row, col] = ParseRoomFloor(rowData[col], row, col);
+                }
+            }
+
+            // Read obstacles
+			if (obstacleData != null)
+			{
+				string[] obstacles = obstacleData.Split("|");
+
+				for (int i = 0; i < obstacles.Length; i++)
+				{
+					// Get obstacle details (type, posX, posY)
+					string[] obstacleSpecs = obstacles[i].Split(',');
+
+					char obsType = char.Parse(obstacleSpecs[0]);
+
+					if (obsType == 'w')
+					{
+						// Create Wall Obstacle
+						Layout[int.Parse(obstacleSpecs[1]), int.Parse(obstacleSpecs[2])] =
+							TileMaker.SetTile(TileType.Wall);
+					}
+					else if (obsType == 's')
+					{
+						// Create Spike Obstacle
+						Layout[int.Parse(obstacleSpecs[1]), int.Parse(obstacleSpecs[2])] =
+							TileMaker.SetTile(TileType.Spike);
+					}
+				}
+			}
+
+			// Read enemy positions 
+			if (enemySpawnData != null)
+			{
+				string[] enemySpawners = enemySpawnData.Split('|');
+
+				for (int i = 0; i < enemySpawners.Length; i++)
+				{
+					string[] spawnPosition = enemySpawners[i].Split(',');
+
+					int row = int.Parse(spawnPosition[0]);
+					int col = int.Parse(spawnPosition[1]);
+
+                    Layout[row, col].IsEnemySpawner = true;
+
+					Spawners.Add(Layout[row, col]);
+				}
+			}
+
+		}
+
+
+
 		#endregion
 
 		#region Methods

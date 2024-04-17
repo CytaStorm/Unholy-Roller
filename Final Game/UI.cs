@@ -156,7 +156,11 @@ namespace Final_Game
 					//_testSlider.Update(gameTime);
 					break;
 
-				case GameState.Pause:
+				case GameState.Play:
+					UpdateSpeedometerShake(gameTime);
+					break;
+
+                case GameState.Pause:
 
 					// Update pause buttons
 					foreach (Button b in PauseButtons)
@@ -194,7 +198,7 @@ namespace Final_Game
 					break;
 			}
 		}
-		public void Draw(GameTime gameTime)
+		public void Draw()
 		{
 			switch (_gm.State)
 			{
@@ -226,11 +230,7 @@ namespace Final_Game
 					//    $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
 					//    new Vector2(0f, 200f),
 					//    Color.White);
-					if (_shakeTimer > 0)
-					{
-						_shakeTimer -=
-							gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
-					}
+					
 					break;
 
 				case GameState.Pause:
@@ -286,7 +286,7 @@ namespace Final_Game
 			return;
 		}
 
-        private void DrawPlayerHealth()
+        public void DrawPlayerHealth()
         {
             Color tint = Color.White;
             Rectangle source =
@@ -349,7 +349,16 @@ namespace Final_Game
                 tint);
         }
 
-        private void DrawPlayerSpeedometer()
+		public void UpdateSpeedometerShake(GameTime gameTime)
+		{
+            if (_shakeTimer > 0)
+            {
+                _shakeTimer -=
+                    gameTime.ElapsedGameTime.TotalSeconds *
+                    Player.BulletTimeMultiplier;
+            }
+        }
+        public void DrawPlayerSpeedometer()
 		{
 			// Draw Speed dial
 			_spriteBatch.Draw(

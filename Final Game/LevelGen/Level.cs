@@ -109,6 +109,50 @@ namespace Final_Game.LevelGen
 
 			//PrintLevel();
 		}
+
+		public Level(
+			bool[,] layout, 
+			Point startPoint, 
+			string[,] obsData,
+			string[,] enemySpawnData)
+		{ 
+			// Set Start Room
+			StartPoint = startPoint;
+			CurrentPoint = startPoint;
+
+			// Create Map
+			Map = new Room[layout.GetLength(0), layout.GetLength(1)]; 
+
+			// Create Rooms in Map
+			for(int y = 0; y < layout.GetLength(0); y++)
+			{
+				for (int x = 0; x < layout.GetLength(1); x++)
+				{
+					if (layout[y, x])
+					{
+						Map[y, x] = new Room(
+							new Point(y, x), 
+							this, 
+							obsData[y, x], 
+							enemySpawnData[y, x]);
+						_rooms.Add(Map[y, x]);
+					}
+				}
+			}
+
+			// Create Connections Between Rooms
+			foreach (Room room in _rooms)
+			{
+				room.CreateConnections();
+			}
+
+			// Set Start Room Properties
+			StartRoom.Discovered = true;
+			StartRoom.Entered = true;
+
+		}
+
+
 		#endregion
 
 		#region Method(s)
@@ -257,8 +301,9 @@ namespace Final_Game.LevelGen
             Game1.PManager.ClearPickups();
             CurrentPoint += newRoomOffset;
 
-            //Remove enemies near player.
-            CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
+			if (this != Game1.TutorialLevel)
+				//Remove enemies near player.
+				CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
 
             //Update minimap
             UpdateRoomConnectionData();

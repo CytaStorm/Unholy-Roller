@@ -51,8 +51,14 @@ namespace Final_Game.Managers
             {
                 Tile curSpawner = r.Tileset.Spawners[i];
 
-                // Spawn on spawn tile
-                Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
+
+                if (Game1.CurrentLevel == Game1.TestLevel)
+                    // Spawn on spawn tile
+                    Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
+                else
+                {
+                    Enemies.Add(new Dummy(gm, curSpawner.WorldPosition));
+                }
             }
         }
         public void SpawnBoss(Room r)

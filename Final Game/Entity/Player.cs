@@ -261,8 +261,7 @@ namespace Final_Game.Entity
 
 			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
-			if (Game1.CSManager.Scene != Cutscene.Tutorial)
-				CheckEnemyCollisions();
+			CheckEnemyCollisions();
 
 			CheckPickupCollisions();
 
@@ -442,19 +441,19 @@ namespace Final_Game.Entity
 			switch (tile.DoorOrientation)
 			{
 				case "U":
-					Game1.TestLevel.LoadRoomUsingOffset(new Point(-1, 0));
+					Game1.CurrentLevel.LoadRoomUsingOffset(new Point(-1, 0));
 					Move(new Vector2(0, (CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "B":
-					Game1.TestLevel.LoadRoomUsingOffset(new Point(1, 0));
+					Game1.CurrentLevel.LoadRoomUsingOffset(new Point(1, 0));
 					Move(new Vector2(0, -(CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "L":
-					Game1.TestLevel.LoadRoomUsingOffset(new Point(0, -1));
+					Game1.CurrentLevel.LoadRoomUsingOffset(new Point(0, -1));
 					Move(new Vector2((CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 				case "R":
-					Game1.TestLevel.LoadRoomUsingOffset(new Point(0, 1));
+					Game1.CurrentLevel.LoadRoomUsingOffset(new Point(0, 1));
 					Move(new Vector2(-(CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 			}

@@ -10,8 +10,34 @@ namespace Final_Game.Entity
 {
     public class Dummy : Enemy
     {
-        public Dummy(Game1 gm, Vector2 position) : base(gm, position)
+        #region Properties
+        
+        /// <summary>
+        /// Gets and sets whether or not dummy should
+        /// be drawn
+        /// </summary>
+        public bool Invisible { get; set; }
+
+        public bool IsBillboard { get; set; }
+
+        #endregion
+
+        #region Constructors
+
+        public Dummy(Game1 gm, Vector2 position, bool isBillboard) : base(gm, position)
         {
+            if (isBillboard)
+            {
+                WorldPosition = Vector2.Zero;
+                Hitbox = Rectangle.Empty;
+                Invisible = true;
+                CollisionOn = false;
+                IsBillboard = true;
+
+                CurHealth = 1;
+                return;
+            }
+
             Texture2D dummyImage = gm.Content.Load<Texture2D>("Sprites/BasicEnemy");
             Image = new Sprite(
                 dummyImage,
@@ -50,9 +76,13 @@ namespace Final_Game.Entity
 
             _koStarAnimDuration = 0.5;
         }
+        #endregion
 
+        #region Methods
         public override void Update(GameTime gameTime)
         {
+            if (IsBillboard) return;
+
             TickKnockout(gameTime);
             TickInvincibility(gameTime);
 
@@ -63,6 +93,8 @@ namespace Final_Game.Entity
         
         public override void Draw(SpriteBatch sb)
         {
+            if (Invisible) return;
+
             Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
             switch (ActionState)
@@ -96,7 +128,6 @@ namespace Final_Game.Entity
             }
 
         }
-
 
         protected override void Attack()
         {
@@ -147,5 +178,7 @@ namespace Final_Game.Entity
             if (_koStarAnimTimeCounter >= _koStarAnimDuration)
                 _koStarAnimTimeCounter -= _koStarAnimDuration;
         }
+
+        #endregion
     }
 }

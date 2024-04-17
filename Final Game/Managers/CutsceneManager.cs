@@ -189,6 +189,9 @@ namespace Final_Game.Managers
 
                     gm.CreateTutorialLevel();
 
+                    // Ensure that doors lock
+                    Game1.EManager.Enemies.Add(new Dummy(gm, Vector2.Zero, true));
+
                     Scene = Cutscene.Tutorial;
 
                     PhaseNum = 1;
@@ -227,8 +230,7 @@ namespace Final_Game.Managers
                     {
                         _curText = "";
 
-                        Game1.CurrentLevel.CurrentRoom.Tileset.CreateOpenDoors(
-                            Game1.CurrentLevel.CurrentRoom.ActualConnections);
+                        Game1.EManager.Clear();
                     }
                     
 

@@ -793,11 +793,19 @@ namespace Final_Game.Entity
 			// Handle low health
 			if (CurHealth <= 0)
 			{
+				// Player can't die if in tutorial
+				if (Game1.CurrentLevel == Game1.TutorialLevel)
+				{
+					CurHealth = MaxHealth;
+					return;
+				}
+
 				_controllable = false;
 
 				BulletTimeMultiplier = _minTimeMultiplier;
 
 				SoundManager.PlayDeathSound();
+
 				OnPlayerDeath();
 			}
 

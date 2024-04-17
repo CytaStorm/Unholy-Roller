@@ -57,7 +57,7 @@ namespace Final_Game.Managers
                     Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
                 else
                 {
-                    Enemies.Add(new Dummy(gm, curSpawner.WorldPosition));
+                    Enemies.Add(new Dummy(gm, curSpawner.WorldPosition, false));
                 }
             }
         }

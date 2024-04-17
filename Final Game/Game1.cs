@@ -184,8 +184,6 @@ namespace Final_Game
 		{
 			tilemaker = new TileMaker(Content);
 
-			CreateTutorialLevel();
-
 			//Ensures that first room goes through room loading 
 
 			//Player = new Player(this, new Vector2(
@@ -621,14 +619,19 @@ namespace Final_Game
 		{
             bool[,] tutorialRooms = new bool[,]
             {
-                { true, true },
-                { false, false }
+                { true, true, true },
+                { false, false, true }
             };
 
             string[,] obsData = new string[tutorialRooms.GetLength(0), tutorialRooms.GetLength(1)];
-            
-			string[,] enemySpawnData = new string[tutorialRooms.GetLength(0), tutorialRooms.GetLength(1)];
-            enemySpawnData[0, 1] = "2,5|6,3|9,7|3,9";
+			obsData[0, 1] = "s,4,5|s,4,6|s,4,7|s,4,8|s,4,9|s,4,10|s,5,5|s,5,6|s,5,7|s,5,8|s,5,9|s,5,10|" +
+				"s,6,5|s,6,6|w,6,7|w,6,8|s,6,9|s,6,10|s,7,5|s,7,6|w,7,7|w,7,8|s,7,9|s,7,10|s,8,5|s,8,6|" +
+				"w,8,7|w,8,8|s,8,9|s,8,10|s,9,5|s,9,6|w,9,7|w,9,8|s,9,9|s,9,10|s,10,5|s,10,6|s,10,7|" +
+				"s,10,8|s,10,9|s,10,10|s,11,5|s,11,6|s,11,7|s,11,8|s,11,9|s,11,10"; // Hella spikes
+
+
+            string[,] enemySpawnData = new string[tutorialRooms.GetLength(0), tutorialRooms.GetLength(1)];
+            enemySpawnData[0, 2] = "2,5|6,3|9,7|3,9";
 
             TutorialLevel = new Level(
                 tutorialRooms,

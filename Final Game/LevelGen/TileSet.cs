@@ -192,18 +192,26 @@ namespace Final_Game.LevelGen
 
 					char obsType = char.Parse(obstacleSpecs[0]);
 
-					if (obsType == 'w')
+					int row = int.Parse(obstacleSpecs[1]);
+					int col = int.Parse(obstacleSpecs[2]);
+
+
+                    if (obsType == 'w')
 					{
 						// Create Wall Obstacle
-						Layout[int.Parse(obstacleSpecs[1]), int.Parse(obstacleSpecs[2])] =
-							TileMaker.SetTile(TileType.Wall);
+						Layout[row, col] = TileMaker.SetTile(
+							TileType.Wall,
+							new Vector2(Game1.TileSize * col, Game1.TileSize * row),
+                            "OBSTACLEWALL");
 					}
 					else if (obsType == 's')
 					{
-						// Create Spike Obstacle
-						Layout[int.Parse(obstacleSpecs[1]), int.Parse(obstacleSpecs[2])] =
-							TileMaker.SetTile(TileType.Spike);
-					}
+                        // Create Spike Obstacle
+                        Layout[row, col] = TileMaker.SetTile(
+                            TileType.Spike,
+                            new Vector2(Game1.TileSize * col, Game1.TileSize * row),
+                            "");
+                    }
 				}
 			}
 

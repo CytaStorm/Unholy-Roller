@@ -196,8 +196,7 @@ namespace Final_Game.LevelGen
 		/// </summary>
 		public void CheckCleared()
 		{
-			Cleared = Game1.EManager.Enemies.Count < 1
-				&& _parent != Game1.TutorialLevel;
+			Cleared = Game1.EManager.Enemies.Count < 1;
 
 			//Early return if not cleared.
 			if (!Cleared)

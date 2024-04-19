@@ -138,10 +138,14 @@ namespace Final_Game.Entity
 		public override void TakeDamage(int damage)
 		{
 			// Take damage if not invincible
-			if (InvTimer > 0 || IsKO || InfiniteHealth) 
+			if (InvTimer > 0 || IsKO) 
 				return;
-
-				CurHealth -= damage;
+				
+				// Enemy doesn't take damage if they have infinite health
+				// Still gets invFrames so collision with other entities
+				// isn't messed up
+				if (!InfiniteHealth)
+					CurHealth -= damage;
 
 				// Temporarily become invincible
 				InvTimer = InvDuration;

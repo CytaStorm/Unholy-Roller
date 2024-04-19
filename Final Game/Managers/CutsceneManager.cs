@@ -44,6 +44,10 @@ namespace Final_Game.Managers
 
         private bool _shieldUsed;
 
+        private Sprite _mouseImage;
+        private Texture2D _arrowTexture;
+        private Texture2D _wasdTexture;
+
         #endregion
 
         #region GameOver Vars
@@ -79,26 +83,32 @@ namespace Final_Game.Managers
             _blankPanel = gm.Content.Load<Texture2D>("BlankPanel");
 
             // Write tutorial
-            _walkInstructions =
-                UI.GetWrappedText("If your speed is zero, use W A S D to walk around", 30);
+            _walkInstructions = "You can walk if you're not rolling";
 
-            _launchInstructions =
-                UI.GetWrappedText("You will only be able to roll through enemies if you launch. " +
-                "Click mouse left in any direction to launch. " +
-                "Time will slow as long as you hold mouse left", 60);
+            _launchInstructions = "You will only be able to roll through enemies if you launch.";
 
             _redirectInstructions =
-                UI.GetWrappedText("If you launch while rolling, you will redirect. " +
-                "You get a limited number of these per launch so use them wisely", 60);
+                UI.GetWrappedText("You can redirect a few times per launch", 60);
 
             _brakeInstructions =
-                UI.GetWrappedText("Hold mouse right to rapidly decelerate. " +
-                "You can use this to swiftly transition to walking.", 60);
+                UI.GetWrappedText("Slow down significantly to regain redirects.", 60);
 
             _tutorialEndMessage =
-                UI.GetWrappedText("That's it! You've finished the tutorial. " +
+                UI.GetWrappedText("You've finished the tutorial. " +
                 "NOW GO EVISCERATE THOSE PINHEADS!!! " +
-                "Press 'Esc' to return to main menu", 60);
+                "Press 'Esc'", 60);
+
+            Texture2D mouseTexture = gm.Content.Load<Texture2D>("UI Images/MousePressSpritesheet");
+            _mouseImage = new Sprite(
+                mouseTexture,
+                new Rectangle(0, 0, mouseTexture.Width / 2, mouseTexture.Height),
+                new Rectangle(0, 0, 200, 200));
+            _mouseImage.Columns = 2;
+            _mouseImage.FrameBounds = _mouseImage.SourceRect;
+            _mouseImage.ObeyCamera = false;
+
+            _wasdTexture = gm.Content.Load<Texture2D>("UI Images/WASD_Keys");
+            _arrowTexture = gm.Content.Load<Texture2D>("UI Images/Arrow_Keys");
 
             _isPausable = true;
         }
@@ -197,6 +207,8 @@ namespace Final_Game.Managers
 
             _writeLength = 0;
 
+            _phaseTransferTimer = 0;
+
             switch (scene)
             {
                 case Cutscene.Tutorial:
@@ -281,8 +293,8 @@ namespace Final_Game.Managers
                     else if (PhaseNum == 6)
                     {
                         _curText =
-                            "Every hit enemy increases your combo meter.\n" +
-                            "Once you're smiling your ability (SHIELD) is available";
+                            "Your combo increases each time you hit an enemy.\n" +
+                            "Take a punch when you smile (10 combo)";
 
                         Game1.TutorialLevel.Map[1, 2]
                         .OnRoomEntered -= OnPhaseTransfer;
@@ -346,8 +358,7 @@ namespace Final_Game.Managers
                     // Check if player walks
 
                     if (Game1.Player.State == PlayerState.Walking &&
-                        (Game1.CurKB.IsKeyDown(Keys.W) || Game1.CurKB.IsKeyDown(Keys.A) ||
-                        Game1.CurKB.IsKeyDown(Keys.S) || Game1.CurKB.IsKeyDown(Keys.D)))
+                        Game1.Player.Velocity.LengthSquared() > 0)
                     {
                         _hasWalked = true;
                     }
@@ -363,13 +374,13 @@ namespace Final_Game.Managers
                     // Check if player launches
                     if (Game1.Player.State == PlayerState.Walking)
                     {
-                        if (Game1.IsMouseButtonPressed(1))
+                        if (Game1.IsMouseButtonPressed(Game1.Player.LaunchButton))
                         {
                             _hasPrimedLaunch = true;
                         }
                     }
 
-                    if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(1))
+                    if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(Game1.Player.LaunchButton))
                     {
                         _hasLaunched = true;
                     }
@@ -386,19 +397,22 @@ namespace Final_Game.Managers
                     // Check if player redirects
                     if (Game1.Player.State == PlayerState.Rolling)
                     {
-                        if (Game1.IsMouseButtonPressed(1))
+                        if (Game1.IsMouseButtonPressed(Game1.Player.LaunchButton))
                         {
                             _hasPrimedLaunch = true;
                         }
 
-                        if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(1))
+                        if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(Game1.Player.LaunchButton))
                         {
                             _hasLaunched = true;
                             _hasRedirected = true;
                         }
                     }
 
-                    if (_hasRedirected && _phaseTransferTimer <= 0)
+                    // Make sure player has used all of their redirects
+                    if (_hasRedirected && 
+                        Game1.Player.NumRedirects == 0 && 
+                        _phaseTransferTimer <= 0)
                     {
                         // Wait some time then move to the next phase
                         _phaseTransferTimer = 3; // seconds
@@ -410,7 +424,7 @@ namespace Final_Game.Managers
                     // Check if player brakes
                     if (Game1.Player.State == PlayerState.Rolling)
                     {
-                        if (Game1.IsMouseButtonPressed(2))
+                        if (Game1.IsMouseButtonPressed(Game1.Player.BrakeButton))
                         {
                             _hasUsedBrake = true;
                         }
@@ -439,7 +453,6 @@ namespace Final_Game.Managers
 
                     if (_shieldUsed && _phaseTransferTimer <= 0)
                     {
-
                         _phaseTransferTimer = 1;
                     }
 
@@ -465,6 +478,74 @@ namespace Final_Game.Managers
                 gm.UIManager.DrawPlayerCombo();
             }
 
+            switch (PhaseNum){
+                case 1:
+                    sb.Draw(
+                    _wasdTexture,
+                    new Rectangle(
+                        Game1.ScreenBounds.Width / 2 - 300, 700,
+                        200, 200),
+                    Color.White);
+
+
+                    sb.DrawString(
+                        UI.MediumArial,
+                        "OR",
+                        UI.GetCenteredTextPos(
+                            "OR",
+                            UI.MediumArial,
+                            new Vector2(Game1.ScreenCenter.X, Game1.ScreenCenter.Y + 250f)),
+                        Color.White);
+
+                    sb.Draw(
+                        _arrowTexture,
+                        new Rectangle(
+                            Game1.ScreenBounds.Width / 2 + 100, 700,
+                            200, 200),
+                        Color.White);
+
+                    break;
+
+                case 2:
+                    _mouseImage.SetSourceToFrame(Game1.Player.LaunchButton);
+
+                    _mouseImage.Draw(sb, new Vector2(735, 700), 0f, Vector2.Zero);
+
+                    sb.DrawString(
+                        UI.MediumArial,
+                        "Press to Slow Time\nRelease to Launch",
+                        new Vector2(Game1.ScreenCenter.X, Game1.ScreenCenter.Y + 210),
+                        Color.White);
+                    break;
+
+                case 3:
+                    _mouseImage.SetSourceToFrame(Game1.Player.LaunchButton);
+
+                    _mouseImage.Draw(sb, new Vector2(735, 700), 0f, Vector2.Zero);
+
+                    sb.DrawString(
+                        UI.MediumArial,
+                        "Press to Slow Time\nRelease to Launch",
+                        new Vector2(Game1.ScreenCenter.X, Game1.ScreenCenter.Y + 210),
+                        Color.White);
+
+                    break;
+
+                case 4:
+                    _mouseImage.SetSourceToFrame(Game1.Player.BrakeButton);
+
+                    _mouseImage.Draw(sb, new Vector2(735, 700), 0f, Vector2.Zero);
+
+                    sb.DrawString(
+                        UI.MediumArial,
+                        "Hold to Decelerate",
+                        new Vector2(Game1.ScreenCenter.X, Game1.ScreenCenter.Y + 210),
+                        Color.White);
+
+                    break;
+            }
+            
+
             string tempText = _curText.Substring(0, _writeLength);
 
             // Choose where text should be drawn
@@ -487,6 +568,8 @@ namespace Final_Game.Managers
                 tempText,
                 textPosition,
                 Color.White);
+
+            
         }
 
         private void RunGameOverCutscene(GameTime gameTime)

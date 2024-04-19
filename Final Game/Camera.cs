@@ -66,7 +66,7 @@ namespace Final_Game
 
         public void FollowPlayer(GameTime gameTime)
         {
-            WorldPosition = Game1.Player.WorldPosition;
+            WorldPosition = Game1.Player.CenterPosition;
 
             //if (Game1.IsMouseButtonPressed(1))
             //{

@@ -251,6 +251,8 @@ namespace Final_Game.Entity
 					{
 						State = PlayerState.Walking;
 
+						Velocity = Vector2.Zero;
+
 						NumRedirects = MaxRedirects + 1;
 					}
 					break;
@@ -592,13 +594,13 @@ namespace Final_Game.Entity
 	
 		private void UpdateBulletTime(GameTime gameTime)
 		{
-			if (Game1.IsMouseButtonPressed(1) && NumRedirects > 0 && !CurrentRoom.Cleared)
+			if (Game1.IsMouseButtonPressed(LaunchButton) && NumRedirects > 0 && !CurrentRoom.Cleared)
 			{
 				// Transition from normal -> bullet time
 				_transitionTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;
 	
 			}
-			else if (Game1.IsMouseButtonReleased(1))
+			else if (Game1.IsMouseButtonReleased(LaunchButton))
 			{
 				// Transition from bullet -> normal time
 				_transitionTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;

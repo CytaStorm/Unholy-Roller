@@ -47,6 +47,7 @@ namespace Final_Game
 
 		// Combo
 		private Texture2D _comboIcon;
+		private Texture2D _shieldIcon;
 
 		// Shake Effect
 		private double _shakeDuration;
@@ -98,6 +99,7 @@ namespace Final_Game
 
 			// Load Icons
 			_comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
+			_shieldIcon = _gm.Content.Load<Texture2D>("UI Images/ShieldIcon");
 
 			// Load Health Images
 			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
@@ -263,28 +265,45 @@ namespace Final_Game
 		public void DrawPlayerCombo()
 		{
 			if (Game1.Player.Combo <= 0) return;
- 
-            string curCombo = Game1.Player.Combo.ToString();
-			Vector2 comboDrawPos = new Vector2(100f, 400f);
 
+            string curCombo = Game1.Player.Combo.ToString();
+
+
+            Vector2 comboDrawPos = new Vector2(100f, 410f);
+			if (curCombo.Length > 1)
+				comboDrawPos.X += 20;
+
+            Vector2 comboStringDimensions =
+                TitleCaseCarter.MeasureString(curCombo);
+
+            Color textColor = Color.White;
+
+            // Get Icon to draw
+            Texture2D iconToDraw = _comboIcon;
+
+            if (Game1.Player.ComboReward)
+			{
+                iconToDraw = _shieldIcon;
+				textColor = Color.LightGreen;
+			}
+
+            // Draw combo number
             _spriteBatch.DrawString(
 				TitleCaseCarter,
 				curCombo,
 				comboDrawPos,
-				Color.White);
-
-			Vector2 comboStringDimensions = 
-				TitleCaseCarter.MeasureString(curCombo);
+				textColor);
 
 			// Draw Combo Icon after text
 			_spriteBatch.Draw(
-				_comboIcon,
+				iconToDraw,
 				new Rectangle(
 					(int)(comboDrawPos.X + comboStringDimensions.X),
-					400,
+					430,
 					80,
 					80),
 				Color.White);
+
 			return;
 		}
 

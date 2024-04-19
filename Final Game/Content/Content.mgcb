@@ -555,6 +555,18 @@
 /processorParam:TextureFormat=Compressed
 /build:TitleCaseArial.spritefont
 
+#begin UI Images/Arrow_Keys.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:UI Images/Arrow_Keys.png
+
 #begin UI Images/BasicSliderBar.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -675,6 +687,18 @@
 /processorParam:TextureFormat=Color
 /build:UI Images/LoseHandPress.png
 
+#begin UI Images/MousePressSpritesheet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:UI Images/MousePressSpritesheet.png
+
 #begin UI Images/PinheadButtonCursor.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -686,6 +710,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:UI Images/PinheadButtonCursor.png
+
+#begin UI Images/ShieldIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:UI Images/ShieldIcon.png
 
 #begin UI Images/SpeedometerCrest.png
 /importer:TextureImporter
@@ -710,4 +746,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:UI Images/SpeedometerPin.png
+
+#begin UI Images/WASD_Keys.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:UI Images/WASD_Keys.png
 

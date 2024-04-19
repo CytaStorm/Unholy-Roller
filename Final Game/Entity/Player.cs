@@ -251,6 +251,8 @@ namespace Final_Game.Entity
 					{
 						State = PlayerState.Walking;
 
+						Velocity = Vector2.Zero;
+
 						NumRedirects = MaxRedirects + 1;
 					}
 					break;

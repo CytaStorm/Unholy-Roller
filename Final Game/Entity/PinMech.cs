@@ -685,13 +685,6 @@ namespace Final_Game.Entity
 		private void DrawSwingWindup(SpriteBatch sb, Vector2 screenPos,
 			Vector2 attackDirectionOffset, SpriteEffects flipFX)
 		{
-			// Get the center position of the pulled back fist
-			// in screen space
-
-			//Vector2 correction = new Vector2(
-			//	Image.DestinationRect.Width / 2.5f,
-			//	Image.DestinationRect.Height / 2.5f);
-
 			Vector2 windupScreenPos =
 				CenterPosition - _attackDirection
 				+ Game1.MainCamera.WorldToScreenOffset;
@@ -712,7 +705,19 @@ namespace Final_Game.Entity
 			if (_attackWindupTimer < _attackWindupDuration * .3)
 				_gloveImages.TintColor = Color.Red;
 
-			_regularArmRight.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+
+			//Draw regular hand- if spritefx is flipvertical that means right hand is attacking,
+			//so draw inactive left hand
+			if (flipFX == SpriteEffects.FlipVertically)
+			{
+				_regularArmLeft.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			}
+			else
+			{
+				_regularArmRight.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			}
+
+			//Draw attacking hand
 			_gloveImages.Draw(
 				sb,
 				windupScreenPos,
@@ -748,15 +753,25 @@ namespace Final_Game.Entity
 				_gloveFrameWidth,
 				_gloveFrameWidth);
 
-			_regularArmRight.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			//Draw regular hand- if spritefx is flipvertical that means right hand is attacking,
+			//so draw inactive left hand
+			if (flipFX == SpriteEffects.FlipVertically)
+			{
+				_regularArmLeft.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			}
+			else
+			{
+				_regularArmRight.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			}
 
-			// Draw glove
+			// Draw attacking hand.
 			_gloveImages.Draw(
 				sb,
 				attackScreenPos,
 				//0f,
 				dirAngle,
-				_gloveImages.SourceRect.Center.ToVector2());
+				_gloveImages.SourceRect.Center.ToVector2(),
+				flipFX);
 			
 		}
 		#endregion

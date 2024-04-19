@@ -221,8 +221,8 @@ namespace Final_Game
 
 					DrawPlayerSpeedometer();
 
-					if (Game1.Player.Combo > 0)
-						DrawPlayerCombo();
+					
+					DrawPlayerCombo();
 
 					// Display Bullet Time multiplier
 					//_spriteBatch.DrawString(
@@ -260,9 +260,11 @@ namespace Final_Game
 
 		#region HUD Drawing Methods
 
-		private void DrawPlayerCombo()
+		public void DrawPlayerCombo()
 		{
-			string curCombo = Game1.Player.Combo.ToString();
+			if (Game1.Player.Combo <= 0) return;
+ 
+            string curCombo = Game1.Player.Combo.ToString();
 			Vector2 comboDrawPos = new Vector2(100f, 400f);
 
             _spriteBatch.DrawString(
@@ -275,6 +277,12 @@ namespace Final_Game
 				TitleCaseCarter.MeasureString(curCombo);
 
 			// Draw Combo Icon after text
+			Color iconColor = Color.White;
+			if (Game1.Player.IsSmiling)
+			{
+				iconColor = Color.LightBlue;
+			}
+
 			_spriteBatch.Draw(
 				_comboIcon,
 				new Rectangle(
@@ -282,7 +290,7 @@ namespace Final_Game
 					400,
 					80,
 					80),
-				Color.White);
+				iconColor);
 			return;
 		}
 

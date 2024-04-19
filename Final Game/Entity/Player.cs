@@ -410,14 +410,6 @@ namespace Final_Game.Entity
 				return;
 			}
 
-			// Player gets hit.
-			// Check for high enough combo.
-			if (ComboReward)
-			{
-				Combo = 0;
-				return;
-			}
-
 			// Player gets knocked back if standing on top of enemy
 			Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
 			distToEnemy.Normalize();

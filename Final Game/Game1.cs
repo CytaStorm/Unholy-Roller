@@ -371,6 +371,10 @@ namespace Final_Game
                     IManager.Draw();
                     UIManager.DrawMinimap();
 					break;
+
+				case GameState.Cutscene:
+					CSManager.DrawSimpleShapes();
+					break;
 			}
 
 			ShapeBatch.End();
@@ -632,6 +636,7 @@ namespace Final_Game
 
             string[,] enemySpawnData = new string[tutorialRooms.GetLength(0), tutorialRooms.GetLength(1)];
             enemySpawnData[0, 2] = "2,5|6,3|9,7|3,9";
+			enemySpawnData[1, 2] = "7,7|7,9";
 
             TutorialLevel = new Level(
                 tutorialRooms,

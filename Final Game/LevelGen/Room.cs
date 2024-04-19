@@ -6,6 +6,7 @@ using System.Diagnostics;
 
 namespace Final_Game.LevelGen
 {
+	public delegate void RoomInteraction();
 
 	public class Room : IGameObject
 	{
@@ -116,6 +117,8 @@ namespace Final_Game.LevelGen
 		public bool IsBossRoom { get; set; }
 		#endregion
 
+		public event RoomInteraction OnRoomEntered;
+
 		#region Constructor(s)
 
 		/// <summary>
@@ -208,10 +211,16 @@ namespace Final_Game.LevelGen
 			if (_firstClear)
 			{
 				_firstClear = false;
-				//Method to create open doors
+
+				// Open room doors
 				Tileset.CreateOpenDoors(ActualConnections);
+
 				//30% chance to create health pickup.
-				if (_random.NextSingle() <= 0.3f) CreateHealthPickup();
+				if (_random.NextSingle() <= 0.3f &&
+					Game1.CurrentLevel != Game1.TutorialLevel)
+				{
+					CreateHealthPickup();
+				}
 			}
 			return;
 		}
@@ -230,7 +239,7 @@ namespace Final_Game.LevelGen
 			if (selectedTile.Type != LevelGen.TileType.Grass)
 			{
 				//Select random tile.
-				selectedTile = Game1.TestLevel.CurrentRoom.Tileset.FindRandomFloorTile();
+				selectedTile = Game1.CurrentLevel.CurrentRoom.Tileset.FindRandomFloorTile();
 			}
 
 			selectedTile.HasHealthPickup = true;
@@ -278,6 +287,13 @@ namespace Final_Game.LevelGen
 		{
 			Tileset.Draw(sb);
 		}
+
+		public void OnInitiallyEntered()
+		{
+			if (OnRoomEntered != null)
+				OnRoomEntered();
+		}
+
 		#endregion
 	}
 }

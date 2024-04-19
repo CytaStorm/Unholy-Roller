@@ -165,6 +165,26 @@ namespace Final_Game.Managers
             }
         }
 
+        public void DrawSimpleShapes()
+        {
+            switch (Scene)
+            {
+                case Cutscene.Tutorial:
+
+                    if (PhaseNum == 7)
+                    {
+                        ShapeBatch.BoxOutline(
+                            new Rectangle(
+                                100, 400,
+                                Game1.TileSize,
+                                Game1.TileSize),
+                            Color.White);
+                    }
+
+                    break;
+            }
+        }
+
         public void StartCutscene(Cutscene scene)
         {
             gm.State = GameState.Cutscene;
@@ -189,8 +209,19 @@ namespace Final_Game.Managers
 
                     gm.CreateTutorialLevel();
 
-                    // Ensure that doors lock
+                    // Lock first room doors
+                    // by spawning an invisible enemy
                     Game1.EManager.Enemies.Add(new Dummy(gm, Vector2.Zero, true));
+
+                    // Entering the dummy room the first time
+                    // will cause an immediate phase transfer
+                    Game1.TutorialLevel.Map[0, 1]
+                        .OnRoomEntered += OnPhaseTransfer;
+
+                    // Entering the final for the first time
+                    // will cause an immediate phase transfer
+                    Game1.TutorialLevel.Map[0, 2]
+                        .OnRoomEntered += OnPhaseTransfer;
 
                     Scene = Cutscene.Tutorial;
 
@@ -230,7 +261,20 @@ namespace Final_Game.Managers
                     {
                         _curText = "";
 
+                        // Clear invisible enemy so doors open
                         Game1.EManager.Clear();
+                    }
+                    else if (PhaseNum == 5)
+                    {
+                        _curText =
+                            "Knock all enemies down to progress.\n" +
+                            "Beware they don't stay down for long.";
+                    }
+                    else if (PhaseNum == 6)
+                    {
+                        _curText =
+                            "Every hit enemy increases your combo meter.\n" +
+                            "Once you're smiling your ability (SHIELD) is available";
                     }
                     
 
@@ -270,7 +314,8 @@ namespace Final_Game.Managers
 
             Game1.MainCamera.Update(gameTime);
 
-            Game1.TutorialLevel.CurrentRoom.Update(gameTime);
+            if (PhaseNum != 7)
+                Game1.TutorialLevel.CurrentRoom.Update(gameTime);
 
             gm.UIManager.UpdateSpeedometerShake(gameTime);
 
@@ -360,8 +405,19 @@ namespace Final_Game.Managers
 
                     break;
 
-                case 5:
-                    
+                case 7:
+
+                    // Ensure player uses ability before tutorial ends
+                    if (Game1.EManager.Enemies.Count < 1)
+                    {
+                        BasicPuncher extraEnemy =
+                            new BasicPuncher(gm, new Vector2());
+
+                        extraEnemy.MoveToRoomCenter(Game1.CurrentLevel.CurrentRoom);
+
+                        Game1.EManager.Enemies.Add(extraEnemy);
+                    }
+
                     break;
 
             }
@@ -378,6 +434,11 @@ namespace Final_Game.Managers
 
             gm.UIManager.DrawPlayerHealth();
             gm.UIManager.DrawPlayerSpeedometer();
+
+            if (PhaseNum >= 6)
+            {
+                gm.UIManager.DrawPlayerCombo();
+            }
 
             string tempText = _curText.Substring(0, _writeLength);
 

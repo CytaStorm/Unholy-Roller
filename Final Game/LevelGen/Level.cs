@@ -291,6 +291,8 @@ namespace Final_Game.LevelGen
             CurrentRoom.Discovered = true;
             Debug.WriteLine(CurrentPoint);
 
+            CurrentRoom.OnInitiallyEntered();
+
             //Return early if no acutal offset.
             if (newRoomOffset == new Point(0, 0))
             {

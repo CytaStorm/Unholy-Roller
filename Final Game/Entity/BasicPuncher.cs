@@ -361,20 +361,18 @@ namespace Final_Game.Entity
 			bool hitPlayerDir = damageBox.Intersects(Game1.Player.Hitbox);
 			//CollisionChecker.CheckEntityCollision(damageBox, Game1.Player);
 
-			if (hitPlayerDir)
+			// Once attack is landed, will not do damage
+			// until next punch
+			if (hitPlayerDir && !_attackLandedOnce)
 			{
 				directionToPlayer.Normalize();
 				directionToPlayer *= _attackForce;
 
 				Game1.Player.TakeDamage(1);
 
-				// Keep player from ricocheting endlessly
-				// while in attack area
-				if (!_attackLandedOnce)
-				{
-					Game1.Player.Ricochet(directionToPlayer);
-					_attackLandedOnce = true;
-				}
+				Game1.Player.Ricochet(directionToPlayer);
+
+				_attackLandedOnce = true;
 			}
 
 			return;

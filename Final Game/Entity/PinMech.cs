@@ -187,6 +187,7 @@ namespace Final_Game.Entity
 			TickInvincibility(gameTime);
 
 			TickKnockout(gameTime);
+			// DEBUG 
 
 			//CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
 			Random rng = new Random();
@@ -198,6 +199,7 @@ namespace Final_Game.Entity
 			int originY = Game1.Player.CurrentRoom.Origin.Y;
 
 			DetermineState(playerDist);
+			BossActionState = BossState.HandSwipe;
 
 			stunTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 
@@ -686,12 +688,12 @@ namespace Final_Game.Entity
 			// Get the center position of the pulled back fist
 			// in screen space
 
-			Vector2 correction = new Vector2(
-				Image.DestinationRect.Width / 2.5f,
-				Image.DestinationRect.Height / 2.5f);
+			//Vector2 correction = new Vector2(
+			//	Image.DestinationRect.Width / 2.5f,
+			//	Image.DestinationRect.Height / 2.5f);
 
 			Vector2 windupScreenPos =
-				CenterPosition + correction - _attackDirection
+				CenterPosition - _attackDirection
 				+ Game1.MainCamera.WorldToScreenOffset;
 
 			// Shift position to top-left of glove image (for drawing)

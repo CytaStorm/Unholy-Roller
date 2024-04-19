@@ -141,6 +141,11 @@ namespace Final_Game
 		public GameState State { get; set; }
 
 		/// <summary>
+		/// The previous active game state
+		/// </summary>
+		public GameState PrevState { get; set; }
+
+		/// <summary>
 		/// Object that creates tiles.
 		/// </summary>
 		private static TileMaker tilemaker;
@@ -386,12 +391,13 @@ namespace Final_Game
 		{
 			if (paused)
 			{
+				PrevState = State;
 				State = GameState.Pause;
 				Mouse.SetCursor(_menuCursor);
 			}
 			else
 			{
-				State = GameState.Play;
+				State = PrevState;
 				Mouse.SetCursor(_gameplayCursor);
 			}
 		}

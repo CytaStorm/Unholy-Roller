@@ -44,7 +44,7 @@ namespace Final_Game.Managers
 
         private bool _shieldUsed;
 
-        private Texture2D _mouseTexture;
+        private Sprite _mouseImage;
         private Texture2D _arrowTexture;
         private Texture2D _wasdTexture;
 
@@ -98,7 +98,15 @@ namespace Final_Game.Managers
                 "NOW GO EVISCERATE THOSE PINHEADS!!! " +
                 "Press 'Esc'", 60);
 
-            _mouseTexture = gm.Content.Load<Texture2D>("UI Images/MousePressSpritesheet");
+            Texture2D mouseTexture = gm.Content.Load<Texture2D>("UI Images/MousePressSpritesheet");
+            _mouseImage = new Sprite(
+                mouseTexture,
+                new Rectangle(0, 0, mouseTexture.Width / 2, mouseTexture.Height),
+                new Rectangle(0, 0, 200, 200));
+            _mouseImage.Columns = 2;
+            _mouseImage.FrameBounds = _mouseImage.SourceRect;
+            _mouseImage.ObeyCamera = false;
+
             _wasdTexture = gm.Content.Load<Texture2D>("UI Images/WASD_Keys");
             _arrowTexture = gm.Content.Load<Texture2D>("UI Images/Arrow_Keys");
 
@@ -198,6 +206,8 @@ namespace Final_Game.Managers
             _curText = null;
 
             _writeLength = 0;
+
+            _phaseTransferTimer = 0;
 
             switch (scene)
             {
@@ -360,13 +370,13 @@ namespace Final_Game.Managers
                     // Check if player launches
                     if (Game1.Player.State == PlayerState.Walking)
                     {
-                        if (Game1.IsMouseButtonPressed(1))
+                        if (Game1.IsMouseButtonPressed(Game1.Player.LaunchButton))
                         {
                             _hasPrimedLaunch = true;
                         }
                     }
 
-                    if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(1))
+                    if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(Game1.Player.LaunchButton))
                     {
                         _hasLaunched = true;
                     }
@@ -383,12 +393,12 @@ namespace Final_Game.Managers
                     // Check if player redirects
                     if (Game1.Player.State == PlayerState.Rolling)
                     {
-                        if (Game1.IsMouseButtonPressed(1))
+                        if (Game1.IsMouseButtonPressed(Game1.Player.LaunchButton))
                         {
                             _hasPrimedLaunch = true;
                         }
 
-                        if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(1))
+                        if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(Game1.Player.LaunchButton))
                         {
                             _hasLaunched = true;
                             _hasRedirected = true;
@@ -410,7 +420,7 @@ namespace Final_Game.Managers
                     // Check if player brakes
                     if (Game1.Player.State == PlayerState.Rolling)
                     {
-                        if (Game1.IsMouseButtonPressed(2))
+                        if (Game1.IsMouseButtonPressed(Game1.Player.BrakeButton))
                         {
                             _hasUsedBrake = true;
                         }
@@ -493,16 +503,9 @@ namespace Final_Game.Managers
                     break;
 
                 case 2:
-                    sb.Draw(
-                        _mouseTexture,
-                        new Rectangle(
-                            735, 700,
-                            200, 200),
-                        new Rectangle(
-                            0, 0,
-                            _mouseTexture.Width / 2,
-                            _mouseTexture.Height),
-                        Color.White);
+                    _mouseImage.SetSourceToFrame(Game1.Player.LaunchButton);
+
+                    _mouseImage.Draw(sb, new Vector2(735, 700), 0f, Vector2.Zero);
 
                     sb.DrawString(
                         UI.MediumArial,
@@ -512,16 +515,9 @@ namespace Final_Game.Managers
                     break;
 
                 case 3:
-                    sb.Draw(
-                       _mouseTexture,
-                       new Rectangle(
-                           735, 700,
-                           200, 200),
-                       new Rectangle(
-                           0, 0,
-                           _mouseTexture.Width / 2,
-                           _mouseTexture.Height),
-                       Color.White);
+                    _mouseImage.SetSourceToFrame(Game1.Player.LaunchButton);
+
+                    _mouseImage.Draw(sb, new Vector2(735, 700), 0f, Vector2.Zero);
 
                     sb.DrawString(
                         UI.MediumArial,
@@ -532,20 +528,13 @@ namespace Final_Game.Managers
                     break;
 
                 case 4:
-                    sb.Draw(
-                        _mouseTexture,
-                        new Rectangle(
-                            735, 700,
-                            200, 200),
-                        new Rectangle(
-                            _mouseTexture.Width / 2 , 0,
-                            _mouseTexture.Width / 2,
-                            _mouseTexture.Height),
-                        Color.White);
+                    _mouseImage.SetSourceToFrame(Game1.Player.BrakeButton);
+
+                    _mouseImage.Draw(sb, new Vector2(735, 700), 0f, Vector2.Zero);
 
                     sb.DrawString(
                         UI.MediumArial,
-                        "Hold to Deccelerate",
+                        "Hold to Decelerate",
                         new Vector2(Game1.ScreenCenter.X, Game1.ScreenCenter.Y + 210),
                         Color.White);
 

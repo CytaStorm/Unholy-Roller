@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,11 +13,32 @@ namespace Final_Game
 	public class Sprite
 	{
 
-		#region Fields
+		#region Properties
 		public Texture2D Texture { get; private set; }
 		public Rectangle SourceRect { get; set; }
 		public Rectangle DestinationRect { get; set; }
 		public Color TintColor { get; set; }
+
+		/// <summary>
+		/// The uniform bounding rectangle of a frame
+		/// of this sprite's animation
+		/// </summary>
+		public Rectangle FrameBounds { get; set; }
+
+		/// <summary>
+		/// The number of frames of animation contained in each row of this sprite's texture
+		/// </summary>
+		public int Columns { get; set; }
+
+		/// <summary>
+		/// The number of rows of frames contained in this sprite's texture
+		/// </summary>
+		public int Rows { get; set; }
+
+		/// <summary>
+		/// Number of animation frames represented by this sprite
+		/// </summary>
+		public int NumFrames => Columns * Rows;
 
 		/// <summary>
 		/// Determines whether or not the sprite can be scaled by the camera
@@ -76,6 +98,23 @@ namespace Final_Game
 					SpriteEffects.None,
 					0);
 			}
+		}
+
+		/// <summary>
+		/// Adjusts the source rectangle to represent
+		/// the specified frame of animation
+		/// </summary>
+		/// <param name="frameNum"> frame number (one-based) </param>
+		public void SetSourceToFrame(int frameNum)
+		{
+			if (frameNum < 1) 
+				throw new Exception("Frame number cannot be less than 1");
+
+			SourceRect = new Rectangle(
+				(frameNum - 1) % Columns * FrameBounds.Width,
+				(frameNum - 1) / (Columns + 1) * FrameBounds.Height,
+				FrameBounds.Width,
+				FrameBounds.Height);
 		}
 
 

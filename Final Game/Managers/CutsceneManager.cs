@@ -42,6 +42,8 @@ namespace Final_Game.Managers
 
         private string _tutorialEndMessage;
 
+        private bool _shieldUsed;
+
         #endregion
 
         #region GameOver Vars
@@ -204,6 +206,7 @@ namespace Final_Game.Managers
                     _hasRedirected = false;
                     _hasUsedBrake = false;
                     _hasWalked = false;
+                    _shieldUsed = false;
 
                     _curText = _walkInstructions;
 
@@ -213,13 +216,13 @@ namespace Final_Game.Managers
                     // by spawning an invisible enemy
                     Game1.EManager.Enemies.Add(new Dummy(gm, Vector2.Zero, true));
 
-                    // Entering the dummy room the first time
-                    // will cause an immediate phase transfer
+                    // Entering the dummy room will cause
+                    // an immediate phase transfer
                     Game1.TutorialLevel.Map[0, 1]
                         .OnRoomEntered += OnPhaseTransfer;
 
-                    // Entering the final for the first time
-                    // will cause an immediate phase transfer
+                    // Entering the final room will cause
+                    // an immediate phase transfer
                     Game1.TutorialLevel.Map[0, 2]
                         .OnRoomEntered += OnPhaseTransfer;
 
@@ -269,12 +272,24 @@ namespace Final_Game.Managers
                         _curText =
                             "Knock all enemies down to progress.\n" +
                             "Beware they don't stay down for long.";
+
+                        Game1.TutorialLevel.Map[0, 1]
+                        .OnRoomEntered -= OnPhaseTransfer;
                     }
                     else if (PhaseNum == 6)
                     {
                         _curText =
                             "Every hit enemy increases your combo meter.\n" +
                             "Once you're smiling your ability (SHIELD) is available";
+
+                        Game1.TutorialLevel.Map[0, 2]
+                        .OnRoomEntered -= OnPhaseTransfer;
+
+                        Game1.Player.OnPlayerHit += CheckShieldAbilityUsed;   
+                    }
+                    else if (PhaseNum == 7)
+                    {
+                        _curText = _tutorialEndMessage;
                     }
                     
 
@@ -418,6 +433,12 @@ namespace Final_Game.Managers
                         Game1.EManager.Enemies.Add(extraEnemy);
                     }
 
+                    if (_shieldUsed && _phaseTransferTimer <= 0)
+                    {
+
+                        _phaseTransferTimer = 1;
+                    }
+
                     break;
 
             }
@@ -503,6 +524,17 @@ namespace Final_Game.Managers
                 Color.White * (float)(_backgroundFadeTimeCounter / _backgroundFadeDuration));
         }
 
+        private void CheckShieldAbilityUsed(int nothing)
+        {
+            if (Game1.Player.ComboReward)
+            {
+                // Shield ability was used
+                _shieldUsed = true;
+
+                // No need to check anymore
+                Game1.Player.OnPlayerHit -= CheckShieldAbilityUsed;
+            }
+        }
 
         #endregion
     }

@@ -277,12 +277,6 @@ namespace Final_Game
 				TitleCaseCarter.MeasureString(curCombo);
 
 			// Draw Combo Icon after text
-			Color iconColor = Color.White;
-			if (Game1.Player.IsSmiling)
-			{
-				iconColor = Color.LightBlue;
-			}
-
 			_spriteBatch.Draw(
 				_comboIcon,
 				new Rectangle(
@@ -290,7 +284,7 @@ namespace Final_Game
 					400,
 					80,
 					80),
-				iconColor);
+				Color.White);
 			return;
 		}
 

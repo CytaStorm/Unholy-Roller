@@ -127,8 +127,9 @@ namespace Final_Game.Entity
 			get => Game1.IsMouseButtonPressed(LaunchButton) && NumRedirects > 0; 
 		}
 
-        #endregion
+		#endregion
 
+		public event EntityDamaged OnPlayerHit;
         public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
@@ -764,6 +765,8 @@ namespace Final_Game.Entity
 
 		public override void TakeDamage(int amount)
 		{
+
+			if(OnPlayerHit != null) OnPlayerHit(0);
 
 			// Early Exit Conditions
 			if (ComboReward)

@@ -362,7 +362,7 @@ namespace Final_Game.Entity
 			//CollisionChecker.CheckEntityCollision(damageBox, Game1.Player);
 
 			// Once attack is landed, will not do damage
-			// until next punch
+			// until next punch 
 			if (hitPlayerDir && !_attackLandedOnce)
 			{
 				directionToPlayer.Normalize();

@@ -291,7 +291,6 @@ namespace Final_Game.LevelGen
             CurrentRoom.Discovered = true;
             Debug.WriteLine(CurrentPoint);
 
-            CurrentRoom.OnInitiallyEntered();
 
             //Return early if no acutal offset.
             if (newRoomOffset == new Point(0, 0))
@@ -302,6 +301,8 @@ namespace Final_Game.LevelGen
 
             Game1.PManager.ClearPickups();
             CurrentPoint += newRoomOffset;
+
+            CurrentRoom.OnInitiallyEntered();
 
 			if (this != Game1.TutorialLevel)
 				//Remove enemies near player.

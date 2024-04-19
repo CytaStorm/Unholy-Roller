@@ -218,12 +218,12 @@ namespace Final_Game.Managers
 
                     // Entering the dummy room will cause
                     // an immediate phase transfer
-                    Game1.TutorialLevel.Map[0, 1]
+                    Game1.TutorialLevel.Map[0, 2]
                         .OnRoomEntered += OnPhaseTransfer;
 
                     // Entering the final room will cause
                     // an immediate phase transfer
-                    Game1.TutorialLevel.Map[0, 2]
+                    Game1.TutorialLevel.Map[1, 2]
                         .OnRoomEntered += OnPhaseTransfer;
 
                     Scene = Cutscene.Tutorial;
@@ -266,6 +266,8 @@ namespace Final_Game.Managers
 
                         // Clear invisible enemy so doors open
                         Game1.EManager.Clear();
+
+                        Game1.EManager.OnLastEnemyKilled += ResetText;
                     }
                     else if (PhaseNum == 5)
                     {
@@ -273,7 +275,7 @@ namespace Final_Game.Managers
                             "Knock all enemies down to progress.\n" +
                             "Beware they don't stay down for long.";
 
-                        Game1.TutorialLevel.Map[0, 1]
+                        Game1.TutorialLevel.Map[0, 2]
                         .OnRoomEntered -= OnPhaseTransfer;
                     }
                     else if (PhaseNum == 6)
@@ -282,8 +284,10 @@ namespace Final_Game.Managers
                             "Every hit enemy increases your combo meter.\n" +
                             "Once you're smiling your ability (SHIELD) is available";
 
-                        Game1.TutorialLevel.Map[0, 2]
+                        Game1.TutorialLevel.Map[1, 2]
                         .OnRoomEntered -= OnPhaseTransfer;
+
+                        Game1.EManager.OnLastEnemyKilled -= ResetText;
 
                         Game1.Player.OnPlayerHit += CheckShieldAbilityUsed;   
                     }
@@ -534,6 +538,12 @@ namespace Final_Game.Managers
                 // No need to check anymore
                 Game1.Player.OnPlayerHit -= CheckShieldAbilityUsed;
             }
+        }
+
+        private void ResetText()
+        {
+            _curText = "";
+            _writeLength = 0;
         }
 
         #endregion

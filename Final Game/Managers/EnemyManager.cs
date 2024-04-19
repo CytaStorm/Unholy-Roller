@@ -96,7 +96,6 @@ namespace Final_Game.Managers
                 Enemies.Clear();
 
                 OnLastEnemyKilled();
-                //OnLastEnemyKilled();
             }
         }
 

@@ -230,12 +230,12 @@ namespace Final_Game.Managers
 
                     // Entering the dummy room will cause
                     // an immediate phase transfer
-                    Game1.TutorialLevel.Map[0, 1]
+                    Game1.TutorialLevel.Map[0, 2]
                         .OnRoomEntered += OnPhaseTransfer;
 
                     // Entering the final room will cause
                     // an immediate phase transfer
-                    Game1.TutorialLevel.Map[0, 2]
+                    Game1.TutorialLevel.Map[1, 2]
                         .OnRoomEntered += OnPhaseTransfer;
 
                     Scene = Cutscene.Tutorial;
@@ -285,16 +285,16 @@ namespace Final_Game.Managers
                             "Knock all enemies down to progress.\n" +
                             "Beware they don't stay down for long.";
 
-                        Game1.TutorialLevel.Map[0, 1]
+                        Game1.TutorialLevel.Map[0, 2]
                         .OnRoomEntered -= OnPhaseTransfer;
                     }
                     else if (PhaseNum == 6)
                     {
                         _curText =
-                            "Every hit enemy increases your combo meter.\n" +
-                            "Once you're smiling your ability (SHIELD) is available";
+                            "Your combo increases each time you hit an enemy.\n" +
+                            "Take a punch when you smile (10 combo)";
 
-                        Game1.TutorialLevel.Map[0, 2]
+                        Game1.TutorialLevel.Map[1, 2]
                         .OnRoomEntered -= OnPhaseTransfer;
 
                         Game1.Player.OnPlayerHit += CheckShieldAbilityUsed;   

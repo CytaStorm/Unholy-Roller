@@ -199,7 +199,7 @@ namespace Final_Game.Entity
 			int originY = Game1.Player.CurrentRoom.Origin.Y;
 
 			DetermineState(playerDist);
-			BossActionState = BossState.HandSwipe;
+			//BossActionState = BossState.HandSwipe;
 
 			stunTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 

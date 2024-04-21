@@ -105,8 +105,7 @@ namespace Final_Game.Managers
 
 		public static void PlayHealthPickupSound()
 		{
-			Debug.WriteLine("herehealth");
-			MiscSoundEffects[0].Play(0.1f, 0f, 0f);		
+			MiscSoundEffects[0].Play(1f, 0f, 0f);
 		}
 		#endregion
 	}

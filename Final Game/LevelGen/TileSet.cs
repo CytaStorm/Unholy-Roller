@@ -443,10 +443,6 @@ namespace Final_Game.LevelGen
 				tile.Draw(spriteBatch, screenPos);
 
 				tile.TileSprite.TintColor = Color.White;
-				if (tile.HasHealthPickup)
-				{
-					Game1.PManager.CreateHealthPickup(tile);	
-				}
 			}
 		}
 
@@ -572,9 +568,11 @@ namespace Final_Game.LevelGen
 		/// of tile to remove pickup flag at.</param>
 		public void CollectedPickup(Vector2 worldposition)
 		{
+			//Debug.WriteLine("removed health pickup");
 			Tile selectedTile = Layout[
 				(int)worldposition.X / Game1.TileSize,
 				(int)worldposition.Y / Game1.TileSize];
+			//Debug.WriteLine(selectedTile.WorldPosition);
 			selectedTile.HasHealthPickup = false;
 		}
 
@@ -605,6 +603,22 @@ namespace Final_Game.LevelGen
 		public void ClearEnemies()
 		{
 			Spawners.Clear();
+		}
+
+		/// <summary>
+		/// Clears item flags in the layout.
+		/// </summary>
+		public void ClearItemFlags()
+		{
+			Debug.WriteLine("cleared item flags");
+			for (int i = 0; i < Layout.GetLength(0); i++)
+			{
+				for (int j = 0; j < Layout.GetLength(1); j++)
+				{
+					Layout[i, j].HasHealthPickup = false;
+				}
+			}
+			Game1.PManager.ClearPickups();
 		}
 
 		#endregion

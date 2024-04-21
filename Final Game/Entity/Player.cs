@@ -1,5 +1,6 @@
 using Final_Game.LevelGen;
 using Final_Game.Managers;
+using Final_Game.Pickups;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -371,8 +372,12 @@ namespace Final_Game.Entity
 				if (CollisionChecker.CheckEntityCollision(
 					this, currentPickup))
 				{
+					//Remove the pickup.
 					Game1.PManager.PlayerCollided(currentPickup);
+					Heal(Pickup_Health.HealingPower);
+
 					//Decrement to correct for list shortening.
+					SoundManager.PlayHealthPickupSound();
 					i--;
 				}
 			}

@@ -152,6 +152,12 @@
 #begin Room Layouts/roomLayouts.txt
 /copy:Room Layouts/roomLayouts.txt
 
+#begin Sound Effects/healthpickupsound.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sound Effects/healthpickupsound.wav
+
 #begin Sound Effects/pinKnock1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

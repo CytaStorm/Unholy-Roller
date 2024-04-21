@@ -1,4 +1,5 @@
 ﻿using Final_Game.Entity;
+using Final_Game.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,6 +15,9 @@ namespace Final_Game.Pickups
 	{
         #region Fields
         private int _healingPower;
+		#endregion
+
+		#region Events
 		#endregion
 
 		#region Constructor(s)
@@ -73,6 +77,7 @@ namespace Final_Game.Pickups
 			{
 				entity.Heal(_healingPower);
 			}
+			SoundManager.PlayHealthPickupSound();
         }
 
         #endregion

@@ -216,7 +216,7 @@ namespace Final_Game.LevelGen
 				Tileset.CreateOpenDoors(ActualConnections);
 
 				//30% chance to create health pickup.
-				if (_random.NextSingle() <= 0.3f &&
+				if (//_random.NextSingle() <= 0.3f &&
 					Game1.CurrentLevel != Game1.TutorialLevel)
 				{
 					CreateHealthPickup();
@@ -297,3 +297,4 @@ namespace Final_Game.LevelGen
 		#endregion
 	}
 }
+

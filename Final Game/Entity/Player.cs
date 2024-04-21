@@ -40,6 +40,11 @@ namespace Final_Game.Entity
 		private float _walkSpeed;
 
 		/// <summary>
+		/// Speed of the player to reload redirects
+		/// </summary>
+		private float _reloadRedirectsSpeed;
+
+		/// <summary>
 		/// The speed at which the player loses speed
 		/// when holding Mouse2.
 		/// </summary>
@@ -122,8 +127,9 @@ namespace Final_Game.Entity
 			get => Game1.IsMouseButtonPressed(LaunchButton) && NumRedirects > 0; 
 		}
 
-        #endregion
+		#endregion
 
+		public event EntityDamaged OnPlayerHit;
         public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
@@ -175,6 +181,7 @@ namespace Final_Game.Entity
 			_frictionMagnitude = 0.01f;
 			_transitionToWalkingSpeed = 1f;
 			_smileSpeed = 48f;
+			_reloadRedirectsSpeed = 5f;
 
 			// Set default state
 			State = PlayerState.Walking;
@@ -231,10 +238,20 @@ namespace Final_Game.Entity
 
 					if (_controllable) HandleBraking();
 
-					// Transition to walking
-					if (Velocity.Length() < 1f)
+					float playerSpeed = Velocity.Length();
+
+					// Quick reload redirects
+					if (playerSpeed < _reloadRedirectsSpeed)
+					{
+						NumRedirects = MaxRedirects;
+					}
+
+                    // Transition to walking
+                    if (playerSpeed < 1f)
 					{
 						State = PlayerState.Walking;
+
+						Velocity = Vector2.Zero;
 
 						NumRedirects = MaxRedirects + 1;
 					}
@@ -247,8 +264,7 @@ namespace Final_Game.Entity
 
 			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
-			if (Game1.CSManager.Scene != Cutscene.Tutorial)
-				CheckEnemyCollisions();
+			CheckEnemyCollisions();
 
 			CheckPickupCollisions();
 
@@ -283,8 +299,6 @@ namespace Final_Game.Entity
 				case TileType.Spike:
 
 					TakeDamage(2);
-
-					Image.TintColor = Color.LightGoldenrodYellow;
 					break;
 
 				case TileType.OpenDoor:
@@ -303,6 +317,7 @@ namespace Final_Game.Entity
 			// Place self on part of tile that was hit
 			PlaceOnHitEdge(tile, colDir);
 
+
 			if (State == PlayerState.Rolling)
 			{
 				//Move(-Velocity);
@@ -313,8 +328,6 @@ namespace Final_Game.Entity
 			{
 				Move(-Velocity * BulletTimeMultiplier);
 			}
-
-			base.OnHitTile(tile, colDir);
 		}
 
 		public override void OnHitEntity(Entity entity, CollisionDirection colDir)
@@ -400,14 +413,6 @@ namespace Final_Game.Entity
 				return;
 			}
 
-			// Player gets hit.
-			// Check for high enough combo.
-			if (ComboReward)
-			{
-				Combo = 0;
-				return;
-			}
-
 			// Player gets knocked back if standing on top of enemy
 			Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
 			distToEnemy.Normalize();
@@ -431,19 +436,19 @@ namespace Final_Game.Entity
 			switch (tile.DoorOrientation)
 			{
 				case "U":
-					Game1.TestLevel.LoadRoomUsingOffset(new Point(-1, 0));
+					Game1.CurrentLevel.LoadRoomUsingOffset(new Point(-1, 0));
 					Move(new Vector2(0, (CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "B":
-					Game1.TestLevel.LoadRoomUsingOffset(new Point(1, 0));
+					Game1.CurrentLevel.LoadRoomUsingOffset(new Point(1, 0));
 					Move(new Vector2(0, -(CurrentRoom.Tileset.Rows - 3) * Game1.TileSize));
 					break;
 				case "L":
-					Game1.TestLevel.LoadRoomUsingOffset(new Point(0, -1));
+					Game1.CurrentLevel.LoadRoomUsingOffset(new Point(0, -1));
 					Move(new Vector2((CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 				case "R":
-					Game1.TestLevel.LoadRoomUsingOffset(new Point(0, 1));
+					Game1.CurrentLevel.LoadRoomUsingOffset(new Point(0, 1));
 					Move(new Vector2(-(CurrentRoom.Tileset.Columns - 3) * Game1.TileSize, 0));
 					break;
 			}
@@ -589,13 +594,13 @@ namespace Final_Game.Entity
 	
 		private void UpdateBulletTime(GameTime gameTime)
 		{
-			if (Game1.IsMouseButtonPressed(1) && NumRedirects > 0 && !CurrentRoom.Cleared)
+			if (Game1.IsMouseButtonPressed(LaunchButton) && NumRedirects > 0 && !CurrentRoom.Cleared)
 			{
 				// Transition from normal -> bullet time
 				_transitionTimeCounter -= gameTime.ElapsedGameTime.TotalSeconds;
 	
 			}
-			else if (Game1.IsMouseButtonReleased(1))
+			else if (Game1.IsMouseButtonReleased(LaunchButton))
 			{
 				// Transition from bullet -> normal time
 				_transitionTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
@@ -763,6 +768,8 @@ namespace Final_Game.Entity
 		public override void TakeDamage(int amount)
 		{
 
+			if(OnPlayerHit != null) OnPlayerHit(0);
+
 			// Early Exit Conditions
 			if (ComboReward)
 			{
@@ -783,11 +790,19 @@ namespace Final_Game.Entity
 			// Handle low health
 			if (CurHealth <= 0)
 			{
+				// Player can't die if in tutorial
+				if (Game1.CurrentLevel == Game1.TutorialLevel)
+				{
+					CurHealth = MaxHealth;
+					return;
+				}
+
 				_controllable = false;
 
 				BulletTimeMultiplier = _minTimeMultiplier;
 
 				SoundManager.PlayDeathSound();
+
 				OnPlayerDeath();
 			}
 
@@ -815,7 +830,7 @@ namespace Final_Game.Entity
 		{
 			return new Player(_gm, this.WorldPosition);
 		}
-	}
+    }
 	#endregion
 }
 

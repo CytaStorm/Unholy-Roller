@@ -60,11 +60,6 @@ namespace Final_Game
 		private Texture2D _noRedirectCursorTexture;
 
 		/// <summary>
-		/// UI controller object.
-		/// </summary>
-		private UI _ui;
-
-		/// <summary>
 		/// Mouse controller object for control of cursor in-game.
 		/// </summary>
 		private MouseCursor _gameplayCursor;
@@ -146,6 +141,11 @@ namespace Final_Game
 		public GameState State { get; set; }
 
 		/// <summary>
+		/// The previous active game state
+		/// </summary>
+		public GameState PrevState { get; set; }
+
+		/// <summary>
 		/// Object that creates tiles.
 		/// </summary>
 		private static TileMaker tilemaker;
@@ -159,9 +159,15 @@ namespace Final_Game
 		//Sound Manager 
 		public static SoundManager SManager { get; private set; }
 
+		// Particle Manager
 		public static ParticleTrailManager FXManager { get; private set; }
 
-		public static Camera MainCamera { get; private set; }
+        /// <summary>
+        /// UI controller object.
+        /// </summary>
+        public UI UIManager { get; private set; }
+
+        public static Camera MainCamera { get; private set; }
 
 		public static bool DebugOn { get; private set; }
 		//Attack Indicator Manager for the Boss
@@ -182,8 +188,6 @@ namespace Final_Game
 		protected override void Initialize()
 		{
 			tilemaker = new TileMaker(Content);
-
-			TutorialLevel = new Level(1, 1, 1);
 
 			//Ensures that first room goes through room loading 
 
@@ -238,7 +242,7 @@ namespace Final_Game
 			_menuCursor = MouseCursor.Arrow;
 			
 			// Create UI Manager
-			_ui = new UI(this, _spriteBatch);
+			UIManager = new UI(this, _spriteBatch);
 
 			// Create Cutscene Manager
 			CSManager = new CutsceneManager(this);
@@ -280,16 +284,11 @@ namespace Final_Game
 				case GameState.Play:
 					Player.Update(gameTime);
 
-					// Update cursor
-					if (Player.NumRedirects > 0)
-						Mouse.SetCursor(_gameplayCursor);
-					else 
-						Mouse.SetCursor(_noRedirectCursor);
+					UpdatePlayCursor();
 
 					MainCamera.Update(gameTime);
 
-					if (CSManager.Scene == Cutscene.None)
-						CurrentLevel.CurrentRoom.Update(gameTime);
+					CurrentLevel.CurrentRoom.Update(gameTime);
 
 					EManager.Update(gameTime);
 
@@ -315,7 +314,7 @@ namespace Final_Game
 					break;
 			}
 
-			_ui.Update(gameTime);
+			UIManager.Update(gameTime);
 
 			// Store controller states
 			PrevMouse = CurMouse;
@@ -361,9 +360,9 @@ namespace Final_Game
 					break;
 			}
 
-			_ui.Draw(gameTime);
-			
-			_spriteBatch.End();
+			UIManager.Draw();
+            
+            _spriteBatch.End();
 
 			// Draw simplified shapes
 
@@ -374,8 +373,12 @@ namespace Final_Game
 				case GameState.Play:
 
 					if (DebugOn) DrawDebug();
-					IManager.Draw();
-					_ui.DrawMinimap();
+                    IManager.Draw();
+                    UIManager.DrawMinimap();
+					break;
+
+				case GameState.Cutscene:
+					CSManager.DrawSimpleShapes();
 					break;
 			}
 
@@ -388,12 +391,13 @@ namespace Final_Game
 		{
 			if (paused)
 			{
+				PrevState = State;
 				State = GameState.Pause;
 				Mouse.SetCursor(_menuCursor);
 			}
 			else
 			{
-				State = GameState.Play;
+				State = PrevState;
 				Mouse.SetCursor(_gameplayCursor);
 			}
 		}
@@ -500,17 +504,17 @@ namespace Final_Game
 
 		public void SubscribeToButtons()
 		{
-			_ui.MenuButtons[0].OnClicked += StartGame;
-			_ui.MenuButtons[1].OnClicked += StartTutorial;
-			_ui.MenuButtons[2].OnClicked += ExitGame;
+			UIManager.MenuButtons[0].OnClicked += StartGame;
+			UIManager.MenuButtons[1].OnClicked += StartTutorial;
+			UIManager.MenuButtons[2].OnClicked += ExitGame;
 
-			_ui.PauseButtons[0].OnClicked += ResumeGame;
-			_ui.PauseButtons[1].OnClicked += ReturnToMainMenu;
-			_ui.PauseButtons[1].OnClicked += CSManager.EndCurrentScene;
+			UIManager.PauseButtons[0].OnClicked += ResumeGame;
+			UIManager.PauseButtons[1].OnClicked += ReturnToMainMenu;
+			UIManager.PauseButtons[1].OnClicked += CSManager.EndCurrentScene;
 
-			_ui.GameOverButtons[0].OnClicked += ResetGame;
-			_ui.GameOverButtons[0].OnClicked += StartGame;
-			_ui.GameOverButtons[1].OnClicked += ReturnToMainMenu;
+			UIManager.GameOverButtons[0].OnClicked += ResetGame;
+			UIManager.GameOverButtons[0].OnClicked += StartGame;
+			UIManager.GameOverButtons[1].OnClicked += ReturnToMainMenu;
 
 		}
 
@@ -525,7 +529,7 @@ namespace Final_Game
 			TestLevel.LoadRoomUsingOffset(new Point(0, 0));
 
 			State = GameState.Play;
-			_ui.LoadMinimap();
+			UIManager.LoadMinimap();
 			Mouse.SetCursor(_gameplayCursor);
 		}
 
@@ -618,7 +622,44 @@ namespace Final_Game
 
 			PManager.DrawGizmos();
 
-			_ui.DisplayRedirectsInCursor();
+			UIManager.DisplayRedirectsInCursor();
 		}
+
+		public void CreateTutorialLevel()
+		{
+            bool[,] tutorialRooms = new bool[,]
+            {
+                { true, true, true },
+                { false, false, true }
+            };
+
+            string[,] obsData = new string[tutorialRooms.GetLength(0), tutorialRooms.GetLength(1)];
+			obsData[0, 1] = "s,4,5|s,4,6|s,4,7|s,4,8|s,4,9|s,4,10|s,5,5|s,5,6|s,5,7|s,5,8|s,5,9|s,5,10|" +
+				"s,6,5|s,6,6|w,6,7|w,6,8|s,6,9|s,6,10|s,7,5|s,7,6|w,7,7|w,7,8|s,7,9|s,7,10|s,8,5|s,8,6|" +
+				"w,8,7|w,8,8|s,8,9|s,8,10|s,9,5|s,9,6|w,9,7|w,9,8|s,9,9|s,9,10|s,10,5|s,10,6|s,10,7|" +
+				"s,10,8|s,10,9|s,10,10|s,11,5|s,11,6|s,11,7|s,11,8|s,11,9|s,11,10"; // Hella spikes
+
+
+            string[,] enemySpawnData = new string[tutorialRooms.GetLength(0), tutorialRooms.GetLength(1)];
+            enemySpawnData[0, 2] = "2,5|6,3|9,7|3,9";
+
+            TutorialLevel = new Level(
+                tutorialRooms,
+                new Point(0, 0),
+                obsData,
+                enemySpawnData);
+        }
+
+		/// <summary>
+		/// Updates cursor appearance based on how many
+		/// redirects the player has
+		/// </summary>
+		public void UpdatePlayCursor()
+		{
+            if (Player.NumRedirects > 0)
+                Mouse.SetCursor(_gameplayCursor);
+            else
+                Mouse.SetCursor(_noRedirectCursor);
+        }
 	}
 }

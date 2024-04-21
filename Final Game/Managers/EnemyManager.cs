@@ -51,14 +51,20 @@ namespace Final_Game.Managers
 			{
 				Tile curSpawner = r.Tileset.Spawners[i];
 
-				// Spawn on spawn tile
-				Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
-			}
-		}
-		public void SpawnBoss(Room r)
-		{
-			Enemies.Add(new PinMech(gm, new Vector2(r.Center.X - 50, r.Center.Y - 50)));
-		}
+
+                if (Game1.CurrentLevel == Game1.TestLevel)
+                    // Spawn on spawn tile
+                    Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
+                else
+                {
+                    Enemies.Add(new Dummy(gm, curSpawner.WorldPosition, false));
+                }
+            }
+        }
+        public void SpawnBoss(Room r)
+        {
+            Enemies.Add(new PinMech(gm, new Vector2(r.Center.X - 50, r.Center.Y - 50)));
+        }
 
 		public void Update(GameTime gameTime)
 		{
@@ -89,10 +95,9 @@ namespace Final_Game.Managers
 			{
 				Enemies.Clear();
 
-				OnLastEnemyKilled();
-				//OnLastEnemyKilled();
-			}
-		}
+                OnLastEnemyKilled();
+            }
+        }
 
 		public void Draw(SpriteBatch spriteBatch)
 		{

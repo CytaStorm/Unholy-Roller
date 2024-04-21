@@ -47,6 +47,7 @@ namespace Final_Game
 
 		// Combo
 		private Texture2D _comboIcon;
+		private Texture2D _shieldIcon;
 
 		// Shake Effect
 		private double _shakeDuration;
@@ -98,6 +99,7 @@ namespace Final_Game
 
 			// Load Icons
 			_comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
+			_shieldIcon = _gm.Content.Load<Texture2D>("UI Images/ShieldIcon");
 
 			// Load Health Images
 			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
@@ -156,7 +158,11 @@ namespace Final_Game
 					//_testSlider.Update(gameTime);
 					break;
 
-				case GameState.Pause:
+				case GameState.Play:
+					UpdateSpeedometerShake(gameTime);
+					break;
+
+                case GameState.Pause:
 
 					// Update pause buttons
 					foreach (Button b in PauseButtons)
@@ -194,7 +200,7 @@ namespace Final_Game
 					break;
 			}
 		}
-		public void Draw(GameTime gameTime)
+		public void Draw()
 		{
 			switch (_gm.State)
 			{
@@ -217,8 +223,8 @@ namespace Final_Game
 
 					DrawPlayerSpeedometer();
 
-					if (Game1.Player.Combo > 0)
-						DrawPlayerCombo();
+					
+					DrawPlayerCombo();
 
 					// Display Bullet Time multiplier
 					//_spriteBatch.DrawString(
@@ -226,11 +232,7 @@ namespace Final_Game
 					//    $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
 					//    new Vector2(0f, 200f),
 					//    Color.White);
-					if (_shakeTimer > 0)
-					{
-						_shakeTimer -=
-							gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
-					}
+					
 					break;
 
 				case GameState.Pause:
@@ -260,33 +262,52 @@ namespace Final_Game
 
 		#region HUD Drawing Methods
 
-		private void DrawPlayerCombo()
+		public void DrawPlayerCombo()
 		{
-			string curCombo = Game1.Player.Combo.ToString();
-			Vector2 comboDrawPos = new Vector2(100f, 400f);
+			if (Game1.Player.Combo <= 0) return;
 
+            string curCombo = Game1.Player.Combo.ToString();
+
+
+            Vector2 comboDrawPos = new Vector2(100f, 410f);
+			if (curCombo.Length > 1)
+				comboDrawPos.X += 20;
+
+            Vector2 comboStringDimensions =
+                TitleCaseCarter.MeasureString(curCombo);
+
+            Color textColor = Color.White;
+
+            // Get Icon to draw
+            Texture2D iconToDraw = _comboIcon;
+
+            if (Game1.Player.ComboReward)
+			{
+                iconToDraw = _shieldIcon;
+				textColor = Color.LightGreen;
+			}
+
+            // Draw combo number
             _spriteBatch.DrawString(
 				TitleCaseCarter,
 				curCombo,
 				comboDrawPos,
-				Color.White);
-
-			Vector2 comboStringDimensions = 
-				TitleCaseCarter.MeasureString(curCombo);
+				textColor);
 
 			// Draw Combo Icon after text
 			_spriteBatch.Draw(
-				_comboIcon,
+				iconToDraw,
 				new Rectangle(
 					(int)(comboDrawPos.X + comboStringDimensions.X),
-					400,
+					430,
 					80,
 					80),
 				Color.White);
+
 			return;
 		}
 
-        private void DrawPlayerHealth()
+        public void DrawPlayerHealth()
         {
             Color tint = Color.White;
             Rectangle source =
@@ -349,7 +370,16 @@ namespace Final_Game
                 tint);
         }
 
-        private void DrawPlayerSpeedometer()
+		public void UpdateSpeedometerShake(GameTime gameTime)
+		{
+            if (_shakeTimer > 0)
+            {
+                _shakeTimer -=
+                    gameTime.ElapsedGameTime.TotalSeconds *
+                    Player.BulletTimeMultiplier;
+            }
+        }
+        public void DrawPlayerSpeedometer()
 		{
 			// Draw Speed dial
 			_spriteBatch.Draw(

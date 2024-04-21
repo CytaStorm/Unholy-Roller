@@ -42,6 +42,12 @@ namespace Final_Game.Managers
 
         private string _tutorialEndMessage;
 
+        private bool _shieldUsed;
+
+        private Sprite _mouseImage;
+        private Texture2D _arrowTexture;
+        private Texture2D _wasdTexture;
+
         #endregion
 
         #region GameOver Vars
@@ -77,26 +83,32 @@ namespace Final_Game.Managers
             _blankPanel = gm.Content.Load<Texture2D>("BlankPanel");
 
             // Write tutorial
-            _walkInstructions =
-                UI.GetWrappedText("If your speed is zero, use W A S D to walk around", 30);
+            _walkInstructions = "You can walk if you're not rolling";
 
-            _launchInstructions =
-                UI.GetWrappedText("You will only be able to roll through enemies if you launch. " +
-                "Click mouse left in any direction to launch. " +
-                "Time will slow as long as you hold mouse left", 60);
+            _launchInstructions = "You will only be able to roll through enemies if you launch.";
 
             _redirectInstructions =
-                UI.GetWrappedText("If you launch while rolling, you will redirect. " +
-                "You get a limited number of these per launch so use them wisely", 60);
+                UI.GetWrappedText("You can redirect a few times per launch", 60);
 
             _brakeInstructions =
-                UI.GetWrappedText("Hold mouse right to rapidly decelerate. " +
-                "You can use this to swiftly transition to walking.", 60);
+                UI.GetWrappedText("Slow down significantly to regain redirects.", 60);
 
             _tutorialEndMessage =
-                UI.GetWrappedText("That's it! You've finished the tutorial. " +
+                UI.GetWrappedText("You've finished the tutorial. " +
                 "NOW GO EVISCERATE THOSE PINHEADS!!! " +
-                "Press 'Esc' to return to main menu", 60);
+                "Press 'Esc'", 60);
+
+            Texture2D mouseTexture = gm.Content.Load<Texture2D>("UI Images/MousePressSpritesheet");
+            _mouseImage = new Sprite(
+                mouseTexture,
+                new Rectangle(0, 0, mouseTexture.Width / 2, mouseTexture.Height),
+                new Rectangle(0, 0, 200, 200));
+            _mouseImage.Columns = 2;
+            _mouseImage.FrameBounds = _mouseImage.SourceRect;
+            _mouseImage.ObeyCamera = false;
+
+            _wasdTexture = gm.Content.Load<Texture2D>("UI Images/WASD_Keys");
+            _arrowTexture = gm.Content.Load<Texture2D>("UI Images/Arrow_Keys");
 
             _isPausable = true;
         }
@@ -165,6 +177,26 @@ namespace Final_Game.Managers
             }
         }
 
+        public void DrawSimpleShapes()
+        {
+            switch (Scene)
+            {
+                case Cutscene.Tutorial:
+
+                    if (PhaseNum == 7)
+                    {
+                        ShapeBatch.BoxOutline(
+                            new Rectangle(
+                                100, 400,
+                                Game1.TileSize,
+                                Game1.TileSize),
+                            Color.White);
+                    }
+
+                    break;
+            }
+        }
+
         public void StartCutscene(Cutscene scene)
         {
             gm.State = GameState.Cutscene;
@@ -175,6 +207,8 @@ namespace Final_Game.Managers
 
             _writeLength = 0;
 
+            _phaseTransferTimer = 0;
+
             switch (scene)
             {
                 case Cutscene.Tutorial:
@@ -184,8 +218,25 @@ namespace Final_Game.Managers
                     _hasRedirected = false;
                     _hasUsedBrake = false;
                     _hasWalked = false;
+                    _shieldUsed = false;
 
                     _curText = _walkInstructions;
+
+                    gm.CreateTutorialLevel();
+
+                    // Lock first room doors
+                    // by spawning an invisible enemy
+                    Game1.EManager.Enemies.Add(new Dummy(gm, Vector2.Zero, true));
+
+                    // Entering the dummy room will cause
+                    // an immediate phase transfer
+                    Game1.TutorialLevel.Map[0, 2]
+                        .OnRoomEntered += OnPhaseTransfer;
+
+                    // Entering the final room will cause
+                    // an immediate phase transfer
+                    Game1.TutorialLevel.Map[1, 2]
+                        .OnRoomEntered += OnPhaseTransfer;
 
                     Scene = Cutscene.Tutorial;
 
@@ -221,7 +272,42 @@ namespace Final_Game.Managers
                         _curText = _redirectInstructions;
                     }
                     else if (PhaseNum == 3) _curText = _brakeInstructions;
-                    else if (PhaseNum == 4) _curText = _tutorialEndMessage;
+                    else if (PhaseNum == 4)
+                    {
+                        _curText = "";
+
+                        // Clear invisible enemy so doors open
+                        Game1.EManager.Clear();
+
+                        Game1.EManager.OnLastEnemyKilled += ResetText;
+                    }
+                    else if (PhaseNum == 5)
+                    {
+                        _curText =
+                            "Knock all enemies down to progress.\n" +
+                            "Beware they don't stay down for long.";
+
+                        Game1.TutorialLevel.Map[0, 2]
+                        .OnRoomEntered -= OnPhaseTransfer;
+                    }
+                    else if (PhaseNum == 6)
+                    {
+                        _curText =
+                            "Your combo increases each time you hit an enemy.\n" +
+                            "Take a punch when you smile (10 combo)";
+
+                        Game1.TutorialLevel.Map[1, 2]
+                        .OnRoomEntered -= OnPhaseTransfer;
+
+                        Game1.EManager.OnLastEnemyKilled -= ResetText;
+
+                        Game1.Player.OnPlayerHit += CheckShieldAbilityUsed;   
+                    }
+                    else if (PhaseNum == 7)
+                    {
+                        _curText = _tutorialEndMessage;
+                    }
+                    
 
                     _writeLength = 0;
                     _incrementCharTimeCounter = 0;
@@ -250,13 +336,21 @@ namespace Final_Game.Managers
 
         private void RunTutorialCutscene(GameTime gameTime)
         {
+            // Simulate the Play State
             Game1.Player.Update(gameTime);
+
+            Game1.EManager.Update(gameTime);
 
             Game1.FXManager.Update(gameTime);
 
             Game1.MainCamera.Update(gameTime);
 
-            Game1.TutorialLevel.CurrentRoom.Update(gameTime);
+            if (PhaseNum != 7)
+                Game1.TutorialLevel.CurrentRoom.Update(gameTime);
+
+            gm.UIManager.UpdateSpeedometerShake(gameTime);
+
+            gm.UpdatePlayCursor();
 
             switch (PhaseNum)
             {
@@ -264,8 +358,7 @@ namespace Final_Game.Managers
                     // Check if player walks
 
                     if (Game1.Player.State == PlayerState.Walking &&
-                        (Game1.CurKB.IsKeyDown(Keys.W) || Game1.CurKB.IsKeyDown(Keys.A) ||
-                        Game1.CurKB.IsKeyDown(Keys.S) || Game1.CurKB.IsKeyDown(Keys.D)))
+                        Game1.Player.Velocity.LengthSquared() > 0)
                     {
                         _hasWalked = true;
                     }
@@ -281,13 +374,13 @@ namespace Final_Game.Managers
                     // Check if player launches
                     if (Game1.Player.State == PlayerState.Walking)
                     {
-                        if (Game1.IsMouseButtonPressed(1))
+                        if (Game1.IsMouseButtonPressed(Game1.Player.LaunchButton))
                         {
                             _hasPrimedLaunch = true;
                         }
                     }
 
-                    if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(1))
+                    if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(Game1.Player.LaunchButton))
                     {
                         _hasLaunched = true;
                     }
@@ -304,19 +397,22 @@ namespace Final_Game.Managers
                     // Check if player redirects
                     if (Game1.Player.State == PlayerState.Rolling)
                     {
-                        if (Game1.IsMouseButtonPressed(1))
+                        if (Game1.IsMouseButtonPressed(Game1.Player.LaunchButton))
                         {
                             _hasPrimedLaunch = true;
                         }
 
-                        if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(1))
+                        if (_hasPrimedLaunch && Game1.IsMouseButtonReleased(Game1.Player.LaunchButton))
                         {
                             _hasLaunched = true;
                             _hasRedirected = true;
                         }
                     }
 
-                    if (_hasRedirected && _phaseTransferTimer <= 0)
+                    // Make sure player has used all of their redirects
+                    if (_hasRedirected && 
+                        Game1.Player.NumRedirects == 0 && 
+                        _phaseTransferTimer <= 0)
                     {
                         // Wait some time then move to the next phase
                         _phaseTransferTimer = 3; // seconds
@@ -328,7 +424,7 @@ namespace Final_Game.Managers
                     // Check if player brakes
                     if (Game1.Player.State == PlayerState.Rolling)
                     {
-                        if (Game1.IsMouseButtonPressed(2))
+                        if (Game1.IsMouseButtonPressed(Game1.Player.BrakeButton))
                         {
                             _hasUsedBrake = true;
                         }
@@ -342,6 +438,26 @@ namespace Final_Game.Managers
 
                     break;
 
+                case 7:
+
+                    // Ensure player uses ability before tutorial ends
+                    if (Game1.EManager.Enemies.Count < 1)
+                    {
+                        BasicPuncher extraEnemy =
+                            new BasicPuncher(gm, new Vector2());
+
+                        extraEnemy.MoveToRoomCenter(Game1.CurrentLevel.CurrentRoom);
+
+                        Game1.EManager.Enemies.Add(extraEnemy);
+                    }
+
+                    if (_shieldUsed && _phaseTransferTimer <= 0)
+                    {
+                        _phaseTransferTimer = 1;
+                    }
+
+                    break;
+
             }
         }
         private void DrawTutorialCutscene(SpriteBatch sb)
@@ -351,6 +467,84 @@ namespace Final_Game.Managers
             Game1.Player.Draw(sb);
 
             Game1.FXManager.Draw(sb);
+
+            Game1.EManager.Draw(sb);
+
+            gm.UIManager.DrawPlayerHealth();
+            gm.UIManager.DrawPlayerSpeedometer();
+
+            if (PhaseNum >= 6)
+            {
+                gm.UIManager.DrawPlayerCombo();
+            }
+
+            switch (PhaseNum){
+                case 1:
+                    sb.Draw(
+                    _wasdTexture,
+                    new Rectangle(
+                        Game1.ScreenBounds.Width / 2 - 300, 700,
+                        200, 200),
+                    Color.White);
+
+
+                    sb.DrawString(
+                        UI.MediumArial,
+                        "OR",
+                        UI.GetCenteredTextPos(
+                            "OR",
+                            UI.MediumArial,
+                            new Vector2(Game1.ScreenCenter.X, Game1.ScreenCenter.Y + 250f)),
+                        Color.White);
+
+                    sb.Draw(
+                        _arrowTexture,
+                        new Rectangle(
+                            Game1.ScreenBounds.Width / 2 + 100, 700,
+                            200, 200),
+                        Color.White);
+
+                    break;
+
+                case 2:
+                    _mouseImage.SetSourceToFrame(Game1.Player.LaunchButton);
+
+                    _mouseImage.Draw(sb, new Vector2(735, 700), 0f, Vector2.Zero);
+
+                    sb.DrawString(
+                        UI.MediumArial,
+                        "Press to Slow Time\nRelease to Launch",
+                        new Vector2(Game1.ScreenCenter.X, Game1.ScreenCenter.Y + 210),
+                        Color.White);
+                    break;
+
+                case 3:
+                    _mouseImage.SetSourceToFrame(Game1.Player.LaunchButton);
+
+                    _mouseImage.Draw(sb, new Vector2(735, 700), 0f, Vector2.Zero);
+
+                    sb.DrawString(
+                        UI.MediumArial,
+                        "Press to Slow Time\nRelease to Launch",
+                        new Vector2(Game1.ScreenCenter.X, Game1.ScreenCenter.Y + 210),
+                        Color.White);
+
+                    break;
+
+                case 4:
+                    _mouseImage.SetSourceToFrame(Game1.Player.BrakeButton);
+
+                    _mouseImage.Draw(sb, new Vector2(735, 700), 0f, Vector2.Zero);
+
+                    sb.DrawString(
+                        UI.MediumArial,
+                        "Hold to Decelerate",
+                        new Vector2(Game1.ScreenCenter.X, Game1.ScreenCenter.Y + 210),
+                        Color.White);
+
+                    break;
+            }
+            
 
             string tempText = _curText.Substring(0, _writeLength);
 
@@ -374,6 +568,8 @@ namespace Final_Game.Managers
                 tempText,
                 textPosition,
                 Color.White);
+
+            
         }
 
         private void RunGameOverCutscene(GameTime gameTime)
@@ -403,7 +599,7 @@ namespace Final_Game.Managers
         }
         private void DrawGameOverCutscene(SpriteBatch sb)
         {
-            Game1.TestLevel.CurrentRoom.Draw(sb);
+            Game1.CurrentLevel.CurrentRoom.Draw(sb);
 
             Game1.Player.Draw(sb);
 
@@ -415,6 +611,23 @@ namespace Final_Game.Managers
                 Color.White * (float)(_backgroundFadeTimeCounter / _backgroundFadeDuration));
         }
 
+        private void CheckShieldAbilityUsed(int nothing)
+        {
+            if (Game1.Player.ComboReward)
+            {
+                // Shield ability was used
+                _shieldUsed = true;
+
+                // No need to check anymore
+                Game1.Player.OnPlayerHit -= CheckShieldAbilityUsed;
+            }
+        }
+
+        private void ResetText()
+        {
+            _curText = "";
+            _writeLength = 0;
+        }
 
         #endregion
     }

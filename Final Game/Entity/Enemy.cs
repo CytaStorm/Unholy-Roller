@@ -52,7 +52,11 @@ namespace Final_Game.Entity
 		protected double _walkAnimSecondsPerFrame;
 		protected int _walkAnimCurrentFrame;
 
-		protected bool _hitPlayer;
+        protected Sprite _knockoutStars;
+        protected double _koStarAnimDuration;
+        protected double _koStarAnimTimeCounter;
+
+        protected bool _hitPlayer;
 
 		#endregion
 
@@ -67,6 +71,8 @@ namespace Final_Game.Entity
 		public Enemy(Game1 gm, Vector2 position) 
 		{
 			WorldPosition = position;
+
+			Type = EntityType.Enemy;
 		}
 
 		// Methods
@@ -132,10 +138,14 @@ namespace Final_Game.Entity
 		public override void TakeDamage(int damage)
 		{
 			// Take damage if not invincible
-			if (InvTimer > 0 || IsKO || InfiniteHealth) 
+			if (InvTimer > 0 || IsKO) 
 				return;
-
-				CurHealth -= damage;
+				
+				// Enemy doesn't take damage if they have infinite health
+				// Still gets invFrames so collision with other entities
+				// isn't messed up
+				if (!InfiniteHealth)
+					CurHealth -= damage;
 
 				// Temporarily become invincible
 				InvTimer = InvDuration;
@@ -184,6 +194,7 @@ namespace Final_Game.Entity
 
 		protected abstract void EndAttack(bool stoppedEarly);
 		#endregion
+
 
 		#region Drawing Helpers
 

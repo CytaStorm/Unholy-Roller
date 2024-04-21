@@ -14,10 +14,7 @@ namespace Final_Game.Entity
 {
 	public class BasicPuncher : Enemy
 	{
-		// Fields
-		private Sprite _knockoutStars;
-		private double _koStarAnimDuration;
-		private double _koStarAnimTimeCounter;
+		private Sprite _walkSprites;
 
 		// Constructors
 		public BasicPuncher(Game1 gm, Vector2 position) 
@@ -93,7 +90,15 @@ namespace Final_Game.Entity
 			ActionState = EnemyState.Chase;
 
 			// Animation
-			_walkAnimSecondsPerFrame = 0.12;
+			_walkAnimSecondsPerFrame = 0.16;
+
+			Texture2D walkTexture = gm.Content.Load<Texture2D>("Sprites/PuncherWalkSheet");
+			_walkSprites = new Sprite(
+				walkTexture,
+				new Rectangle(0, 0, walkTexture.Width / 4, walkTexture.Height),
+				new Rectangle(0, 0, Game1.TileSize * 3/2, Image.DestinationRect.Width * 3/2 * 140/120));
+			_walkSprites.FrameBounds = _walkSprites.SourceRect;
+			_walkSprites.Columns = 4;
 
 			// Extra aesthetics
 			Texture2D _koStarSpritesheet = 
@@ -110,6 +115,7 @@ namespace Final_Game.Entity
 					(int)(Game1.TileSize * 1.5)));
 
 			_koStarAnimDuration = 0.5;
+
 			return;
 		}
 
@@ -196,14 +202,16 @@ namespace Final_Game.Entity
 
 			CheckEnemyCollisions();
 
-			CollisionChecker.CheckTilemapCollision(this, Game1.TestLevel.CurrentRoom.Tileset);
+			CollisionChecker.CheckTilemapCollision(this, Game1.CurrentLevel.CurrentRoom.Tileset);
 
 			Move(Velocity * Player.BulletTimeMultiplier);
 
 			// Update animations
 			
 			UpdateEnemySprite();
-			UpdateWalkAnimation(gameTime);
+
+			if (Velocity.LengthSquared() > 0)
+				UpdateWalkAnimation(gameTime);
 
 			return;
 		}
@@ -366,20 +374,18 @@ namespace Final_Game.Entity
 			bool hitPlayerDir = damageBox.Intersects(Game1.Player.Hitbox);
 			//CollisionChecker.CheckEntityCollision(damageBox, Game1.Player);
 
-			if (hitPlayerDir)
+			// Once attack is landed, will not do damage
+			// until next punch 
+			if (hitPlayerDir && !_attackLandedOnce)
 			{
 				directionToPlayer.Normalize();
 				directionToPlayer *= _attackForce;
 
 				Game1.Player.TakeDamage(1);
 
-				// Keep player from ricocheting endlessly
-				// while in attack area
-				if (!_attackLandedOnce)
-				{
-					Game1.Player.Ricochet(directionToPlayer);
-					_attackLandedOnce = true;
-				}
+				Game1.Player.Ricochet(directionToPlayer);
+
+				_attackLandedOnce = true;
 			}
 
 			return;
@@ -420,7 +426,9 @@ namespace Final_Game.Entity
 			{
 				// Update the frame and wrap
 				_walkAnimCurrentFrame++;
-				if (_walkAnimCurrentFrame > 4) _walkAnimCurrentFrame = 1;
+				if (_walkAnimCurrentFrame > _walkSprites.Columns) _walkAnimCurrentFrame = 1;
+
+				_walkSprites.SetSourceToFrame(_walkAnimCurrentFrame);
 
 				// Remove one "frame" worth of time
 				_walkAnimTimeCounter -= _walkAnimSecondsPerFrame;
@@ -510,37 +518,44 @@ namespace Final_Game.Entity
 
 		private void DrawWalking(SpriteBatch sb, Vector2 screenPos)
 		{
+			//switch (_walkAnimCurrentFrame)
+			//{
+			//	case 1:
+			//		Vector2 origin = new Vector2(
+			//					Image.SourceRect.X,
+			//					Image.SourceRect.Center.Y - 15);
 
-			switch (_walkAnimCurrentFrame)
+
+			//		Image.Draw(sb, screenPos, MathF.PI / 6, origin);
+			//		break;
+
+			//	case 2:
+			//		Image.Draw(sb, screenPos, 0f, Vector2.Zero);
+			//		break;
+
+			//	case 3:
+
+			//                 Image.Draw(
+			//			sb, 
+			//			screenPos, 
+			//			-MathF.PI / 6,
+			//                     new Vector2(
+			//                         Image.SourceRect.Center.X,
+			//                         Image.SourceRect.Y));
+			//		break;
+
+			//	case 4:
+			//		Image.Draw(sb, screenPos, 0f, Vector2.Zero);
+			//		break;
+			//}
+
+			Vector2 offset = Vector2.Zero;
+			if (_walkAnimCurrentFrame % 2 == 1)
 			{
-				case 1:
-					Vector2 origin = new Vector2(
-								Image.SourceRect.X,
-								Image.SourceRect.Center.Y - 15);
-
-
-					Image.Draw(sb, screenPos, MathF.PI / 6, origin);
-					break;
-
-				case 2:
-					Image.Draw(sb, screenPos, 0f, Vector2.Zero);
-					break;
-
-				case 3:
-						
-                    Image.Draw(
-						sb, 
-						screenPos, 
-						-MathF.PI / 6,
-                        new Vector2(
-                            Image.SourceRect.Center.X,
-                            Image.SourceRect.Y));
-					break;
-
-				case 4:
-					Image.Draw(sb, screenPos, 0f, Vector2.Zero);
-					break;
+				offset = new Vector2(0f, -30f);
 			}
+			_walkSprites.Draw(sb, screenPos + offset, 0f, Vector2.Zero);
+
 			return;
 		}
 

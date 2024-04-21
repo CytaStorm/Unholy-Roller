@@ -87,8 +87,8 @@ namespace Final_Game
 		private Texture2D _playBackground;
 
 		// Cheats
-		public Point MapDims { get; private set; } = new Point(3, 3);
-		public int NumRoomsInMap { get; private set; } = 5;
+		public Point MapDims { get; private set; } = new Point(1, 2);
+		public int NumRoomsInMap { get; private set; } = 2;
 
 		#endregion
 
@@ -112,10 +112,10 @@ namespace Final_Game
 		/// </summary>
 		public static MouseState CurMouse { get; private set; }
 		
-        /// <summary>
-        /// Previous state of the mouse.
-        /// </summary>
-        public static MouseState PrevMouse { get; private set; }
+		/// <summary>
+		/// Previous state of the mouse.
+		/// </summary>
+		public static MouseState PrevMouse { get; private set; }
 		public static bool MouseIsOnScreen =>
 		  ScreenBounds.Contains(CurMouse.Position);
 
@@ -171,9 +171,9 @@ namespace Final_Game
 
 		public static bool DebugOn { get; private set; }
 		//Attack Indicator Manager for the Boss
-        public static IndicatorManager IManager { get; private set; }
-        #endregion
-        public Game1()
+		public static IndicatorManager IManager { get; private set; }
+		#endregion
+		public Game1()
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
@@ -240,7 +240,7 @@ namespace Final_Game
 
 			// Create default cursor
 			_menuCursor = MouseCursor.Arrow;
-            
+			
 			// Create UI Manager
 			UIManager = new UI(this, _spriteBatch);
 
@@ -331,10 +331,10 @@ namespace Final_Game
 			GraphicsDevice.Clear(Color.Black);
 
 			_spriteBatch.Begin();
-            
+			
 
-            // Draw game
-            switch (State)
+			// Draw game
+			switch (State)
 			{
 				case GameState.Play:
 
@@ -349,9 +349,9 @@ namespace Final_Game
 
 					FXManager.Draw(_spriteBatch);
 
-                    EManager.Draw(_spriteBatch);
+					EManager.Draw(_spriteBatch);
 
-                    PManager.Draw(_spriteBatch);
+					PManager.Draw(_spriteBatch);
 
 					break;
 

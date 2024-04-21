@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 using System.Security.Cryptography;
 using Final_Game.Managers;
+using System.Diagnostics;
 
 namespace Final_Game.Entity
 {
@@ -41,15 +42,31 @@ namespace Final_Game.Entity
 		private double overheatTimer;
 		private string debugState;
 		private double stunTimer;
+
+		//
+		private Sprite _regularArmLeft;
+		private Sprite _regularArmRight;
+		private Sprite _punchArm;
+
+		private Vector2 _rightArmOffset;
+
 		// Constructors
 		public PinMech(Game1 gm, Vector2 position)
 			: base(gm, position)
 		{
 			// Set Enemy Image
+			//Load sprites
 			Texture2D bossSprite =
-				gm.Content.Load<Texture2D>("Sprites/Boss");
+				gm.Content.Load<Texture2D>("Sprites/boss");
+			Texture2D regArms =
+				gm.Content.Load<Texture2D>("Sprites/bossregulararm");
+			Texture2D punchArm = 
+				gm.Content.Load<Texture2D>("Sprites/bossarmattack");
 			circle = gm.Content.Load<Texture2D>("RedCircle");
+
 			this.gm = gm;
+
+			//Main body
 			Image = new Sprite(
 				bossSprite,
 				new Rectangle(
@@ -60,6 +77,35 @@ namespace Final_Game.Entity
 					(int)position.Y,
 					(int)(Game1.TileSize * (1.5/2.5f) * 3f),
 					(int)(Game1.TileSize * (1.5/2.5f) * 4f)));
+
+			//Left arm
+			_regularArmLeft = new Sprite(
+				regArms,
+				new Rectangle(
+					0, 0,
+					regArms.Width / 2, regArms.Height),
+				new Rectangle(
+					(int)position.X,
+					(int)position.Y,
+					(int)(Game1.TileSize * (.75/2.5f) * 3f),
+					(int)(Game1.TileSize * (.75/2.5f) * 4f)));
+
+			//Right arm
+			_regularArmRight = new Sprite(
+				regArms,
+				new Rectangle(
+					regArms.Width / 2, 0,
+					regArms.Width / 2, regArms.Height),
+				new Rectangle(
+					(int)position.X + regArms.Width / 2,
+					(int)position.Y,
+					(int)(Game1.TileSize * (.75/2.5f) * 3f),
+					(int)(Game1.TileSize * (.75/2.5f) * 4f)));
+
+			//Set offset for right arm
+			_rightArmOffset = new Vector2(
+				Image.DestinationRect.Width - _regularArmRight.DestinationRect.Width,
+				0);
 
 			// Position
 			WorldPosition = position;
@@ -85,7 +131,7 @@ namespace Final_Game.Entity
 			_attackForce = 15f;
 			_attackDuration = 0.2;
 			_attackDurationTimer = 0.0;
-			_attackRadius = Game1.TileSize;
+			_attackRadius = Game1.TileSize * 2f;
 			_attackRange = Game1.TileSize;
 			_attackWindupDuration = 0.25;
 			_attackWindupTimer = _attackWindupDuration;
@@ -96,11 +142,11 @@ namespace Final_Game.Entity
 			pinBombsDurationTimer = pinBombsDuration;
 			pinBombsDelay = 0;
 
-			// Create glove sprites
+			// Create punch arm sprites
 			Texture2D gloveSpritesheet =
-				gm.Content.Load<Texture2D>("Sprites/PinPunch2");
+				gm.Content.Load<Texture2D>("Sprites/bossarmattack");
 
-			_gloveFrameWidth = gloveSpritesheet.Width / 5;
+			_gloveFrameWidth = gloveSpritesheet.Width / 3;
 			_gloveImages = new Sprite(
 				gloveSpritesheet,
 				new Rectangle(
@@ -141,6 +187,7 @@ namespace Final_Game.Entity
 			TickInvincibility(gameTime);
 
 			TickKnockout(gameTime);
+			// DEBUG 
 
 			//CollisionChecker.CheckTilemapCollision(this, Game1.TEST_ROOM.Floor);
 			Random rng = new Random();
@@ -151,7 +198,8 @@ namespace Final_Game.Entity
 			int originX = Game1.Player.CurrentRoom.Origin.X;
 			int originY = Game1.Player.CurrentRoom.Origin.Y;
 
-				DetermineState(playerDist);
+			DetermineState(playerDist);
+			//BossActionState = BossState.HandSwipe;
 
 			stunTimer -= gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;
 
@@ -331,18 +379,25 @@ namespace Final_Game.Entity
 				case BossState.Idle:
 
 					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					_regularArmLeft.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					_regularArmRight.Draw(spriteBatch, screenPos + _rightArmOffset, 0f, Vector2.Zero);
 					break;
 
 				case BossState.PinBombs:
-
 					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					_regularArmLeft.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					_regularArmRight.Draw(spriteBatch, screenPos + _rightArmOffset, 0f, Vector2.Zero);
 					break;
 				case BossState.Overheated:
 					Image.TintColor = Color.Orange;
 					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					_regularArmLeft.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					_regularArmRight.Draw(spriteBatch, screenPos + _rightArmOffset, 0f, Vector2.Zero);
 					break;
 				case BossState.PinThrow:
 					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					_regularArmLeft.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					_regularArmRight.Draw(spriteBatch, screenPos + _rightArmOffset, 0f, Vector2.Zero);
 					break;
 				case BossState.HandSwipe:
 					if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0.0)
@@ -352,6 +407,8 @@ namespace Final_Game.Entity
 
 					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
 					DrawAttacking(spriteBatch, screenPos);
+					//_regularArmLeft.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
+					//_regularArmRight.Draw(spriteBatch, screenPos + _rightArmOffset, 0f, Vector2.Zero);
 					break;
 			}
 
@@ -587,76 +644,136 @@ namespace Final_Game.Entity
 
 		private void DrawAttacking(SpriteBatch sb, Vector2 screenPos)
 		{
+			//This helps draw the non attacking arm.
+			Vector2 attackDirectionOffset;
+			SpriteEffects flipFX;
+			//Determine Left/Right
+			//Player is to the left
+			if (_attackDirection.X < 0)
+			{
+				attackDirectionOffset = new Vector2(0, 0);
+				flipFX = SpriteEffects.FlipVertically;
+			}
+			else
+			{
+				attackDirectionOffset = _rightArmOffset;
+				flipFX = SpriteEffects.None;
+			}
 
-			// Draw Attack Windup
+			_gloveImages.TintColor = Color.White;
+
 			if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0d)
 			{
-				_gloveImages.TintColor = Color.White;
-
-				// Get the center position of the pulled back fist
-				// in screen space
-
-				Vector2 correction = new Vector2(
-					Image.DestinationRect.Width / 2.5f,
-					Image.DestinationRect.Height / 2.5f);
-
-				Vector2 windupScreenPos =
-					CenterPosition + correction - _attackDirection
-					+ Game1.MainCamera.WorldToScreenOffset;
-
-				// Shift position to top-left of glove image (for drawing)
-				windupScreenPos -= new Vector2(_gloveFrameWidth / 2, _gloveFrameWidth / 2);
-
-				// Select the correct glove image
-				_gloveImages.SourceRect =
-					new Rectangle(
-						0, 0,
-						_gloveFrameWidth, _gloveImages.SourceRect.Height);
-
-				// Rotate fist so knuckles face away from player
-				float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
-
-				// Glove changes colors right before attacking
-				if (_attackWindupTimer < _attackWindupDuration * .3)
-					_gloveImages.TintColor = Color.Red;
-
-				// Draw glove
-				_gloveImages.Draw(
-					sb,
-					windupScreenPos,
-					dirAngle,
-					_gloveImages.SourceRect.Center.ToVector2());
+				DrawSwingWindup(sb, screenPos, attackDirectionOffset, flipFX);
 			}
 
-			// Draw actively attacking
 			if (_attackDurationTimer > 0)
 			{
-				// Get position of the extended fist
-				// in screen space
-
-				Vector2 attackScreenPos = CenterPosition + _attackDirection * 5f
-					+ Game1.MainCamera.WorldToScreenOffset;
-
-				// Rotate fist so knuckles face player
-				float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
-
-				// Get proper glove image
-				_gloveImages.SourceRect = new Rectangle(
-					_gloveFrameWidth * 4,
-					0,
-					_gloveFrameWidth,
-					_gloveFrameWidth);
-
-				// Draw glove
-				_gloveImages.Draw(
-					sb,
-					attackScreenPos,
-					dirAngle,
-					_gloveImages.SourceRect.Center.ToVector2());
+				DrawSwingActive(sb, screenPos, attackDirectionOffset, flipFX);
 			}
+			
 			return;
 		}
 
+		/// <summary>
+		/// Draws the winding up fist.
+		/// </summary>
+		/// <param name="sb">Spritebatch for drawing.</param>
+		/// <param name="screenPos">Position of boss relative to player.</param>
+		/// <param name="attackDirectionOffset">Offset used for drawing not swinging arm.</param>
+		/// <param name="flipFX">SpriteFX for flip, use SpriteEffects.None if no flip needed.</param>
+		private void DrawSwingWindup(SpriteBatch sb, Vector2 screenPos,
+			Vector2 attackDirectionOffset, SpriteEffects flipFX)
+		{
+			Vector2 windupScreenPos =
+				CenterPosition - _attackDirection
+				+ Game1.MainCamera.WorldToScreenOffset;
+
+			// Shift position to top-left of glove image (for drawing)
+			windupScreenPos -= new Vector2(_gloveFrameWidth / 2, _gloveFrameWidth / 2);
+
+			// Select the correct glove image
+			_gloveImages.SourceRect =
+				new Rectangle(
+					0, 0,
+					_gloveFrameWidth, _gloveImages.SourceRect.Height);
+
+			// Rotate fist so knuckles face away from player
+			float windupDirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
+
+			// Glove changes colors right before attacking
+			if (_attackWindupTimer < _attackWindupDuration * .3)
+				_gloveImages.TintColor = Color.Red;
+
+
+			//Draw regular hand- if spritefx is flipvertical that means right hand is attacking,
+			//so draw inactive left hand
+			if (flipFX == SpriteEffects.FlipVertically)
+			{
+				_regularArmLeft.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			}
+			else
+			{
+				_regularArmRight.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			}
+
+			//Draw attacking hand
+			_gloveImages.Draw(
+				sb,
+				windupScreenPos,
+				//0f,
+				windupDirAngle,
+				_gloveImages.SourceRect.Center.ToVector2(),
+				flipFX);
+		}
+
+		/// <summary>
+		/// Draws active swinging attack.
+		/// </summary>
+		/// <param name="sb">Spritebatch for drawing.</param>
+		/// <param name="screenPos">Position of boss relative to player.</param>
+		/// <param name="attackDirectionOffset">Offset used for drawing not swinging arm.</param>
+		/// <param name="flipFX">SpriteFX for flip, use SpriteEffects.None if no flip needed.</param>
+		private void DrawSwingActive(SpriteBatch sb, Vector2 screenPos,
+			Vector2 attackDirectionOffset, SpriteEffects flipFX)
+		{
+
+			// Filter out attack not active
+			// Draw actively attacking
+			Vector2 attackScreenPos = CenterPosition + _attackDirection * 5f
+				+ Game1.MainCamera.WorldToScreenOffset;
+
+			// Rotate fist so knuckles face player
+			float dirAngle = MathF.Atan2(_attackDirection.Y, _attackDirection.X);
+
+			// Get proper glove image
+			_gloveImages.SourceRect = new Rectangle(
+				_gloveFrameWidth * 2,
+				0,
+				_gloveFrameWidth,
+				_gloveFrameWidth);
+
+			//Draw regular hand- if spritefx is flipvertical that means right hand is attacking,
+			//so draw inactive left hand
+			if (flipFX == SpriteEffects.FlipVertically)
+			{
+				_regularArmLeft.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			}
+			else
+			{
+				_regularArmRight.Draw(sb, screenPos + attackDirectionOffset, 0f, Vector2.Zero);
+			}
+
+			// Draw attacking hand.
+			_gloveImages.Draw(
+				sb,
+				attackScreenPos,
+				//0f,
+				dirAngle,
+				_gloveImages.SourceRect.Center.ToVector2(),
+				flipFX);
+			
+		}
 		#endregion
 	}
 

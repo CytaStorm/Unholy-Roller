@@ -21,6 +21,23 @@ namespace Final_Game.Entity
 		Rolling,
 		Walking
 	}
+
+	public enum AbilityType
+	{
+		None,
+		Shield,
+        Thorns,
+
+        /* PASSIVE ABILITY BOUND (<= 100) */ 
+
+        Heal = 101,
+		Boost = 102,
+		EMP = 103,
+		Teleport = 104
+    }
+
+	public delegate void PlayerPower(AbilityType power);
+
 	public class Player : Entity
 	{
 		#region Fields
@@ -90,6 +107,8 @@ namespace Final_Game.Entity
 
 		private Game1 _gm;
 
+		private bool _negateDamageThisTime;
+
 		#endregion
 
 		#region Properties
@@ -127,11 +146,16 @@ namespace Final_Game.Entity
 			get => Game1.IsMouseButtonPressed(LaunchButton) && NumRedirects > 0; 
 		}
 
+		public AbilityType CurAbility { get; private set; }
+		public int PassiveAbilityBoundary { get; private set; } = 100;
+
 		#endregion
 
 		public event EntityDamaged OnPlayerHit;
         public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
+
+		public event PlayerPower OnPlayerUsedAbility;
 
 		#region Constructor(s)
 
@@ -206,13 +230,17 @@ namespace Final_Game.Entity
 
 			//Cloning
 			_gm = gm;
+
+			// Ability
 		}
 		#endregion
-		
+
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
-			if (hitStopTimeRemaining > 0f)
+            CurAbility = AbilityType.Shield;
+
+            if (hitStopTimeRemaining > 0f)
 			{
 				hitStopTimeRemaining -= (float)gameTime.ElapsedGameTime.TotalSeconds;
 				return;
@@ -259,6 +287,10 @@ namespace Final_Game.Entity
 			}
 
 			if (_controllable) HandleLaunch();
+
+			HandleActiveAbilityUse();
+
+			// Speed Boost Ability
 
 			//ApplyScreenBoundRicochet();
 
@@ -332,7 +364,7 @@ namespace Final_Game.Entity
 
 		public override void OnHitEntity(Entity entity, CollisionDirection colDir)
 		{
-			switch (entity.Type)
+            switch (entity.Type)
 			{
 				case EntityType.Enemy:
 					Enemy hitEnemy = (Enemy)entity;
@@ -770,13 +802,15 @@ namespace Final_Game.Entity
 
 			if(OnPlayerHit != null) OnPlayerHit(0);
 
-			// Early Exit Conditions
-			if (ComboReward)
+			UsePassiveAbility();
+
+			if (_negateDamageThisTime)
 			{
-				Combo = 0;
+				_negateDamageThisTime = false;
 				return;
 			}
 
+			// Early Exit Conditions
 			if (InvTimer > 0 || CurHealth <= 0 || InfiniteHealth) return;
 				
 			CurHealth -= amount;
@@ -830,7 +864,104 @@ namespace Final_Game.Entity
 		{
 			return new Player(_gm, this.WorldPosition);
 		}
+
+        #region Abilities
+
+		private void HandleActiveAbilityUse()
+		{
+			if (!ComboReward || !Game1.SingleKeyPress(Keys.Space) ||
+				(int)CurAbility <= PassiveAbilityBoundary) return;
+
+            UseActiveAbility();
+
+            // Have subscribers (mainly enemies)
+            // respond to player using ability
+            if (OnPlayerUsedAbility != null)
+                OnPlayerUsedAbility(CurAbility);
+        }
+
+		private void UsePassiveAbility()
+		{
+			if (!ComboReward || (int)CurAbility > PassiveAbilityBoundary)
+				return;
+
+			switch (CurAbility)
+			{
+				case AbilityType.Shield:
+					_negateDamageThisTime = true;
+
+					break;
+			}
+
+			Combo = 0;
+		}
+
+		private void UseActiveAbility()
+		{
+
+			// Active Abilities
+			switch (CurAbility)
+			{
+				case AbilityType.Heal:
+					Heal(10);
+
+                    Combo = 0;
+                    break;
+
+				case AbilityType.Boost:
+                    Velocity *= 1.2f;
+
+                    Combo = 0;
+                    break;
+
+				case AbilityType.Teleport:
+
+					Rectangle hitboxClone = new Rectangle(
+						Game1.CurMouse.X + (int)(Hitbox.X - WorldPosition.X),
+						Game1.CurMouse.Y + (int)(Hitbox.Y - WorldPosition.Y),
+						Hitbox.Width,
+						Hitbox.Height);
+
+					bool insersectsTile = false;
+					for (int row = 0; row < Game1.CurrentLevel.CurrentRoom.Tileset.Rows; row++)
+					{
+						for (int col = 0; col < Game1.CurrentLevel.CurrentRoom.Tileset.Columns; col++)
+						{
+							if (Game1.CurrentLevel.CurrentRoom.Tileset.Layout[row, col].CollisionOn &&
+							Game1.CurrentLevel.CurrentRoom.Tileset.Layout[row, col].Hitbox.Intersects(
+								hitboxClone))
+							{
+								insersectsTile = true;
+								break;
+							}
+
+						}
+						if (insersectsTile) break;
+					}
+
+					if (!insersectsTile)
+					{
+						Move(hitboxClone.Location.ToVector2() - WorldPosition);
+
+                        Velocity = Vector2.Zero;
+
+                        Combo = 0;
+                    }
+					break;
+				
+            }
+		}
+
+		public void GiveComboReward()
+		{
+			Combo = 10;
+
+			_comboResetDuration = 100;
+		}
+
+        #endregion
+
     }
-	#endregion
+    #endregion
 }
 

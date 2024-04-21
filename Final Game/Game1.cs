@@ -498,6 +498,11 @@ namespace Final_Game
 			return CurKB.IsKeyDown(k) && PrevKB.IsKeyUp(k);
 		}
 
+		public static bool IsKeyClicked(Keys k)
+		{
+			return PrevKB.IsKeyDown(k) && CurKB.IsKeyUp(k);
+		}
+
 		#endregion
 
 		#region Button Methods
@@ -584,6 +589,9 @@ namespace Final_Game
 			// Toggle Infinite Enemy Health
 			if (SingleKeyPress(Keys.D6))
 				EManager.EnemiesInvincible = !EManager.EnemiesInvincible;
+
+			if (SingleKeyPress(Keys.D7))
+				Player.GiveComboReward();
 
 
 			if (State == GameState.Menu)

@@ -93,6 +93,12 @@ namespace Final_Game.Managers
             // Remove all enemies if all are currently KO-ed
             if (Enemies.Count > 0 && _koedEnemies == Enemies.Count)
             {
+                // Unsubscribe from player ability use
+                foreach (Enemy e in Enemies)
+                {
+                    Game1.Player.OnPlayerUsedAbility -= e.RespondToPlayerAbility;
+                }
+
                 Enemies.Clear();
 
                 OnLastEnemyKilled();

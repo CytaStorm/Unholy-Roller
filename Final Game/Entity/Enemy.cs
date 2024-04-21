@@ -19,12 +19,11 @@ namespace Final_Game.Entity
 		Attack,
 		KO
 	}
-
 	public abstract class Enemy : Entity
 	{
 		#region Fields
-		private double _koDuration = 5;
-		private double _koTimer;
+		protected double _koDuration = 5;
+		protected double _koTimer;
 
 		protected float _attackForce;
 		protected double _attackDuration;
@@ -67,12 +66,15 @@ namespace Final_Game.Entity
 
 		#endregion
 
+
 		// Constructors
 		public Enemy(Game1 gm, Vector2 position) 
 		{
 			WorldPosition = position;
 
 			Type = EntityType.Enemy;
+
+			Game1.Player.OnPlayerUsedAbility += RespondToPlayerAbility;
 		}
 
 		// Methods
@@ -246,6 +248,18 @@ namespace Final_Game.Entity
 		}
 
         #endregion
+
+		public virtual void RespondToPlayerAbility(AbilityType power)
+		{
+			switch (power)
+			{
+				case AbilityType.EMP:
+
+					if (IsKO) _koTimer += 3;
+
+					break;
+			}	
+		}
 
     }
 }

@@ -48,6 +48,9 @@ namespace Final_Game
 		// Combo
 		private Texture2D _comboIcon;
 		private Texture2D _shieldIcon;
+		private Texture2D _thornsIcon;
+		private Texture2D _boostIcon;
+		private Texture2D _empIcon;
 
 		// Shake Effect
 		private double _shakeDuration;
@@ -100,6 +103,9 @@ namespace Final_Game
 			// Load Icons
 			_comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
 			_shieldIcon = _gm.Content.Load<Texture2D>("UI Images/ShieldIcon");
+			_thornsIcon = _gm.Content.Load<Texture2D>("UI Images/ThornsIcon");
+			_empIcon = _gm.Content.Load<Texture2D>("UI Images/EMPIcon");
+			_boostIcon = _gm.Content.Load<Texture2D>("UI Images/BoostIcon");
 
 			// Load Health Images
 			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
@@ -222,7 +228,6 @@ namespace Final_Game
 					DrawPlayerHealth();
 
 					DrawPlayerSpeedometer();
-
 					
 					DrawPlayerCombo();
 
@@ -278,12 +283,8 @@ namespace Final_Game
 
             Color textColor = Color.White;
 
-            // Get Icon to draw
-            Texture2D iconToDraw = _comboIcon;
-
             if (Game1.Player.ComboReward)
 			{
-                iconToDraw = _shieldIcon;
 				textColor = Color.LightGreen;
 			}
 
@@ -296,7 +297,7 @@ namespace Final_Game
 
 			// Draw Combo Icon after text
 			_spriteBatch.Draw(
-				iconToDraw,
+                GetAbilityIcon(Game1.Player.CurAbility),
 				new Rectangle(
 					(int)(comboDrawPos.X + comboStringDimensions.X),
 					430,
@@ -379,6 +380,29 @@ namespace Final_Game
                     Player.BulletTimeMultiplier;
             }
         }
+
+		private Texture2D GetAbilityIcon(AbilityType power)
+		{
+			if (!Game1.Player.ComboReward) return _comboIcon;
+
+			switch (power)
+			{
+				case AbilityType.Shield:
+					return _shieldIcon;
+
+				case AbilityType.Thorns:
+					return _thornsIcon;
+
+				case AbilityType.Boost:
+					return _boostIcon;
+
+				case AbilityType.EMP:
+					return _empIcon;
+			}
+
+			return _comboIcon;
+		}
+		
         public void DrawPlayerSpeedometer()
 		{
 			// Draw Speed dial

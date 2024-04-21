@@ -244,6 +244,13 @@ namespace Final_Game.Entity
 						starDrawPos,
 						0f,
 						Vector2.Zero);
+
+					spriteBatch.DrawString(
+						UI.MediumArial,
+						$"{_koTimer:0.00}",
+						screenPos,
+						Color.White);
+
                     break;
 
 				case EnemyState.Idle:
@@ -381,7 +388,12 @@ namespace Final_Game.Entity
 				directionToPlayer.Normalize();
 				directionToPlayer *= _attackForce;
 
-				Game1.Player.TakeDamage(1);
+				// React to Player Thorns ability
+				if (Game1.Player.ComboReward && 
+					Game1.Player.CurAbility == AbilityType.Thorns)
+					this.TakeDamage(MaxHealth);
+
+                Game1.Player.TakeDamage(1);
 
 				Game1.Player.Ricochet(directionToPlayer);
 

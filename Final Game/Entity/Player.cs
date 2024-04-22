@@ -93,6 +93,7 @@ namespace Final_Game.Entity
 		// Curve Core
 		private float _curveCompletion = 1f;
 		private float _speedModifier = 2f;
+		private Vector2 nextCurvePoint;
 		
 
 		#endregion
@@ -249,7 +250,7 @@ namespace Final_Game.Entity
 
                     if (_controllable) HandleBraking();
 
-                    Curve(gameTime);
+					CalculateNextCurvePoint(gameTime);
 
                     float playerSpeed = Velocity.Length();
 
@@ -281,42 +282,17 @@ namespace Final_Game.Entity
 
 			CheckPickupCollisions();
 
-			if (!IsCurving)
+			
+            if (IsCurving)
+			{
+				Move(Velocity);
+			}    
+			else
+			{
 				Move(Velocity * BulletTimeMultiplier);
+			}
 
 			UpdateRollAnimation(gameTime);
-        }
-
-        private void Curve(GameTime gameTime)
-        {
-			if (_curveCompletion >= 1f) return;
-
-            // 3-Point Bezier Curve:
-            // P = (1−t)^2P1 + 2(1−t)tP2 + t^2P3
-            Vector2 nextPosition =
-                MathF.Pow(1 - _curveCompletion, 2) * CurvePosOne +
-                2 * (1 - _curveCompletion) * _curveCompletion * CurvePosTwo +
-                MathF.Pow(_curveCompletion, 2) * CurvePosThree;
-
-            // Adjust velocity at beginning of curve
-            if (_curveCompletion == 0)
-            {
-                Velocity = nextPosition - CenterPosition;
-            }
-
-            _curveCompletion +=
-                (float)(gameTime.ElapsedGameTime.TotalSeconds * _speedModifier
-                * BulletTimeMultiplier);
-
-            // Adjust velocity at end of curve
-            if (_curveCompletion >= 1f)
-            {
-                Velocity = nextPosition - CenterPosition;
-                Velocity /= Velocity.Length();
-                Velocity *= Speed;
-            }
-
-            Move(nextPosition - CenterPosition);
         }
 
         public override void Draw(SpriteBatch sb)
@@ -354,6 +330,9 @@ namespace Final_Game.Entity
 
 					TransferRoom(tile);
 					NumRedirects = MaxRedirects;
+
+					// Stop Curving early
+					if (IsCurving) _curveCompletion = 1f;
 					return;
 
 				case TileType.Wall:
@@ -368,7 +347,14 @@ namespace Final_Game.Entity
 			{
 				//Move(-Velocity);
 
+				if (IsCurving)
+				{
+					// Stop Curving
+					_curveCompletion = 1f;
+				}
+				
 				Ricochet(colDir);
+				
 			}
 			else if (State == PlayerState.Walking)
 			{
@@ -538,7 +524,7 @@ namespace Final_Game.Entity
 	
 		private void HandleLaunch()
         {
-			if (Game1.IsMouseButtonPressed(LaunchButton)) 
+			if (Game1.IsMouseButtonPressed(LaunchButton) && !IsCurving) 
 				CalculateCurve();
 
             // Launch Player in direction of Mouse
@@ -574,43 +560,77 @@ namespace Final_Game.Entity
                 // Start Curving
                 _curveCompletion = 0;
 
+				// Recalculate curve if already curving
+				if (IsCurving) CalculateCurve();
+
                 // Player is now rolling
                 State = PlayerState.Rolling;
             }
         }
-
-        private void CalculateCurve()
+        private void CalculateNextCurvePoint(GameTime gameTime)
         {
-            // Calculate curve
-            CurvePosOne = CenterPosition;
+            if (_curveCompletion >= 1f) return;
 
-            CurvePosThree = Game1.CurMouse.Position.ToVector2() - Game1.MainCamera.WorldToScreenOffset;
+            // 3-Point Bezier Curve:
+            // P = (1−t)^2P1 + 2(1−t)tP2 + t^2P3
+            nextCurvePoint =
+                MathF.Pow(1 - _curveCompletion, 2) * CurvePosOne +
+                2 * (1 - _curveCompletion) * _curveCompletion * CurvePosTwo +
+                MathF.Pow(_curveCompletion, 2) * CurvePosThree;
 
-            Vector2 threeMinusOne = (CurvePosThree - CurvePosOne);
+            Velocity = nextCurvePoint - CenterPosition;
 
-            float destinationAngle = MathF.Atan2(threeMinusOne.Y, threeMinusOne.X);
+            // Adjust velocity at beginning of curve
+            if (_curveCompletion == 0)
+            {
+                Velocity = nextCurvePoint - CenterPosition;
+            }
 
-            Vector2 perpNorm = threeMinusOne;
-            perpNorm.Normalize();
+            _curveCompletion +=
+                (float)(gameTime.ElapsedGameTime.TotalSeconds * _speedModifier
+                * BulletTimeMultiplier);
 
-            perpNorm = new Vector2(perpNorm.Y, -perpNorm.X);
+            // Adjust velocity at end of curve
+            if (_curveCompletion >= 1f)
+            {
+                Velocity = nextCurvePoint - CenterPosition;
+                Velocity /= Velocity.Length();
+                Velocity *= Speed;
+            }
 
-            //            if ((destinationAngle < MathF.PI / 2 && destinationAngle >= 0) ||
-            //	(destinationAngle < 3*MathF.PI / 2 && destinationAngle >= MathF.PI))
-            //{
-            //	perpNorm = new Vector2(-perpNorm.Y, perpNorm.X);
-            //}
-            //else
-            //{
+      
+        }
+        private void CalculateCurve()
+		{
+			// Calculate curve
+			CurvePosOne = CenterPosition;
 
-            //}
+			CurvePosThree = Game1.CurMouse.Position.ToVector2() - Game1.MainCamera.WorldToScreenOffset;
 
-            Vector2 midPoint = CurvePosOne + threeMinusOne / 2;
+			Vector2 threeMinusOne = (CurvePosThree - CurvePosOne);
 
-            CurvePosTwo = midPoint + perpNorm * 200f;
+			float destinationAngle = MathF.Atan2(threeMinusOne.Y, threeMinusOne.X);
 
+			Vector2 perpNorm = threeMinusOne;
+			perpNorm.Normalize();
 
-            //_curvePosTwo = midPoint + new Vector2(0f, 100f);	
+			perpNorm = new Vector2(perpNorm.Y, -perpNorm.X);
+
+			Vector2 midPoint = CurvePosOne + threeMinusOne / 2;
+
+			// Quad III and IV Smile
+			if ((destinationAngle >= 0 && destinationAngle < MathF.PI / 2) ||
+				(destinationAngle < -MathF.PI / 2 && destinationAngle >= -MathF.PI))
+			{
+				CurvePosTwo = midPoint + perpNorm * 200f;
+			}
+			// Quad I and II Frown
+			else if ((destinationAngle >= MathF.PI / 2 && destinationAngle < MathF.PI) ||
+                (destinationAngle < 0 && destinationAngle >= -MathF.PI / 2))
+            {
+                CurvePosTwo = midPoint - perpNorm * 200f;
+			}
+
         }
 
         private void HandleBraking()

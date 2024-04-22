@@ -34,7 +34,7 @@ namespace Final_Game.Entity
             ScreenPos = Game1.Player.ScreenPosition + distFromPlayer;
             timeLeft = 1.5;
             CurHealth = 100;
-               
+            InvTimer = 100;
             attacked = false;
             Image = new Sprite(
                 texture,

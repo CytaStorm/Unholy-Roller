@@ -72,15 +72,16 @@ namespace Final_Game.Entity
                 case BossState.PinThrow:
                     if (direction % 2 == 1)
                     {
+                        float baseLength = 750f * Game1.MainCamera.Zoom;
                         ShapeBatch.Line(
-                            screenPos + new Vector2(475, 50) * Game1.MainCamera.Zoom, 
-                            750f, 
+                            screenPos + new Vector2(475, 50) * Game1.MainCamera.Zoom,
+                            (baseLength * (float)(1.1 - timeVisible)),
                             (float)(Math.PI / 2) * direction, 
                             10, 
                             Color.Red);
                         ShapeBatch.Line(
-                            screenPos - new Vector2(325, -50) * Game1.MainCamera.Zoom, 
-                            750f, 
+                            screenPos - new Vector2(325, -50) * Game1.MainCamera.Zoom,
+                             baseLength * (float)(1.1 - timeVisible), 
                             (float)(Math.PI / 2) * direction, 
                             10, 
                             Color.Red);
@@ -91,14 +92,14 @@ namespace Final_Game.Entity
                         ShapeBatch.Line(
                             screenPos + new Vector2(50 , 350 + Game1.TileSize * 1.5f)
                             * Game1.MainCamera.Zoom, 
-                            baseLength, 
+                            baseLength *(float)(1.1 - timeVisible), 
                             (float)(Math.PI / 2) * direction, 
                             10, 
                             Color.Red);
                         ShapeBatch.Line(
                             screenPos - new Vector2(-50 , 275)
                             * Game1.MainCamera.Zoom, 
-                            baseLength, 
+                            baseLength * (float)(1.1 - timeVisible), 
                             (float)(Math.PI / 2) * direction, 
                             10, 
                             Color.Red);

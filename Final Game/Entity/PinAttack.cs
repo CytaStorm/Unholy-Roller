@@ -111,7 +111,7 @@ namespace Final_Game.Entity
                 directionToPlayer *= _attackForce;
 
                 Game1.Player.TakeDamage(1);
-                Game1.Player.Ricochet(directionToPlayer);
+                Game1.Player.CurCore.Ricochet(directionToPlayer);
                 // Keep player from ricocheting endlessly
                 Hitbox = new Rectangle(0, 0, 0, 0);
                 attacked = true;

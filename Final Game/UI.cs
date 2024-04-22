@@ -906,35 +906,5 @@ namespace Final_Game
             }
 			return;
         }
-
-		public void DrawPlayerCurveTrajectory()
-		{
-			if (!Game1.IsMouseButtonPressed(Game1.Player.LaunchButton) &&
-				!Game1.Player.IsCurving) return;
-
-			int numPoints = 10;
-			float curveDivision = 1f / numPoints;
-
-
-			for (int i = 0; i < numPoints; i++)
-			{
-				float curveCompletion = curveDivision * i;
-
-                Vector2 curvePointPos =
-					MathF.Pow(1 - curveCompletion, 2) * Game1.Player.CurvePosOne +
-					2 * (1 - curveCompletion) * curveCompletion * Game1.Player.CurvePosTwo +
-					MathF.Pow(curveCompletion, 2) * Game1.Player.CurvePosThree;
-
-				ShapeBatch.Circle(
-					curvePointPos + Game1.MainCamera.WorldToScreenOffset,
-					25f * Game1.MainCamera.Zoom,
-					Color.White * 0.4f);
-            }
-
-            ShapeBatch.Circle(
-                    Game1.Player.CurvePosThree + Game1.MainCamera.WorldToScreenOffset,
-                    35f * Game1.MainCamera.Zoom,
-                    Color.White * 0.8f);
-        }
 	}
 }

@@ -1,4 +1,4 @@
-using Final_Game.LevelGen;
+﻿using Final_Game.LevelGen;
 using Final_Game.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -90,6 +90,11 @@ namespace Final_Game.Entity
 
 		private Game1 _gm;
 
+		// Curve Core
+		private float _curveCompletion = 1f;
+		private float _speedModifier = 2f;
+		
+
 		#endregion
 
 		#region Properties
@@ -127,9 +132,15 @@ namespace Final_Game.Entity
 			get => Game1.IsMouseButtonPressed(LaunchButton) && NumRedirects > 0; 
 		}
 
-		#endregion
+		// Curve Core
+        public Vector2 CurvePosOne { get; private set; }
+        public Vector2 CurvePosTwo { get; private set; }
+        public Vector2 CurvePosThree { get; private set; }
+        public bool IsCurving => _curveCompletion < 1f;
 
-		public event EntityDamaged OnPlayerHit;
+        #endregion
+
+        public event EntityDamaged OnPlayerHit;
         public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
@@ -233,30 +244,32 @@ namespace Final_Game.Entity
 					// Reset Combo if too much time has passed since prev hit.
 					break;
 
-				case PlayerState.Rolling:
-					ApplyFriction();
+                case PlayerState.Rolling:
+                    ApplyFriction();
 
-					if (_controllable) HandleBraking();
+                    if (_controllable) HandleBraking();
 
-					float playerSpeed = Velocity.Length();
+                    Curve(gameTime);
 
-					// Quick reload redirects
-					if (playerSpeed < _reloadRedirectsSpeed)
-					{
-						NumRedirects = MaxRedirects;
-					}
+                    float playerSpeed = Velocity.Length();
+
+                    // Quick reload redirects
+                    if (playerSpeed < _reloadRedirectsSpeed)
+                    {
+                        NumRedirects = MaxRedirects;
+                    }
 
                     // Transition to walking
-                    if (playerSpeed < 1f)
-					{
-						State = PlayerState.Walking;
+                    if (playerSpeed < 1f && !IsCurving)
+                    {
+                        State = PlayerState.Walking;
 
-						Velocity = Vector2.Zero;
+                        Velocity = Vector2.Zero;
 
-						NumRedirects = MaxRedirects + 1;
-					}
-					break;
-			}
+                        NumRedirects = MaxRedirects + 1;
+                    }
+                    break;
+            }
 
 			if (_controllable) HandleLaunch();
 
@@ -268,12 +281,45 @@ namespace Final_Game.Entity
 
 			CheckPickupCollisions();
 
-			Move(Velocity * BulletTimeMultiplier);
+			if (!IsCurving)
+				Move(Velocity * BulletTimeMultiplier);
 
 			UpdateRollAnimation(gameTime);
         }
 
-		public override void Draw(SpriteBatch sb)
+        private void Curve(GameTime gameTime)
+        {
+			if (_curveCompletion >= 1f) return;
+
+            // 3-Point Bezier Curve:
+            // P = (1−t)^2P1 + 2(1−t)tP2 + t^2P3
+            Vector2 nextPosition =
+                MathF.Pow(1 - _curveCompletion, 2) * CurvePosOne +
+                2 * (1 - _curveCompletion) * _curveCompletion * CurvePosTwo +
+                MathF.Pow(_curveCompletion, 2) * CurvePosThree;
+
+            // Adjust velocity at beginning of curve
+            if (_curveCompletion == 0)
+            {
+                Velocity = nextPosition - CenterPosition;
+            }
+
+            _curveCompletion +=
+                (float)(gameTime.ElapsedGameTime.TotalSeconds * _speedModifier
+                * BulletTimeMultiplier);
+
+            // Adjust velocity at end of curve
+            if (_curveCompletion >= 1f)
+            {
+                Velocity = nextPosition - CenterPosition;
+                Velocity /= Velocity.Length();
+                Velocity *= Speed;
+            }
+
+            Move(nextPosition - CenterPosition);
+        }
+
+        public override void Draw(SpriteBatch sb)
 		{
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
@@ -491,43 +537,83 @@ namespace Final_Game.Entity
 		}
 	
 		private void HandleLaunch()
-		{
-			// Launch Player in direction of Mouse
-			if (NumRedirects > 0 && Game1.IsMouseButtonClicked(LaunchButton))
-			{
-				// Get mouse Position
-				Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
-	
-				// Aim from center of the Player
-				Vector2 centerPos = new Vector2(ScreenPosition.X + Image.DestinationRect.Width / 2,
-					ScreenPosition.Y + Image.DestinationRect.Height / 2);
-	
-				// Aim toward mouse at player speed
-				Vector2 distance = mousePos - centerPos;
-				distance.Normalize();
-	
-				// Speed is less than max
-				if (Velocity.LengthSquared() < Speed * Speed)
-				{
-					// Launch player at max speed
-					distance *= Speed;
-					Velocity = distance;
-				}
-				else
-				{
-					// Launch player at current speed
-					distance *= Velocity.Length();
-					Velocity = distance;
-				}
-	
-				NumRedirects--;
-	
-				// Player is now rolling
-				State = PlayerState.Rolling;
-			}
-		}
-	
-		private void HandleBraking()
+        {
+			if (Game1.IsMouseButtonPressed(LaunchButton)) 
+				CalculateCurve();
+
+            // Launch Player in direction of Mouse
+            if (NumRedirects > 0 && Game1.IsMouseButtonClicked(LaunchButton))
+            {
+                // Get mouse Position
+                Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
+
+                // Aim from center of the Player
+                Vector2 centerPos = new Vector2(ScreenPosition.X + Image.DestinationRect.Width / 2,
+                    ScreenPosition.Y + Image.DestinationRect.Height / 2);
+
+                // Aim toward mouse at player speed
+                Vector2 distance = mousePos - centerPos;
+                distance.Normalize();
+
+                //// Speed is less than max
+                //if (Velocity.LengthSquared() < Speed * Speed)
+                //{
+                //	// Launch player at max speed
+                //	distance *= Speed;
+                //	Velocity = distance;
+                //}
+                //else
+                //{
+                //	// Launch player at current speed
+                //	distance *= Velocity.Length();
+                //	Velocity = distance;
+                //}
+
+                //NumRedirects--;
+
+                // Start Curving
+                _curveCompletion = 0;
+
+                // Player is now rolling
+                State = PlayerState.Rolling;
+            }
+        }
+
+        private void CalculateCurve()
+        {
+            // Calculate curve
+            CurvePosOne = CenterPosition;
+
+            CurvePosThree = Game1.CurMouse.Position.ToVector2() - Game1.MainCamera.WorldToScreenOffset;
+
+            Vector2 threeMinusOne = (CurvePosThree - CurvePosOne);
+
+            float destinationAngle = MathF.Atan2(threeMinusOne.Y, threeMinusOne.X);
+
+            Vector2 perpNorm = threeMinusOne;
+            perpNorm.Normalize();
+
+            perpNorm = new Vector2(perpNorm.Y, -perpNorm.X);
+
+            //            if ((destinationAngle < MathF.PI / 2 && destinationAngle >= 0) ||
+            //	(destinationAngle < 3*MathF.PI / 2 && destinationAngle >= MathF.PI))
+            //{
+            //	perpNorm = new Vector2(-perpNorm.Y, perpNorm.X);
+            //}
+            //else
+            //{
+
+            //}
+
+            Vector2 midPoint = CurvePosOne + threeMinusOne / 2;
+
+            CurvePosTwo = midPoint + perpNorm * 200f;
+
+
+            //_curvePosTwo = midPoint + new Vector2(0f, 100f);	
+        }
+
+        private void HandleBraking()
 		{
 			float lowestBrakableSpeed = 0.1f * 0.1f;
 	

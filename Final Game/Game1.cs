@@ -375,11 +375,15 @@ namespace Final_Game
 					if (DebugOn) DrawDebug();
                     IManager.Draw();
                     UIManager.DrawMinimap();
+
+					UIManager.DrawPlayerCurveTrajectory();
 					break;
 
 				case GameState.Cutscene:
 					CSManager.DrawSimpleShapes();
-					break;
+
+                    UIManager.DrawPlayerCurveTrajectory();
+                    break;
 			}
 
 			ShapeBatch.End();

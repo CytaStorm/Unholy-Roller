@@ -28,7 +28,7 @@ namespace Final_Game
 
         public Sprite Icon { get; protected set; }
         public Vector2 Velocity { get; set; }
-        public float FrictionMagnitude { get; protected set; }
+        public float FrictionMagnitude { get; protected set; } = 0.01f;
 
         /// <summary>
         /// Gets whether or not player is moving along core's
@@ -36,7 +36,7 @@ namespace Final_Game
         /// </summary>
         public virtual bool IsCurving => true;
 
-        public bool FollowsCurve { get; protected set; }
+        public bool UsesCurve { get; protected set; }
 
 
         #endregion
@@ -101,6 +101,10 @@ namespace Final_Game
                 new Vector2(
                     _launchArrow.SourceRect.Width / 2,
                     _launchArrow.SourceRect.Height / 2));
+        }
+
+        public virtual void DrawTrajectoryHint()
+        {
         }
 
         #region Movement

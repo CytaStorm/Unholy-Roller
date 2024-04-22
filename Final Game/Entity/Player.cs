@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -77,16 +78,13 @@ namespace Final_Game.Entity
 		private int _rollFrameWidth;
 		private float _directionToFace;
 
-		// Keybinds
-		public int LaunchButton { get; set; } = 1;
-		public int BrakeButton { get; set; } = 2;
+		
 
 		private Game1 _gm;
 
-		// Curve Core
-		private float _curveCompletion = 1f;
-		private float _speedModifier = 2f;
-		private Vector2 nextCurvePoint;
+		// Cores
+		private List<Core> _cores;
+		private int _coreIndex;
 
 		#endregion
 
@@ -129,11 +127,16 @@ namespace Final_Game.Entity
 		// Curve Core
   
 		public Core CurCore { get; private set; }
+		
 
         public override Vector2 Velocity { get => CurCore.Velocity; }
         public float MinRollSpeed { get; private set; }
 
 		public bool Controllable { get; private set; } = true;
+
+        // Keybinds
+        public int LaunchButton { get; set; } = 1;
+        public int BrakeButton { get; set; } = 2;
 
         #endregion
 
@@ -211,7 +214,12 @@ namespace Final_Game.Entity
 			_gm = gm;
 
 			// Cores
-			CurCore = new Core_ThreePointCurve(gm.Content);
+			_cores = new List<Core>()
+			{
+				new Core(_gm.Content),
+				new Core_ThreePointCurve(_gm.Content)
+			};
+			CurCore = _cores[_coreIndex];
 		}
 		#endregion
 		
@@ -229,6 +237,8 @@ namespace Final_Game.Entity
 			if (Controllable) UpdateBulletTime(gameTime);
 
 			TickInvincibility(gameTime);
+
+			HandleCoreSwap();
 
 			switch (State)
 			{
@@ -274,13 +284,15 @@ namespace Final_Game.Entity
 
 			CheckPickupCollisions();
 
-			if (CurCore.FollowsCurve) 
+			if (CurCore.IsCurving) 
 				Move(Velocity);
 			else 
 				Move(Velocity * BulletTimeMultiplier);
 
 			UpdateRollAnimation(gameTime);
         }
+
+        
 
         public override void Draw(SpriteBatch sb)
 		{
@@ -440,10 +452,28 @@ namespace Final_Game.Entity
 					break;
 			}
 		}
-	
-		
-	
-		private void HandleLaunch(GameTime gameTime)
+
+        private void HandleCoreSwap()
+        {
+            if (!Game1.SingleKeyPress(Keys.Q)) return;
+
+			CurCore.StopCurving();
+
+			// Get Next Core
+            _coreIndex++;
+            if (_coreIndex == _cores.Count)
+            {
+                _coreIndex = 0;
+            }
+
+			// Maintain velocity from one core to the next
+			_cores[_coreIndex].Velocity = CurCore.Velocity;
+
+			// Set Current Core
+			CurCore = _cores[_coreIndex];
+        }
+
+        private void HandleLaunch(GameTime gameTime)
         {
 			if (Game1.IsMouseButtonPressed(LaunchButton) && !CurCore.IsCurving) 
 				CurCore.CalculateTrajectory();

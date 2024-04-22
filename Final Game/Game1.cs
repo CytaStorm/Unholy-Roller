@@ -353,7 +353,7 @@ namespace Final_Game
 
                     PManager.Draw(_spriteBatch);
 
-					if (!Player.CurCore.FollowsCurve &&
+					if (!Player.CurCore.UsesCurve &&
 						Player.Controllable &&
 						Player.LaunchPrimed)
 					{
@@ -384,25 +384,23 @@ namespace Final_Game
                     UIManager.DrawMinimap();
 
 					// Draw player launch arrow
-					if (Player.CurCore.FollowsCurve &&
-						Player.Controllable &&
-						Player.LaunchPrimed)
+					if ((Player.Controllable &&
+						Player.LaunchPrimed))
 					{
-						Player.CurCore.DrawTrajectoryHint(_spriteBatch);
+						Player.CurCore.DrawTrajectoryHint();
 					}
 					break;
 
 				case GameState.Cutscene:
 					CSManager.DrawSimpleShapes();
 
-					// Draw player launch arrow
-					if (Player.CurCore.FollowsCurve &&
-						Player.Controllable &&
-						Player.LaunchPrimed)
-					{
-						Player.CurCore.DrawTrajectoryHint(_spriteBatch);
-					}
-					break;
+                    // Draw player launch arrow
+                    if ((Player.Controllable &&
+                        Player.LaunchPrimed))
+                    {
+                        Player.CurCore.DrawTrajectoryHint();
+                    }
+                    break;
 			}
 
 			ShapeBatch.End();

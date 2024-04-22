@@ -36,7 +36,7 @@ namespace Final_Game
 
         public Core_ThreePointCurve(ContentManager content) : base (content)
         {
-            FollowsCurve = true;
+            UsesCurve = true;
 
         }
 
@@ -51,10 +51,11 @@ namespace Final_Game
             base.Update(gameTime);
         }
 
-        public override void DrawTrajectoryHint(SpriteBatch sb)
+        public override void DrawTrajectoryHint()
         {
             if (!Game1.IsMouseButtonPressed(Game1.Player.LaunchButton) &&
-                !Game1.Player.CurCore.IsCurving) return;
+                !Game1.Player.CurCore.IsCurving ||
+                !UsesCurve) return;
 
             int numPoints = 10;
             float curveDivision = 1f / numPoints;
@@ -163,7 +164,12 @@ namespace Final_Game
 
         public override void StopCurving()
         {
+            if (!IsCurving) return;
+
             _curveCompletion = 1f;
+
+            Velocity = nextCurvePoint - Game1.Player.CenterPosition;
+            Velocity *= Game1.Player.Speed / Velocity.Length();
         }
     }
 }

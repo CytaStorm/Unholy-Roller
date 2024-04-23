@@ -84,6 +84,8 @@ namespace Final_Game
 
         public virtual void DrawTrajectoryHint(SpriteBatch sb)
         {
+            if (!Game1.Player.Controllable || !Game1.Player.LaunchPrimed) return;
+
             // Get angle between arrow and mouse
             Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 
@@ -117,6 +119,7 @@ namespace Final_Game
 
         public virtual void DrawTrajectoryHint()
         {
+            return;
         }
 
         #region Movement

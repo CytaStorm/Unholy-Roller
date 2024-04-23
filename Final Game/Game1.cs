@@ -364,7 +364,14 @@ namespace Final_Game
 
 				case GameState.Cutscene:
 					CSManager.Draw(_spriteBatch);
-					break;
+
+                    if (!Player.CurCore.UsesCurve &&
+                        Player.Controllable &&
+                        Player.LaunchPrimed)
+                    {
+                        Player.CurCore.DrawTrajectoryHint(_spriteBatch);
+                    }
+                    break;
 			}
 
 			UIManager.Draw();

@@ -265,11 +265,11 @@ namespace Final_Game.Entity
                     }
 
                     // Transition to walking
-                    if (playerSpeed < 1f)
+                    if (playerSpeed < 1f && !(CurCore.UsesCurve && CurCore.IsCurving))
                     {
-                        //State = PlayerState.Walking;
+                        State = PlayerState.Walking;
 
-                        //Velocity = Vector2.Zero;
+                        Velocity = Vector2.Zero;
 
                         NumRedirects = MaxRedirects + 1;
                     }

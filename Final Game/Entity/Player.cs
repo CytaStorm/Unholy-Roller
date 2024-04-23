@@ -1,9 +1,10 @@
-using Final_Game.LevelGen;
+﻿using Final_Game.LevelGen;
 using Final_Game.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -35,11 +36,6 @@ namespace Final_Game.Entity
 		private int _launchArrowSpriteWidth;
 
 		/// <summary>
-		/// Speed of the player when walking.
-		/// </summary>
-		private float _walkSpeed;
-
-		/// <summary>
 		/// Speed of the player to reload redirects
 		/// </summary>
 		private float _reloadRedirectsSpeed;
@@ -61,9 +57,7 @@ namespace Final_Game.Entity
 		/// </summary>
 		private float _smileSpeed;
 
-		private float _transitionToWalkingSpeed;
-
-		private bool _controllable = true;
+		
 
 		/// <summary>
 		/// TIme left before combo resets.
@@ -84,17 +78,19 @@ namespace Final_Game.Entity
 		private int _rollFrameWidth;
 		private float _directionToFace;
 
-		// Keybinds
-		public int LaunchButton { get; set; } = 1;
-		public int BrakeButton { get; set; } = 2;
+		
 
 		private Game1 _gm;
+
+		// Cores
+		private List<Core> _cores;
+		private int _coreIndex;
 
 		#endregion
 
 		#region Properties
 		public PlayerState State { get; private set; }
-		public Vector2 ScreenPosition { get; private set; }
+		public Vector2 ScreenPosition => WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 		/// <summary>
 		/// Multiply any expression that uses Elapsed Seconds by this coefficient
@@ -103,7 +99,6 @@ namespace Final_Game.Entity
 		public static float BulletTimeMultiplier { get; private set; } = 1f;
 
 		public int Combo;
-
 		public bool IsSmiling => Combo > 9;
 		public bool ComboReward => Combo > 9;
 
@@ -111,6 +106,8 @@ namespace Final_Game.Entity
 		private float hitStopTimeRemaining = 0f;
 		public bool canBeTriggered = true;
 		private Enemy lastContactedEnemy = null;
+
+
 		public Room CurrentRoom { get { return Game1.CurrentLevel.CurrentRoom; } }
 
         /// <summary>
@@ -127,9 +124,23 @@ namespace Final_Game.Entity
 			get => Game1.IsMouseButtonPressed(LaunchButton) && NumRedirects > 0; 
 		}
 
-		#endregion
+		// Curve Core
+  
+		public Core CurCore { get; private set; }
+		
 
-		public event EntityDamaged OnPlayerHit;
+        public override Vector2 Velocity { get => CurCore.Velocity; }
+        public float MinRollSpeed { get; private set; }
+
+		public bool Controllable { get; private set; } = true;
+
+        // Keybinds
+        public int LaunchButton { get; set; } = 1;
+        public int BrakeButton { get; set; } = 2;
+
+        #endregion
+
+        public event EntityDamaged OnPlayerHit;
         public event EntityDamaged OnPlayerDamaged;
 		public event EntityDying OnPlayerDeath;
 
@@ -158,11 +169,6 @@ namespace Final_Game.Entity
 			// launch arrow image
 			_launchArrowsTexture = gm.Content.Load<Texture2D>("Sprites/LaunchArrowSpritesheet");
 
-			// Set position on screen
-			ScreenPosition = new Vector2(
-				Game1.ScreenCenter.X - Image.DestinationRect.Width / 2,
-				Game1.ScreenCenter.Y - Image.DestinationRect.Height / 2);
-
 			int numLaunchArrows = 4;
 			_launchArrowSpriteWidth = _launchArrowsTexture.Width / numLaunchArrows;
 
@@ -176,10 +182,10 @@ namespace Final_Game.Entity
 
 			// Set movement vars
 			Speed = 20f;
-			_walkSpeed = 10f;
+			
 			_brakeSpeed = 0.2f;
 			_frictionMagnitude = 0.01f;
-			_transitionToWalkingSpeed = 1f;
+			MinRollSpeed = 1f;
 			_smileSpeed = 48f;
 			_reloadRedirectsSpeed = 5f;
 
@@ -206,6 +212,14 @@ namespace Final_Game.Entity
 
 			//Cloning
 			_gm = gm;
+
+			// Cores
+			_cores = new List<Core>()
+			{
+				new Core(_gm.Content),
+				new Core_ThreePointCurve(_gm.Content)
+			};
+			CurCore = _cores[_coreIndex];
 		}
 		#endregion
 		
@@ -220,47 +234,49 @@ namespace Final_Game.Entity
 
 			UpdateCombo(gameTime);
 
-			if (_controllable) UpdateBulletTime(gameTime);
+			if (Controllable) UpdateBulletTime(gameTime);
 
 			TickInvincibility(gameTime);
+
+			HandleCoreSwap();
 
 			switch (State)
 			{
 				case PlayerState.Walking:
 
-					if (_controllable) MoveWithKeyboard(Game1.CurKB);
+					if (Controllable) CurCore.MoveWithKeyboard(Game1.CurKB);
 					//Debug.WriteLine($"Current worldPos {WorldPosition}");
 					// Reset Combo if too much time has passed since prev hit.
 					break;
 
 				case PlayerState.Rolling:
-					ApplyFriction();
 
-					if (_controllable) HandleBraking();
+                    if (Controllable) HandleBraking();
 
-					float playerSpeed = Velocity.Length();
+					//CalculateNextCurvePoint(gameTime);
+					CurCore.Update(gameTime);
 
-					// Quick reload redirects
-					if (playerSpeed < _reloadRedirectsSpeed)
-					{
-						NumRedirects = MaxRedirects;
-					}
+                    float playerSpeed = Velocity.Length();
+
+                    // Quick reload redirects
+                    if (playerSpeed < _reloadRedirectsSpeed)
+                    {
+                        NumRedirects = MaxRedirects;
+                    }
 
                     // Transition to walking
                     if (playerSpeed < 1f)
-					{
-						State = PlayerState.Walking;
+                    {
+                        //State = PlayerState.Walking;
 
-						Velocity = Vector2.Zero;
+                        //Velocity = Vector2.Zero;
 
-						NumRedirects = MaxRedirects + 1;
-					}
-					break;
-			}
+                        NumRedirects = MaxRedirects + 1;
+                    }
+                    break;
+            }
 
-			if (_controllable) HandleLaunch();
-
-			//ApplyScreenBoundRicochet();
+			if (Controllable) HandleLaunch(gameTime);
 
 			CollisionChecker.CheckTilemapCollision(this, CurrentRoom.Tileset);
 
@@ -268,12 +284,17 @@ namespace Final_Game.Entity
 
 			CheckPickupCollisions();
 
-			Move(Velocity * BulletTimeMultiplier);
+			if (CurCore.IsCurving && CurCore.UsesCurve) 
+				Move(Velocity);
+			else 
+				Move(Velocity * BulletTimeMultiplier);
 
 			UpdateRollAnimation(gameTime);
         }
 
-		public override void Draw(SpriteBatch sb)
+        
+
+        public override void Draw(SpriteBatch sb)
 		{
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
@@ -283,12 +304,6 @@ namespace Final_Game.Entity
 				screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f, 
 				_directionToFace, 
 				new Vector2(_rollFrameWidth, _rollFrameWidth) / 2f);
-
-			// Draw player launch arrow
-			if (_controllable && LaunchPrimed)
-			{
-				DrawLaunchArrow(sb, screenPos);
-			}
 		}
 
 		#region Collision Handling Methods
@@ -308,27 +323,20 @@ namespace Final_Game.Entity
 
 					TransferRoom(tile);
 					NumRedirects = MaxRedirects;
-					return;
 
-				case TileType.Wall:
-					break;
+					return;
 			}
 
 			// Place self on part of tile that was hit
 			PlaceOnHitEdge(tile, colDir);
 
-
-			if (State == PlayerState.Rolling)
-			{
-				//Move(-Velocity);
-
-				Ricochet(colDir);
-			}
-			else if (State == PlayerState.Walking)
+			if (State == PlayerState.Walking)
 			{
 				Move(-Velocity * BulletTimeMultiplier);
 			}
-		}
+
+            CurCore.OnHitTile(colDir, tile);
+        }
 
 		public override void OnHitEntity(Entity entity, CollisionDirection colDir)
 		{
@@ -336,6 +344,10 @@ namespace Final_Game.Entity
 			{
 				case EntityType.Enemy:
 					Enemy hitEnemy = (Enemy)entity;
+
+					// Exit early if enemy can't take damage
+                    if (hitEnemy.IsInvincible) 
+						return;
 
 					HandleEnemyCollision(hitEnemy);		
 					break;
@@ -345,6 +357,9 @@ namespace Final_Game.Entity
 
 					break;
 			}
+
+			// Movement-related reaction to collision
+			CurCore.OnHitEntity(colDir, entity);
 		}
 
 		private void CheckEnemyCollisions()
@@ -381,25 +396,14 @@ namespace Final_Game.Entity
 
 		private void HandleEnemyCollision(Enemy hitEnemy)
 		{
-			if (hitEnemy.IsInvincible)
-			{
-				return;
-			}
-
 			if (State == PlayerState.Rolling)
 			{
-                Managers.SoundManager.PlayHitSound();
-
-                // Speed up
-                Vector2 acc = Velocity;
-				acc.Normalize();
-				acc *= 0.25f;
-				Accelerate(acc);
+				Managers.SoundManager.PlayHitSound();
 
 				// Get an extra redirect
 				if (NumRedirects < MaxRedirects)
 				{
-					NumRedirects++; 
+					NumRedirects++;
 				}
 
 				// Increase Combo
@@ -413,13 +417,8 @@ namespace Final_Game.Entity
 				return;
 			}
 
-			// Player gets knocked back if standing on top of enemy
-			Vector2 distToEnemy = hitEnemy.CenterPosition - CenterPosition;
-			distToEnemy.Normalize();
-			distToEnemy *= -5;
-			this.TakeDamage(1);               
-		    Velocity = distToEnemy;	
-			State = PlayerState.Rolling;
+			// Take damage if hit enemy when not rolling
+			TakeDamage(1);
 			return;
 		}
 	
@@ -453,129 +452,82 @@ namespace Final_Game.Entity
 					break;
 			}
 		}
-	
-		public void MoveWithKeyboard(KeyboardState kb)
-		{
-			Velocity = Vector2.Zero;
-	
-			// Move up
-			if (kb.IsKeyDown(Keys.W) ||
-				kb.IsKeyDown(Keys.Up))
-			{
-				Velocity = new Vector2(Velocity.X, Velocity.Y - _walkSpeed);
-			}
-			// Move down
-			if (kb.IsKeyDown(Keys.S) ||
-                kb.IsKeyDown(Keys.Down))
-			{
-				Velocity = new Vector2(Velocity.X, Velocity.Y + _walkSpeed);
-			}
-			// Move left
-			if (kb.IsKeyDown(Keys.A) ||
-                kb.IsKeyDown(Keys.Left))
-			{
-				Velocity = new Vector2(Velocity.X - _walkSpeed, Velocity.Y);
-			}
-			// Move right
-			if (kb.IsKeyDown(Keys.D) ||
-                kb.IsKeyDown(Keys.Right))
-			{
-				Velocity = new Vector2(Velocity.X + _walkSpeed, Velocity.Y);
-			}
-	
-			// Max Velocity is _walkSpeed
-			if (Velocity.LengthSquared() > _walkSpeed * _walkSpeed)
-			{
-				Velocity = Velocity * _walkSpeed / Velocity.Length();
-			}
-		}
-	
-		private void HandleLaunch()
-		{
-			// Launch Player in direction of Mouse
-			if (NumRedirects > 0 && Game1.IsMouseButtonClicked(LaunchButton))
-			{
-				// Get mouse Position
-				Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
-	
-				// Aim from center of the Player
-				Vector2 centerPos = new Vector2(ScreenPosition.X + Image.DestinationRect.Width / 2,
-					ScreenPosition.Y + Image.DestinationRect.Height / 2);
-	
-				// Aim toward mouse at player speed
-				Vector2 distance = mousePos - centerPos;
-				distance.Normalize();
-	
-				// Speed is less than max
-				if (Velocity.LengthSquared() < Speed * Speed)
-				{
-					// Launch player at max speed
-					distance *= Speed;
-					Velocity = distance;
-				}
-				else
-				{
-					// Launch player at current speed
-					distance *= Velocity.Length();
-					Velocity = distance;
-				}
-	
-				NumRedirects--;
-	
-				// Player is now rolling
-				State = PlayerState.Rolling;
-			}
-		}
-	
-		private void HandleBraking()
+
+        private void HandleCoreSwap()
+        {
+            if (!Game1.SingleKeyPress(Keys.Q)) return;
+
+			CurCore.StopCurving();
+
+			// Get Next Core
+            _coreIndex++;
+            if (_coreIndex == _cores.Count)
+            {
+                _coreIndex = 0;
+            }
+
+			// Maintain velocity from one core to the next
+			_cores[_coreIndex].Velocity = CurCore.Velocity;
+
+			// Set Current Core
+			CurCore = _cores[_coreIndex];
+        }
+
+        private void HandleLaunch(GameTime gameTime)
+        {
+			if (Game1.IsMouseButtonPressed(LaunchButton) && !CurCore.IsCurving) 
+				CurCore.CalculateTrajectory();
+
+            // Launch Player in direction of Mouse
+            if (NumRedirects > 0 && Game1.IsMouseButtonClicked(LaunchButton))
+            {
+				//// Get mouse Position
+				//Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
+
+				//// Aim from center of the Player
+				//Vector2 centerPos = new Vector2(ScreenPosition.X + Image.DestinationRect.Width / 2,
+				//    ScreenPosition.Y + Image.DestinationRect.Height / 2);
+
+				//// Aim toward mouse at player speed
+				//Vector2 distance = mousePos - centerPos;
+				//distance.Normalize();
+
+				////// Speed is less than max
+				////if (Velocity.LengthSquared() < Speed * Speed)
+				////{
+				////	// Launch player at max speed
+				////	distance *= Speed;
+				////	Velocity = distance;
+				////}
+				////else
+				////{
+				////	// Launch player at current speed
+				////	distance *= Velocity.Length();
+				////	Velocity = distance;
+				////}
+
+				CurCore.Launch(gameTime);
+
+                NumRedirects--;
+
+                // Player is now rolling
+                State = PlayerState.Rolling;
+            }
+        }
+
+        private void HandleBraking()
 		{
 			float lowestBrakableSpeed = 0.1f * 0.1f;
 	
 			if (Game1.IsMouseButtonPressed(BrakeButton) && 
-				Velocity.LengthSquared() >= lowestBrakableSpeed)
+				CurCore.Velocity.LengthSquared() >= lowestBrakableSpeed)
 			{
-				Vector2 deceleration = -Velocity;
+				Vector2 deceleration = -CurCore.Velocity;
 				deceleration.Normalize();
 				deceleration *= _brakeSpeed * BulletTimeMultiplier;
 	
-				Velocity += deceleration;
+				CurCore.Velocity += deceleration;
 			}
-		}
-	
-		public void Accelerate(Vector2 force)
-		{
-			Velocity += force;
-		}
-	
-		private void ApplyFriction()
-		{
-			if (Velocity.LengthSquared() > MathF.Pow(_transitionToWalkingSpeed, 2))
-			{
-				// Naturally decelerate over time
-				Vector2 natDeceleration = -Velocity;
-				natDeceleration.Normalize();
-				Velocity += natDeceleration * _frictionMagnitude * BulletTimeMultiplier;
-			}
-		}
-		public void Ricochet(CollisionDirection hitDirection)
-		{
-			if (hitDirection == CollisionDirection.Vertical)
-			{
-				Velocity = new Vector2(Velocity.X, -Velocity.Y);
-			}
-			else if (hitDirection == CollisionDirection.Horizontal)
-			{
-				Velocity = new Vector2(-Velocity.X, Velocity.Y);
-			}
-	
-			State = PlayerState.Rolling;
-		}
-	
-		public void Ricochet(Vector2 newDirection)
-		{
-			Velocity = newDirection;
-	
-			State = PlayerState.Rolling;
 		}
 	
 		private void ApplyScreenBoundRicochet()
@@ -623,47 +575,7 @@ namespace Final_Game.Entity
 		#region Drawing Helper Methods
 		private void DrawLaunchArrow(SpriteBatch sb, Vector2 screenPos)
 		{
-			// Get angle between arrow and mouse
-			Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
-	
-			Vector2 centerScreenPos = new Vector2(
-				screenPos.X + Image.DestinationRect.Width / 2,
-				screenPos.Y + Image.DestinationRect.Height / 2);
-	
-			Vector2 playerToMouseDistance = mousePos - centerScreenPos;
-	
-			float angleBetweenArrowAndMouse = MathF.Atan2(
-				playerToMouseDistance.X,
-				playerToMouseDistance.Y);
-	
-			// Scale distance from player to mouse for drawing
-			Vector2 directionFromPlayerToMouse = playerToMouseDistance;
-			directionFromPlayerToMouse.Normalize();
-			directionFromPlayerToMouse *= 120; // Radius
-	
-			Rectangle arrowSourceRect = new Rectangle();
-
-			// Get correct launch arrow image from spritesheet
-			int arrowNumber = MathHelper.Clamp(NumRedirects - 1, 0, 3);
-
-            arrowSourceRect = new Rectangle(
-				_launchArrowSpriteWidth * arrowNumber, 0,
-				_launchArrowSpriteWidth, _launchArrowSpriteWidth);
-	
-			// Draw aiming arrow
-			sb.Draw(
-				_launchArrowsTexture,
-				centerScreenPos + directionFromPlayerToMouse,
-				arrowSourceRect,
-				Color.White,
-				-angleBetweenArrowAndMouse,
-				new Vector2(
-					_launchArrowSpriteWidth / 2,
-					_launchArrowSpriteWidth / 2),
-				1f,
-				SpriteEffects.None,
-				0f
-				);
+			
 		}
 	
 	
@@ -695,7 +607,7 @@ namespace Final_Game.Entity
 			// Set Default State 
 			State = PlayerState.Walking;
 
-			_controllable = true;
+			Controllable = true;
 
 			// Reset combo
 			Combo = 0;
@@ -797,7 +709,7 @@ namespace Final_Game.Entity
 					return;
 				}
 
-				_controllable = false;
+				Controllable = false;
 
 				BulletTimeMultiplier = _minTimeMultiplier;
 

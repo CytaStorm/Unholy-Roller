@@ -54,9 +54,9 @@ namespace Final_Game
 
             WorldToScreenOffset = ScreenPosition - WorldPosition;
 
-            Zoom = 20 / Game1.Player.Velocity.Length();
+            //Zoom = 20 / Game1.Player.Velocity.Length();
 
-            Zoom = MathHelper.Clamp(Zoom, 0.75f, 1f);
+            //Zoom = MathHelper.Clamp(Zoom, 0.75f, 1f);
         }
 
         public void Move(Vector2 distance)

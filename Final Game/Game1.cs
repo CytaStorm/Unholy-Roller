@@ -263,7 +263,7 @@ namespace Final_Game
 		protected override void Update(GameTime gameTime)
 		{
 			// Only Update game if Game Window has focus
-			if (!this.IsActive) return;
+			//if (!this.IsActive) return;
 
 			// Get controller states
 			CurMouse = Mouse.GetState();

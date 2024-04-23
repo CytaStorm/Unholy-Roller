@@ -89,7 +89,7 @@ namespace Final_Game.Entity
 		#endregion
 
 		#region Properties
-		public PlayerState State { get; private set; }
+		public PlayerState State { get; set; }
 		public Vector2 ScreenPosition => WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 		/// <summary>
@@ -332,7 +332,7 @@ namespace Final_Game.Entity
 
 			if (State == PlayerState.Walking)
 			{
-				Move(-Velocity * BulletTimeMultiplier);
+				//Move(-Velocity * BulletTimeMultiplier);
 			}
 
             CurCore.OnHitTile(colDir, tile);

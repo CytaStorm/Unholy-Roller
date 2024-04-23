@@ -47,6 +47,13 @@
 /processorParam:TextureFormat=Compressed
 /build:MediumArial.spritefont
 
+#begin MediumCarter.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:MediumCarter.spritefont
+
 #begin Music/Battle_Music.wav
 /importer:WavImporter
 /processor:SongProcessor

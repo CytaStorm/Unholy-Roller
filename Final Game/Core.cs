@@ -28,6 +28,10 @@ namespace Final_Game
 
         public Sprite Icon { get; protected set; }
         public Vector2 Velocity { get; set; }
+
+        /// <summary>
+        /// Magnitude of the friction slowing the player down each frame
+        /// </summary>
         public float FrictionMagnitude { get; protected set; } = 0.01f;
 
         /// <summary>
@@ -36,7 +40,15 @@ namespace Final_Game
         /// </summary>
         public virtual bool IsCurving => true;
 
+        /// <summary>
+        /// Gets whether or not this core moves the player in an arc path
+        /// </summary>
         public bool UsesCurve { get; protected set; }
+
+        /// <summary>
+        /// Name of this core
+        /// </summary>
+        public string Name { get; protected set; }
 
 
         #endregion
@@ -60,6 +72,8 @@ namespace Final_Game
                     launchArrowTexture.Height));
             _launchArrow.FrameBounds = _launchArrow.SourceRect;
             _launchArrow.Columns = 4;
+
+            Name = "Straight";
         }
 
         #endregion
@@ -306,6 +320,11 @@ namespace Final_Game
             }
         }
         #endregion
+
+        public override string ToString()
+        {
+            return Name;
+        }
 
         #endregion
 

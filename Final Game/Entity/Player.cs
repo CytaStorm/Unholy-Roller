@@ -284,7 +284,7 @@ namespace Final_Game.Entity
 
 			CheckPickupCollisions();
 
-			if (CurCore.IsCurving) 
+			if (CurCore.IsCurving && CurCore.UsesCurve) 
 				Move(Velocity);
 			else 
 				Move(Velocity * BulletTimeMultiplier);

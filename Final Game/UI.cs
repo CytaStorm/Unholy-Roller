@@ -81,6 +81,7 @@ namespace Final_Game
 
 		// Fonts
 		public static SpriteFont TitleCaseCarter { get; private set; }
+		public static SpriteFont MediumCarter { get; private set; }
 		public static SpriteFont MediumArial { get; private set; }
 
 		#endregion
@@ -124,6 +125,7 @@ namespace Final_Game
 
 			// Load Fonts
 			TitleCaseCarter = _gm.Content.Load<SpriteFont>("TitleCaseArial");
+			MediumCarter = _gm.Content.Load<SpriteFont>("MediumCarter");
 			MediumArial = _gm.Content.Load<SpriteFont>("MediumArial");
 
 			// Setup effects
@@ -233,7 +235,11 @@ namespace Final_Game
 					//    new Vector2(0f, 200f),
 					//    Color.White);
 
-
+					_spriteBatch.DrawString(
+						MediumCarter,
+						$"Core: {Game1.Player.CurCore}",
+						new Vector2(100f, 950f),
+						Color.White * 0.5f);
 					
 					break;
 

@@ -38,6 +38,7 @@ namespace Final_Game
         {
             UsesCurve = true;
 
+            Name = "Curve";
         }
 
         #endregion

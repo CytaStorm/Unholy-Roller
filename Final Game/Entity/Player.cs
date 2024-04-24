@@ -232,13 +232,13 @@ namespace Final_Game.Entity
 			_gm = gm;
 
 			// Ability
+            CurAbility = AbilityType.EMP;
 		}
 		#endregion
 
 		#region Methods
 		public override void Update(GameTime gameTime)
 		{
-            CurAbility = AbilityType.Shield;
 
             if (hitStopTimeRemaining > 0f)
 			{
@@ -916,9 +916,12 @@ namespace Final_Game.Entity
 
 				case AbilityType.Teleport:
 
+					Point worldSpaceMousePos = 
+						Game1.CurMouse.Position - Game1.MainCamera.WorldToScreenOffset.ToPoint();
+
 					Rectangle hitboxClone = new Rectangle(
-						Game1.CurMouse.X + (int)(Hitbox.X - WorldPosition.X),
-						Game1.CurMouse.Y + (int)(Hitbox.Y - WorldPosition.Y),
+						worldSpaceMousePos.X + (int)(Hitbox.X - WorldPosition.X),
+						worldSpaceMousePos.Y + (int)(Hitbox.Y - WorldPosition.Y),
 						Hitbox.Width,
 						Hitbox.Height);
 

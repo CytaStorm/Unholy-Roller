@@ -29,6 +29,7 @@ namespace Final_Game
 		public GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
 
+
 		#region Fields
 		/// <summary>
 		/// Level the player is currently on.
@@ -189,16 +190,11 @@ namespace Final_Game
 		protected override void Initialize()
 		{
 			tilemaker = new TileMaker(Content);
+ 
+            FullScreen.Initialize(_graphics);
 
-			//Ensures that first room goes through room loading 
-
-			//Player = new Player(this, new Vector2(
-			//	TestLevel.CurrentRoom.Tileset.Width / 2,
-			//	800));
-			//Player.MoveToRoomCenter(TutorialRoom);
-
-			// Set default game state
-			State = GameState.Menu;
+            // Set default game state
+            State = GameState.Menu;
 	  
 			//Load in first level content.
 			//TestLevel.LoadRoomUsingOffset(new Point(0, 0));
@@ -264,10 +260,11 @@ namespace Final_Game
 		protected override void Update(GameTime gameTime)
 		{
 			// Only Update game if Game Window has focus
-			//if (!this.IsActive) return;
+			if (!this.IsActive) return;
+				FullScreen.Update(this);
 
-			// Get controller states
-			CurMouse = Mouse.GetState();
+            // Get controller states
+            CurMouse = Mouse.GetState();
 			CurKB = Keyboard.GetState();
 
 			HandleDevToggle();

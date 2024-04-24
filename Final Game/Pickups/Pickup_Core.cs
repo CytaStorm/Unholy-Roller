@@ -16,8 +16,16 @@ namespace Final_Game.Pickups
         private ContentManager _content;
 
         private string _coreName;
+
+        private double _collisionDelay;
+        private double _collisionDelayTimer;
         #endregion
 
+        #region Properties
+
+        public override bool CollisionOn => _collisionDelayTimer <= 0;
+
+        #endregion
 
         #region Constructor(s)
 
@@ -29,11 +37,11 @@ namespace Final_Game.Pickups
         public Pickup_Core(ContentManager content, Vector2 worldPosition, string coreName)
         {
             // Set Image
-            Texture2D texture = content.Load<Texture2D>("Sprites/BasicBlueClean");
+            Texture2D texture = content.Load<Texture2D>("Sprites/CurveCoreIcon");
             Image = new Sprite(
                 texture,
-                new Rectangle(25, 0, texture.Width - 50, texture.Height),
-                new Rectangle(0, 0, Game1.TileSize, Game1.TileSize));
+                texture.Bounds,
+                new Rectangle(0, 0, Game1.TileSize * 4/3, Game1.TileSize * 4/3));
 
             // Set Health
             MaxHealth = 1;
@@ -47,8 +55,8 @@ namespace Final_Game.Pickups
             Hitbox = new Rectangle(
                 worldPoint.X,
                 worldPoint.Y,
-                texture.Width,
-                texture.Height);
+                Image.DestinationRect.Width,
+                Image.DestinationRect.Height);
 
             // Set Type
             Type = EntityType.Pickup;
@@ -57,12 +65,27 @@ namespace Final_Game.Pickups
 
             // Name of core to give
             _coreName = coreName;
+
+            // Wait a bit before it can be picked up
+            _collisionDelay = 1;
+            _collisionDelayTimer = _collisionDelay;
         }
         #endregion
 
         #region Method(s)
 
-        public override void Update(GameTime gameTime) { }
+        public override void Update(GameTime gameTime) 
+        {
+            if (_collisionDelayTimer > 0)
+            {
+                Image.AlphaMultiplier = 
+                    (float)((_collisionDelay - _collisionDelayTimer) / _collisionDelay);
+
+                _collisionDelayTimer -= gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (_collisionDelayTimer <= 0) Image.AlphaMultiplier = 1f;
+            }
+        }
 
         public override void Draw(SpriteBatch sb)
         {

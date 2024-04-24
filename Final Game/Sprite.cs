@@ -20,6 +20,11 @@ namespace Final_Game
 		public Color TintColor { get; set; }
 
 		/// <summary>
+		/// Transparency of sprite (0-1 inclusive)
+		/// </summary>
+		public float AlphaMultiplier { get; set; } = 1f;
+
+		/// <summary>
 		/// The uniform bounding rectangle of a frame
 		/// of this sprite's animation
 		/// </summary>
@@ -83,7 +88,7 @@ namespace Final_Game
 				spriteBatch.Draw(Texture,
 				perspectivePos,
 				SourceRect,
-				TintColor,
+				TintColor * AlphaMultiplier,
 				rotation,
 				origin,
 				scale,
@@ -96,7 +101,7 @@ namespace Final_Game
 			spriteBatch.Draw(Texture,
 				position,
 				SourceRect,
-				TintColor,
+				TintColor * AlphaMultiplier,
 				0f,
 				Vector2.Zero,
 				scale,

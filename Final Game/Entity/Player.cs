@@ -576,10 +576,6 @@ namespace Final_Game.Entity
 		#endregion
 	
 		#region Drawing Helper Methods
-		private void DrawLaunchArrow(SpriteBatch sb, Vector2 screenPos)
-		{
-			
-		}
 	
 	
 		#endregion

@@ -48,7 +48,7 @@ namespace Final_Game.Entity
 
         #region Collision Properties
         public Rectangle Hitbox { get; protected set; }
-        public bool CollisionOn { get; protected set; } = true;
+        public virtual bool CollisionOn { get; protected set; } = true;
         #endregion
 
         #region Misc Properties

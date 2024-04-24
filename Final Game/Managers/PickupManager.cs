@@ -51,6 +51,11 @@ namespace Final_Game.Managers
             //        i--;
             //    }
             //}
+
+            for (int i = 0; i < Pickups.Count; i++)
+            {
+                Pickups[i].Update(gameTime);
+            }
         }
 
         public void Draw(SpriteBatch sb)

@@ -598,6 +598,12 @@ namespace Final_Game
 			if (SingleKeyPress(Keys.D6))
 				EManager.EnemiesInvincible = !EManager.EnemiesInvincible;
 
+			// Give Player the Curve Core
+			if (SingleKeyPress(Keys.D7))
+			{
+				Player.AddCore(new Core_ThreePointCurve(Content));
+			}
+
 
 			if (State == GameState.Menu)
 			{

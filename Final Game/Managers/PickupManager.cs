@@ -12,6 +12,12 @@ using System.Diagnostics;
 
 namespace Final_Game.Managers
 {
+    public enum PickupType
+    {
+        Health,
+        CurveCore
+    }
+
     public class PickupManager
     {
         #region Fields
@@ -45,6 +51,11 @@ namespace Final_Game.Managers
             //        i--;
             //    }
             //}
+
+            for (int i = 0; i < Pickups.Count; i++)
+            {
+                Pickups[i].Update(gameTime);
+            }
         }
 
         public void Draw(SpriteBatch sb)
@@ -75,14 +86,39 @@ namespace Final_Game.Managers
         }
 
         /// <summary>
-        /// Creates a health pickup.
+        /// Creates a pickup of the specified type.
         /// </summary>
-        /// <param name="tile">Tile to create health pickup at.</param>
-        public void CreateHealthPickup(Tile tile)
+        /// <param name="tile"> Tile to place pickup on. </param>
+        public void CreatePickup(Tile tile, PickupType pickupType)
         {
-            //Debug.WriteLine("Created health pickup");
-            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
-                tile.WorldPosition.X, tile.WorldPosition.Y)));
+            CreatePickup(tile.WorldPosition, pickupType);
+        }
+
+        /// <summary>
+        /// Creates a pickup of the specified type.
+        /// </summary>
+        /// <param name="position"> Position of new pickup </param>
+        public void CreatePickup(Vector2 position, PickupType pickupType)
+        {
+            Entity.Entity pickupToCreate = null;
+            switch (pickupType)
+            {
+                case PickupType.Health:
+                    pickupToCreate = new Pickup_Health(
+                        _gm.Content, 
+                        position);
+                    break;
+
+                case PickupType.CurveCore:
+                    pickupToCreate = new Pickup_Core(
+                        _gm.Content,
+                        position,
+                        "Curve");
+                    break;
+            }
+
+            //Debug.WriteLine("Created pickup");
+            Pickups.Add(pickupToCreate);
         }
 
         public void PlayerCollided(Entity.Entity entity)

@@ -17,8 +17,6 @@ namespace Final_Game
     public class Core
     {
         #region Fields
-        private PlayerState _playerMoveState;
-
         private float _walkSpeed = 10f;
 
         protected Sprite _launchArrow;
@@ -86,6 +84,8 @@ namespace Final_Game
 
         public virtual void DrawTrajectoryHint(SpriteBatch sb)
         {
+            if (!Game1.Player.Controllable || !Game1.Player.LaunchPrimed) return;
+
             // Get angle between arrow and mouse
             Vector2 mousePos = new Vector2(Game1.CurMouse.X, Game1.CurMouse.Y);
 
@@ -119,6 +119,7 @@ namespace Final_Game
 
         public virtual void DrawTrajectoryHint()
         {
+            return;
         }
 
         #region Movement
@@ -187,7 +188,7 @@ namespace Final_Game
                 Velocity = new Vector2(-Velocity.X, Velocity.Y);
             }
 
-            _playerMoveState = PlayerState.Rolling;
+            Game1.Player.State = PlayerState.Rolling;
         }
 
         /// <summary>
@@ -198,7 +199,7 @@ namespace Final_Game
         {
             Velocity = newDirection;
 
-            _playerMoveState = PlayerState.Rolling;
+            Game1.Player.State = PlayerState.Rolling;
         }
 
         /// <summary>
@@ -279,7 +280,7 @@ namespace Final_Game
             switch (e.Type)
             {
                 case EntityType.Enemy:
-                    if (_playerMoveState == PlayerState.Rolling)
+                    if (Game1.Player.State == PlayerState.Rolling)
                     {
                         // Speed up
                         Vector2 acc = Velocity;
@@ -296,7 +297,7 @@ namespace Final_Game
                     distToEnemy *= -5;
 
                     Velocity = distToEnemy;
-                    _playerMoveState = PlayerState.Rolling;
+                    Game1.Player.State = PlayerState.Rolling;
                     break;
             }
         }
@@ -312,7 +313,7 @@ namespace Final_Game
                     return;
             }
 
-            if (_playerMoveState == PlayerState.Rolling)
+            if (Game1.Player.State == PlayerState.Rolling)
             {
                 if (IsCurving) StopCurving();
 

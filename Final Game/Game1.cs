@@ -264,7 +264,7 @@ namespace Final_Game
 		protected override void Update(GameTime gameTime)
 		{
 			// Only Update game if Game Window has focus
-			if (!this.IsActive) return;
+			//if (!this.IsActive) return;
 
 			// Get controller states
 			CurMouse = Mouse.GetState();
@@ -354,24 +354,15 @@ namespace Final_Game
 
 					PManager.Draw(_spriteBatch);
 
-					if (!Player.CurCore.UsesCurve &&
-						Player.Controllable &&
-						Player.LaunchPrimed)
-					{
-						Player.CurCore.DrawTrajectoryHint(_spriteBatch);
-					}
+					Player.CurCore.DrawTrajectoryHint(_spriteBatch);
 
 					break;
 
 				case GameState.Cutscene:
 					CSManager.Draw(_spriteBatch);
 
-                    if (!Player.CurCore.UsesCurve &&
-                        Player.Controllable &&
-                        Player.LaunchPrimed)
-                    {
-                        Player.CurCore.DrawTrajectoryHint(_spriteBatch);
-                    }
+                    Player.CurCore.DrawTrajectoryHint(_spriteBatch);
+
                     break;
 			}
 
@@ -392,22 +383,15 @@ namespace Final_Game
                     UIManager.DrawMinimap();
 
 					// Draw player launch arrow
-					if ((Player.Controllable &&
-						Player.LaunchPrimed))
-					{
-						Player.CurCore.DrawTrajectoryHint();
-					}
+					Player.CurCore.DrawTrajectoryHint();
 					break;
 
 				case GameState.Cutscene:
 					CSManager.DrawSimpleShapes();
 
                     // Draw player launch arrow
-                    if ((Player.Controllable &&
-                        Player.LaunchPrimed))
-                    {
-                        Player.CurCore.DrawTrajectoryHint();
-                    }
+                    Player.CurCore.DrawTrajectoryHint();
+                  
                     break;
 			}
 

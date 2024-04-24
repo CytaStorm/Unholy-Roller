@@ -52,11 +52,15 @@ namespace Final_Game
             base.Update(gameTime);
         }
 
+        public override void DrawTrajectoryHint(SpriteBatch sb)
+        {
+            return;
+        }
+
         public override void DrawTrajectoryHint()
         {
-            if (!Game1.IsMouseButtonPressed(Game1.Player.LaunchButton) &&
-                !Game1.Player.CurCore.IsCurving ||
-                !UsesCurve) return;
+            if (!Game1.Player.Controllable ||
+               (!Game1.Player.LaunchPrimed && !Game1.Player.CurCore.IsCurving)) return;
 
             int numPoints = 10;
             float curveDivision = 1f / numPoints;

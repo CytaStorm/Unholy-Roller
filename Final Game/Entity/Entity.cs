@@ -48,7 +48,7 @@ namespace Final_Game.Entity
 
         #region Collision Properties
         public Rectangle Hitbox { get; protected set; }
-        public bool CollisionOn { get; protected set; } = true;
+        public virtual bool CollisionOn { get; protected set; } = true;
         #endregion
 
         #region Misc Properties
@@ -144,47 +144,34 @@ namespace Final_Game.Entity
         /// <param name="colDir"></param>
         public void PlaceOnHitEdge(Tile tile, CollisionDirection colDir)
         {
+            Rectangle overlap = Rectangle.Intersect(Hitbox, tile.Hitbox);
+
+            bool rightCollision = overlap.X > Hitbox.X;
+            bool topCollision = overlap.Y > Hitbox.Y;
+
             if (colDir == CollisionDirection.Horizontal)
             {
-                // Moving Right = Left edge collision
-                if (Velocity.X > 0)
+                if (rightCollision)
                 {
-                    Vector2 whereItShouldBe =
-                        new Vector2(
-                            Image.DestinationRect.Width 
-                            - MathF.Abs(tile.WorldPosition.X - WorldPosition.X), 
-                            0);
-                    Move(-whereItShouldBe);
+                    
+                    Move(new Vector2(-overlap.Width, 0f));
                 }
-
-                // Moving Left = Right edge collision
                 else
                 {
-                    Vector2 whereItShouldBe =
-                        new Vector2(tile.WorldPosition.X + Game1.TileSize + 1, WorldPosition.Y);
-                    Move(whereItShouldBe - WorldPosition);
+                    Move(new Vector2(overlap.Width, 0f));
                 }
             }
-            else if (colDir == CollisionDirection.Vertical)
+            else
             {
-                // Moving Down = Top edge collision
-                if (Velocity.Y > 0)
+                if (topCollision)
                 {
-                    Vector2 whereItShouldBe =
-                        new Vector2(
-                            0,
-                            Image.DestinationRect.Height - (tile.WorldPosition.Y - WorldPosition.Y));
-                    Move(-whereItShouldBe);
+                    Move(new Vector2(0f, -overlap.Height));
                 }
-
-                // Moving Up = Bottom edge collision
-                else
-                {
-                    Vector2 whereItShouldBe =
-                        new Vector2(WorldPosition.X, tile.WorldPosition.Y + Game1.TileSize + 1);
-                    Move(whereItShouldBe - WorldPosition);
+                else {
+                    Move(new Vector2(0f, overlap.Height));
                 }
             }
+
         }
 
         #endregion

@@ -85,12 +85,13 @@ namespace Final_Game.Entity
 
 		// Cores
 		private List<Core> _cores;
-		private int _coreIndex;
+		private int _curCoreIndex;
+		private const int _maxCoreNum = 2;
 
 		#endregion
 
 		#region Properties
-		public PlayerState State { get; private set; }
+		public PlayerState State { get; set; }
 		public Vector2 ScreenPosition => WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 		/// <summary>
@@ -214,13 +215,13 @@ namespace Final_Game.Entity
 			//Cloning
 			_gm = gm;
 
-			// Cores
+			// Player starts with only the default core
 			_cores = new List<Core>()
 			{
-				new Core(_gm.Content),
-				new Core_ThreePointCurve(_gm.Content)
+				new Core(_gm.Content)
 			};
-			CurCore = _cores[_coreIndex];
+			_curCoreIndex = 0;
+			CurCore = _cores[_curCoreIndex];
 		}
 		#endregion
 		
@@ -333,7 +334,7 @@ namespace Final_Game.Entity
 
 			if (State == PlayerState.Walking)
 			{
-				Move(-Velocity * BulletTimeMultiplier);
+				//Move(-Velocity * BulletTimeMultiplier);
 			}
 
             CurCore.OnHitTile(colDir, tile);
@@ -458,24 +459,26 @@ namespace Final_Game.Entity
 			}
 		}
 
-        private void HandleCoreSwap()
-        {
-            if (!Game1.SingleKeyPress(Keys.Q)) return;
+		private void HandleCoreSwap()
+		{
+			if (!Game1.SingleKeyPress(Keys.Q)) return;
 
 			CurCore.StopCurving();
 
 			// Get Next Core
-            _coreIndex++;
-            if (_coreIndex == _cores.Count)
-            {
-                _coreIndex = 0;
-            }
+            _curCoreIndex++;
+
+			if (_curCoreIndex == _cores.Count)
+			{
+				// Wrap to beginning of storage
+				_curCoreIndex = 0;
+			}
 
 			// Maintain velocity from one core to the next
-			_cores[_coreIndex].Velocity = CurCore.Velocity;
+			_cores[_curCoreIndex].Velocity = CurCore.Velocity;
 
 			// Set Current Core
-			CurCore = _cores[_coreIndex];
+			CurCore = _cores[_curCoreIndex];
         }
 
         private void HandleLaunch(GameTime gameTime)
@@ -578,10 +581,6 @@ namespace Final_Game.Entity
 		#endregion
 	
 		#region Drawing Helper Methods
-		private void DrawLaunchArrow(SpriteBatch sb, Vector2 screenPos)
-		{
-			
-		}
 	
 	
 		#endregion
@@ -616,6 +615,12 @@ namespace Final_Game.Entity
 
 			// Reset combo
 			Combo = 0;
+
+			// Start with one core
+			_cores.Clear();
+			_curCoreIndex = 0;
+			_cores.Add(new Core(_gm.Content));
+			CurCore = _cores[_curCoreIndex];
 		}
 	
 		private void UpdateCombo(GameTime gameTime)
@@ -680,6 +685,59 @@ namespace Final_Game.Entity
                 _rollFrameTimeCounter -=
 					gameTime.ElapsedGameTime.TotalSeconds;
 			}
+		}
+
+		/// <summary>
+		/// Replaces the current core the player is using with the
+		/// specified core
+		/// </summary>
+		/// <param name="additionalCore"> new core to use </param>
+		public bool AddCore(Core additionalCore)
+		{
+			// Cannot have two of the same core
+			if (!CanAddCore(additionalCore.Name)) return false;
+
+            // Stop any special motion
+            CurCore.StopCurving();
+
+            // Maintain velocity from one core to the next
+            additionalCore.Velocity = CurCore.Velocity;
+
+			// Replace current core if at max capacity
+            if (_cores.Count == _maxCoreNum)
+			{
+                _cores[_curCoreIndex] = additionalCore;
+            }
+			else
+			{
+				// Add core to storage
+				_cores.Add(additionalCore);
+				_curCoreIndex++;
+			}
+
+			// Start using new core
+			CurCore = _cores[_curCoreIndex];
+
+			return true;
+		}
+
+		/// <summary>
+		/// Gets whether or not player is already holding
+		/// a core with the specified name
+		/// </summary>
+		/// <param name="coreName"></param>
+		/// <returns></returns>
+		private bool CanAddCore(string coreName)
+		{
+			foreach (Core c in _cores)
+			{
+				if (c != null && c.ToString() == coreName)
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		public override void TakeDamage(int amount)

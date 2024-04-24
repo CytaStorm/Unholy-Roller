@@ -491,7 +491,7 @@ namespace Final_Game.Entity
 				// while in attack area
 				if (!_attackLandedOnce)
 				{
-					Game1.Player.Ricochet(directionToPlayer);
+					Game1.Player.CurCore.Ricochet(directionToPlayer);
 					_attackLandedOnce = true;
 				}
 			}

@@ -34,7 +34,7 @@ namespace Final_Game.Entity
             ScreenPos = Game1.Player.ScreenPosition + distFromPlayer;
             timeLeft = 1.5;
             CurHealth = 100;
-               
+            InvTimer = 100;
             attacked = false;
             Image = new Sprite(
                 texture,
@@ -111,7 +111,7 @@ namespace Final_Game.Entity
                 directionToPlayer *= _attackForce;
 
                 Game1.Player.TakeDamage(1);
-                Game1.Player.Ricochet(directionToPlayer);
+                Game1.Player.CurCore.Ricochet(directionToPlayer);
                 // Keep player from ricocheting endlessly
                 Hitbox = new Rectangle(0, 0, 0, 0);
                 attacked = true;

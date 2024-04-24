@@ -383,7 +383,7 @@ namespace Final_Game.Entity
 
 				Game1.Player.TakeDamage(1);
 
-				Game1.Player.Ricochet(directionToPlayer);
+				Game1.Player.CurCore.Ricochet(directionToPlayer);
 
 				_attackLandedOnce = true;
 			}

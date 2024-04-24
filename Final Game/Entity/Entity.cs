@@ -25,7 +25,7 @@ namespace Final_Game.Entity
 
         #region Move Properties
         public Vector2 WorldPosition { get; set; }
-        public Vector2 Velocity { get; protected set; } = Vector2.Zero;
+        public virtual Vector2 Velocity { get; protected set; } = Vector2.Zero;
         public Vector2 Acceleration { get; protected set; } = Vector2.Zero;
         public float Speed { get; protected set; }
         

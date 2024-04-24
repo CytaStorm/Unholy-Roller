@@ -106,6 +106,8 @@ namespace Final_Game.LevelGen
 			//Determine Boss Room
 			DetermineBossRoom();
 
+			//Remove stuff in starting room
+			StartRoom.ClearRoom();
 
 			//PrintLevel();
 		}
@@ -150,6 +152,8 @@ namespace Final_Game.LevelGen
 			StartRoom.Discovered = true;
 			StartRoom.Entered = true;
 
+			//Clear items in start room;
+			StartRoom.ClearRoom();
 		}
 
 
@@ -289,7 +293,7 @@ namespace Final_Game.LevelGen
             //Update minimap
             CurrentRoom.Entered = true;
             CurrentRoom.Discovered = true;
-            Debug.WriteLine(CurrentPoint);
+            //Debug.WriteLine(CurrentPoint);
 
 
             //Return early if no acutal offset.

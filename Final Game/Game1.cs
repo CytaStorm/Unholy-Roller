@@ -80,19 +80,20 @@ namespace Final_Game
 		/// </summary>
 		public static int WindowHeight = 1080;
 
-		// Cutscenes
-		public static CutsceneManager CSManager { get; private set; }
 
 		// Backgrounds
 		private Texture2D _playBackground;
 
-		// Cheats
-		public Point MapDims { get; private set; } = new Point(1, 2);
-		public int NumRoomsInMap { get; private set; } = 2;
 
 		#endregion
 
 		#region Properties
+		// Cutscenes
+		public static CutsceneManager CSManager { get; private set; }
+
+		// Cheats
+		public Point MapDims { get; private set; } = new Point(4, 4);
+		public int NumRoomsInMap { get; private set; } = 4;
 		// Screen
 		/// <summary>
 		/// Rectangle respresenting the bounds of the screen, in pixels.
@@ -435,7 +436,7 @@ namespace Final_Game
 			// Reset Entites
 			Player.Reset();
 
-			Debug.WriteLine("reset");
+			//Debug.WriteLine("reset");
 			EManager.Clear();
 			SoundManager.PlayOutOfCombatSong();
 		}

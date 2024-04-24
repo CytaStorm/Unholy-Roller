@@ -91,6 +91,7 @@ namespace Final_Game.Managers
                 entity.WorldPosition);
             Pickups.Remove(entity);
         }
+
         /// <summary>
         /// Clears all pickups in the room.
         /// </summary>

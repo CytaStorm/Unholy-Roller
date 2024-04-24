@@ -16,6 +16,7 @@ namespace Final_Game.Managers
 		public static List<SoundEffect> PinDamageSoundEffects = new List<SoundEffect>();
 		public static List<SoundEffect> PinKnockSoundEffects = new List<SoundEffect>();
 		public static List<SoundEffect> PlayerDamageSoundEffects = new List<SoundEffect>();
+		public static List<SoundEffect> MiscSoundEffects = new List<SoundEffect>();
 
 		private static Random _random = new Random();
 
@@ -42,10 +43,15 @@ namespace Final_Game.Managers
 			PlayerDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pinPunch"));
 			PlayerDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/playerdeath"));
 
+			//Misc sound effects
+			MiscSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/healthpickupsound"));
+
 			//Setup music
 			AllSongs.Add(cm.Load<Song>("Music/Battle_Music"));
 			AllSongs.Add(cm.Load<Song>("Music/Unholy_Ambience"));
 			curSong = AllSongs[1];
+
+
 
 			MediaPlayer.IsRepeating = true;
 		}
@@ -91,10 +97,15 @@ namespace Final_Game.Managers
 
 		public static void PlayOutOfCombatSong()
 		{
-			Debug.WriteLine("Play out of combat song");
+			//Debug.WriteLine("Play out of combat song");
 			if (curSong == AllSongs[1]) return;
 			curSong = AllSongs[1];
 			PlayBGM();
+		}
+
+		public static void PlayHealthPickupSound()
+		{
+			MiscSoundEffects[0].Play(1f, 0f, 0f);
 		}
 		#endregion
 	}

@@ -69,7 +69,7 @@ namespace Final_Game.LevelGen
 		public Tileset()
 		{
 			//Read in floor data from file, and select layout.
-			string allFloors = File.ReadAllText("../../../Content/Room Layouts/roomLayouts.txt");
+			string allFloors = File.ReadAllText("Content/Room Layouts/roomLayouts.txt");
 			string[] possibleFloors = allFloors.Split('|');
 			RoomFloorLayout = _random.Next(possibleFloors.Length);
 			string selectedFloor = possibleFloors[RoomFloorLayout];
@@ -97,9 +97,9 @@ namespace Final_Game.LevelGen
 
 			//Read in enemy and obstacle position data from file.
 			string[] allEnemyPos = File.ReadAllLines(
-				"../../../Content/Room Layouts/enemyLayouts.txt");
+				"Content/Room Layouts/enemyLayouts.txt");
 			string[] allObstaclePos = File.ReadAllLines(
-				"../../../Content/Room Layouts/obstacleLayouts.txt");
+				"Content/Room Layouts/obstacleLayouts.txt");
 
 			List<Point> EnemyPos;
 			Dictionary<Point, char> ObstaclePos;
@@ -154,7 +154,7 @@ namespace Final_Game.LevelGen
 		public Tileset(string obstacleData, string enemySpawnData)
 		{
             //Read in floor data from file, and select layout.
-            string allFloors = File.ReadAllText("../../../Content/Room Layouts/roomLayouts.txt");
+            string allFloors = File.ReadAllText("Content/Room Layouts/roomLayouts.txt");
             string[] possibleFloors = allFloors.Split('|');
             RoomFloorLayout = _random.Next(possibleFloors.Length);
             string selectedFloor = possibleFloors[RoomFloorLayout];

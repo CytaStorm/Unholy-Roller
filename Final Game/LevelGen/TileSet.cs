@@ -445,7 +445,7 @@ namespace Final_Game.LevelGen
 				tile.TileSprite.TintColor = Color.White;
 				if (tile.HasHealthPickup)
 				{
-					Game1.PManager.CreateHealthPickup(tile);	
+					Game1.PManager.CreatePickup(tile, Managers.PickupType.Health);	
 				}
 			}
 		}

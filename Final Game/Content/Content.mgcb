@@ -555,6 +555,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/SpookyBlueTeeth.png
 
+#begin Sprites/StraightCoreIcon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/StraightCoreIcon.png
+
 #begin Sprites/WallSheet.png
 /importer:TextureImporter
 /processor:TextureProcessor

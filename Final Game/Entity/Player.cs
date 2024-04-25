@@ -125,10 +125,14 @@ namespace Final_Game.Entity
 			get => Game1.IsMouseButtonPressed(LaunchButton) && NumRedirects > 0; 
 		}
 
-		// Curve Core
+		// Cores
   
 		public Core CurCore { get; private set; }
-		
+
+		/// <summary>
+		/// The number of cores the player is currently holding
+		/// </summary>
+		public int NumCores => _cores.Count;
 
         public override Vector2 Velocity { get => CurCore.Velocity; }
         public float MinRollSpeed { get; private set; }

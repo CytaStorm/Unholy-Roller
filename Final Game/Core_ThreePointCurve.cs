@@ -38,6 +38,15 @@ namespace Final_Game
         {
             UsesCurve = true;
 
+            Texture2D iconTexture = content.Load<Texture2D>("Sprites/CurveCoreIcon");
+            Icon = new Sprite(
+                iconTexture,
+                iconTexture.Bounds,
+                new Rectangle(
+                    0, 0,
+                    Game1.TileSize * 3 / 2, Game1.TileSize * 3 / 2));
+            Icon.ObeyCamera = false;
+
             Name = "Curve";
         }
 

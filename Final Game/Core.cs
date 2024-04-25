@@ -71,6 +71,15 @@ namespace Final_Game
             _launchArrow.FrameBounds = _launchArrow.SourceRect;
             _launchArrow.Columns = 4;
 
+            Texture2D iconTexture = content.Load<Texture2D>("Sprites/StraightCoreIcon");
+            Icon = new Sprite(
+                iconTexture,
+                iconTexture.Bounds,
+                new Rectangle(
+                    0, 0,
+                    Game1.TileSize * 3 / 2, Game1.TileSize * 3 / 2));
+            Icon.ObeyCamera = false;
+
             Name = "Straight";
         }
 

@@ -224,9 +224,10 @@ namespace Final_Game
 					DrawPlayerHealth();
 
 					DrawPlayerSpeedometer();
-
 					
 					DrawPlayerCombo();
+
+					DrawCurrentCore();
 
 					// Display Bullet Time multiplier
 					//_spriteBatch.DrawString(
@@ -234,12 +235,6 @@ namespace Final_Game
 					//    $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
 					//    new Vector2(0f, 200f),
 					//    Color.White);
-
-					_spriteBatch.DrawString(
-						MediumCarter,
-						$"Core: {Game1.Player.CurCore}",
-						new Vector2(100f, 950f),
-						Color.White * 0.5f);
 					
 					break;
 
@@ -268,9 +263,30 @@ namespace Final_Game
 			}
 		}
 
-		#region HUD Drawing Methods
+        private void DrawCurrentCore()
+        {
+			// Draw Core player is currently using
+			Game1.Player.CurCore.Icon.Draw(
+				_spriteBatch,
+				new Vector2(100f, 950f),
+				0f,
+				Vector2.Zero);
 
-		public void DrawPlayerCombo()
+			// Draw Switch Core Hint
+			// If player has more than one core
+			if (Game1.Player.NumCores > 1) 
+			{
+				_spriteBatch.DrawString(
+					MediumCarter,
+					$"Q",
+					new Vector2(200f, 950f),
+					Color.White * 0.5f);				
+			}
+        }
+
+        #region HUD Drawing Methods
+
+        public void DrawPlayerCombo()
 		{
 			if (Game1.Player.Combo <= 0) return;
 

@@ -29,6 +29,7 @@ namespace Final_Game
 		public GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
 
+
 		#region Fields
 		/// <summary>
 		/// Level the player is currently on.
@@ -80,19 +81,20 @@ namespace Final_Game
 		/// </summary>
 		public static int WindowHeight = 1080;
 
-		// Cutscenes
-		public static CutsceneManager CSManager { get; private set; }
 
 		// Backgrounds
 		private Texture2D _playBackground;
 
-		// Cheats
-		public Point MapDims { get; private set; } = new Point(1, 2);
-		public int NumRoomsInMap { get; private set; } = 2;
 
 		#endregion
 
 		#region Properties
+		// Cutscenes
+		public static CutsceneManager CSManager { get; private set; }
+
+		// Cheats
+		public Point MapDims { get; private set; } = new Point(4, 4);
+		public int NumRoomsInMap { get; private set; } = 4;
 		// Screen
 		/// <summary>
 		/// Rectangle respresenting the bounds of the screen, in pixels.
@@ -188,16 +190,11 @@ namespace Final_Game
 		protected override void Initialize()
 		{
 			tilemaker = new TileMaker(Content);
+ 
+            FullScreen.Initialize(_graphics);
 
-			//Ensures that first room goes through room loading 
-
-			//Player = new Player(this, new Vector2(
-			//	TestLevel.CurrentRoom.Tileset.Width / 2,
-			//	800));
-			//Player.MoveToRoomCenter(TutorialRoom);
-
-			// Set default game state
-			State = GameState.Menu;
+            // Set default game state
+            State = GameState.Menu;
 	  
 			//Load in first level content.
 			//TestLevel.LoadRoomUsingOffset(new Point(0, 0));
@@ -263,10 +260,11 @@ namespace Final_Game
 		protected override void Update(GameTime gameTime)
 		{
 			// Only Update game if Game Window has focus
-			//if (!this.IsActive) return;
+			if (!this.IsActive) return;
+				FullScreen.Update(this);
 
-			// Get controller states
-			CurMouse = Mouse.GetState();
+            // Get controller states
+            CurMouse = Mouse.GetState();
 			CurKB = Keyboard.GetState();
 
 			HandleDevToggle();
@@ -419,7 +417,7 @@ namespace Final_Game
 			// Reset Entites
 			Player.Reset();
 
-			Debug.WriteLine("reset");
+			//Debug.WriteLine("reset");
 			EManager.Clear();
 			SoundManager.PlayOutOfCombatSong();
 		}
@@ -596,6 +594,12 @@ namespace Final_Game
 			// Toggle Infinite Enemy Health
 			if (SingleKeyPress(Keys.D6))
 				EManager.EnemiesInvincible = !EManager.EnemiesInvincible;
+
+			// Give Player the Curve Core
+			if (SingleKeyPress(Keys.D7))
+			{
+				Player.AddCore(new Core_ThreePointCurve(Content));
+			}
 
 
 			if (State == GameState.Menu)

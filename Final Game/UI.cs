@@ -256,6 +256,7 @@ namespace Final_Game
 					$"D4 - Toggle Debug: {Game1.DebugOn}\n" +
 					$"D5 - Infinite Health: {Game1.Player.InfiniteHealth}\n" +
 					$"D6 - Infinite E_Health: {Game1.EManager.EnemiesInvincible}\n" +
+					$"D7 - Give Player Curve Core\n" +
 					$"Up/Down Change Next Map Dims: {_gm.MapDims}\n" +
 					$"Left/Right Change Next Map Num Rooms: {_gm.NumRoomsInMap}",
 					new Vector2(50f, 500f),

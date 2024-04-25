@@ -86,6 +86,17 @@ namespace Final_Game.Managers
         }
 
         /// <summary>
+        /// Creates a health pickup.
+        /// </summary>
+        /// <param name="tile">Tile to create health pickup at.</param>
+        public void CreateHealthPickup(Tile tile)
+        {
+            //Debug.WriteLine("Created health pickup");
+            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
+                tile.WorldPosition.X, tile.WorldPosition.Y)));
+        }
+
+        /// <summary>
         /// Creates a pickup of the specified type.
         /// </summary>
         /// <param name="tile"> Tile to place pickup on. </param>
@@ -127,6 +138,7 @@ namespace Final_Game.Managers
                 entity.WorldPosition);
             Pickups.Remove(entity);
         }
+
         /// <summary>
         /// Clears all pickups in the room.
         /// </summary>

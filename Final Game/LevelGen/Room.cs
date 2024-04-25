@@ -215,34 +215,17 @@ namespace Final_Game.LevelGen
 				// Open room doors
 				Tileset.CreateOpenDoors(ActualConnections);
 
+				//Debug.WriteLine("here");
 				//30% chance to create health pickup.
-				if (_random.NextSingle() <= 0.3f &&
-					Game1.CurrentLevel != Game1.TutorialLevel)
+				if (//_random.NextSingle() <= 0.3f &&
+					Game1.CurrentLevel != Game1.TutorialLevel &&
+					Game1.CurrentLevel.CurrentRoom != Game1.CurrentLevel.StartRoom)
 				{
-					CreateHealthPickup();
+					//Debug.WriteLine("here2");
+					Game1.PManager.CreateHealthPickup(Game1.CurrentLevel.CurrentRoom.Tileset.FindRandomFloorTile());
 				}
 			}
 			return;
-		}
-
-		/// <summary>
-		/// Creates a health pickup at the center of room.
-		/// Otherwise creates a health pickup at random point in room.
-		/// </summary>
-		private void CreateHealthPickup()
-		{
-			//Selects middle tile
-			Tile selectedTile = Tileset.Layout[
-				Tileset.Rows / 2,
-				Tileset.Columns / 2];
-
-			if (selectedTile.Type != LevelGen.TileType.Grass)
-			{
-				//Select random tile.
-				selectedTile = Game1.CurrentLevel.CurrentRoom.Tileset.FindRandomFloorTile();
-			}
-
-			selectedTile.HasHealthPickup = true;
 		}
 
 		/// <summary>
@@ -294,6 +277,14 @@ namespace Final_Game.LevelGen
 				OnRoomEntered();
 		}
 
+		public void ClearRoom()
+		{
+			//Debug.WriteLine("cleared start room");
+			Tileset.ClearEnemies();
+			Tileset.ClearItemFlags();
+		}
+
 		#endregion
 	}
 }
+

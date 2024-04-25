@@ -1,9 +1,11 @@
 ﻿using Final_Game.Entity;
+using Final_Game.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +15,10 @@ namespace Final_Game.Pickups
 	public class Pickup_Health : Entity.Entity
 	{
         #region Fields
-        private int _healingPower;
+        public static int HealingPower;
+		#endregion
+
+		#region Events
 		#endregion
 
 		#region Constructor(s)
@@ -48,7 +53,7 @@ namespace Final_Game.Pickups
 				texture.Height);
 
 			// Set Effect
-			_healingPower = 2;
+			HealingPower = 2;
 
 			// Set Type
 			Type = EntityType.Pickup;
@@ -67,13 +72,14 @@ namespace Final_Game.Pickups
 			Image.Draw(sb, screenPos, 0f, Vector2.Zero);
 		}
 
-        public override void OnHitEntity(Entity.Entity entity, CollisionDirection collision)
-        {
-            if (entity.Type == EntityType.Player)
-			{
-				entity.Heal(_healingPower);
-			}
-        }
+        //public override void OnHitEntity(Entity.Entity entity, CollisionDirection collision)
+        //{
+        //    if (entity.Type == EntityType.Player)
+		//	{
+		//		entity.Heal(_healingPower);
+		//		//SoundManager.PlayHealthPickupSound();
+		//	}
+        //}
 
         #endregion
     }

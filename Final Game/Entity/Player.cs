@@ -722,6 +722,8 @@ namespace Final_Game.Entity
 			// Start using new core
 			CurCore = _cores[_curCoreIndex];
 
+			_gm.UIManager.StartCoreFlash();
+
 			return true;
 		}
 

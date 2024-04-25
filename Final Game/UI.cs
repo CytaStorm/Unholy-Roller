@@ -56,6 +56,13 @@ namespace Final_Game
 		private float _maxShakeMagnitude;
 		private float _maxShakeMultiplier;
 
+		// Core Flash Effect
+		private double _flashDuration = 0.5;
+		private double _flashTimeCounter;
+		private int _flashesToDo = 4;
+		private int _completedFlashes;
+
+
 		// Game Over Assets
 		private Sprite _deadBall;
 		private float _maxHoverOffset;
@@ -162,6 +169,9 @@ namespace Final_Game
 
 				case GameState.Play:
 					UpdateSpeedometerShake(gameTime);
+
+					UpdateCoreFlash(gameTime);
+
 					break;
 
                 case GameState.Pause:
@@ -264,26 +274,7 @@ namespace Final_Game
 			}
 		}
 
-        private void DrawCurrentCore()
-        {
-			// Draw Core player is currently using
-			Game1.Player.CurCore.Icon.Draw(
-				_spriteBatch,
-				new Vector2(100f, 950f),
-				0f,
-				Vector2.Zero);
-
-			// Draw Switch Core Hint
-			// If player has more than one core
-			if (Game1.Player.NumCores > 1) 
-			{
-				_spriteBatch.DrawString(
-					MediumCarter,
-					$"Q",
-					new Vector2(200f, 950f),
-					Color.White * 0.5f);				
-			}
-        }
+        
 
         #region HUD Drawing Methods
 
@@ -330,6 +321,60 @@ namespace Final_Game
 				Color.White);
 
 			return;
+		}
+
+        private void DrawCurrentCore()
+        {
+            // Draw Core player is currently using
+            Game1.Player.CurCore.Icon.Draw(
+                _spriteBatch,
+                new Vector2(100f, 950f),
+                0f,
+                Vector2.Zero);
+
+            // Draw Switch Core Hint
+            // If player has more than one core
+            if (Game1.Player.NumCores > 1)
+            {
+                _spriteBatch.DrawString(
+                    MediumCarter,
+                    $"Q",
+                    new Vector2(200f, 975f),
+                    Color.White * 0.5f);
+            }
+        }
+
+		private void UpdateCoreFlash(GameTime gameTime)
+		{
+			if (_completedFlashes == _flashesToDo) return;
+
+			// ON
+			if (_flashTimeCounter < _flashDuration / 2)
+			{
+				Game1.Player.CurCore.Icon.AlphaMultiplier = 1f;
+			}
+			// OFF
+			else
+			{
+				Game1.Player.CurCore.Icon.AlphaMultiplier = 0.5f;
+			}
+
+			// Progress through animation
+            _flashTimeCounter += gameTime.ElapsedGameTime.TotalSeconds;
+
+			// Keep track of on/off cycles
+			// Reset animation
+            if (_flashTimeCounter >= _flashDuration)
+            {
+                _completedFlashes++;
+
+				_flashTimeCounter -= _flashDuration;
+            }
+        }
+
+		public void StartCoreFlash()
+		{
+			_completedFlashes = 0;
 		}
 
         public void DrawPlayerHealth()

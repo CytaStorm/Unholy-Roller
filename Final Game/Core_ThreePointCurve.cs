@@ -44,7 +44,8 @@ namespace Final_Game
                 iconTexture.Bounds,
                 new Rectangle(
                     0, 0,
-                    Game1.TileSize * 3 / 2, Game1.TileSize * 3 / 2));
+                    Game1.TileSize, Game1.TileSize));
+            Icon.AlphaMultiplier = 0.5f;
             Icon.ObeyCamera = false;
 
             Name = "Curve";

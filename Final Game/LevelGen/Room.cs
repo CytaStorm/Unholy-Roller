@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Final_Game.Managers;
+using Final_Game.Pickups;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -115,6 +117,8 @@ namespace Final_Game.LevelGen
 		/// Is this room the boss room?
 		/// </summary>
 		public bool IsBossRoom { get; set; }
+
+		public List<Entity.Entity> Pickups { get; private set; }
 		#endregion
 
 		public event RoomInteraction OnRoomEntered;
@@ -134,6 +138,8 @@ namespace Final_Game.LevelGen
 
 			//Create the tileset.
 			Tileset = new Tileset();
+
+			Pickups = new List<Entity.Entity>();
 		}
 
 		public Room(
@@ -147,7 +153,9 @@ namespace Final_Game.LevelGen
 			MapPosition = mapPosition;
 
 			Tileset = new Tileset(obstacleData, enemySpawnData);
-		}
+
+            Pickups = new List<Entity.Entity>();
+        }
 
 		#endregion
 
@@ -215,14 +223,13 @@ namespace Final_Game.LevelGen
 				// Open room doors
 				Tileset.CreateOpenDoors(ActualConnections);
 
-				//Debug.WriteLine("here");
-				//30% chance to create health pickup.
-				if (//_random.NextSingle() <= 0.3f &&
-					Game1.CurrentLevel != Game1.TutorialLevel &&
+				// Create a health pickup
+				if (Game1.CurrentLevel != Game1.TutorialLevel &&
 					Game1.CurrentLevel.CurrentRoom != Game1.CurrentLevel.StartRoom)
 				{
-					//Debug.WriteLine("here2");
-					Game1.PManager.CreateHealthPickup(Game1.CurrentLevel.CurrentRoom.Tileset.FindRandomFloorTile());
+					Game1.PManager.CreatePickup(
+						Tileset.FindRandomFloorTile(),
+						PickupType.Health);
 				}
 			}
 			return;
@@ -269,7 +276,7 @@ namespace Final_Game.LevelGen
 		public void Draw(SpriteBatch sb)
 		{
 			Tileset.Draw(sb);
-		}
+        }
 
 		public void OnInitiallyEntered()
 		{
@@ -281,8 +288,16 @@ namespace Final_Game.LevelGen
 		{
 			//Debug.WriteLine("cleared start room");
 			Tileset.ClearEnemies();
-			Tileset.ClearItemFlags();
+			//Tileset.ClearItemFlags();
 		}
+
+		public void OnBossRoomCleared()
+		{
+			// Drop a curve core in the center of the room
+            Game1.PManager.CreatePickup(
+				Center.ToVector2(), 
+				PickupType.CurveCore);
+        }
 
 		#endregion
 	}

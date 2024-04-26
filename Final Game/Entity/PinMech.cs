@@ -178,7 +178,8 @@ namespace Final_Game.Entity
 
 			// Prep Post Mortem
 			OnBossDeath += Game1.IManager.Clear;
-		}
+			OnBossDeath += Game1.CurrentLevel.BossRoom.OnBossRoomCleared;
+        }
 
         // Methods
 
@@ -608,10 +609,7 @@ namespace Final_Game.Entity
 			if (CurHealth <= 0)
 			{
 				OnBossDeath();
-
-				// Drop a new core
-				Game1.PManager.CreatePickup(CenterPosition, PickupType.CurveCore);
-				return;
+                return;
 			}
 
 			// Become temporarily invincible

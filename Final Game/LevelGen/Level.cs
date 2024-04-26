@@ -275,7 +275,7 @@ namespace Final_Game.LevelGen
 			{
                 for (int j = 1; j < farthestRoom.Tileset.Layout.GetLength(1)-1; j++)
 				{
-					farthestRoom.Tileset.Layout[i, j] = TileMaker.SetTile(TileType.Grass, farthestRoom.Tileset.Layout[i, j].WorldPosition);
+					farthestRoom.Tileset.Layout[i, j] = TileMaker.SetTile(TileType.Floor, farthestRoom.Tileset.Layout[i, j].WorldPosition);
 				}
 
             }
@@ -290,32 +290,46 @@ namespace Final_Game.LevelGen
 		/// determines which room is loaded.</param>
 		public void LoadRoomUsingOffset(Point newRoomOffset)
         {
+			/* ====== PRE-ROOM TRANSFER ======= */
+
             //Update minimap
             CurrentRoom.Entered = true;
             CurrentRoom.Discovered = true;
-            //Debug.WriteLine(CurrentPoint);
+            
+			// Disable pickups in room player is leaving
+			foreach(Entity.Entity p in CurrentRoom.Pickups)
+			{
+				p.CollisionOn = false;
+			}
 
-
-            //Return early if no acutal offset.
+            //Return early if not actually transferring rooms
             if (newRoomOffset == new Point(0, 0))
             {
 				UpdateRoomConnectionData();
                 return;
             }
 
-            Game1.PManager.ClearPickups();
+			// Set Current Room to Room that was entered
             CurrentPoint += newRoomOffset;
+
+            /* ====== POST-ROOM TRANSFER ======= */
 
             CurrentRoom.OnInitiallyEntered();
 
-			if (this != Game1.TutorialLevel)
-				//Remove enemies near player.
+            // Enable Pickups
+            foreach (Entity.Entity p in CurrentRoom.Pickups)
+            {
+                p.CollisionOn = true;
+            }
+
+			// Remove enemies near player
+            if (this != Game1.TutorialLevel)
 				CurrentRoom.RemoveEnemiesNearDoor(newRoomOffset);
 
-            //Update minimap
+            // Update minimap
             UpdateRoomConnectionData();
 
-            //Create enemies
+            // Create enemies
 			if (!CurrentRoom.Cleared)
 			{
 				if (CurrentRoom.IsBossRoom)

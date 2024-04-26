@@ -550,15 +550,15 @@ namespace Final_Game.LevelGen
 		/// <returns></returns>
 		public Tile FindRandomFloorTile()
 		{
-			List<Tile> possibleGrassTiles = new List<Tile>();
+			List<Tile> tileOptions = new List<Tile>();
 			foreach (Tile tile in  Layout)
 			{
-				if (tile.Type == TileType.Grass)
+				if (tile.Type == TileType.Floor)
 				{
-					possibleGrassTiles.Add(tile);
+					tileOptions.Add(tile);
 				}
 			}
-			return possibleGrassTiles[_random.Next(possibleGrassTiles.Count)];
+			return tileOptions[_random.Next(tileOptions.Count)];
 		}
 
 		/// <summary>

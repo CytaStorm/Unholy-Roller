@@ -10,7 +10,7 @@ namespace Final_Game.LevelGen
 	/// </summary>
 	public enum TileType
 	{
-		Grass,
+		Floor,
 		Wall,
 		Spike,
 		ObstacleWall,
@@ -82,7 +82,7 @@ namespace Final_Game.LevelGen
 
 			switch (tileType)
 			{
-				case TileType.Grass:
+				case TileType.Floor:
 					result.CollisionOn = false;
 					result.TileSprite = new Sprite(_tileTextures[1], GetOrientationSource(""),
 						new Rectangle(

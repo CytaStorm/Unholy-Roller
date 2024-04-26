@@ -346,7 +346,17 @@ namespace Final_Game
 
 		private void UpdateCoreFlash(GameTime gameTime)
 		{
-			if (_completedFlashes == _flashesToDo) return;
+            if (Game1.CurKB.IsKeyDown(Keys.Q))
+            {
+                Game1.Player.CurCore.Icon.AlphaMultiplier = 1f;
+				_completedFlashes = _flashesToDo;
+            }
+			else
+			{
+				Game1.Player.CurCore.Icon.AlphaMultiplier = 0.5f;
+			}
+
+            if (_completedFlashes == _flashesToDo) return;
 
 			// ON
 			if (_flashTimeCounter < _flashDuration / 2)

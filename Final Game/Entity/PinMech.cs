@@ -112,10 +112,10 @@ namespace Final_Game.Entity
 
 			// Hitbox
 			Hitbox = new Rectangle(
-				(int)WorldPosition.X - 30,
+				(int)WorldPosition.X,
 				(int)WorldPosition.Y,
-				150,
-				250);
+				175,
+				300);
 
 			// Default Speed
 			Speed = 5f;

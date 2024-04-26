@@ -15,7 +15,7 @@ namespace Final_Game.Pickups
 	public class Pickup_Health : Entity.Entity
 	{
         #region Fields
-        public static int HealingPower;
+		private int _healingPower;
 		#endregion
 
 		#region Events
@@ -53,7 +53,7 @@ namespace Final_Game.Pickups
 				texture.Height);
 
 			// Set Effect
-			HealingPower = 2;
+			_healingPower = 2;
 
 			// Set Type
 			Type = EntityType.Pickup;
@@ -72,15 +72,16 @@ namespace Final_Game.Pickups
 			Image.Draw(sb, screenPos, 0f, Vector2.Zero);
 		}
 
-        //public override void OnHitEntity(Entity.Entity entity, CollisionDirection collision)
-        //{
-        //    if (entity.Type == EntityType.Player)
-		//	{
-		//		entity.Heal(_healingPower);
-		//		//SoundManager.PlayHealthPickupSound();
-		//	}
-        //}
+		public override void OnHitEntity(Entity.Entity entity, CollisionDirection collision)
+		{
+			if (entity.Type == EntityType.Player)
+			{
+				SoundManager.PlayHealthPickupSound();
 
-        #endregion
-    }
+				entity.Heal(_healingPower);
+			}
+		}
+
+		#endregion
+	}
 }

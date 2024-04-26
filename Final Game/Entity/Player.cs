@@ -394,10 +394,8 @@ namespace Final_Game.Entity
 				{
 					//Remove the pickup.
 					Game1.PManager.PlayerCollided(currentPickup);
-					Heal(Pickup_Health.HealingPower);
 
 					//Decrement to correct for list shortening.
-					SoundManager.PlayHealthPickupSound();
 					i--;
 				}
 			}

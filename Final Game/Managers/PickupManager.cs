@@ -25,75 +25,41 @@ namespace Final_Game.Managers
         #endregion
 
         #region Properties
-        public List<Entity.Entity> Pickups { get; private set; }
+        public List<Entity.Entity> Pickups => Game1.CurrentLevel.CurrentRoom.Pickups;
         #endregion
 
         #region Constructor(s)
         public PickupManager(Game1 gm)
         {
             _gm = gm;
-
-            Pickups = new List<Entity.Entity>();
-
-            //CreateTestPickups();
         }
         #endregion
 
         #region Method(s)
+
+
+        /// <summary>
+        /// Updates the pickups of the room the player is currently in
+        /// </summary>
+        /// <param name="gameTime"></param>
         public void Update(GameTime gameTime)
         {
-            //// Remove Collected Pickups
-            //for (int i = 0; i < Pickups.Count; i++)
-            //{
-            //    if (!Pickups[i].Alive)
-            //    {
-            //        Pickups.RemoveAt(i);
-            //        i--;
-            //    }
-            //}
-
-            for (int i = 0; i < Pickups.Count; i++)
+            foreach (Entity.Entity p in Pickups)
             {
-                Pickups[i].Update(gameTime);
+                p.Update(gameTime);
             }
         }
 
+        /// <summary>
+        /// Draws the pickups of the room the player is currently in
+        /// </summary>
+        /// <param name="sb"></param>
         public void Draw(SpriteBatch sb)
         {
-            // Draw Pickups
             foreach (Entity.Entity p in Pickups)
             {
                 p.Draw(sb);
             }
-        }
-
-        /// <summary>
-        /// Creates one of every type of pickup in the room
-        /// the player is currently in
-        /// </summary>
-        public void CreateTestPickups()
-        {
-            //Rectangle roomBounds = new Rectangle(
-            //    Game1.TileSize,
-            //    Game1.TileSize,
-            //    Game1.TestLevel.CurrentRoom.Tileset.Width - Game1.TileSize,
-            //    Game1.TestLevel.CurrentRoom.Tileset.Height - Game1.TileSize);
-
-            // Health Pickup
-            //Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(100, 100)));
-
-            return;
-        }
-
-        /// <summary>
-        /// Creates a health pickup.
-        /// </summary>
-        /// <param name="tile">Tile to create health pickup at.</param>
-        public void CreateHealthPickup(Tile tile)
-        {
-            //Debug.WriteLine("Created health pickup");
-            Pickups.Add(new Pickup_Health(_gm.Content, new Vector2(
-                tile.WorldPosition.X, tile.WorldPosition.Y)));
         }
 
         /// <summary>

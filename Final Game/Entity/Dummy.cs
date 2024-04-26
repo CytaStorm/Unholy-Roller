@@ -38,7 +38,7 @@ namespace Final_Game.Entity
                 return;
             }
 
-            Texture2D dummyImage = gm.Content.Load<Texture2D>("Sprites/BasicEnemy");
+            Texture2D dummyImage = gm.Content.Load<Texture2D>("Sprites/DummyPin");
             Image = new Sprite(
                 dummyImage,
                 dummyImage.Bounds,

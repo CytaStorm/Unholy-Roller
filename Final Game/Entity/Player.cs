@@ -722,6 +722,11 @@ namespace Final_Game.Entity
 			// Start using new core
 			CurCore = _cores[_curCoreIndex];
 
+			// Get all redirects back
+			NumRedirects = MaxRedirects;
+
+			// Visually Notify Player that they
+			// received a new core
 			_gm.UIManager.StartCoreFlash();
 
 			return true;

@@ -80,6 +80,9 @@ namespace Final_Game
 		// Button Cursor
 		private Texture2D _buttonCursor;
 
+		// Redirect Fill Shader
+		private Effect _redirectFill;
+
 		#region Properties
 		// Button Containers
 		public Button[] MenuButtons { get; private set; }
@@ -143,6 +146,9 @@ namespace Final_Game
 
 			_buttonCursor = _gm.Content.Load<Texture2D>("UI Images/PinheadButtonCursor");
 
+			// Load Shaders
+			_redirectFill = _gm.Content.Load<Effect>("Shaders/Fill");
+
 			CreateButtons();
 
 			CreateSliders();
@@ -171,6 +177,11 @@ namespace Final_Game
 					UpdateSpeedometerShake(gameTime);
 
 					UpdateCoreFlash(gameTime);
+
+					// Update core icon shader
+					_redirectFill.Parameters["amount"].SetValue(
+						(float)Game1.Player.NumRedirects /
+						Game1.Player.MaxRedirects);
 
 					break;
 
@@ -237,16 +248,32 @@ namespace Final_Game
 					
 					DrawPlayerCombo();
 
-					DrawCurrentCore();
+                    // Draw Core player is currently using
+                    Game1.Player.CurCore.Icon.Draw(
+                        _spriteBatch,
+                        new Vector2(100f, 950f),
+                        0f,
+                        Vector2.Zero);
 
-					// Display Bullet Time multiplier
-					//_spriteBatch.DrawString(
-					//    Game1.ARIAL32,
-					//    $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
-					//    new Vector2(0f, 200f),
-					//    Color.White);
-					
-					break;
+                    // Draw Switch Core Hint
+                    // If player has more than one core
+                    if (Game1.Player.NumCores > 1)
+                    {
+                        _spriteBatch.DrawString(
+                            MediumCarter,
+                            $"Q",
+                            new Vector2(200f, 975f),
+                            Color.White * 0.5f);
+                    }
+
+                    // Display Bullet Time multiplier
+                    //_spriteBatch.DrawString(
+                    //    Game1.ARIAL32,
+                    //    $"Time Multiplier: {Player.BulletTimeMultiplier:0.00}",
+                    //    new Vector2(0f, 200f),
+                    //    Color.White);
+
+                    break;
 
 				case GameState.Pause:
 					DrawPauseMenu();
@@ -323,8 +350,10 @@ namespace Final_Game
 			return;
 		}
 
-        private void DrawCurrentCore()
+        public void DrawCurrentCore()
         {
+			_spriteBatch.Begin(effect: _redirectFill);
+
             // Draw Core player is currently using
             Game1.Player.CurCore.Icon.Draw(
                 _spriteBatch,
@@ -332,29 +361,11 @@ namespace Final_Game
                 0f,
                 Vector2.Zero);
 
-            // Draw Switch Core Hint
-            // If player has more than one core
-            if (Game1.Player.NumCores > 1)
-            {
-                _spriteBatch.DrawString(
-                    MediumCarter,
-                    $"Q",
-                    new Vector2(200f, 975f),
-                    Color.White * 0.5f);
-            }
+			_spriteBatch.End();
         }
 
 		private void UpdateCoreFlash(GameTime gameTime)
 		{
-            if (Game1.CurKB.IsKeyDown(Keys.Q))
-            {
-                Game1.Player.CurCore.Icon.AlphaMultiplier = 1f;
-				_completedFlashes = _flashesToDo;
-            }
-			else
-			{
-				Game1.Player.CurCore.Icon.AlphaMultiplier = 0.5f;
-			}
 
             if (_completedFlashes == _flashesToDo) return;
 

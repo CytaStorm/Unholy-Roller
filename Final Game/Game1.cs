@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Resources;
 using System.Runtime.CompilerServices;
 
 namespace Final_Game
@@ -366,6 +367,11 @@ namespace Final_Game
 			UIManager.Draw();
             
             _spriteBatch.End();
+
+			// Display Redirects with their shader
+			if (State == GameState.Play && 
+				Player.NumRedirects < Player.MaxRedirects + 1)
+				UIManager.DrawCurrentCore();
 
 			// Draw simplified shapes
 

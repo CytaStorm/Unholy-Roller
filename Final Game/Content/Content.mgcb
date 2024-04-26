@@ -159,6 +159,12 @@
 #begin Room Layouts/roomLayouts.txt
 /copy:Room Layouts/roomLayouts.txt
 
+#begin Shaders/Fill.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/Fill.fx
+
 #begin Sound Effects/healthpickupsound.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

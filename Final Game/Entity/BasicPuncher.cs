@@ -61,7 +61,7 @@ namespace Final_Game.Entity
 			_attackDurationTimer = 0.0;
 			_attackRadius = Game1.TileSize;
 			_attackRange = Game1.TileSize;
-			_attackWindupDuration = 0.5;
+			_attackWindupDuration = 0.35;
 			_attackWindupTimer = _attackWindupDuration;
 
 			_attackCooldown = 0.8;
@@ -85,7 +85,7 @@ namespace Final_Game.Entity
 
 			// Set state
 			_chaseRange = Game1.TileSize * 5;
-			_aggroRange = Game1.TileSize * 3;
+			_aggroRange = Game1.TileSize * 2;
 
 			ActionState = EnemyState.Chase;
 
@@ -289,58 +289,64 @@ namespace Final_Game.Entity
         #region Attack Methods
 
      
-
+		/// <summary>
+		/// Aims the enemy toward the player at it's
+		/// normal speed. Stops if gets within its attack
+		/// range of other enemies
+		/// </summary>
         protected override void TargetPlayer()
 		{
 			// Get direction from self to player
-			Point eMinusP = Game1.Player.Hitbox.Center - Hitbox.Center;
-			Vector2 directionToPlayer = new Vector2(eMinusP.X, eMinusP.Y);
+			Vector2 playerDirection = 
+				Game1.Player.CenterPosition - CenterPosition;
 
 			// Aim enemy toward player at their speed
-			directionToPlayer.Normalize();
-			directionToPlayer *= Speed;
+			playerDirection.Normalize();
+			playerDirection *= Speed;
 
-			Vector2 positionAfterMoving = WorldPosition + directionToPlayer;
+			// Get future position
+			Vector2 positionAfterMoving = WorldPosition + playerDirection;
 
-            if (CheckTilemapCollisionAhead( this , directionToPlayer, Game1.CurrentLevel.CurrentRoom.Tileset))
+            if (CheckTilemapCollisionAhead(this, playerDirection, Game1.CurrentLevel.CurrentRoom.Tileset))
             {
-
-                Vector2 newDirection = new Vector2(directionToPlayer.Y, -directionToPlayer.X);
+                Vector2 newDirection = new Vector2(playerDirection.Y, -playerDirection.X);
                 newDirection.Normalize();
                 newDirection *= Speed;
                 positionAfterMoving = WorldPosition + newDirection;
             }
            
             // Stop if get too close to another enemy
-            bool shouldStop = false;
-			float minDistanceFromEnemies = Game1.TileSize * 3;
 			foreach (Enemy e in Game1.EManager.Enemies)
 			{
-				Vector2 distFromEnemyAfterMoving = (e.WorldPosition - positionAfterMoving);
-				if (e != this &&
-					distFromEnemyAfterMoving.LengthSquared() <= minDistanceFromEnemies * minDistanceFromEnemies)
+				// Skip self
+				if (e == this) continue;
+
+				Vector2 distFromEnemy = e.WorldPosition - positionAfterMoving;
+
+				// Enemy is too close,
+				// MOVE IN THE OPPOSITE DIRECTION
+				if (distFromEnemy.Length() <= _attackRange * 2)
 				{
-					shouldStop = true;
-					break;
+					distFromEnemy.Normalize();
+					Velocity = distFromEnemy * -Speed;
+					return;
 				}
 			}
 
-			if (shouldStop)
-			{
-				Velocity = Vector2.Zero;
-				return;
-			}
-
-			Velocity = directionToPlayer;
+			// Move in direction of player
+			Velocity = playerDirection;
 			return;
 		}
 
-        public static bool CheckTilemapCollisionAhead( Entity e, Vector2 direction, Tileset tileset)
+        public static bool CheckTilemapCollisionAhead(Entity e, Vector2 direction, Tileset tileset)
         {
-            
             Vector2 nextPosition = e.WorldPosition + direction * e.Speed;
             
-            Rectangle predictedHitbox = new Rectangle( (int)nextPosition.X, (int)nextPosition.Y,e.Hitbox.Width, e.Hitbox.Height);         
+            Rectangle predictedHitbox = new Rectangle(
+				(int)nextPosition.X, 
+				(int)nextPosition.Y,
+				e.Hitbox.Width, 
+				e.Hitbox.Height);         
 			
             for (int row = 0; row < tileset.Layout.GetLength(0); row++)
             {

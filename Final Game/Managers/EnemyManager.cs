@@ -2,11 +2,20 @@
 using Final_Game.LevelGen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Final_Game.Managers
 {
+	public enum EnemyType
+	{
+		Dummy,
+		BasicPuncher,
+		BombPin,
+		PinMech
+	}
+
 	public class EnemyManager
 	{
 		#region Fields
@@ -14,6 +23,9 @@ namespace Final_Game.Managers
 		private Texture2D _gloveImage;
 		private Game1 gm;
 		private int _koedEnemies;
+
+		private EnemyType[] _enemyTypes;
+		private Random _rng;
 		#endregion
 
 		#region Properties
@@ -37,10 +49,18 @@ namespace Final_Game.Managers
 			Enemies = new List<Enemy>();
 
 			// Create test enemies
-			 //BasicPuncher testEnemy2 = new BasicPuncher(gm, new Vector2(500f, 200f));
-			 //Enemies.Add(testEnemy2);
-			 //BasicPuncher testEnemy3 = new BasicPuncher(gm, new Vector2(300f, 800f));
-			 //Enemies.Add(testEnemy3);
+			//BasicPuncher testEnemy2 = new BasicPuncher(gm, new Vector2(500f, 200f));
+			//Enemies.Add(testEnemy2);
+			//BasicPuncher testEnemy3 = new BasicPuncher(gm, new Vector2(300f, 800f));
+			//Enemies.Add(testEnemy3);
+
+			_enemyTypes = new EnemyType[]
+			{
+				EnemyType.BasicPuncher,
+				EnemyType.BombPin
+			};
+
+			_rng = new Random();
 
 		}
 
@@ -52,13 +72,13 @@ namespace Final_Game.Managers
 				Tile curSpawner = r.Tileset.Spawners[i];
 
 
-                if (Game1.CurrentLevel == Game1.TestLevel)
-                    // Spawn on spawn tile
-                    Enemies.Add(new BasicPuncher(gm, curSpawner.WorldPosition));
-                else
-                {
-                    Enemies.Add(new Dummy(gm, curSpawner.WorldPosition, false));
-                }
+				if (Game1.CurrentLevel == Game1.TestLevel)
+					// Spawn on spawn tile
+					SpawnEnemy(curSpawner.WorldPosition, ChooseRandomEnemy());
+				else
+				{
+					Enemies.Add(new Dummy(gm, curSpawner.WorldPosition, false));
+				}
             }
         }
         public void SpawnBoss(Room r)
@@ -129,6 +149,39 @@ namespace Final_Game.Managers
 			for (int i = 0; i < Enemies.Count; i++)
 			{
 				Enemies[i].DrawGizmos();
+			}
+		}
+
+		/// <summary>
+		/// Picks a random enemy type excluding the dummy
+		/// </summary>
+		/// <returns></returns>
+		private EnemyType ChooseRandomEnemy()
+		{
+			return _enemyTypes[_rng.Next(_enemyTypes.Length)];
+		}
+
+		/// <summary>
+		/// Spawns an enemy of the specified type at the specified position
+		/// </summary>
+		/// <param name="position"> position to spawn enemy </param>
+		/// <param name="enemyType"> type of enemy to spawn </param>
+		private void SpawnEnemy(Vector2 position, EnemyType enemyType)
+		{
+			switch (enemyType)
+			{
+				case EnemyType.Dummy:
+					Enemies.Add(new Dummy(gm, position, false));
+					break;
+
+
+				case EnemyType.BasicPuncher:
+					Enemies.Add(new BasicPuncher(gm, position));
+					break;
+
+				case EnemyType.BombPin:
+					Enemies.Add(new BombPin(gm, position));
+					break;
 			}
 		}
 

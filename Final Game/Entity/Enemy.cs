@@ -245,6 +245,32 @@ namespace Final_Game.Entity
 			base.DrawGizmos();
 		}
 
+        protected void UpdateKOAnimation(GameTime gameTime)
+        {
+            int numKoStars = 4;
+
+            // Current frame is (passedTime / (seconds per frame))
+            int curFrame =
+                (int)(_koStarAnimTimeCounter /
+                (_koStarAnimDuration / (numKoStars - 1)));
+
+            // Get corresponding image
+            _knockoutStars.SourceRect = new Rectangle(
+                _knockoutStars.SourceRect.Width * curFrame,
+                0,
+                _knockoutStars.SourceRect.Width,
+                _knockoutStars.SourceRect.Height);
+
+            // Move animation forward
+            _koStarAnimTimeCounter +=
+                gameTime.ElapsedGameTime.TotalSeconds *
+                Player.BulletTimeMultiplier;
+
+            // Reset animation once it reaches or exceeds its duration
+            if (_koStarAnimTimeCounter >= _koStarAnimDuration)
+                _koStarAnimTimeCounter -= _koStarAnimDuration;
+        }
+
         #endregion
 
     }

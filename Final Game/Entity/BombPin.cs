@@ -365,7 +365,7 @@ namespace Final_Game.Entity
 				}
 			}
 
-			if (hitPlayerDir)
+			if (hitPlayerDir && !_attackLandedOnce)
 			{
 				Vector2 explosionForce = Game1.Player.CenterPosition - CenterPosition;
 				explosionForce.Normalize();
@@ -375,6 +375,8 @@ namespace Final_Game.Entity
 
 				Game1.Player.CurCore.StopCurving();
 				Game1.Player.CurCore.Ricochet(explosionForce);
+
+				_attackLandedOnce = true;
 			}
 
 			return;

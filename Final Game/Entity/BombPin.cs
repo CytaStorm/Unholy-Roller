@@ -243,19 +243,6 @@ namespace Final_Game.Entity
 
         #region Collision Handling
 
-        public override void OnHitEntity(Entity entity, CollisionDirection collision)
-        {
-            switch (entity.Type)
-            {
-                case EntityType.Player:
-					Game1.Player.CurCore.Ricochet(Vector2.Zero);
-
-                    break;
-            }
-
-            base.OnHitEntity(entity, collision);
-        }
-
         #endregion
 
         #region Attack Methods

@@ -294,7 +294,7 @@ namespace Final_Game.Managers
                     {
                         _curText =
                             "Your combo increases each time you hit an enemy.\n" +
-                            "You won't take damage from a punch at 10 combo";
+                            "You get a SHIELD when you have 10 combo.";
 
                         Game1.TutorialLevel.Map[1, 2]
                         .OnRoomEntered -= OnPhaseTransfer;

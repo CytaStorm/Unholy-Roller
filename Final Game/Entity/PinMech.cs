@@ -361,15 +361,21 @@ namespace Final_Game.Entity
 
 			if (IsKO)
 			{
+				_regularArmLeft.TintColor = Color.Blue;
+				_regularArmRight.TintColor = Color.Blue;
 				Image.TintColor = Color.Blue;
 			}
 			else if (_hitPlayer)
 			{
+				_regularArmLeft.TintColor = Color.Red;
+				_regularArmRight.TintColor = Color.Red;
 				Image.TintColor = Color.Red;
 				_hitPlayer = false;
 			}
 			else
 			{
+				_regularArmLeft.TintColor = Color.White;
+				_regularArmRight.TintColor = Color.White;
 				Image.TintColor = Color.White;
 			}
 
@@ -391,6 +397,8 @@ namespace Final_Game.Entity
 					break;
 				case BossState.Overheated:
 					Image.TintColor = Color.Orange;
+					_regularArmLeft.TintColor = Color.Orange;
+					_regularArmRight.TintColor = Color.Orange;
 					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
 					_regularArmLeft.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
 					_regularArmRight.Draw(spriteBatch, screenPos + _rightArmOffset, 0f, Vector2.Zero);
@@ -404,10 +412,12 @@ namespace Final_Game.Entity
 					if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0.0)
 					{
 						Image.TintColor = Color.Orange;
+						_regularArmLeft.TintColor = Color.Orange;
+						_regularArmRight.TintColor = Color.Orange;
 					}
 
 					Image.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
-					DrawAttacking(spriteBatch, screenPos);
+					DrawAttacking(spriteBatch, screenPos, Image.TintColor);
 					//_regularArmLeft.Draw(spriteBatch, screenPos, 0f, Vector2.Zero);
 					//_regularArmRight.Draw(spriteBatch, screenPos + _rightArmOffset, 0f, Vector2.Zero);
 					break;
@@ -643,7 +653,7 @@ namespace Final_Game.Entity
 
 
 
-		private void DrawAttacking(SpriteBatch sb, Vector2 screenPos)
+		private void DrawAttacking(SpriteBatch sb, Vector2 screenPos, Color tintColor)
 		{
 			//This helps draw the non attacking arm.
 			Vector2 attackDirectionOffset;
@@ -661,7 +671,7 @@ namespace Final_Game.Entity
 				flipFX = SpriteEffects.None;
 			}
 
-			_gloveImages.TintColor = Color.White;
+			_gloveImages.TintColor = tintColor;
 
 			if (_attackWindupTimer < _attackWindupDuration && _attackDurationTimer <= 0d)
 			{

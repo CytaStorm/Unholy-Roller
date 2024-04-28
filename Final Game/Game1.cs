@@ -425,6 +425,9 @@ namespace Final_Game
 
 			//Debug.WriteLine("reset");
 			EManager.Clear();
+
+			IManager.Clear();
+
 			SoundManager.PlayOutOfCombatSong();
 		}
 

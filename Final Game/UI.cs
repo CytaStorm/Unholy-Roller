@@ -48,6 +48,9 @@ namespace Final_Game
 		// Combo
 		private Texture2D _comboIcon;
 		private Texture2D _shieldIcon;
+		private Sprite _shieldActiveIcon;
+		private double _comboUsedDisplayDuration = 1;
+		private double _comboUsedDisplayTimer;
 
 		// Shake Effect
 		private double _shakeDuration;
@@ -111,6 +114,14 @@ namespace Final_Game
 			// Load Icons
 			_comboIcon = _gm.Content.Load<Texture2D>("Sprites/ComboIcon");
 			_shieldIcon = _gm.Content.Load<Texture2D>("UI Images/ShieldIcon");
+			Texture2D shieldActiveTexture= 
+				_gm.Content.Load<Texture2D>("UI Images/ShieldActiveIcon");
+			_shieldActiveIcon = new Sprite(
+				shieldActiveTexture,
+				shieldActiveTexture.Bounds,
+				new Rectangle(
+					0, 0,
+					350, 350));
 
 			// Load Health Images
 			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");
@@ -173,17 +184,17 @@ namespace Final_Game
 					//_testSlider.Update(gameTime);
 					break;
 
-				case GameState.Play:
-					UpdateSpeedometerShake(gameTime);
+                case GameState.Play:
+                    UpdateSpeedometerShake(gameTime);
 
-					UpdateCoreFlash(gameTime);
+                    UpdateCoreFlash(gameTime);
 
-					// Update core icon shader
-					_redirectFill.Parameters["amount"].SetValue(
-						(float)Game1.Player.NumRedirects /
-						Game1.Player.MaxRedirects);
+                    // Update core icon shader
+                    _redirectFill.Parameters["amount"].SetValue(
+                        (float)Game1.Player.NumRedirects /
+                        Game1.Player.MaxRedirects);
 
-					break;
+                    break;
 
                 case GameState.Pause:
 
@@ -223,7 +234,10 @@ namespace Final_Game
 					break;
 			}
 		}
-		public void Draw()
+
+        
+
+        public void Draw()
 		{
 			switch (_gm.State)
 			{
@@ -241,12 +255,15 @@ namespace Final_Game
 					//	Color.White);
 					break;
 
-				case GameState.Play:
-					DrawPlayerHealth();
+                case GameState.Play:
 
-					DrawPlayerSpeedometer();
-					
-					DrawPlayerCombo();
+                    DrawPlayerHealth();
+
+                    DrawPlayerSpeedometer();
+
+                    DrawComboUsedIcon();
+
+                    DrawPlayerCombo();
 
                     // Draw Core player is currently using
                     Game1.Player.CurCore.Icon.Draw(
@@ -275,7 +292,7 @@ namespace Final_Game
 
                     break;
 
-				case GameState.Pause:
+                case GameState.Pause:
 					DrawPauseMenu();
 
 					break;
@@ -302,6 +319,8 @@ namespace Final_Game
 		}
 
         
+
+
 
         #region HUD Drawing Methods
 
@@ -396,6 +415,11 @@ namespace Final_Game
 		public void StartCoreFlash()
 		{
 			_completedFlashes = 0;
+		}
+
+		public void StartActiveComboIcon()
+		{
+			_comboUsedDisplayTimer = _comboUsedDisplayDuration;
 		}
 
         public void DrawPlayerHealth()
@@ -504,10 +528,28 @@ namespace Final_Game
 				0f);
 		}
 
-		#endregion
+        public void DrawComboUsedIcon()
+        {
+			if (!Game1.Player.ComboUseVisualizationOn) return;
 
-		#region Menu Drawing Methods
-		private void DrawMainMenu()
+            Vector2 drawPos = new Vector2(
+                60 + _speedometerCrest.Width / 2 -
+                _shieldActiveIcon.DestinationRect.Width / 2,
+                40 + _speedometerCrest.Height / 2 -
+                _shieldActiveIcon.DestinationRect.Height / 2);
+
+
+            _shieldActiveIcon.Draw(
+                _spriteBatch,
+                drawPos,
+                0f,
+                Vector2.Zero);
+        }
+
+        #endregion
+
+        #region Menu Drawing Methods
+        private void DrawMainMenu()
 		{
 			_spriteBatch.Draw(
 				_titleBackground,

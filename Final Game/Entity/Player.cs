@@ -26,15 +26,6 @@ namespace Final_Game.Entity
 	public class Player : Entity
 	{
 		#region Fields
-		/// <summary>
-		/// Texture for the arrow displayed when you
-		/// hold down Mouse1.
-		/// </summary>
-		private Texture2D _launchArrowsTexture;
-		/// <summary>
-		/// Width of the Launch arrow sprite, in pixels.
-		/// </summary>
-		private int _launchArrowSpriteWidth;
 
 		/// <summary>
 		/// Speed of the player to reload redirects
@@ -46,20 +37,7 @@ namespace Final_Game.Entity
 		/// when holding Mouse2.
 		/// </summary>
 		private float _brakeSpeed;
-		/// <summary>
-		/// How much friction there is applied to player
-		/// as they freely roll around.
-		/// </summary>
-		private float _frictionMagnitude;
-
-		private Sprite _smileSprite;
-		/// <summary>
-		/// TBD
-		/// </summary>
-		private float _smileSpeed;
-
 		
-
 		/// <summary>
 		/// TIme left before combo resets.
 		/// </summary>
@@ -79,14 +57,15 @@ namespace Final_Game.Entity
 		private int _rollFrameWidth;
 		private float _directionToFace;
 
-		
-
 		private Game1 _gm;
 
 		// Cores
 		private List<Core> _cores;
 		private int _curCoreIndex;
 		private const int _maxCoreNum = 2;
+
+		// Combo
+		private Sprite _comboUsedSprite;
 
 		#endregion
 
@@ -104,7 +83,7 @@ namespace Final_Game.Entity
 		public bool IsSmiling => Combo > 9;
 		public bool ComboReward => Combo > 9;
 
-		private float hitStopDuration = 0.2f;
+		private float _hitStopDuration = 0.2f;
 		private float hitStopTimeRemaining = 0f;
 		public bool canBeTriggered = true;
 		private Enemy lastContactedEnemy = null;
@@ -140,6 +119,9 @@ namespace Final_Game.Entity
 
 		public bool Controllable { get; private set; } = true;
 
+		// Combo
+		public bool ComboUseVisualizationOn { get; private set; }
+
         // Keybinds
         public int LaunchButton { get; set; } = 1;
         public int BrakeButton { get; set; } = 2;
@@ -154,8 +136,11 @@ namespace Final_Game.Entity
 
 		public Player(Game1 gm, Vector2 worldPosition)
 		{
-			// Set images
-			Texture2D playerSpritesheet = 
+            //Cloning
+            _gm = gm;
+
+            // Set images
+            Texture2D playerSpritesheet = 
 				gm.Content.Load<Texture2D>("Sprites/RollingBallSpritesheet2");
 			
 			// main sprite
@@ -165,18 +150,6 @@ namespace Final_Game.Entity
 
 			_numRollFrames = 7;
 			_rollFrameWidth = 120;
-			
-			// smiling sprite
-			_smileSprite = new Sprite(
-				gm.Content.Load<Texture2D>("Sprites/SpookyBlueTeeth"),
-				new Rectangle(0, 0, 120, 120),
-				Image.DestinationRect);
-
-			// launch arrow image
-			_launchArrowsTexture = gm.Content.Load<Texture2D>("Sprites/LaunchArrowSpritesheet");
-
-			int numLaunchArrows = 4;
-			_launchArrowSpriteWidth = _launchArrowsTexture.Width / numLaunchArrows;
 
 			// Set position in world
 			WorldPosition = worldPosition;
@@ -190,9 +163,7 @@ namespace Final_Game.Entity
 			Speed = 20f;
 			
 			_brakeSpeed = 0.2f;
-			_frictionMagnitude = 0.01f;
 			MinRollSpeed = 1f;
-			_smileSpeed = 48f;
 			_reloadRedirectsSpeed = 5f;
 
 			// Set default state
@@ -200,6 +171,12 @@ namespace Final_Game.Entity
 
 			//Set combo
 			Combo = 0;
+			Texture2D comboUsedTexture = gm.Content.Load<Texture2D>("Sprites/ComboUsedBall");
+			_comboUsedSprite = new Sprite(
+				comboUsedTexture,
+				comboUsedTexture.Bounds,
+				Image.DestinationRect);
+
 			// Give launches
 			MaxRedirects = 3;
 			NumRedirects = MaxRedirects + 1;
@@ -215,9 +192,6 @@ namespace Final_Game.Entity
 			//Set Health
 			MaxHealth = 6;
 			CurHealth = MaxHealth;
-
-			//Cloning
-			_gm = gm;
 
 			// Player starts with only the default core
 			_cores = new List<Core>()
@@ -235,6 +209,8 @@ namespace Final_Game.Entity
 			if (hitStopTimeRemaining > 0f)
 			{
 				hitStopTimeRemaining -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+				if (hitStopTimeRemaining <= 0) ComboUseVisualizationOn = false;
 				return;
 			}
 
@@ -305,11 +281,22 @@ namespace Final_Game.Entity
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 			// Draw player image
-			Image.Draw(
-				sb, 
-				screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f, 
-				_directionToFace, 
-				new Vector2(_rollFrameWidth, _rollFrameWidth) / 2f);
+			if (ComboUseVisualizationOn)
+			{
+				_comboUsedSprite.Draw(
+					sb,
+					screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f,
+					_directionToFace,
+					new Vector2(120f, 120f) / 2f);
+			}
+			else
+			{
+				Image.Draw(
+					sb, 
+					screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f, 
+					_directionToFace, 
+					new Vector2(_rollFrameWidth, _rollFrameWidth) / 2f);
+			}
 		}
 
 		#region Collision Handling Methods
@@ -418,7 +405,7 @@ namespace Final_Game.Entity
 				Combo++;
 				_comboResetDuration = 5f;
 
-				TriggerHitStop();
+				TriggerHitStop(_hitStopDuration);
 
 				// Deal damage to enemy
 				hitEnemy.TakeDamage(Damage);
@@ -758,6 +745,12 @@ namespace Final_Game.Entity
 			if (ComboReward)
 			{
 				Combo = 0;
+
+				_gm.UIManager.StartActiveComboIcon();
+
+				ComboUseVisualizationOn = true;
+
+				TriggerHitStop(_hitStopDuration * 2);
 				return;
 			}
 
@@ -794,9 +787,9 @@ namespace Final_Game.Entity
 			return;
 		}
 
-		private void TriggerHitStop()
+		private void TriggerHitStop(float duration)
 		{
-			hitStopTimeRemaining = hitStopDuration;
+			hitStopTimeRemaining = duration;
 		}
 
 		public void ToggleLeftHandMouse()

@@ -472,6 +472,7 @@ namespace Final_Game.Managers
 
             gm.UIManager.DrawPlayerHealth();
             gm.UIManager.DrawPlayerSpeedometer();
+            gm.UIManager.DrawComboUsedIcon();
 
             if (PhaseNum >= 6)
             {

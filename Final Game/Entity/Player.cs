@@ -281,23 +281,24 @@ namespace Final_Game.Entity
 			Vector2 screenPos = WorldPosition + Game1.MainCamera.WorldToScreenOffset;
 
 			// Draw player image
-			if (ComboUseVisualizationOn)
-			{
-				_comboUsedSprite.Draw(
-					sb,
-					screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f,
-					_directionToFace,
-					new Vector2(120f, 120f) / 2f);
-			}
-			else
-			{
-				Image.Draw(
-					sb, 
-					screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f, 
-					_directionToFace, 
-					new Vector2(_rollFrameWidth, _rollFrameWidth) / 2f);
-			}
-		}
+			
+			Image.Draw(
+				sb, 
+				screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f, 
+				_directionToFace, 
+				new Vector2(_rollFrameWidth, _rollFrameWidth) / 2f);
+
+            if (ComboUseVisualizationOn)
+            {
+                _comboUsedSprite.Draw(
+                    sb,
+                    screenPos + new Vector2(_rollFrameWidth, _rollFrameWidth) / 2.5f,
+                    _directionToFace,
+                    new Vector2(120f, 120f) / 2f);
+				_comboUsedSprite.AlphaMultiplier = 0.8f;
+            }
+
+        }
 
 		#region Collision Handling Methods
 		public override void OnHitTile(Tile tile, CollisionDirection colDir)

@@ -90,6 +90,7 @@ namespace Final_Game
 		// Button Containers
 		public Button[] MenuButtons { get; private set; }
 		public Button[] PauseButtons { get; private set; }
+		public Button[] SettingsButtons { get; private set; }
 		public Button[] GameOverButtons { get; private set; }
 
 		// Fonts
@@ -205,7 +206,15 @@ namespace Final_Game
 					}
 					break;
 
-				case GameState.GameOver:
+				case GameState.Settings:
+                    // Update buttons
+                    foreach (Button b in SettingsButtons)
+                    {
+                        b.Update(gameTime);
+                    }
+                    break;
+
+                case GameState.GameOver:
 					MediaPlayer.Stop();
 
 					// Oscillate dead bowling ball
@@ -297,6 +306,11 @@ namespace Final_Game
 
 					break;
 
+				case GameState.Settings:
+					DrawSettingsMenu();
+
+					break;
+
 				case GameState.GameOver:
 					DrawGameOverMenu();
 					break;
@@ -317,9 +331,6 @@ namespace Final_Game
 					Color.White);
 			}
 		}
-
-        
-
 
 
         #region HUD Drawing Methods
@@ -556,33 +567,6 @@ namespace Final_Game
 				Game1.ScreenBounds,
 				Color.White);
 
-			string mouseSetting = "";
-			if (Game1.Player.LaunchButton == 1)
-			{
-				mouseSetting = "Right-Handed";
-			}
-			else
-				mouseSetting = "Left-Handed";
-
-
-			_spriteBatch.DrawString(
-				MediumArial,
-				$"Mouse Setting:\n{mouseSetting}",
-				new Vector2(1600, 950),
-				Color.Black);
-
-			// Draw Title
-			//string titleText = "UnHoly Roller";
-			//Vector2 titleMeasure = TitleCaseArial.MeasureString(titleText);
-
-			//_spriteBatch.DrawString(
-			//	TitleCaseArial,
-			//	titleText,
-			//	new Vector2(
-			//		Game1.ScreenCenter.X - titleMeasure.X / 2f,
-			//		150f),
-			//	Color.White);
-
 			// Draw Menu Buttons
 			foreach (Button b in MenuButtons)
 			{
@@ -643,7 +627,80 @@ namespace Final_Game
 			return;
 		}
 
-		private void DrawGameOverMenu()
+        private void DrawSettingsMenu()
+        {
+            //// Draw Background
+            //_spriteBatch.Draw(
+            //    _pauseBackground,
+            //    Game1.ScreenBounds,
+            //    Color.White);
+
+            // Draw Heading
+            string settingsHeading = "Settings";
+            Vector2 settingsHeadingDimensions = TitleCaseCarter.MeasureString(settingsHeading);
+
+            _spriteBatch.DrawString(
+                TitleCaseCarter,
+                settingsHeading,
+                new Vector2(
+                    Game1.ScreenCenter.X - settingsHeadingDimensions.X / 2,
+                    Game1.TileSize * 2),
+                Color.White);
+
+			int spaceBuffer = 30;
+			Vector2 wordDims = Vector2.Zero;
+			string description = "";
+
+			// Display Current Fullscreen Setting
+
+			//description = $": {FullScreen.IsFullscreen}";
+			//wordDims = MediumCarter.MeasureString(description);
+
+			//_spriteBatch.DrawString(
+			//	MediumCarter,
+			//	description,
+			//	new Vector2(
+			//		SettingsButtons[0].Bounds.Right + spaceBuffer, 
+			//		SettingsButtons[0].Bounds.Center.Y - wordDims.Y / 2),
+			//	Color.White);
+
+			// Display Current Mouse Setting
+            if (Game1.Player.LaunchButton == 1)
+                description = "Right-Handed";
+            else
+                description = "Left-Handed";
+
+            wordDims = MediumCarter.MeasureString(description);
+
+            _spriteBatch.DrawString(
+                MediumCarter,
+                description,
+                new Vector2(
+					SettingsButtons[1].Bounds.Center.X - wordDims.X / 2, 
+					SettingsButtons[1].Bounds.Bottom),
+                Color.White);
+
+            // Draw buttons
+
+            foreach (Button b in SettingsButtons)
+			{
+				b.Draw(_spriteBatch);
+
+				if (b.ContainsCursor)
+				{
+					_spriteBatch.Draw(
+						_buttonCursor,
+						new Rectangle(
+							new Point(
+								b.Bounds.Left - 120,
+								b.Bounds.Center.Y - 60),
+							new Point(120, 120)),
+						Color.White);
+				}
+			}
+		}
+
+        private void DrawGameOverMenu()
 		{
             // Draw Background
             _spriteBatch.Draw(
@@ -699,14 +756,14 @@ namespace Final_Game
 		private void CreateButtons()
 		{
 			Texture2D emptyButton = _gm.Content.Load<Texture2D>("UI Images/EmptyButton");
-			
-            // Make menu buttons
+
+            // ----- MAIN MENU BUTTONS ------ //
             Rectangle buttonBounds = new Rectangle(
 				1300,
 				400,
 				emptyButton.Bounds.Width,
 				emptyButton.Bounds.Height);
-			MenuButtons = new Button[3];
+			MenuButtons = new Button[4];
 
 			// Play
 
@@ -716,7 +773,7 @@ namespace Final_Game
 			MenuButtons[0] = new Button(
 				new Rectangle(
 					1300, 
-					400, 
+					300, 
 					(int)wordDims.X + widthBuffer, 
 					(int)wordDims.Y + widthBuffer), 
 				null, null, emptyButton);
@@ -737,8 +794,8 @@ namespace Final_Game
             MenuButtons[1].SetText("Tutorial", TitleCaseCarter);
             MenuButtons[1].TextColor = Color.Black;
 
-			// Quit
-			wordDims = TitleCaseCarter.MeasureString("Quit");
+			// Settings
+			wordDims = TitleCaseCarter.MeasureString("Settings");
 			MenuButtons[2] = new Button(
 				new Rectangle(
 					1500,
@@ -747,23 +804,37 @@ namespace Final_Game
 					(int)wordDims.Y + widthBuffer),
 				null, null, emptyButton);
             MenuButtons[2].PressTint = Color.Blue * 0.3f;
-            MenuButtons[2].SetText("Quit", TitleCaseCarter);
+            MenuButtons[2].SetText("Settings", TitleCaseCarter);
             MenuButtons[2].TextColor = Color.Black;
 
-			// Make pause buttons
-			buttonBounds.Location = new Point(
+            // Quit
+            wordDims = TitleCaseCarter.MeasureString("Quit");
+            MenuButtons[3] = new Button(
+                new Rectangle(
+                    1600,
+                    MenuButtons[2].Bounds.Bottom,
+                    (int)wordDims.X + widthBuffer,
+                    (int)wordDims.Y + widthBuffer),
+                null, null, emptyButton);
+            MenuButtons[3].PressTint = Color.Blue * 0.3f;
+            MenuButtons[3].SetText("Quit", TitleCaseCarter);
+            MenuButtons[3].TextColor = Color.Black;
+
+            // ----- PAUSE BUTTONS ------ //
+
+            buttonBounds.Location = new Point(
 				Game1.WindowWidth / 2 - buttonBounds.Width / 2,
 				400);
 
 			// Resume
-			PauseButtons = new Button[2];
+			PauseButtons = new Button[3];
 
 			wordDims = TitleCaseCarter.MeasureString("Resume");
 
 			PauseButtons[0] = new Button(
 				new Rectangle(
 					(int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
-					500,
+					400,
 					(int)wordDims.X + widthBuffer,
 					(int)wordDims.Y + widthBuffer),
 				null, null, null);
@@ -771,8 +842,8 @@ namespace Final_Game
 			PauseButtons[0].TextColor = Color.White;
 			buttonBounds.Y += emptyButton.Height;
 
-            // Main Menu
-            wordDims = TitleCaseCarter.MeasureString("Main Menu");
+            // Settings
+            wordDims = TitleCaseCarter.MeasureString("Settings");
 
             PauseButtons[1] = new Button(
                 new Rectangle(
@@ -781,11 +852,72 @@ namespace Final_Game
                     (int)wordDims.X + widthBuffer,
                     (int)wordDims.Y + widthBuffer), 
 				null, null, null);
-			PauseButtons[1].TextColor = Color.Coral;
-			PauseButtons[1].SetText("Main Menu", TitleCaseCarter);
+			PauseButtons[1].TextColor = Color.White;
+			PauseButtons[1].SetText("Settings", TitleCaseCarter);
 
-			// Make Game Over Buttons
-			GameOverButtons = new Button[2];
+            // Main Menu
+            wordDims = TitleCaseCarter.MeasureString("Main Menu");
+
+            PauseButtons[2] = new Button(
+                new Rectangle(
+                    (int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
+                    PauseButtons[1].Bounds.Bottom,
+                    (int)wordDims.X + widthBuffer,
+                    (int)wordDims.Y + widthBuffer),
+                null, null, null);
+            PauseButtons[2].TextColor = Color.White;
+            PauseButtons[2].SetText("Main Menu", TitleCaseCarter);
+
+            // ----- SETTINGS BUTTONS ------ //
+
+            SettingsButtons = new Button[3];
+
+            // Toggle Fullscreen
+            wordDims = MediumCarter.MeasureString("Toggle Fullscreen");
+
+            SettingsButtons[0] = new Button(
+                new Rectangle(
+                    (int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
+                    400,
+                    (int)wordDims.X + widthBuffer,
+                    (int)wordDims.Y + widthBuffer),
+                emptyButton, emptyButton, emptyButton);
+            SettingsButtons[0].SetText("Toggle Fullscreen", MediumCarter);
+            SettingsButtons[0].TextColor = Color.Black;
+            SettingsButtons[0].PressTint = Color.Yellow;
+            SettingsButtons[0].OnClicked += FullScreen.ToggleFullScreen;
+
+            // Swap Mouse
+            wordDims = MediumCarter.MeasureString("Swap Mouse Setting");
+
+            SettingsButtons[1] = new Button(
+                new Rectangle(
+                    (int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
+					SettingsButtons[0].Bounds.Bottom + widthBuffer,
+                    (int)wordDims.X + widthBuffer,
+                    (int)wordDims.Y + widthBuffer),
+                emptyButton, emptyButton, emptyButton);
+            SettingsButtons[1].SetText("Swap Mouse Setting", MediumCarter);
+            SettingsButtons[1].TextColor = Color.Black;
+            SettingsButtons[1].PressTint = Color.Yellow;
+            SettingsButtons[1].OnClicked += Game1.Player.ToggleLeftHandMouse;
+
+            // Back Button
+            wordDims = MediumCarter.MeasureString("Back");
+
+            SettingsButtons[2] = new Button(
+                new Rectangle(
+                    (int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
+					900,
+                    (int)wordDims.X + widthBuffer,
+                    (int)wordDims.Y + widthBuffer),
+                emptyButton, emptyButton, emptyButton);
+            SettingsButtons[2].SetText("Back", MediumCarter);
+            SettingsButtons[2].PressTint = Color.Yellow;
+            SettingsButtons[2].TextColor = Color.Black;
+
+            // ----- GAME OVER BUTTONS ------ //
+            GameOverButtons = new Button[2];
 
 			// Retry
 			wordDims = TitleCaseCarter.MeasureString("Retry");

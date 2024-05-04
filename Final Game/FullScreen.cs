@@ -12,29 +12,30 @@ namespace Final_Game
     internal class FullScreen
     {
         private static GraphicsDeviceManager graphics;
-        private static bool isFullScreen = false;
+        public static bool IsFullscreen { get; private set; }
 
         public static void Initialize(GraphicsDeviceManager graphicsDeviceManager)
         {
             graphics = graphicsDeviceManager;
         }
 
-        public static void ToggleFullScreen(Game game)
+        public static void ToggleFullScreen()
         {
             if (graphics != null)
             {
                 graphics.IsFullScreen = !graphics.IsFullScreen;
                 graphics.ApplyChanges();
-                isFullScreen = true;
+                IsFullscreen = !IsFullscreen;
             }
         }
 
-        public static void SetFullScreen(Game game, bool isFullScreen)
+        public static void SetFullScreen(bool isFullScreen)
         {
             if (graphics != null)
             {
                 graphics.IsFullScreen = isFullScreen;
                 graphics.ApplyChanges();
+                FullScreen.IsFullscreen = isFullScreen;
             }
         }
 
@@ -52,15 +53,9 @@ namespace Final_Game
 
         public static void Update(Game game)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.F11))
+            if (Game1.SingleKeyPress(Keys.F11))
             {
-                ToggleFullScreen(game);
-            }
-
-            if (Keyboard.GetState().IsKeyDown(Keys.F12) && isFullScreen)
-            {
-                SetFullScreen(game, false);
-                isFullScreen = false;
+                ToggleFullScreen();
             }
         }
     }

@@ -21,6 +21,7 @@ namespace Final_Game
 		Menu,
 		Play,
 		Pause,
+		Settings,
 		GameOver,
 		Cutscene
 	}
@@ -262,11 +263,12 @@ namespace Final_Game
 		{
 			// Only Update game if Game Window has focus
 			if (!this.IsActive) return;
-				FullScreen.Update(this);
 
             // Get controller states
             CurMouse = Mouse.GetState();
 			CurKB = Keyboard.GetState();
+				
+			FullScreen.Update(this);
 
 			HandleDevToggle();
 
@@ -274,12 +276,7 @@ namespace Final_Game
 			// Update game
 			switch (State)
 			{
-				case GameState.Menu:
-					if (SingleKeyPress(Keys.D0))
-						Player.ToggleLeftHandMouse();
-
-					break;
-
+	
 				case GameState.Play:
 					Player.Update(gameTime);
 
@@ -525,11 +522,15 @@ namespace Final_Game
 		{
 			UIManager.MenuButtons[0].OnClicked += StartGame;
 			UIManager.MenuButtons[1].OnClicked += StartTutorial;
-			UIManager.MenuButtons[2].OnClicked += ExitGame;
+			UIManager.MenuButtons[2].OnClicked += EnterSettingsMenu;
+			UIManager.MenuButtons[3].OnClicked += ExitGame;
 
 			UIManager.PauseButtons[0].OnClicked += ResumeGame;
-			UIManager.PauseButtons[1].OnClicked += ReturnToMainMenu;
-			UIManager.PauseButtons[1].OnClicked += CSManager.EndCurrentScene;
+			UIManager.PauseButtons[1].OnClicked += EnterSettingsMenu;
+			UIManager.PauseButtons[2].OnClicked += ReturnToMainMenu;
+			UIManager.PauseButtons[2].OnClicked += CSManager.EndCurrentScene;
+
+			UIManager.SettingsButtons[2].OnClicked += ReturnToLastGameState;
 
 			UIManager.GameOverButtons[0].OnClicked += ResetGame;
 			UIManager.GameOverButtons[0].OnClicked += StartGame;
@@ -558,6 +559,12 @@ namespace Final_Game
 			Mouse.SetCursor(_gameplayCursor);
 		}
 
+		private void EnterSettingsMenu()
+		{
+			PrevState = State;
+			State = GameState.Settings;
+		}
+
 		private void ReturnToMainMenu()
 		{
 			State = GameState.Menu;
@@ -581,6 +588,11 @@ namespace Final_Game
 			CurrentLevel = TutorialLevel;
 
 			Player.MoveToRoomCenter(TutorialLevel.StartRoom);
+		}
+
+		private void ReturnToLastGameState()
+		{
+			State = PrevState;
 		}
 
 		#endregion

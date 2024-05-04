@@ -215,7 +215,6 @@ namespace Final_Game
                     break;
 
                 case GameState.GameOver:
-					MediaPlayer.Stop();
 
 					// Oscillate dead bowling ball
 					if (hoverUp)

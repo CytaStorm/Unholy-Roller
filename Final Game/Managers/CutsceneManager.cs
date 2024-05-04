@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework.Media;
 
 namespace Final_Game.Managers
 {
@@ -324,6 +325,8 @@ namespace Final_Game.Managers
             switch (Scene)
             {
                 case Cutscene.GameOver:
+                    MediaPlayer.Stop();
+
                     gm.State = GameState.GameOver;
                     break;
             }

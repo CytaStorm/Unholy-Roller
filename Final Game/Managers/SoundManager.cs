@@ -22,10 +22,10 @@ namespace Final_Game.Managers
 
 		public static List<Song> AllSongs = new List<Song>();
 		public static Song curSong;
-		#endregion
+        #endregion
 
-		#region Methods
-		public static void LoadSoundFiles(ContentManager cm)
+        #region Methods
+        public static void LoadSoundFiles(ContentManager cm)
 		{
 			//Player deal damage sound effects
 			PinDamageSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/pool_break-105353"));

@@ -325,7 +325,7 @@ namespace Final_Game.Managers
             switch (Scene)
             {
                 case Cutscene.GameOver:
-                    MediaPlayer.Stop();
+                    SoundManager.ChangeBGM(2);
 
                     gm.State = GameState.GameOver;
                     break;

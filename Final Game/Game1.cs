@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -256,6 +257,7 @@ namespace Final_Game
 			Player.OnPlayerDeath += EnterGameOver;
 			EManager.OnLastEnemyKilled += SoundManager.PlayOutOfCombatSong;
 
+			MediaPlayer.Volume = 0.5f;
 			SoundManager.PlayBGM();
 		}
 

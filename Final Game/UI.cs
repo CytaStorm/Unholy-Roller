@@ -1,5 +1,4 @@
-﻿using Final_Game;
-using Final_Game.Entity;
+﻿using Final_Game.Entity;
 using Final_Game.LevelGen;
 using Final_Game.Managers;
 using Microsoft.Xna.Framework;
@@ -18,7 +17,7 @@ using System.Transactions;
 
 namespace Final_Game
 {
-	public class UI
+    public class UI
 	{
 		#region Fields
 		// Backgrounds
@@ -31,7 +30,7 @@ namespace Final_Game
 		private SpriteBatch _spriteBatch;
 
 		// Sliders
-		public Slider _testSlider;
+		private Slider _volumeSlider;
 
 		// Backgrounds
 		private Texture2D _blankPanel;
@@ -181,8 +180,7 @@ namespace Final_Game
 						b.Update(gameTime);
 					}
 
-					// Update demo slider
-					//_testSlider.Update(gameTime);
+					
 					break;
 
                 case GameState.Play:
@@ -212,6 +210,11 @@ namespace Final_Game
                     {
                         b.Update(gameTime);
                     }
+
+                    // Update demo slider
+                    _volumeSlider.Update(gameTime);
+
+					MediaPlayer.Volume = _volumeSlider.CurValue;
                     break;
 
                 case GameState.GameOver:
@@ -252,15 +255,7 @@ namespace Final_Game
 				case GameState.Menu:
 					DrawMainMenu();
 
-					// Draw demo slider
-					//_testSlider.Draw(_spriteBatch);
-
-					// Draw slider value
-					//_spriteBatch.DrawString(
-					//	TitleCaseArial,
-					//	$"{_testSlider.CurValue:0.000}",
-					//	new Vector2(50f, 50f),
-					//	Color.White);
+					
 					break;
 
                 case GameState.Play:
@@ -307,7 +302,6 @@ namespace Final_Game
 
 				case GameState.Settings:
 					DrawSettingsMenu();
-
 					break;
 
 				case GameState.GameOver:
@@ -697,7 +691,37 @@ namespace Final_Game
 						Color.White);
 				}
 			}
-		}
+
+            // Draw sliders
+
+            _volumeSlider.Draw(_spriteBatch);
+
+			// Draw slider header
+
+			string sliderName = "Music";
+			wordDims = MediumCarter.MeasureString(sliderName);
+
+            _spriteBatch.DrawString(
+                MediumCarter,
+                sliderName,
+                new Vector2(
+                    _volumeSlider.Position.X + _volumeSlider.Bounds.Width / 2 - wordDims.X / 2,
+                    _volumeSlider.Position.Y - wordDims.Y),
+                Color.Coral);
+
+
+            // Draw slider value
+            string sliderValue = $"{_volumeSlider.CurValue:0.000}";
+			wordDims = MediumCarter.MeasureString(sliderValue);
+
+            _spriteBatch.DrawString(
+                MediumCarter,
+                sliderValue,
+                new Vector2(
+					_volumeSlider.Position.X + _volumeSlider.Bounds.Width / 2 - wordDims.X / 2, 
+					_volumeSlider.Position.Y + _volumeSlider.Bounds.Height),
+                Color.White);
+        }
 
         private void DrawGameOverMenu()
 		{
@@ -949,7 +973,8 @@ namespace Final_Game
 		{
 			Texture2D sliderBarImage = _gm.Content.Load<Texture2D>("UI Images/BasicSliderBar");
 			Texture2D sliderKnobImage = _gm.Content.Load<Texture2D>("UI Images/BasicSliderKnob");
-			_testSlider = new Slider(new Point(50, 200), sliderBarImage, sliderKnobImage);
+			_volumeSlider = new Slider(new Point(50, 200), sliderBarImage, sliderKnobImage);
+			_volumeSlider.SetToHalfMaxValue();
 			return;
 		}
 		#endregion

@@ -72,6 +72,12 @@
 /processorParam:Quality=Best
 /build:Music/Battle_Music.wav
 
+#begin Music/Heaven in Hell.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Heaven in Hell.wav;Music/Heaven_in_Hell.wav
+
 #begin Music/Unholy_Ambience.wav
 /importer:WavImporter
 /processor:SongProcessor

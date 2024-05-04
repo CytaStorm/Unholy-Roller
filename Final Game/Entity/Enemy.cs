@@ -156,7 +156,12 @@ namespace Final_Game.Entity
 					// Enemy is temporarily knocked out
 					Managers.SoundManager.PlayKnockSound();
 					_koTimer = _koDuration;
+
+					// Enemy doesn't properly die
 					CurHealth = 1;
+
+					// Stop moving
+					Velocity = Vector2.Zero;
 				}
 		}
 

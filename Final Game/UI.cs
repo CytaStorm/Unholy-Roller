@@ -792,7 +792,7 @@ namespace Final_Game
 				null, null, emptyButton);
             MenuButtons[1].PressTint = Color.Blue * 0.3f;
             MenuButtons[1].SetText("Tutorial", TitleCaseCarter);
-            MenuButtons[1].TextColor = Color.Black;
+            MenuButtons[1].TextColor = Color.White;
 
 			// Settings
 			wordDims = TitleCaseCarter.MeasureString("Settings");

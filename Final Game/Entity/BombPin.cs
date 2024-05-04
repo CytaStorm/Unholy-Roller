@@ -363,7 +363,9 @@ namespace Final_Game.Entity
 				Game1.Player.CurCore.StopCurving();
 				Game1.Player.CurCore.Ricochet(explosionForce);
 
-				_attackLandedOnce = true;
+                _explosionCloud.AlphaMultiplier = 0.5f;
+
+                _attackLandedOnce = true;
 			}
 
 			return;

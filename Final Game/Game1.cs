@@ -95,8 +95,8 @@ namespace Final_Game
 		public static CutsceneManager CSManager { get; private set; }
 
 		// Cheats
-		public Point MapDims { get; private set; } = new Point(4, 4);
-		public int NumRoomsInMap { get; private set; } = 4;
+		public Point MapDims { get; private set; } = new Point(6, 6);
+		public int NumRoomsInMap { get; private set; } = 8;
 		// Screen
 		/// <summary>
 		/// Rectangle respresenting the bounds of the screen, in pixels.

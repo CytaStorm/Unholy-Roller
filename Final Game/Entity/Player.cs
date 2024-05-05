@@ -162,7 +162,7 @@ namespace Final_Game.Entity
 			// Set movement vars
 			Speed = 20f;
 			
-			_brakeSpeed = 0.2f;
+			_brakeSpeed = 0.4f;
 			MinRollSpeed = 1f;
 			_reloadRedirectsSpeed = 5f;
 

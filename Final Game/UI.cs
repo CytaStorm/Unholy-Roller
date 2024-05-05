@@ -1003,8 +1003,10 @@ namespace Final_Game
 		{
 			Texture2D sliderBarImage = _gm.Content.Load<Texture2D>("UI Images/BasicSliderBar");
 			Texture2D sliderKnobImage = _gm.Content.Load<Texture2D>("UI Images/BasicSliderKnob");
-			_volumeSlider = new Slider(new Point(50, 200), sliderBarImage, sliderKnobImage);
+			_volumeSlider = new Slider(new Point(150, 200), sliderBarImage, sliderKnobImage);
 			_volumeSlider.SetToHalfMaxValue();
+
+			MediaPlayer.Volume = _volumeSlider.CurValue;
 			return;
 		}
 		#endregion

@@ -106,7 +106,7 @@ namespace Final_Game
         public void SetToHalfMaxValue()
         {
             // Place knob at center of slider
-            _knobBounds.X = _barImage.Width / 2;
+            _knobBounds.X = Position.X + _barImage.Width / 2 - _knobBounds.Width / 2;
 
             // Set value based on center of knob
             CurValue =

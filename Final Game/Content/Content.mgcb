@@ -513,6 +513,30 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/OpenDoorAtlas.png
 
+#begin Sprites/OpenDoorAtlas3.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/OpenDoorAtlas3.png
+
+#begin Sprites/OpenDoorAtlas4.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/OpenDoorAtlas4.png
+
 #begin Sprites/PinPunch2.png
 /importer:TextureImporter
 /processor:TextureProcessor

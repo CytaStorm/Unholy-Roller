@@ -122,6 +122,7 @@ namespace Final_Game
 				new Rectangle(
 					0, 0,
 					350, 350));
+			_shieldActiveIcon.ObeyCamera = false;
 
 			// Load Health Images
 			_blueBallSpritesheet = _gm.Content.Load<Texture2D>("Sprites/BlueBallSpritesheet");

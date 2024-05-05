@@ -86,13 +86,15 @@ namespace Final_Game
                     MathF.Pow(curveCompletion, 2) * CurvePosThree;
 
                 ShapeBatch.Circle(
-                    curvePointPos + Game1.MainCamera.WorldToScreenOffset,
+                    Game1.MainCamera.GetPerspectivePosition(
+                        curvePointPos + Game1.MainCamera.WorldToScreenOffset),
                     25f * Game1.MainCamera.Zoom,
                     Color.White * 0.4f);
             }
 
             ShapeBatch.Circle(
-                    CurvePosThree + Game1.MainCamera.WorldToScreenOffset,
+                    Game1.MainCamera.GetPerspectivePosition(
+                        CurvePosThree + Game1.MainCamera.WorldToScreenOffset),
                     35f * Game1.MainCamera.Zoom,
                     Color.White * 0.8f);
         }

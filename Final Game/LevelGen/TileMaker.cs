@@ -40,7 +40,7 @@ namespace Final_Game.LevelGen
 			_tileTextures[3] = cm.Load<Texture2D>("Sprites/SpikeTile");
 			_tileTextures[4] = cm.Load<Texture2D>("Sprites/WallSheet");
 			_tileTextures[5] = cm.Load<Texture2D>("Sprites/ClosedDoorAtlas");
-			_tileTextures[6] = cm.Load<Texture2D>("Sprites/OpenDoorAtlas");
+			_tileTextures[6] = cm.Load<Texture2D>("Sprites/OpenDoorAtlas4");
 		}
 		#endregion
 

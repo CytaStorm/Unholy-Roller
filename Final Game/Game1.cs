@@ -532,7 +532,7 @@ namespace Final_Game
 			UIManager.PauseButtons[2].OnClicked += ReturnToMainMenu;
 			UIManager.PauseButtons[2].OnClicked += CSManager.EndCurrentScene;
 
-			UIManager.SettingsButtons[2].OnClicked += ReturnToLastGameState;
+			UIManager.SettingsButtons[3].OnClicked += ReturnToLastGameState;
 
 			UIManager.GameOverButtons[0].OnClicked += ResetGame;
 			UIManager.GameOverButtons[0].OnClicked += StartGame;

@@ -160,9 +160,9 @@ namespace Final_Game
 			// Load Shaders
 			_redirectFill = _gm.Content.Load<Effect>("Shaders/Fill");
 
-			CreateButtons();
-
 			CreateSliders();
+
+			CreateButtons();
 
 			SubscribeToEntities();
 		}
@@ -673,6 +673,18 @@ namespace Final_Game
 					SettingsButtons[1].Bounds.Bottom),
                 Color.White);
 
+			// Display Whether SoundFX are turned on
+			description = GetBooleanAsOnOff(SoundManager.SoundEffectsOn);
+			wordDims = MediumCarter.MeasureString(description);
+
+			_spriteBatch.DrawString(
+				MediumCarter,
+				description,
+				new Vector2(
+					SettingsButtons[2].Bounds.Center.X - wordDims.X / 2,
+					SettingsButtons[2].Bounds.Bottom),
+				Color.White);
+
             // Draw buttons
 
             foreach (Button b in SettingsButtons)
@@ -893,7 +905,7 @@ namespace Final_Game
 
             // ----- SETTINGS BUTTONS ------ //
 
-            SettingsButtons = new Button[3];
+            SettingsButtons = new Button[4];
 
             // Toggle Fullscreen
             wordDims = MediumCarter.MeasureString("Toggle Fullscreen");
@@ -925,19 +937,36 @@ namespace Final_Game
             SettingsButtons[1].PressTint = Color.Yellow;
             SettingsButtons[1].OnClicked += Game1.Player.ToggleLeftHandMouse;
 
+            // Toggle SFX
+            wordDims = MediumCarter.MeasureString("Toggle SoundFX");
+
+            SettingsButtons[2] = new Button(
+                new Rectangle(
+                    (int)(
+					_volumeSlider.Position.X + _volumeSlider.Bounds.Width / 2 
+					- (wordDims.X + widthBuffer) / 2),
+                    400,
+                    (int)wordDims.X + widthBuffer,
+                    (int)wordDims.Y + widthBuffer),
+                emptyButton, emptyButton, emptyButton);
+            SettingsButtons[2].SetText("Toggle SoundFX", MediumCarter);
+            SettingsButtons[2].TextColor = Color.Black;
+            SettingsButtons[2].PressTint = Color.Yellow;
+            SettingsButtons[2].OnClicked += SoundManager.ToggleSFX;
+
             // Back Button
             wordDims = MediumCarter.MeasureString("Back");
 
-            SettingsButtons[2] = new Button(
+            SettingsButtons[3] = new Button(
                 new Rectangle(
                     (int)(Game1.ScreenCenter.X - (wordDims.X + widthBuffer) / 2),
 					900,
                     (int)wordDims.X + widthBuffer,
                     (int)wordDims.Y + widthBuffer),
                 emptyButton, emptyButton, emptyButton);
-            SettingsButtons[2].SetText("Back", MediumCarter);
-            SettingsButtons[2].PressTint = Color.Yellow;
-            SettingsButtons[2].TextColor = Color.Black;
+            SettingsButtons[3].SetText("Back", MediumCarter);
+            SettingsButtons[3].PressTint = Color.Yellow;
+            SettingsButtons[3].TextColor = Color.Black;
 
             // ----- GAME OVER BUTTONS ------ //
             GameOverButtons = new Button[2];
@@ -1045,6 +1074,13 @@ namespace Final_Game
 			Vector2 textDimensions = font.MeasureString(text);
 
 			return centerPos - textDimensions / 2;
+		}
+
+		public static string GetBooleanAsOnOff(bool value)
+		{
+			if (value) return "On";
+
+			return "Off";
 		}
 
 		#endregion
@@ -1193,5 +1229,6 @@ namespace Final_Game
             }
 			return;
         }
+
 	}
 }

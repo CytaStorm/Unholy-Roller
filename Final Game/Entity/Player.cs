@@ -394,7 +394,7 @@ namespace Final_Game.Entity
 		{
 			if (State == PlayerState.Rolling)
 			{
-				Managers.SoundManager.PlayHitSound();
+				SoundManager.PlaySFX(SoundFX.PinDamaged);
 
 				// Get an extra redirect
 				if (NumRedirects < MaxRedirects)
@@ -779,12 +779,12 @@ namespace Final_Game.Entity
 
 				BulletTimeMultiplier = _minTimeMultiplier;
 
-				SoundManager.PlayDeathSound();
+				SoundManager.PlaySFX(SoundFX.PlayerDeath);
 
 				OnPlayerDeath();
 			}
 
-			SoundManager.PlayTakeDamageSound();
+			SoundManager.PlaySFX(SoundFX.PlayerDamaged);
 			return;
 		}
 

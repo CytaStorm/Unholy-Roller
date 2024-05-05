@@ -11,6 +11,14 @@ using System.Threading.Tasks;
 
 namespace Final_Game.Managers
 {
+	public enum SoundFX
+	{
+		PinDamaged,
+		PinKnockdown,
+		PlayerDamaged,
+		PlayerDeath
+	}
+
 	public class SoundManager
 	{
 		#region Fields
@@ -23,6 +31,12 @@ namespace Final_Game.Managers
 
 		public static List<Song> AllSongs = new List<Song>();
 		public static Song curSong;
+		#endregion
+
+		#region Properties
+
+		public static bool SoundEffectsOn { get; set; } = true;
+
         #endregion
 
         #region Methods
@@ -71,14 +85,37 @@ namespace Final_Game.Managers
 
 		public static void PlayTakeDamageSound()
 		{
-			PlayerDamageSoundEffects[0].Play();
+			float playerHealthPercent = (float)Game1.Player.CurHealth / Game1.Player.MaxHealth;
+
+            PlayerDamageSoundEffects[0].Play(1f, playerHealthPercent, 0f);
 		}
 		public static void PlayDeathSound()
 		{
 			PlayerDamageSoundEffects[1].Play();
 		}
 
-		public static void PlayBGM()
+		public static void PlaySFX(SoundFX soundToPlay)
+		{
+			if (!SoundEffectsOn) return;
+
+            switch (soundToPlay)
+            {
+                case SoundFX.PinDamaged:
+					PlayHitSound();
+                    break;
+                case SoundFX.PinKnockdown:
+					PlayKnockSound();
+                    break;
+                case SoundFX.PlayerDamaged:
+					PlayTakeDamageSound();
+                    break;
+                case SoundFX.PlayerDeath:
+					PlayDeathSound();
+                    break;
+            }
+        }
+
+        public static void PlayBGM()
 		{
 			MediaPlayer.Play(curSong);
 		}
@@ -108,6 +145,11 @@ namespace Final_Game.Managers
 		{
 			MiscSoundEffects[0].Play(1f, 0f, 0f);
 		}
-		#endregion
-	}
+
+		public static void ToggleSFX()
+		{
+			SoundEffectsOn = !SoundEffectsOn;
+		}
+        #endregion
+    }
 }

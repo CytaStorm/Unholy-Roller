@@ -16,7 +16,9 @@ namespace Final_Game.Managers
 		PinDamaged,
 		PinKnockdown,
 		PlayerDamaged,
-		PlayerDeath
+		PlayerDeath,
+		Shield,
+		Explosion
 	}
 
 	public class SoundManager
@@ -60,6 +62,8 @@ namespace Final_Game.Managers
 
 			//Misc sound effects
 			MiscSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/healthpickupsound"));
+			MiscSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/ComboShieldActivated"));
+			MiscSoundEffects.Add(cm.Load<SoundEffect>("Sound Effects/BombpinExplosion"));
 
 			//Setup music
 			AllSongs.Add(cm.Load<Song>("Music/Battle_Music"));
@@ -112,6 +116,12 @@ namespace Final_Game.Managers
                 case SoundFX.PlayerDeath:
 					PlayDeathSound();
                     break;
+				case SoundFX.Shield:
+					MiscSoundEffects[1].Play(0.1f, 0f, 0f);
+					break;
+				case SoundFX.Explosion:
+					MiscSoundEffects[2].Play(0.3f, 0f, 0f);
+					break;
             }
         }
 

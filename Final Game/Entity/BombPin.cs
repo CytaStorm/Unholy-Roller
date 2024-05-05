@@ -1,4 +1,5 @@
 ﻿using Final_Game.LevelGen;
+using Final_Game.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -15,6 +16,7 @@ namespace Final_Game.Entity
 	public class BombPin : Enemy
 	{
 		private Sprite _explosionCloud;
+		private bool _explosionSFXPlayed;
 
 		// Constructors
 		public BombPin(Game1 gm, Vector2 position) 
@@ -144,6 +146,12 @@ namespace Final_Game.Entity
 					// Currently Attacking
 					if (_attackDurationTimer > 0)
 					{
+						if (!_explosionSFXPlayed)
+						{
+							SoundManager.PlaySFX(SoundFX.Explosion);
+							_explosionSFXPlayed = true;
+						}
+
 						Attack();
 						_attackDurationTimer -=
 							gameTime.ElapsedGameTime.TotalSeconds * Player.BulletTimeMultiplier;

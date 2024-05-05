@@ -745,6 +745,8 @@ namespace Final_Game.Entity
 			// Early Exit Conditions
 			if (ComboReward)
 			{
+				SoundManager.PlaySFX(SoundFX.Shield);
+
 				Combo = 0;
 
 				_gm.UIManager.StartActiveComboIcon();

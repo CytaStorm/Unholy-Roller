@@ -183,6 +183,18 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/Fill.fx
 
+#begin Sound Effects/BombPinExplosion.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sound Effects/BombPinExplosion.wav
+
+#begin Sound Effects/ComboShieldActivated.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sound Effects/ComboShieldActivated.wav
+
 #begin Sound Effects/healthpickupsound.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
